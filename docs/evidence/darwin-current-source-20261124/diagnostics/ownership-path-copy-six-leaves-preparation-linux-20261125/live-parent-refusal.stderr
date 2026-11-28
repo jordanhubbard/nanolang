@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/var/tmp/nanolang-path-copy-six-leaves-five-20261125-uz4l7yp9/setup.py", line 18, in <module>
+    assert parent.get('terminal') and parent.get('accepted_component') and parent.get('all_guards_match'), 'I require complete accepted global/array qualification before source preparation'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: I require complete accepted global/array qualification before source preparation

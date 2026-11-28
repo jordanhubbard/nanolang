@@ -1,0 +1,6 @@
+{
+  "changed_manifest_refused": true,
+  "exit": 1,
+  "stderr": "Traceback (most recent call last):\n  File \"/var/tmp/nanolang-darwin-publication-qkk55gi3/docs/evidence/c-repairs-linux-20261126/string-binding-hint-20261127/read_string_binding_hint.py\", line 5, in <module>\n    raw=(a.archive/'manifest.json').read_bytes();assert sha(raw)=='57fc7fef460539654ce6dcb5c9ba16a97fdaa7c11fb88ebd2a0760955640a09a';m=json.loads(raw);assert m['version']==1 and not m['qualification'] and not m['whole_release']\n                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n",
+  "product_execution": false
+}

@@ -289,11 +289,32 @@ shadow push_tok {
     assert (== tok.value_bytes 2)
 }
 
+# I scan my immutable byte snapshot and preserve the original primitive at
+# invalid private-helper positions instead of inventing a new error policy.
+fn lexer_byte(source: string, source_bytes: array<u8>, position: int) -> int {
+    if (and (>= position 0) (< position (array_length source_bytes))) {
+        return (cast_int (at source_bytes position))
+    }
+    return (char_at source position)
+}
+shadow lexer_byte {
+    let source: string = "aé"
+    let bytes: array<u8> = (bytes_from_string source)
+    assert (== (lexer_byte source bytes 0) 97)
+    assert (== (lexer_byte source bytes 1) 195)
+    assert (== (lexer_byte source bytes 2) 169)
+    assert (== (at bytes 0) 97)
+}
+
 fn process_string(source: string, i: int, len: int, tokens: List<LexerToken>, line: int, column: int) -> int {
+    return (scan_string source (bytes_from_string source) i len tokens line column)
+}
+
+fn scan_string(source: string, source_bytes: array<u8>, i: int, len: int, tokens: List<LexerToken>, line: int, column: int) -> int {
     let mut pos: int = (+ i 1)
     let start: int = pos
-    while (and (< pos len) (!= (char_at source pos) 34)) {
-        if (and (== (char_at source pos) 92) (< (+ pos 1) len)) {
+    while (and (< pos len) (!= (lexer_byte source source_bytes pos) 34)) {
+        if (and (== (lexer_byte source source_bytes pos) 92) (< (+ pos 1) len)) {
             set pos (+ pos 2)
         } else {
             set pos (+ pos 1)
@@ -318,21 +339,25 @@ shadow process_string {
 }
 
 fn process_number(source: string, i: int, len: int, tokens: List<LexerToken>, line: int, column: int) -> int {
+    return (scan_number source (bytes_from_string source) i len tokens line column)
+}
+
+fn scan_number(source: string, source_bytes: array<u8>, i: int, len: int, tokens: List<LexerToken>, line: int, column: int) -> int {
     let mut pos: int = i
     let start: int = pos
-    if (== (char_at source pos) 45) {
+    if (== (lexer_byte source source_bytes pos) 45) {
         set pos (+ pos 1)
     } else {
         (print "")
     }
 
-    while (and (< pos len) (is_digit_char (char_at source pos))) {
+    while (and (< pos len) (is_digit_char (lexer_byte source source_bytes pos))) {
         set pos (+ pos 1)
     }
 
-    if (and (and (< pos len) (== (char_at source pos) 46)) (and (< (+ pos 1) len) (is_digit_char (char_at source (+ pos 1))))) {
+    if (and (and (< pos len) (== (lexer_byte source source_bytes pos) 46)) (and (< (+ pos 1) len) (is_digit_char (lexer_byte source source_bytes (+ pos 1))))) {
         set pos (+ pos 1)
-        while (and (< pos len) (is_digit_char (char_at source pos))) {
+        while (and (< pos len) (is_digit_char (lexer_byte source source_bytes pos))) {
             set pos (+ pos 1)
         }
         let float_length: int = (- pos start)
@@ -362,13 +387,17 @@ shadow process_number {
  * Skips whitespace, expects '{', reads raw text until the matching '}',
  * and emits it as TOKEN_STRING. Returns the position after the closing '}'. */
 fn process_grammar_body(source: string, i: int, len: int, tokens: List<LexerToken>, line: int, column: int) -> int {
+    return (scan_grammar_body source (bytes_from_string source) i len tokens line column)
+}
+
+fn scan_grammar_body(source: string, source_bytes: array<u8>, i: int, len: int, tokens: List<LexerToken>, line: int, column: int) -> int {
     let mut pos: int = i
     /* Skip whitespace before '{' */
-    while (and (< pos len) (is_whitespace_char (char_at source pos))) {
+    while (and (< pos len) (is_whitespace_char (lexer_byte source source_bytes pos))) {
         set pos (+ pos 1)
     }
     /* Must be '{' (ASCII 123) */
-    if (or (>= pos len) (!= (char_at source pos) 123)) {
+    if (or (>= pos len) (!= (lexer_byte source source_bytes pos) 123)) {
         return i  /* No brace — leave caller to handle the error */
     } else {
         (print "")
@@ -377,7 +406,7 @@ fn process_grammar_body(source: string, i: int, len: int, tokens: List<LexerToke
     let body_start: int = pos
     let mut depth: int = 1
     while (and (< pos len) (> depth 0)) {
-        let c: int = (char_at source pos)
+        let c: int = (lexer_byte source source_bytes pos)
         if (== c 123) {
             set depth (+ depth 1)
         } else {
@@ -412,9 +441,13 @@ shadow process_grammar_body {
 }
 
 fn process_identifier(source: string, i: int, len: int, tokens: List<LexerToken>, line: int, column: int) -> int {
+    return (scan_identifier source (bytes_from_string source) i len tokens line column)
+}
+
+fn scan_identifier(source: string, source_bytes: array<u8>, i: int, len: int, tokens: List<LexerToken>, line: int, column: int) -> int {
     let mut pos: int = i
     let start: int = pos
-    while (and (< pos len) (is_identifier_char (char_at source pos))) {
+    while (and (< pos len) (is_identifier_char (lexer_byte source source_bytes pos))) {
         set pos (+ pos 1)
     }
     let id_length: int = (- pos start)
@@ -423,7 +456,7 @@ fn process_identifier(source: string, i: int, len: int, tokens: List<LexerToken>
     (push_tok tokens token_type id_value line column)
     /* Special case: grammar keyword — immediately read { body } as a raw string */
     if (== token_type LexerTokenType.TOKEN_GRAMMAR) {
-        return (process_grammar_body source pos len tokens line column)
+        return (scan_grammar_body source source_bytes pos len tokens line column)
     } else {
         return pos
     }
@@ -453,6 +486,10 @@ shadow process_identifier {
 }
 
 fn process_char_literal(source: string, i: int, len: int, tokens: List<LexerToken>, line: int, column: int) -> int {
+    return (scan_char_literal source (bytes_from_string source) i len tokens line column)
+}
+
+fn scan_char_literal(source: string, source_bytes: array<u8>, i: int, len: int, tokens: List<LexerToken>, line: int, column: int) -> int {
     let mut pos: int = (+ i 1)
     if (>= pos len) {
         return -1
@@ -460,7 +497,7 @@ fn process_char_literal(source: string, i: int, len: int, tokens: List<LexerToke
         (print "")
     }
 
-    let mut ch: int = (char_at source pos)
+    let mut ch: int = (lexer_byte source source_bytes pos)
     if (== ch 92) {
         set pos (+ pos 1)
         if (>= pos len) {
@@ -468,7 +505,7 @@ fn process_char_literal(source: string, i: int, len: int, tokens: List<LexerToke
         } else {
             (print "")
         }
-        let esc: int = (char_at source pos)
+        let esc: int = (lexer_byte source source_bytes pos)
         if (== esc 110) { set ch 10 } else {
         if (== esc 116) { set ch 9 } else {
         if (== esc 114) { set ch 13 } else {
@@ -489,7 +526,7 @@ fn process_char_literal(source: string, i: int, len: int, tokens: List<LexerToke
         (print "")
     }
 
-    if (!= (char_at source pos) 39) {
+    if (!= (lexer_byte source source_bytes pos) 39) {
         return -1
     } else {
         let value_str: string = (int_to_string ch)
@@ -557,6 +594,10 @@ shadow emit_fstring_part_tokens {
  * Desugars f"text {expr} text" into nested (str_concat ...) token sequences.
  * Returns the new position (after closing quote), or -1 on error. */
 fn process_fstring(source: string, i: int, len: int, tokens: List<LexerToken>, diags: List<CompilerDiagnostic>, file_name: string, line: int, column: int) -> int {
+    return (scan_fstring source (bytes_from_string source) i len tokens diags file_name line column)
+}
+
+fn scan_fstring(source: string, source_bytes: array<u8>, i: int, len: int, tokens: List<LexerToken>, diags: List<CompilerDiagnostic>, file_name: string, line: int, column: int) -> int {
     /* source[i]=='f' (102), source[i+1]=='"' (34) */
     let mut pos: int = (+ i 2)  /* skip f" */
 
@@ -567,7 +608,7 @@ fn process_fstring(source: string, i: int, len: int, tokens: List<LexerToken>, d
     let mut found_end: bool = false
 
     while (and (< pos len) (not found_end)) {
-        let c: int = (char_at source pos)
+        let c: int = (lexer_byte source source_bytes pos)
         if (== c 34) {
             /* Closing quote: save trailing static part */
             let text: string = (str_substring source part_start (- pos part_start))
@@ -599,7 +640,7 @@ fn process_fstring(source: string, i: int, len: int, tokens: List<LexerToken>, d
                     let mut depth: int = 1
                     set pos (+ pos 1)
                     while (and (< pos len) (> depth 0)) {
-                        let cc: int = (char_at source pos)
+                        let cc: int = (lexer_byte source source_bytes pos)
                         if (== cc 123) {
                             set depth (+ depth 1)
                         } else {
@@ -698,6 +739,7 @@ shadow process_fstring {
 pub fn tokenize_string(source: string, file_name: string, diags: List<CompilerDiagnostic>) -> List<LexerToken> {
     let mut tokens: List<LexerToken> = (list_LexerToken_new)
     let mut i: int = 0
+    let source_bytes: array<u8> = (bytes_from_string source)
     let len: int = (str_length source)
     let mut line: int = 1
     let mut column: int = 1
@@ -705,7 +747,7 @@ pub fn tokenize_string(source: string, file_name: string, diags: List<CompilerDi
     let mut lex_failed: bool = false
 
     while (< i len) {
-        let c: int = (char_at source i)
+        let c: int = (lexer_byte source source_bytes i)
 
         if (is_whitespace_char c) {
             if (== c 10) {
@@ -717,23 +759,23 @@ pub fn tokenize_string(source: string, file_name: string, diags: List<CompilerDi
         } else {
             /* Line comment */
             if (== c 35) {
-                while (and (< i len) (!= (char_at source i) 10)) {
+                while (and (< i len) (!= (lexer_byte source source_bytes i) 10)) {
                     set i (+ i 1)
                 }
             } else {
                 /* Block comment */
-                if (and (== c 47) (and (< (+ i 1) len) (== (char_at source (+ i 1)) 42))) {
+                if (and (== c 47) (and (< (+ i 1) len) (== (lexer_byte source source_bytes (+ i 1)) 42))) {
                     set i (+ i 2)
                     let mut done_comment: bool = false
                     while (and (< i len) (not done_comment)) {
-                        let cc: int = (char_at source i)
+                        let cc: int = (lexer_byte source source_bytes i)
                         if (== cc 10) {
                             set line (+ line 1)
                             set line_start (+ i 1)
                         } else {
                             (print "")
                         }
-                        if (and (== cc 42) (and (< (+ i 1) len) (== (char_at source (+ i 1)) 47))) {
+                        if (and (== cc 42) (and (< (+ i 1) len) (== (lexer_byte source source_bytes (+ i 1)) 47))) {
                             set i (+ i 2)
                             set done_comment true
                         } else {
@@ -743,52 +785,52 @@ pub fn tokenize_string(source: string, file_name: string, diags: List<CompilerDi
                 } else {
                     set column (- (+ i 1) line_start)
                     # I retain standalone bang without consuming the distinct != operator.
-                    if (and (== c 33) (or (>= (+ i 1) len) (!= (char_at source (+ i 1)) 61))) {
+                    if (and (== c 33) (or (>= (+ i 1) len) (!= (lexer_byte source source_bytes (+ i 1)) 61))) {
                         (push_tok tokens LexerTokenType.TOKEN_NOT "!" line column)
                         set i (+ i 1)
                         continue
                     }
-                    if (and (== c 124) (or (>= (+ i 1) len) (!= (char_at source (+ i 1)) 62))) {
+                    if (and (== c 124) (or (>= (+ i 1) len) (!= (lexer_byte source source_bytes (+ i 1)) 62))) {
                         (push_tok tokens LexerTokenType.TOKEN_BAR "" line column)
                         set i (+ i 1)
                         continue
                     }
 
-                    if (and (< (+ i 1) len) (and (== c 58) (== (char_at source (+ i 1)) 58))) {
+                    if (and (< (+ i 1) len) (and (== c 58) (== (lexer_byte source source_bytes (+ i 1)) 58))) {
                         (push_tok tokens LexerTokenType.TOKEN_DOUBLE_COLON "" line column)
                         set i (+ i 2)
                     } else {
-                    if (and (< (+ i 1) len) (and (== c 45) (== (char_at source (+ i 1)) 62))) {
+                    if (and (< (+ i 1) len) (and (== c 45) (== (lexer_byte source source_bytes (+ i 1)) 62))) {
                         (push_tok tokens LexerTokenType.TOKEN_ARROW "" line column)
                         set i (+ i 2)
                     } else {
-                    if (and (< (+ i 1) len) (and (== c 61) (== (char_at source (+ i 1)) 62))) {
+                    if (and (< (+ i 1) len) (and (== c 61) (== (lexer_byte source source_bytes (+ i 1)) 62))) {
                         (push_tok tokens LexerTokenType.TOKEN_ARROW "" line column)
                         set i (+ i 2)
                     } else {
-                    if (and (< (+ i 1) len) (and (== c 61) (== (char_at source (+ i 1)) 61))) {
+                    if (and (< (+ i 1) len) (and (== c 61) (== (lexer_byte source source_bytes (+ i 1)) 61))) {
                         (push_tok tokens LexerTokenType.TOKEN_EQ "" line column)
                         set i (+ i 2)
                     } else {
-                    if (and (< (+ i 1) len) (and (== c 33) (== (char_at source (+ i 1)) 61))) {
+                    if (and (< (+ i 1) len) (and (== c 33) (== (lexer_byte source source_bytes (+ i 1)) 61))) {
                         (push_tok tokens LexerTokenType.TOKEN_NE "" line column)
                         set i (+ i 2)
                     } else {
-                    if (and (< (+ i 1) len) (and (== c 60) (== (char_at source (+ i 1)) 61))) {
+                    if (and (< (+ i 1) len) (and (== c 60) (== (lexer_byte source source_bytes (+ i 1)) 61))) {
                         (push_tok tokens LexerTokenType.TOKEN_LE "" line column)
                         set i (+ i 2)
                     } else {
-                    if (and (< (+ i 1) len) (and (== c 62) (== (char_at source (+ i 1)) 61))) {
+                    if (and (< (+ i 1) len) (and (== c 62) (== (lexer_byte source source_bytes (+ i 1)) 61))) {
                         (push_tok tokens LexerTokenType.TOKEN_GE "" line column)
                         set i (+ i 2)
                     } else {
                     /* Pipe operator: |> */
-                    if (and (< (+ i 1) len) (and (== c 124) (== (char_at source (+ i 1)) 62))) {
+                    if (and (< (+ i 1) len) (and (== c 124) (== (lexer_byte source source_bytes (+ i 1)) 62))) {
                         (push_tok tokens LexerTokenType.TOKEN_PIPE "" line column)
                         set i (+ i 2)
                     } else {
                     /* PEG rule arrow: <- (ASCII 60, 45) */
-                    if (and (< (+ i 1) len) (and (== c 60) (== (char_at source (+ i 1)) 45))) {
+                    if (and (< (+ i 1) len) (and (== c 60) (== (lexer_byte source source_bytes (+ i 1)) 45))) {
                         (push_tok tokens LexerTokenType.TOKEN_LARROW "" line column)
                         set i (+ i 2)
                     } else {
@@ -804,28 +846,28 @@ pub fn tokenize_string(source: string, file_name: string, diags: List<CompilerDi
                         } else {
                             let mut new_pos: int = -1
                             if (== c 39) {
-                                set new_pos (process_char_literal source i len tokens line column)
+                                set new_pos (scan_char_literal source source_bytes i len tokens line column)
                                 if (== new_pos -1) {
                                     let diag: CompilerDiagnostic = (diag_lexer_error "L0001" "Unterminated or invalid character literal" (diag_location file_name line column))
                                     (diag_list_add diags diag)
                                 } else { (print "") }
                             } else {
                                 if (== c 34) {
-                                    set new_pos (process_string source i len tokens line column)
+                                    set new_pos (scan_string source source_bytes i len tokens line column)
                                     if (== new_pos -1) {
                                         let diag: CompilerDiagnostic = (diag_lexer_error "L0002" "Unterminated string literal" (diag_location file_name line column))
                                         (diag_list_add diags diag)
                                     } else { (print "") }
                                 } else {
-                                    if (or (is_digit_char c) (and (and (== c 45) (< (+ i 1) len)) (is_digit_char (char_at source (+ i 1))))) {
-                                        set new_pos (process_number source i len tokens line column)
+                                    if (or (is_digit_char c) (and (and (== c 45) (< (+ i 1) len)) (is_digit_char (lexer_byte source source_bytes (+ i 1))))) {
+                                        set new_pos (scan_number source source_bytes i len tokens line column)
                                     } else {
                                     /* f-string interpolation: f"..." */
-                                    if (and (== c 102) (and (< (+ i 1) len) (== (char_at source (+ i 1)) 34))) {
-                                        set new_pos (process_fstring source i len tokens diags file_name line column)
+                                    if (and (== c 102) (and (< (+ i 1) len) (== (lexer_byte source source_bytes (+ i 1)) 34))) {
+                                        set new_pos (scan_fstring source source_bytes i len tokens diags file_name line column)
                                     } else {
                                         if (is_identifier_start c) {
-                                            set new_pos (process_identifier source i len tokens line column)
+                                            set new_pos (scan_identifier source source_bytes i len tokens line column)
                                         } else {
                                             if (== c 40) {
                                                 (push_tok tokens LexerTokenType.TOKEN_LPAREN "" line column)
@@ -901,7 +943,7 @@ pub fn tokenize_string(source: string, file_name: string, diags: List<CompilerDi
                                                                                                             set lex_failed true
                                                                                                             set new_pos (+ i 1)
                                                                                                             if (>= c 192) {
-                                                                                                                while (and (< new_pos len) (and (>= (char_at source new_pos) 128) (<= (char_at source new_pos) 191))) {
+                                                                                                                while (and (< new_pos len) (and (>= (lexer_byte source source_bytes new_pos) 128) (<= (lexer_byte source source_bytes new_pos) 191))) {
                                                                                                                     set new_pos (+ new_pos 1)
                                                                                                                 }
                                                                                                             }
@@ -932,7 +974,7 @@ pub fn tokenize_string(source: string, file_name: string, diags: List<CompilerDi
                             } else {
                                 # I count source bytes, not decoded escape values.
                                 while (< i new_pos) {
-                                    if (== (char_at source i) 10) {
+                                    if (== (lexer_byte source source_bytes i) 10) {
                                         set line (+ line 1)
                                         set line_start (+ i 1)
                                     }
@@ -1066,4 +1108,48 @@ shadow tokenize_string {
     assert found_next
     assert found_last
     assert (not (diag_list_has_errors diags))
+}
+
+
+shadow scan_string {
+    let source: string = "\"a\\nb\""
+    let tokens: List<LexerToken> = (list_LexerToken_new)
+    assert (== (scan_string source (bytes_from_string source) 0 (str_length source) tokens 2 3) (str_length source))
+    assert (== (list_LexerToken_get tokens 0).value "a\\nb")
+    assert (== (list_LexerToken_get tokens 0).line 2)
+    assert (== (list_LexerToken_get tokens 0).column 3)
+}
+shadow scan_number {
+    let source: string = "-12.5 next"
+    let tokens: List<LexerToken> = (list_LexerToken_new)
+    assert (== (scan_number source (bytes_from_string source) 0 (str_length source) tokens 1 1) 5)
+    assert (== (list_LexerToken_get tokens 0).value "-12.5")
+    assert (== (list_LexerToken_get tokens 0).token_type LexerTokenType.TOKEN_FLOAT)
+}
+shadow scan_grammar_body {
+    let source: string = " { outer { inner } }"
+    let tokens: List<LexerToken> = (list_LexerToken_new)
+    assert (== (scan_grammar_body source (bytes_from_string source) 0 (str_length source) tokens 1 1) (str_length source))
+    assert (== (list_LexerToken_get tokens 0).value " outer { inner } ")
+}
+shadow scan_identifier {
+    let source: string = "while tail"
+    let tokens: List<LexerToken> = (list_LexerToken_new)
+    assert (== (scan_identifier source (bytes_from_string source) 0 (str_length source) tokens 1 1) 5)
+    assert (== (list_LexerToken_get tokens 0).token_type LexerTokenType.TOKEN_WHILE)
+}
+shadow scan_char_literal {
+    let source: string = "'\\n'"
+    let tokens: List<LexerToken> = (list_LexerToken_new)
+    assert (== (scan_char_literal source (bytes_from_string source) 0 (str_length source) tokens 1 1) (str_length source))
+    assert (== (list_LexerToken_get tokens 0).value "10")
+}
+shadow scan_fstring {
+    let source: string = "f\"{1}\""
+    let tokens: List<LexerToken> = (list_LexerToken_new)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    assert (== (scan_fstring source (bytes_from_string source) 0 (str_length source) tokens diags "bytes.nano" 1 1) (str_length source))
+    assert (not (diag_list_has_errors diags))
+    assert (== (list_LexerToken_length tokens) 4)
+    assert (== (list_LexerToken_get tokens 1).value "to_string")
 }

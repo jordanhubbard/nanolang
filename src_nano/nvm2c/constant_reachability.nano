@@ -1,0 +1,240 @@
+module nvm2c_constant_reachability
+module "src_nano/nvm2c/container.nano" as wire
+module "src_nano/nvm2c/instructions.nano" as insn
+module "src_nano/nvm2c/functions.nano" as bodies
+module "src_nano/nvm2c/isa_metadata.nano" as isa
+
+# I derive only bounded unreachability, never executable or callable authority.
+pub struct Function { start: int, length: int, arity: int, locals: int, results: int }
+pub struct Foreign { parameters: int, return_tag: int }
+struct Flow { arena: array<int>, frames: array<int>, heights: array<int>, slots: int, changed: bool, ok: bool }
+
+fn zeros(count: int) -> array<int> {
+    let mut values: array<int> = []
+    let mut i: int = 0
+    while (< i count) { set values (array_push values 0) set i (+ i 1) }
+    return values
+}
+shadow zeros { assert (== (array_length (zeros 0)) 0) assert (== (at (zeros 3) 2) 0) }
+fn create(count: int) -> Flow {
+    return Flow { arena: [], frames: (zeros (+ count 1)), heights: (zeros (+ count 1)), slots: 0, changed: false, ok: true }
+}
+shadow create { assert (== (array_length (create 3).frames) 4) assert (create 0).ok }
+fn failed(f: Flow) -> Flow {
+    return Flow { arena: f.arena, frames: f.frames, heights: f.heights, slots: f.slots, changed: f.changed, ok: false }
+}
+shadow failed { assert (not (failed (create 1)).ok) }
+fn clear_changed(f: Flow) -> Flow {
+    return Flow { arena: f.arena, frames: f.frames, heights: f.heights, slots: f.slots, changed: false, ok: f.ok }
+}
+shadow clear_changed { assert (not (clear_changed (create 1)).changed) }
+
+# One logical constant occupies the qualified C ABI's 16 bytes. My flat pair
+# also occupies two 64-bit slots. I retain exactly 1048576 charged constants.
+fn edge(input: Flow, destination: int, values: array<int>, locals: int, stack: int) -> Flow {
+    let size: int = (+ locals stack)
+    let position: int = (- (at input.frames destination) 1)
+    if (< position 0) {
+        if (> size (- 1048576 input.slots)) { return (failed input) }
+        let base: int = (array_length input.arena)
+        let mut arena: array<int> = input.arena
+        let mut i: int = 0
+        while (< i (* size 2)) { set arena (array_push arena (at values i)) set i (+ i 1) }
+        (array_set input.frames destination (+ base 1)) (array_set input.heights destination stack)
+        return Flow { arena: arena, frames: input.frames, heights: input.heights,
+            slots: (+ input.slots size), changed: true, ok: true }
+    }
+    if (!= (at input.heights destination) stack) { return (failed input) }
+    let mut changed: bool = input.changed
+    let mut i: int = 0
+    while (< i size) {
+        let target: int = (+ position (* i 2))
+        let source: int = (* i 2)
+        if (!= (at input.arena target) 0) {
+            if (or (!= (at input.arena target) (at values source))
+                   (!= (at input.arena (+ target 1)) (at values (+ source 1)))) {
+                (array_set input.arena target 0) set changed true
+            }
+        }
+        set i (+ i 1)
+    }
+    return Flow { arena: input.arena, frames: input.frames, heights: input.heights,
+        slots: input.slots, changed: changed, ok: true }
+}
+shadow edge {
+    let first: Flow = (edge (create 2) 0 [1,7] 1 0)
+    assert first.ok assert (== first.slots 1)
+    let same: Flow = (edge (clear_changed first) 0 [1,7] 1 0)
+    assert (not same.changed)
+    let joined: Flow = (edge same 0 [1,8] 1 0)
+    assert joined.changed assert (== (at joined.arena 0) 0)
+    assert (not (edge joined 0 [0,0,0,0] 1 1).ok)
+}
+
+fn excluded(op: int) -> bool {
+    return (or (or (and (>= op 11) (<= op 15)) (and (>= op 22) (<= op 31)))
+        (or (or (and (>= op 145) (<= op 152)) (and (>= op 165) (<= op 168)))
+            (or (and (>= op 182) (<= op 185)) (== op 107))))
+}
+shadow excluded { assert (excluded 11) assert (excluded 185) assert (not (excluded 181)) assert (not (excluded 63)) }
+fn invalidates(op: int) -> bool {
+    return (or (or (or (== op 81) (== op 82)) (or (== op 87) (== op 84)))
+        (or (or (== op 59) (== op 51)) (or (== op 60) (or (== op 62) (== op 63)))))
+}
+shadow invalidates { assert (invalidates 84) assert (invalidates 63) assert (not (invalidates 85)) }
+fn unsigned(value: int, maximum: int) -> bool { return (and (>= value 0) (<= value maximum)) }
+shadow unsigned { assert (unsigned 65535 65535) assert (not (unsigned -1 65535)) }
+
+pub fn unreachable(code: array<u8>, functions: array<Function>, imports: array<Foreign>, current: int, offset: int) -> bool {
+    let function_count: int = (array_length functions)
+    if (or (not (unsigned current (- function_count 1))) (not (unsigned offset 4294967295))) { return false }
+    if (or (> function_count 4294967295) (> (array_length code) 4294967295)) { return false }
+    # The C global scan decodes widths only; it does not resolve other bodies'
+    # branches or direct-call targets. I preserve that distinction.
+    let mut f: int = 0
+    while (< f function_count) {
+        let fn_entry: Function = (at functions f)
+        if (or (not (unsigned fn_entry.start 4294967295)) (not (unsigned fn_entry.length 4294967295))) { return false }
+        if (not (wire.contains code fn_entry.start fn_entry.length)) { return false }
+        if (or (not (unsigned fn_entry.arity 65535)) (or (not (unsigned fn_entry.locals 65535)) (not (unsigned fn_entry.results 255)))) { return false }
+        let mut pc: int = 0
+        while (< pc fn_entry.length) {
+            let op: int = (cast_int (at code (+ fn_entry.start pc)))
+            let width: int = (isa.primary_width op)
+            if (or (== width 0) (> width (- fn_entry.length pc))) { return false }
+            if (excluded op) { return false }
+            set pc (+ pc width)
+        }
+        set f (+ f 1)
+    }
+    let selected: Function = (at functions current)
+    let plan: bodies.Function = (bodies.decode code selected.start selected.length function_count)
+    if (not plan.valid) { return false }
+    let count: int = (array_length plan.instructions)
+    let locals: int = selected.locals
+    if (or (or (== count 0) (> count 65536)) (> locals 1024)) { return false }
+    let capacity: int = (+ locals (+ (* count 3) 1))
+    let mut values: array<int> = (zeros (* capacity 2))
+    let mut flow: Flow = (edge (create count) 0 values locals 0)
+    if (not flow.ok) { return false }
+    let mut visits: int = 0
+    let mut output: array<int> = [0,0,0,0,0,0]
+    while true {
+        set flow (clear_changed flow)
+        let mut at_index: int = 0
+        while (< at_index count) {
+            let index: int = at_index
+            set at_index (+ at_index 1)
+            let position: int = (- (at flow.frames index) 1)
+            if (< position 0) { continue }
+            set visits (+ visits 1)
+            if (> visits 262144) { return false }
+            let item: insn.Instruction = (at plan.instructions index)
+            let op: int = item.opcode
+            let target: int = (insn.integer item 0)
+            let mut pop: int = item.pops
+            let mut push: int = item.pushes
+            if (or (== op 59) (== op 51)) {
+                if (>= target function_count) { return false }
+                set pop (at functions target).arity set push (at functions target).results
+            } else if (== op 62) {
+                if (>= target (array_length imports)) { return false }
+                let foreign: Foreign = (at imports target)
+                if (or (not (unsigned foreign.parameters 65535)) (not (unsigned foreign.return_tag 255))) { return false }
+                set pop foreign.parameters set push 1
+                if (== foreign.return_tag 0) { set push 0 }
+            } else if (== op 60) { set pop (+ target 1) set push (insn.integer item 1)
+            } else if (or (== op 144) (== op 251)) {
+                set pop (insn.integer item 1)
+                if (== op 251) { set pop (insn.integer item 3) }
+                set push 1
+            } else if (== op 88) { set pop (insn.integer item 1) set push 1
+            } else if (== op 244) { set pop 0 set push 1
+            } else if (== op 61) { set pop selected.results set push 0 }
+            let before: int = (at flow.heights index)
+            if (and (== op 244) (>= target before)) { return false }
+            if (or (or (< pop 0) (< push 0)) (or (> push 3) (> pop before))) { return false }
+            let base: int = (- before pop)
+            let after: int = (+ base push)
+            if (> (+ locals after) capacity) { return false }
+            let mut i: int = 0
+            while (< i (* (+ locals before) 2)) {
+                (array_set values i (at flow.arena (+ position i))) set i (+ i 1)
+            }
+            if (invalidates op) {
+                set i 0
+                while (< i (+ locals before)) {
+                    if (== (at values (* i 2)) 3) { (array_set values (* i 2) 0) }
+                    set i (+ i 1)
+                }
+            }
+            let source: int = (* (+ locals base) 2)
+            let mut ak: int = 0 let mut av: int = 0
+            let mut bk: int = 0 let mut bv: int = 0
+            if (> pop 0) { set ak (at values source) set av (at values (+ source 1)) }
+            if (> pop 1) { set bk (at values (+ source 2)) set bv (at values (+ source 3)) }
+            set i 0
+            while (< i (* push 2)) { (array_set output i 0) set i (+ i 1) }
+            if (== op 1) { (array_set output 0 1) (array_set output 1 target)
+            } else if (== op 3) { (array_set output 0 2) if (!= target 0) { (array_set output 1 1) }
+            } else if (or (== op 16) (== op 17)) {
+                if (>= target locals) { return false }
+                let local: int = (* target 2)
+                if (== op 16) { (array_set output 0 (at values local)) (array_set output 1 (at values (+ local 1))) }
+                else { (array_set values local ak) (array_set values (+ local 1) av) }
+            } else if (== op 7) { set output [ak,av,ak,av,0,0]
+            } else if (== op 244) {
+                let picked: int = (* (+ locals (- (- before 1) target)) 2)
+                (array_set output 0 (at values picked)) (array_set output 1 (at values (+ picked 1)))
+            } else if (== op 9) { set output [bk,bv,ak,av,0,0]
+            } else if (== op 10) { set output [(at values (+ source 4)),(at values (+ source 5)),ak,av,bk,bv]
+            } else if (== op 88) { (array_set output 0 3) (array_set output 1 (insn.integer item 1))
+            } else if (== op 85) { if (== ak 3) { (array_set output 0 1) (array_set output 1 av) }
+            } else if (or (== op 42) (== op 210)) {
+                if (and (== ak 1) (== bk 1)) { (array_set output 0 2) if (< av bv) { (array_set output 1 1) } }
+            } else if (or (== op 40) (== op 41)) {
+                if (and (or (== ak 1) (== ak 2)) (== ak bk)) {
+                    (array_set output 0 2)
+                    if (or (and (== op 40) (== av bv)) (and (== op 41) (!= av bv))) { (array_set output 1 1) }
+                }
+            } else if (== op 50) { if (== ak 2) { (array_set output 0 2) if (== av 0) { (array_set output 1 1) } } }
+            set i 0
+            while (< i (* push 2)) { (array_set values (+ source i) (at output i)) set i (+ i 1) }
+            if (or (== op 61) (or (== op 163) (== op 51))) { continue }
+            if (or (== op 56) (or (== op 57) (== op 58))) {
+                let relative: int = (- (at plan.targets index) selected.start)
+                let mut destination: int = (bodies.index_at plan relative)
+                if (== relative selected.length) { set destination count }
+                if (< destination 0) { return false }
+                let conditional: bool = (!= op 56)
+                let known: bool = (and conditional (== ak 2))
+                let mut taken: bool = (== av 0)
+                if (== op 57) { set taken (!= av 0) }
+                if (or (not known) taken) {
+                    set flow (edge flow destination values locals after)
+                    if (not flow.ok) { return false }
+                }
+                if (or (not conditional) (and known taken)) { continue }
+            }
+            set flow (edge flow (+ index 1) values locals after)
+            if (not flow.ok) { return false }
+        }
+        if (not flow.changed) { break }
+    }
+    let found: int = (bodies.index_at plan offset)
+    if (< found 0) { return false }
+    return (== (at flow.frames found) 0)
+}
+shadow unreachable {
+    let functions: array<Function> = [Function { start: 0, length: 2, arity: 0, locals: 0, results: 0 }]
+    assert (unreachable [61,0] functions [] 0 1)
+    assert (not (unreachable [61,0] functions [] 0 0))
+    assert (not (unreachable [61,0] functions [] 0 2))
+    assert (not (unreachable [61,0] functions [] 1 1))
+    assert (not (unreachable [61,11] functions [] 0 1))
+
+    let dup_functions: array<Function> = [Function { start: 0, length: 11, arity: 0, locals: 0, results: 0 }]
+    assert (unreachable [3,1,7,40,57,6,0,0,0,0,163] dup_functions [] 0 9)
+    let pick_functions: array<Function> = [Function { start: 0, length: 13, arity: 0, locals: 0, results: 0 }]
+    assert (unreachable [3,1,244,0,0,40,57,6,0,0,0,0,163] pick_functions [] 0 11)
+}

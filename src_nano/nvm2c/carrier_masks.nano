@@ -1,0 +1,41 @@
+module nvm2c_carrier_masks
+module "src_nano/nvm2c/storage_kinds.nano" as kinds
+
+# I report carrier facts, not checked payload or executable authority.
+pub struct TagFacts { valid: bool, tags: int }
+pub struct MaskFacts { valid: bool, boxed: bool, optional: bool }
+
+fn bounded(value: int, maximum: int) -> bool {
+    return (and (>= value 0) (<= value maximum))
+}
+shadow bounded { assert (bounded 65535 65535) assert (not (bounded -1 65535)) assert (not (bounded 65536 65535)) }
+
+pub fn scalar_tags(kind: int) -> TagFacts {
+    if (not (bounded kind 255)) { return TagFacts { valid: false, tags: 32768 } }
+    if (== kind 0) { return TagFacts { valid: true, tags: 2 } }
+    if (== kind 1) { return TagFacts { valid: true, tags: 32 } }
+    if (== kind 9) { return TagFacts { valid: true, tags: 16 } }
+    if (== kind 11) { return TagFacts { valid: true, tags: 8 } }
+    if (== kind 13) { return TagFacts { valid: true, tags: 2048 } }
+    return TagFacts { valid: true, tags: 32768 }
+}
+shadow scalar_tags {
+    assert (== (scalar_tags 0).tags 2) assert (== (scalar_tags 13).tags 2048)
+    assert (scalar_tags 255).valid assert (== (scalar_tags 255).tags 32768)
+    assert (not (scalar_tags -1).valid) assert (not (scalar_tags 256).valid)
+}
+
+pub fn classify(mask: int) -> MaskFacts {
+    if (not (bounded mask 65535)) { return MaskFacts { valid: false, boxed: false, optional: false } }
+    let marked: bool = (kinds.tag_mask mask).payload
+    let pair: bool = (or (or (== mask 6) (== mask 7)) (or (== mask 10) (== mask 11)))
+    let optional: bool = (or (or (== mask 3) (== mask 5)) (or (== mask 9) (== mask 17)))
+    return MaskFacts { valid: true, boxed: (or marked pair), optional: optional }
+}
+shadow classify {
+    assert (classify 6).boxed assert (classify 11).boxed assert (classify 16512).boxed
+    assert (not (classify 16384).boxed) assert (not (classify 32768).boxed)
+    assert (classify 17).optional assert (not (classify 33).optional)
+    assert (not (classify 2049).optional) assert (not (classify 7).optional)
+    assert (not (classify -1).valid) assert (not (classify 65536).valid)
+}

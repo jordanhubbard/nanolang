@@ -1,0 +1,17 @@
+{
+  "implementation": "06ec80f84a41035fa878528b2251f7bab6113ca9",
+  "source_files": 3577,
+  "all_source_hashes_identical": true,
+  "methods_each": 20,
+  "failures_each": 0,
+  "errors_each": 0,
+  "skips_each": 0,
+  "all_captured_nano_input_bytes_identical": true,
+  "unique_captured_nano_inputs": 39,
+  "subprocess_commands_each": [
+    179,
+    179
+  ],
+  "direct_sanitizers_pass_each": true,
+  "limits": "I compare source inputs and complete successful method outcomes. Native/bytecode artifact bytes are platform-specific and I do not claim binary equality."
+}

@@ -95,6 +95,8 @@ class OwnershipModules(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix='nano-ownership-modules-') as directory:
             work=Path(directory);paths=[]
             from tests.test_nanolang_translator_declarations import producer_cases
+            # I prepare my generated parent when this gate runs alone.
+            (ROOT/'.test_output').mkdir(exist_ok=True)
             products=Path(tempfile.mkdtemp(prefix='ownership-module-products-',dir=ROOT/'.test_output'))
             models=producer_cases(work,products)
             records=json.loads((products/'records.json').read_text())

@@ -1,0 +1,90 @@
+// I preserve scalar projections after their local bindings end.
+union Result<T, E> {
+    Ok { value: T },
+    Err { error: E }
+}
+union TextResult {
+    Ok { value: string },
+    Err { error: int }
+}
+let good: Result<string, int> = Result.Ok { value: "before" }
+let bad: Result<string, int> = Result.Err { error: 9 }
+let failed: Result<int, string> = Result.Err { error: "error" }
+let fallback: string = "fallback"
+
+fn tuple_case() -> int {
+    let pair: (string, int) = ("before", 7)
+    if true {
+        let text: string = pair.0
+        assert (== (str_length text) 6)
+    }
+    let again: string = pair.0
+    return (str_length again)
+}
+shadow tuple_case { assert (== (tuple_case) 6) }
+
+fn try_case() -> TextResult {
+    let carrier: TextResult = TextResult.Ok { value: "before" }
+    if true {
+        let text: string = carrier?
+        assert (== (str_length text) 6)
+    }
+    let again: string = carrier?
+    return TextResult.Ok { value: again }
+}
+shadow try_case {
+    let received: TextResult = (try_case)
+    let matched: bool = match received {
+        Ok(payload) => { (== payload.value "before") },
+        Err(_problem) => { false }
+    }
+    assert matched
+}
+
+fn try_error_case() -> TextResult {
+    let carrier: TextResult = TextResult.Err { error: 17 }
+    let _unreachable: string = carrier?
+    return TextResult.Ok { value: "unreachable" }
+}
+shadow try_error_case {
+    let received: TextResult = (try_error_case)
+    let matched: bool = match received {
+        Ok(_payload) => { false },
+        Err(problem) => { (== problem.error 17) }
+    }
+    assert matched
+}
+
+fn unwrap_case() -> int {
+    if true {
+        let text: string = (result_unwrap good)
+        assert (== (str_length text) 6)
+    }
+    let again: string = (result_unwrap good)
+    return (str_length again)
+}
+shadow unwrap_case { assert (== (unwrap_case) 6) }
+
+fn unwrap_error_case() -> int {
+    if true {
+        let text: string = (result_unwrap_err failed)
+        assert (== (str_length text) 5)
+    }
+    let again: string = (result_unwrap_err failed)
+    return (str_length again)
+}
+shadow unwrap_error_case { assert (== (unwrap_error_case) 5) }
+
+fn fallback_case() -> int {
+    if true {
+        let text: string = (result_unwrap_or bad fallback)
+        assert (== text "fallback")
+    }
+    let fresh: string = (result_unwrap_or bad "fresh")
+    let selected: string = (result_unwrap_or good fallback)
+    return (+ (+ (str_length selected) (str_length fresh)) (str_length fallback))
+}
+shadow fallback_case { assert (== (fallback_case) 19) }
+
+fn main() -> int { return 0 }
+shadow main { assert (== (main) 0) }

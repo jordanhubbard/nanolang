@@ -1,0 +1,918 @@
+{
+  "files": [
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/archive-async-handler-ownership-v1.py",
+      "artifact": "inputs/0000-archive-async-handler-ownership-v1.py.gz",
+      "sha256": "a52c3b74ea523da6d8c50987fe252f69d994bf34ff6d2b6b6079be52edb6ffd3",
+      "bytes": 3621,
+      "compressed_sha256": "4f730c3162935ab0d521047a9e5c0d8810f1fecb567a4b54c27bcf54c4e3370f",
+      "compressed_bytes": 1534
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/archive-async-handler-ownership.log",
+      "artifact": "inputs/0001-archive-async-handler-ownership.log.gz",
+      "sha256": "2e4388f5b9311ee93783e20298c0b476a380f7e5554eb0759d0fe5e0c53e9cdf",
+      "bytes": 718,
+      "compressed_sha256": "61a88cfac467f6d54dfb785eceba956569b7766375d180ea34e5cee15974e2ff",
+      "compressed_bytes": 326
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/archive-async-handler-ownership.py",
+      "artifact": "inputs/0002-archive-async-handler-ownership.py.gz",
+      "sha256": "81e11778b7c5d3cd5d5f8cde4cda527e299d4d86989e00ccea132c9206439370",
+      "bytes": 3915,
+      "compressed_sha256": "8790ca8633cfa5126b73670d2a3f83af5535ebb1b20658511d2c31fbce1d78b2",
+      "compressed_bytes": 1640
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-baseline/attribution-correction.json",
+      "artifact": "inputs/0003-attribution-correction.json.gz",
+      "sha256": "ebdb72315468f10a1bf0f480720eff37d83d4d062eb6f7935343ff86d0d11200",
+      "bytes": 17868,
+      "compressed_sha256": "2f05ed2a6d6a1a79ef7925ca02ca1a0727e9a89751deda5d0cb8fcabdf463aaf",
+      "compressed_bytes": 5601
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-baseline/evaluator.stderr",
+      "artifact": "inputs/0004-evaluator.stderr.gz",
+      "sha256": "8635256a5f37686e4c721b5994ca9c0fc69fd891977ec82c1ed241130d699fc9",
+      "bytes": 27500,
+      "compressed_sha256": "9771d1aaea16cfa1f3fc922c4c226b09c02a45b155ea267cc3896b2d9cdf60b7",
+      "compressed_bytes": 1728
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-baseline/evaluator.stdout",
+      "artifact": "inputs/0005-evaluator.stdout.gz",
+      "sha256": "8d6d96e37c26b69bca493282f8fe5e8ee0f76e0dd6453360786fd1131b5b04ff",
+      "bytes": 3823,
+      "compressed_sha256": "e79340cb21c147c6bdc9220d05d365cb2b73a06292a9b34916c8706a97350dc5",
+      "compressed_bytes": 1065
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-baseline/manifest.json",
+      "artifact": "inputs/0006-manifest.json.gz",
+      "sha256": "4cd0da9768075b2072fcbc88e5d6e0ed62ad2eba4574cbddd219eacea362f112",
+      "bytes": 1553,
+      "compressed_sha256": "d1cb672d31847cbacd5aa7aff3b8bd7981c41709e639dcce1c84e698f58810b9",
+      "compressed_bytes": 652
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-baseline/parser.stderr",
+      "artifact": "inputs/0007-parser.stderr.gz",
+      "sha256": "25207ab5bc23b529e0b93941c394e3a73a04e28a60d03b550b8d82fa61f450d5",
+      "bytes": 22798,
+      "compressed_sha256": "90c79f08a1434ba624c702c38489548844b3adf3aa16b257d6bc23ed8b3850ac",
+      "compressed_bytes": 1558
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-baseline/parser.stdout",
+      "artifact": "inputs/0008-parser.stdout.gz",
+      "sha256": "7876f84bc9b0cff8d252153aae13fc6a5958c6d12ff165eda9b62aa51a94b809",
+      "bytes": 2828,
+      "compressed_sha256": "02b4a4be512d97e6f030e764072eddc5459a0ce133c372ef14a120ec6ff4c876",
+      "compressed_bytes": 934
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-baseline/source/Makefile.gnu",
+      "artifact": "inputs/0009-Makefile.gnu.gz",
+      "sha256": "1812716a73b63b9c4a12f494822c7acd7408e52461de30cb6476ff0e72808a2c",
+      "bytes": 435409,
+      "compressed_sha256": "574c75c364a91b6adaf97fa8184772673af2ae8d7b6262ee3f6eec7417315bbd",
+      "compressed_bytes": 73295
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-baseline/source/src/parser.c",
+      "artifact": "inputs/0010-parser.c.gz",
+      "sha256": "ca670b1fbaa1a1c3d02f356451fdd02aa52617b1878781fa096929f295ebc19a",
+      "bytes": 285736,
+      "compressed_sha256": "17c4083165217bd6c88d89daa9508ce6e97879abe334925bcb9942fa391e62a4",
+      "compressed_bytes": 44259
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-baseline/source/tests/test_eval_async_ownership.c",
+      "artifact": "inputs/0011-test_eval_async_ownership.c.gz",
+      "sha256": "ee0f50742ed1c5d3cc71e340482e75a93999bada13c337c875a84380d809f841",
+      "bytes": 222,
+      "compressed_sha256": "09d1cead43e3467352d9b0e4b1b9ded670a325cdcd27a485ebaaca16b994a8bb",
+      "compressed_bytes": 174
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-baseline/source/tests/test_parser.c",
+      "artifact": "inputs/0012-test_parser.c.gz",
+      "sha256": "e81f79c3a1ef7e54e1ddea721d5e03df6af18a3acbfd964641560810a198e22d",
+      "bytes": 48576,
+      "compressed_sha256": "a5558b528cdc9e587af8756a4cbb920286cdf1bc47e987f578d9d009dd433f40",
+      "compressed_bytes": 8684
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-baseline/source/tests/test_parser_async_ownership.c",
+      "artifact": "inputs/0013-test_parser_async_ownership.c.gz",
+      "sha256": "88c1c4c42958a5a3d63c3edd3fa20703e0423f3103644af8810f9c9fee2ab4a5",
+      "bytes": 211,
+      "compressed_sha256": "f98dded8e50e837b290e6bc826506549fc5ac16271b47406d5a96e8f635a9eee",
+      "compressed_bytes": 174
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-baseline/test_eval_async_ownership-mixed-provider-diagnostic",
+      "artifact": "inputs/0014-test_eval_async_ownership-mixed-provider-diagnostic.gz",
+      "sha256": "d9342eb9bcee4a975092c6d30453b1dc092c4fb32bf60b4cedd02d462e161d17",
+      "bytes": 19527280,
+      "compressed_sha256": "443d7a792eb6babd1e294f8a11bc80083398ed625c3ba35f8b705f1ae3305497",
+      "compressed_bytes": 3911530
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-baseline/test_parser_async_ownership-mixed-provider-diagnostic",
+      "artifact": "inputs/0015-test_parser_async_ownership-mixed-provider-diagnostic.gz",
+      "sha256": "0c4b2a0b3c477bada332c6970b4e5a81acbd635509d4c74262c0de34c182354d",
+      "bytes": 16663936,
+      "compressed_sha256": "a6711e577992760010ab9c4bed8837f9a3bdc7142d9c6ee9740fb0e3bc4c1de6",
+      "compressed_bytes": 3355886
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-baseline-v2/evaluator.stderr",
+      "artifact": "inputs/0016-evaluator.stderr.gz",
+      "sha256": "9084b2c55707be2ff972faf059598f5258de1ba99109b73e343efe3bdc8bac5e",
+      "bytes": 28510,
+      "compressed_sha256": "e916dafe979e160dc09b6927c12c9480eb413020c64cf429be67195b31a9c3ea",
+      "compressed_bytes": 1770
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-baseline-v2/evaluator.stdout",
+      "artifact": "inputs/0017-evaluator.stdout.gz",
+      "sha256": "48f98a6a5bfa5213030bb836f87779e1c1befa551570be3c875b8cf15a4ece26",
+      "bytes": 6793,
+      "compressed_sha256": "9cfbab2ef5ce4241373c406232deb525d8107148df4818f209fa1f04e83f97b6",
+      "compressed_bytes": 1136
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-baseline-v2/manifest.json",
+      "artifact": "inputs/0018-manifest.json.gz",
+      "sha256": "25cc2ca2a8825293209a84c01ea9d550e676826a3a527d6ddf5a1816f5b1bb1f",
+      "bytes": 1832,
+      "compressed_sha256": "b44d7500ebdba6893b1940dcc3814f33f77e48e639453e35f89cfd55be6e22d9",
+      "compressed_bytes": 795
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-baseline-v2/parser.stderr",
+      "artifact": "inputs/0019-parser.stderr.gz",
+      "sha256": "ba173ed3cc3e18c8971a89e02d90055919f760fd407d728d5926900cded9695a",
+      "bytes": 23414,
+      "compressed_sha256": "cd1f34ae7b2e60c712ca2ee2ab13095a5ec1e3498d1d9c24ce8c8b0dc614c1c7",
+      "compressed_bytes": 1577
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-baseline-v2/parser.stdout",
+      "artifact": "inputs/0020-parser.stdout.gz",
+      "sha256": "946db8f16c5edf74ecbc55bad2a39e8505366e46f38aaa24287b94ee1034c5d3",
+      "bytes": 5717,
+      "compressed_sha256": "3136fb00f30d89e03aa4246f12fa0b7fbbe159910de400370e7d6f0fafe72b24",
+      "compressed_bytes": 1007
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-baseline-v2/source/Makefile.gnu",
+      "artifact": "inputs/0009-Makefile.gnu.gz",
+      "sha256": "1812716a73b63b9c4a12f494822c7acd7408e52461de30cb6476ff0e72808a2c",
+      "bytes": 435409,
+      "compressed_sha256": "574c75c364a91b6adaf97fa8184772673af2ae8d7b6262ee3f6eec7417315bbd",
+      "compressed_bytes": 73295
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-baseline-v2/source/src/parser.c",
+      "artifact": "inputs/0010-parser.c.gz",
+      "sha256": "ca670b1fbaa1a1c3d02f356451fdd02aa52617b1878781fa096929f295ebc19a",
+      "bytes": 285736,
+      "compressed_sha256": "17c4083165217bd6c88d89daa9508ce6e97879abe334925bcb9942fa391e62a4",
+      "compressed_bytes": 44259
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-baseline-v2/source/tests/test_eval_async_ownership.c",
+      "artifact": "inputs/0011-test_eval_async_ownership.c.gz",
+      "sha256": "ee0f50742ed1c5d3cc71e340482e75a93999bada13c337c875a84380d809f841",
+      "bytes": 222,
+      "compressed_sha256": "09d1cead43e3467352d9b0e4b1b9ded670a325cdcd27a485ebaaca16b994a8bb",
+      "compressed_bytes": 174
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-baseline-v2/source/tests/test_parser.c",
+      "artifact": "inputs/0012-test_parser.c.gz",
+      "sha256": "e81f79c3a1ef7e54e1ddea721d5e03df6af18a3acbfd964641560810a198e22d",
+      "bytes": 48576,
+      "compressed_sha256": "a5558b528cdc9e587af8756a4cbb920286cdf1bc47e987f578d9d009dd433f40",
+      "compressed_bytes": 8684
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-baseline-v2/source/tests/test_parser_async_ownership.c",
+      "artifact": "inputs/0013-test_parser_async_ownership.c.gz",
+      "sha256": "88c1c4c42958a5a3d63c3edd3fa20703e0423f3103644af8810f9c9fee2ab4a5",
+      "bytes": 211,
+      "compressed_sha256": "f98dded8e50e837b290e6bc826506549fc5ac16271b47406d5a96e8f635a9eee",
+      "compressed_bytes": 174
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-baseline-v2/test_eval_async_ownership-baseline",
+      "artifact": "inputs/0026-test_eval_async_ownership-baseline.gz",
+      "sha256": "0e6156b005e61a3106f1be825a1a9e3c02e2bffda5b0a0d1320a433e4d5d883e",
+      "bytes": 32176264,
+      "compressed_sha256": "06ff3765c88895e2fb1a3edc7c595c39eb80afea4f59af3eba97c2791df4e556",
+      "compressed_bytes": 6112916
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-baseline-v2/test_parser_async_ownership-baseline",
+      "artifact": "inputs/0027-test_parser_async_ownership-baseline.gz",
+      "sha256": "0582a39ded4e63a8eaf617e3613d993dcce9b68c79bd4f258a26c7d278925589",
+      "bytes": 31838128,
+      "compressed_sha256": "5779bc646a232d073fba42ac8bcb779760c084e7c962d6fa44ecec93bd28fa8b",
+      "compressed_bytes": 6015301
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-issue.md",
+      "artifact": "inputs/0028-async-ast-issue.md.gz",
+      "sha256": "c4f6db0d5d6d71280885a865e7edc82b4fb42bb061c17d1a54b6146780d2fe9d",
+      "bytes": 1500,
+      "compressed_sha256": "634e5e2aadc3cac1d7337cc15990b987cd1a494b3200d4c1622aed1d18857e2c",
+      "compressed_bytes": 774
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-repaired/evaluator.stderr",
+      "artifact": "inputs/0029-evaluator.stderr.gz",
+      "sha256": "67b63b3295ab6ea242e3e91f7b0880414250c4f8bd10818db8853d2be5a560c8",
+      "bytes": 1664,
+      "compressed_sha256": "e286d3d87e9652e41d46105a545d291f893d953e669dc26325ef576c9c6b5e7d",
+      "compressed_bytes": 754
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-repaired/evaluator.stdout",
+      "artifact": "inputs/0030-evaluator.stdout.gz",
+      "sha256": "7b37fce338f7266e50003c3f4e44f0795e28c37840cc9e4dfbceeaf0bce16f0b",
+      "bytes": 5755,
+      "compressed_sha256": "1333f97ba5da558e68bc39487a7610acba49d0130d397364151e795bfe940c81",
+      "compressed_bytes": 1013
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-repaired/manifest.json",
+      "artifact": "inputs/0031-manifest.json.gz",
+      "sha256": "bb285e4f009dc115b8ad63afeb74576f1d5c5f4f609fe03b0bf712b25732710f",
+      "bytes": 1879,
+      "compressed_sha256": "4effb3a0182ae1a8b39de5f574927d1b53266e8317f8634576cfb10c0e99a6fc",
+      "compressed_bytes": 821
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-repaired/parser.stderr",
+      "artifact": "inputs/0032-parser.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "59869db34853933b239f1e2219cf7d431da006aa919635478511fabbfc8849d2",
+      "compressed_bytes": 20
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-repaired/parser.stdout",
+      "artifact": "inputs/0033-parser.stdout.gz",
+      "sha256": "ee046178ec2daf5a654ebd072806c4dee18bd3577f8525f27925dd82f12b9a7c",
+      "bytes": 5974,
+      "compressed_sha256": "37248ebe05a56439ea9fec027e55fe5a74c8f69582c398b87f12db904e1f421f",
+      "compressed_bytes": 1032
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-repaired/source/Makefile.gnu",
+      "artifact": "inputs/0009-Makefile.gnu.gz",
+      "sha256": "1812716a73b63b9c4a12f494822c7acd7408e52461de30cb6476ff0e72808a2c",
+      "bytes": 435409,
+      "compressed_sha256": "574c75c364a91b6adaf97fa8184772673af2ae8d7b6262ee3f6eec7417315bbd",
+      "compressed_bytes": 73295
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-repaired/source/src/parser.c",
+      "artifact": "inputs/0035-parser.c.gz",
+      "sha256": "491b8bc99e5fd91f60d9cd6b5149ac2bea6fae0d30f1f927ef14844fda8c84f1",
+      "bytes": 285987,
+      "compressed_sha256": "fc8ce26fac07336cc9f27f3981bc6b9a0445725f88bad06ffa15c4f8d1176b07",
+      "compressed_bytes": 44318
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-repaired/source/tests/test_eval_async_ownership.c",
+      "artifact": "inputs/0011-test_eval_async_ownership.c.gz",
+      "sha256": "ee0f50742ed1c5d3cc71e340482e75a93999bada13c337c875a84380d809f841",
+      "bytes": 222,
+      "compressed_sha256": "09d1cead43e3467352d9b0e4b1b9ded670a325cdcd27a485ebaaca16b994a8bb",
+      "compressed_bytes": 174
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-repaired/source/tests/test_parser.c",
+      "artifact": "inputs/0012-test_parser.c.gz",
+      "sha256": "e81f79c3a1ef7e54e1ddea721d5e03df6af18a3acbfd964641560810a198e22d",
+      "bytes": 48576,
+      "compressed_sha256": "a5558b528cdc9e587af8756a4cbb920286cdf1bc47e987f578d9d009dd433f40",
+      "compressed_bytes": 8684
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-repaired/source/tests/test_parser_async_ownership.c",
+      "artifact": "inputs/0013-test_parser_async_ownership.c.gz",
+      "sha256": "88c1c4c42958a5a3d63c3edd3fa20703e0423f3103644af8810f9c9fee2ab4a5",
+      "bytes": 211,
+      "compressed_sha256": "f98dded8e50e837b290e6bc826506549fc5ac16271b47406d5a96e8f635a9eee",
+      "compressed_bytes": 174
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-repaired/test_eval_async_ownership-repaired",
+      "artifact": "inputs/0039-test_eval_async_ownership-repaired.gz",
+      "sha256": "581c3d849fffb7cf7e640f9c3910bc69463c4d6a7524f5affbe65b180d2e3a41",
+      "bytes": 32176608,
+      "compressed_sha256": "5a88d30091501712b30d93a4ad1fd2371658a90f40bd8c88767728b0b73522b0",
+      "compressed_bytes": 6113337
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-ast-repaired/test_parser_async_ownership-repaired",
+      "artifact": "inputs/0040-test_parser_async_ownership-repaired.gz",
+      "sha256": "522958dbf59369c2bcded596f0b0daed2eec8b3c476898357039a5c198275515",
+      "bytes": 31838976,
+      "compressed_sha256": "671e18421cf2d14913871bd6923405b3aec160b04426b83026baa9d66d9b818b",
+      "compressed_bytes": 6016176
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-handler-ordinary/manifest.json",
+      "artifact": "inputs/0041-manifest.json.gz",
+      "sha256": "dd6bb56256706dbdf99fd55cb037eccb448d9e4916b794c48757a7834041761a",
+      "bytes": 3436,
+      "compressed_sha256": "b511c27ecca10ca4fe711bcd114cc2e6af45a82e2429c9a33f1e0b0461506674",
+      "compressed_bytes": 1390
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-handler-ordinary/matching-default-native-fixture.stderr",
+      "artifact": "inputs/0032-parser.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "59869db34853933b239f1e2219cf7d431da006aa919635478511fabbfc8849d2",
+      "compressed_bytes": 20
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-handler-ordinary/matching-default-native-fixture.stdout",
+      "artifact": "inputs/0043-matching-default-native-fixture.stdout.gz",
+      "sha256": "c1a75b07fa3d4708a259296bb7d35654f27e3a5b656aa9869a0bdf17daa7703b",
+      "bytes": 195,
+      "compressed_sha256": "12e95871a8f1b27c5eef270c617ab5c160a6a32081c866cf04edd4eec9bfcece",
+      "compressed_bytes": 160
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-handler-ordinary/ordinary-discovery.json",
+      "artifact": "inputs/0044-ordinary-discovery.json.gz",
+      "sha256": "43be42ecf6db82d85a0bab8f23a2cdd7907525c528501e1301906eb983b67588",
+      "bytes": 11886,
+      "compressed_sha256": "f938f02e77e3441f0d07c874ac3a254b8c3b705cc7e6714ba3df6653adcb1bfe",
+      "compressed_bytes": 2718
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-handler-ordinary/original-complete-ordinary.stderr",
+      "artifact": "inputs/0045-original-complete-ordinary.stderr.gz",
+      "sha256": "9d96ba5d9ebebeb6d40a72056d04c8ace53f4cbaa14ff2213d397e87bc17edc6",
+      "bytes": 1470,
+      "compressed_sha256": "3205f45980885efd84a0692f00c5d8308c2c12614a74782366a4142054a1cf7b",
+      "compressed_bytes": 313
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-handler-ordinary/original-complete-ordinary.stdout",
+      "artifact": "inputs/0046-original-complete-ordinary.stdout.gz",
+      "sha256": "00fdfd8080ddb19d7dea2c5cbff3a8575f03b09e571bc63f1f6da52b2e0c93ff",
+      "bytes": 63604,
+      "compressed_sha256": "7de7821f9685fc3af8595719e45461f9802d0ddb1f9147586732f9ca7de95b67",
+      "compressed_bytes": 5095
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-handler-ordinary/original-cseed-async-and-effect-products.stderr",
+      "artifact": "inputs/0047-original-cseed-async-and-effect-products.stderr.gz",
+      "sha256": "4eb961f2a28d11756d22c2222afc17c4e11ed0a2a2546a76a2f8de61ba51fbe8",
+      "bytes": 7156,
+      "compressed_sha256": "73976416cfffe9b60737ad02442895f171ea61030c43c4111c39fabe4346bec7",
+      "compressed_bytes": 1211
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-handler-ordinary/original-cseed-async-and-effect-products.stdout",
+      "artifact": "inputs/0032-parser.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "59869db34853933b239f1e2219cf7d431da006aa919635478511fabbfc8849d2",
+      "compressed_bytes": 20
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-handler-ordinary/original-source-product-tools.stderr",
+      "artifact": "inputs/0032-parser.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "59869db34853933b239f1e2219cf7d431da006aa919635478511fabbfc8849d2",
+      "compressed_bytes": 20
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-handler-ordinary/original-source-product-tools.stdout",
+      "artifact": "inputs/0050-original-source-product-tools.stdout.gz",
+      "sha256": "bfd7b14f8b67b0e4accea3b2c6e892c0c0ba3656487407700918bc1d1ff7498c",
+      "bytes": 72718,
+      "compressed_sha256": "39832e1c7b83931ef94b2d5fd371c84261e40e604bb370fc5782ed2a54da50a3",
+      "compressed_bytes": 4167
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-handler-ordinary/post-gate-provider-identities.json",
+      "artifact": "inputs/0051-post-gate-provider-identities.json.gz",
+      "sha256": "2e4532907799e32b82ddf7f215ea178486896de529d492b3229a1a3696b5c518",
+      "bytes": 65503,
+      "compressed_sha256": "adfbffd6fedd02c9e69807affcf328462b2d93fbc36aef16c1c9cad10eec2cf3",
+      "compressed_bytes": 15969
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/async-handler-ordinary/working-source.diff",
+      "artifact": "inputs/0052-working-source.diff.gz",
+      "sha256": "4b6494b0c4af69b9da0dce111bdd612d3daa07f0d49815bf3be3d8029d4d4df9",
+      "bytes": 7331,
+      "compressed_sha256": "b0e639f634575e2b02db5a95279b6a7a0ea00f09096db969e872af326d9c63e0",
+      "compressed_bytes": 2027
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/handler-full-sanitizers/complete-original.stderr",
+      "artifact": "inputs/0053-complete-original.stderr.gz",
+      "sha256": "16c2f7d6199063cd57c83d1ac1b59915266ab042d1002385e9a96aec9e06f2bd",
+      "bytes": 215649,
+      "compressed_sha256": "99bbcbe72a9e76926a713a3f91b1059075a980c9d410d1a26b52ffedd56567df",
+      "compressed_bytes": 9714
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/handler-full-sanitizers/complete-original.stdout",
+      "artifact": "inputs/0054-complete-original.stdout.gz",
+      "sha256": "95b90cab6257912dc21f6ca2890ac1d2df3e21e5b67c5bff038a340c853873a3",
+      "bytes": 9564,
+      "compressed_sha256": "503c46c78c43c868a9b68b706d32b986983d934aead5bd28db150e858f95a161",
+      "compressed_bytes": 1870
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/handler-full-sanitizers/manifest.json",
+      "artifact": "inputs/0055-manifest.json.gz",
+      "sha256": "b3c373cae5fa7d6ea1e8c91b137ce45a0ab92df8424ecb077277f5cba41b8440",
+      "bytes": 1622,
+      "compressed_sha256": "56f34a2be66131c74309a6ebfd252efa14047169e5bdeea735d6091c628679fc",
+      "compressed_bytes": 684
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/handler-full-sanitizers/matching-default-native-fixture.stderr",
+      "artifact": "inputs/0032-parser.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "59869db34853933b239f1e2219cf7d431da006aa919635478511fabbfc8849d2",
+      "compressed_bytes": 20
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/handler-full-sanitizers/matching-default-native-fixture.stdout",
+      "artifact": "inputs/0057-matching-default-native-fixture.stdout.gz",
+      "sha256": "66cb4f49710a684ea96958d6f452469558570a103b7413c3c6d8e56bf3e03f75",
+      "bytes": 290,
+      "compressed_sha256": "91e11087e4f2ba12c6f1a04ba44a240f512524ebf894df89981371ad8289f6af",
+      "compressed_bytes": 213
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/handler-full-sanitizers/source/src/parser.c",
+      "artifact": "inputs/0035-parser.c.gz",
+      "sha256": "491b8bc99e5fd91f60d9cd6b5149ac2bea6fae0d30f1f927ef14844fda8c84f1",
+      "bytes": 285987,
+      "compressed_sha256": "fc8ce26fac07336cc9f27f3981bc6b9a0445725f88bad06ffa15c4f8d1176b07",
+      "compressed_bytes": 44318
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/handler-full-sanitizers/source/src/typechecker.c",
+      "artifact": "inputs/0059-typechecker.c.gz",
+      "sha256": "38c1e03b364ce3504ab23a9c0ffcdddd8a93be0cd95826bc2a597fafd685c8ab",
+      "bytes": 518917,
+      "compressed_sha256": "05c529dbb467eb6649dab49edec7c07196fb42e5534b8e24031ac5f08ba0faae",
+      "compressed_bytes": 83700
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/handler-full-sanitizers/source/tests/test_eval.c",
+      "artifact": "inputs/0060-test_eval.c.gz",
+      "sha256": "18fe30b1fbbab6f6dcca8e18fc63ff1a94528e9e13047b2153ab9266471b7da2",
+      "bytes": 145472,
+      "compressed_sha256": "44b979c821d03b7b2a4471a4833cf89d900330806d3026f9c2d179725ce95f1a",
+      "compressed_bytes": 25795
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/handler-full-sanitizers/test_eval",
+      "artifact": "inputs/0061-test_eval.gz",
+      "sha256": "d2cc41c776cb76ee9a123266b823e0dba3d3c864577957662902ca7b4ee90cb1",
+      "bytes": 32244144,
+      "compressed_sha256": "26c76ae39884ff38ebf7e2e563596b3c9e45eb6d6c733ccffe6c7921057fdc12",
+      "compressed_bytes": 6114896
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/handler-full-sanitizers/test_interpreter_ffi_native.so",
+      "artifact": "inputs/0062-test_interpreter_ffi_native.so.gz",
+      "sha256": "2cc6776acd22dc35dcd7675c01aa73e3eb355995bc0a11e789dc6ce53d339590",
+      "bytes": 80856,
+      "compressed_sha256": "007ad7b95b9cbcde87c2f0e22133a3e633d29c6d32a4acda7baf053b3bd9b501",
+      "compressed_bytes": 8120
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/handler-symbol-baseline/evaluator.stderr",
+      "artifact": "inputs/0029-evaluator.stderr.gz",
+      "sha256": "67b63b3295ab6ea242e3e91f7b0880414250c4f8bd10818db8853d2be5a560c8",
+      "bytes": 1664,
+      "compressed_sha256": "e286d3d87e9652e41d46105a545d291f893d953e669dc26325ef576c9c6b5e7d",
+      "compressed_bytes": 754
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/handler-symbol-baseline/evaluator.stdout",
+      "artifact": "inputs/0030-evaluator.stdout.gz",
+      "sha256": "7b37fce338f7266e50003c3f4e44f0795e28c37840cc9e4dfbceeaf0bce16f0b",
+      "bytes": 5755,
+      "compressed_sha256": "1333f97ba5da558e68bc39487a7610acba49d0130d397364151e795bfe940c81",
+      "compressed_bytes": 1013
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/handler-symbol-baseline/manifest.json",
+      "artifact": "inputs/0031-manifest.json.gz",
+      "sha256": "bb285e4f009dc115b8ad63afeb74576f1d5c5f4f609fe03b0bf712b25732710f",
+      "bytes": 1879,
+      "compressed_sha256": "4effb3a0182ae1a8b39de5f574927d1b53266e8317f8634576cfb10c0e99a6fc",
+      "compressed_bytes": 821
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/handler-symbol-baseline/source/Makefile.gnu",
+      "artifact": "inputs/0009-Makefile.gnu.gz",
+      "sha256": "1812716a73b63b9c4a12f494822c7acd7408e52461de30cb6476ff0e72808a2c",
+      "bytes": 435409,
+      "compressed_sha256": "574c75c364a91b6adaf97fa8184772673af2ae8d7b6262ee3f6eec7417315bbd",
+      "compressed_bytes": 73295
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/handler-symbol-baseline/source/src/parser.c",
+      "artifact": "inputs/0035-parser.c.gz",
+      "sha256": "491b8bc99e5fd91f60d9cd6b5149ac2bea6fae0d30f1f927ef14844fda8c84f1",
+      "bytes": 285987,
+      "compressed_sha256": "fc8ce26fac07336cc9f27f3981bc6b9a0445725f88bad06ffa15c4f8d1176b07",
+      "compressed_bytes": 44318
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/handler-symbol-baseline/source/src/typechecker.c",
+      "artifact": "inputs/0068-typechecker.c.gz",
+      "sha256": "c1ccf7b6a11d36a19c86d4818af33a8eec2adf0fce86d35e7c84568caaf9142f",
+      "bytes": 518432,
+      "compressed_sha256": "273f937435b896d3e8986d394049063a53d613b3a22731ff2b06affefa0d8d99",
+      "compressed_bytes": 83550
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/handler-symbol-baseline/source/tests/test_eval.c",
+      "artifact": "inputs/0060-test_eval.c.gz",
+      "sha256": "18fe30b1fbbab6f6dcca8e18fc63ff1a94528e9e13047b2153ab9266471b7da2",
+      "bytes": 145472,
+      "compressed_sha256": "44b979c821d03b7b2a4471a4833cf89d900330806d3026f9c2d179725ce95f1a",
+      "compressed_bytes": 25795
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/handler-symbol-baseline/source/tests/test_eval_async_ownership.c",
+      "artifact": "inputs/0011-test_eval_async_ownership.c.gz",
+      "sha256": "ee0f50742ed1c5d3cc71e340482e75a93999bada13c337c875a84380d809f841",
+      "bytes": 222,
+      "compressed_sha256": "09d1cead43e3467352d9b0e4b1b9ded670a325cdcd27a485ebaaca16b994a8bb",
+      "compressed_bytes": 174
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/handler-symbol-baseline/test_eval_async_ownership-repaired",
+      "artifact": "inputs/0039-test_eval_async_ownership-repaired.gz",
+      "sha256": "581c3d849fffb7cf7e640f9c3910bc69463c4d6a7524f5affbe65b180d2e3a41",
+      "bytes": 32176608,
+      "compressed_sha256": "5a88d30091501712b30d93a4ad1fd2371658a90f40bd8c88767728b0b73522b0",
+      "compressed_bytes": 6113337
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/handler-symbol-issue.md",
+      "artifact": "inputs/0072-handler-symbol-issue.md.gz",
+      "sha256": "f96540ec5cdd10029ce62fe7c8e2dc8a427da478fda146aea0dfbae1de4382f1",
+      "bytes": 1456,
+      "compressed_sha256": "da78cd9f0c31accddc1e23900d750de182a84ee652b67379059d19f7576209ba",
+      "compressed_bytes": 781
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/handler-symbol-repaired/evaluator.stderr",
+      "artifact": "inputs/0032-parser.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "59869db34853933b239f1e2219cf7d431da006aa919635478511fabbfc8849d2",
+      "compressed_bytes": 20
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/handler-symbol-repaired/evaluator.stdout",
+      "artifact": "inputs/0030-evaluator.stdout.gz",
+      "sha256": "7b37fce338f7266e50003c3f4e44f0795e28c37840cc9e4dfbceeaf0bce16f0b",
+      "bytes": 5755,
+      "compressed_sha256": "1333f97ba5da558e68bc39487a7610acba49d0130d397364151e795bfe940c81",
+      "compressed_bytes": 1013
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/handler-symbol-repaired/manifest.json",
+      "artifact": "inputs/0075-manifest.json.gz",
+      "sha256": "c84f32fbf7c234743387c4f387f43404455ec4c36ec12e46743ed87003b1bf93",
+      "bytes": 1888,
+      "compressed_sha256": "c76e29505f5ffb2ae03f385ab6c8e5a059fed55b46109a7f6ad168183a894bf3",
+      "compressed_bytes": 822
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/handler-symbol-repaired/parser.stderr",
+      "artifact": "inputs/0032-parser.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "59869db34853933b239f1e2219cf7d431da006aa919635478511fabbfc8849d2",
+      "compressed_bytes": 20
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/handler-symbol-repaired/parser.stdout",
+      "artifact": "inputs/0077-parser.stdout.gz",
+      "sha256": "7f6216e364dfbca3e287364935833cf5e0859c8d49eacf17c10c10e5b17941ab",
+      "bytes": 5984,
+      "compressed_sha256": "30a4d4b5a13357d0ed66a04d2c491f3e83a47f5571f9b7e941f240edeb2c2732",
+      "compressed_bytes": 1035
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/handler-symbol-repaired/source/Makefile.gnu",
+      "artifact": "inputs/0009-Makefile.gnu.gz",
+      "sha256": "1812716a73b63b9c4a12f494822c7acd7408e52461de30cb6476ff0e72808a2c",
+      "bytes": 435409,
+      "compressed_sha256": "574c75c364a91b6adaf97fa8184772673af2ae8d7b6262ee3f6eec7417315bbd",
+      "compressed_bytes": 73295
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/handler-symbol-repaired/source/src/parser.c",
+      "artifact": "inputs/0035-parser.c.gz",
+      "sha256": "491b8bc99e5fd91f60d9cd6b5149ac2bea6fae0d30f1f927ef14844fda8c84f1",
+      "bytes": 285987,
+      "compressed_sha256": "fc8ce26fac07336cc9f27f3981bc6b9a0445725f88bad06ffa15c4f8d1176b07",
+      "compressed_bytes": 44318
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/handler-symbol-repaired/source/src/typechecker.c",
+      "artifact": "inputs/0059-typechecker.c.gz",
+      "sha256": "38c1e03b364ce3504ab23a9c0ffcdddd8a93be0cd95826bc2a597fafd685c8ab",
+      "bytes": 518917,
+      "compressed_sha256": "05c529dbb467eb6649dab49edec7c07196fb42e5534b8e24031ac5f08ba0faae",
+      "compressed_bytes": 83700
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/handler-symbol-repaired/source/tests/test_eval_async_ownership.c",
+      "artifact": "inputs/0011-test_eval_async_ownership.c.gz",
+      "sha256": "ee0f50742ed1c5d3cc71e340482e75a93999bada13c337c875a84380d809f841",
+      "bytes": 222,
+      "compressed_sha256": "09d1cead43e3467352d9b0e4b1b9ded670a325cdcd27a485ebaaca16b994a8bb",
+      "compressed_bytes": 174
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/handler-symbol-repaired/source/tests/test_parser.c",
+      "artifact": "inputs/0012-test_parser.c.gz",
+      "sha256": "e81f79c3a1ef7e54e1ddea721d5e03df6af18a3acbfd964641560810a198e22d",
+      "bytes": 48576,
+      "compressed_sha256": "a5558b528cdc9e587af8756a4cbb920286cdf1bc47e987f578d9d009dd433f40",
+      "compressed_bytes": 8684
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/handler-symbol-repaired/source/tests/test_parser_async_ownership.c",
+      "artifact": "inputs/0013-test_parser_async_ownership.c.gz",
+      "sha256": "88c1c4c42958a5a3d63c3edd3fa20703e0423f3103644af8810f9c9fee2ab4a5",
+      "bytes": 211,
+      "compressed_sha256": "f98dded8e50e837b290e6bc826506549fc5ac16271b47406d5a96e8f635a9eee",
+      "compressed_bytes": 174
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/handler-symbol-repaired/test_eval_async_ownership-repaired",
+      "artifact": "inputs/0084-test_eval_async_ownership-repaired.gz",
+      "sha256": "ef55c23ced19abdbdb3fb4aafc6c248ea759f21207058fb6b217053732963c73",
+      "bytes": 32244112,
+      "compressed_sha256": "958a8b796ff12f95305156cb01f085cfaea9f7b60baf2cdeb980a8011c1cac8c",
+      "compressed_bytes": 6114079
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/handler-symbol-repaired/test_parser_async_ownership-repaired",
+      "artifact": "inputs/0085-test_parser_async_ownership-repaired.gz",
+      "sha256": "2af8f83a920b1a0fd57c91f0bd2b6fd357c0a30ee25ca2c680889221f4176089",
+      "bytes": 31840600,
+      "compressed_sha256": "a5f3f91e122f4d2e25a7c91dd6f95f0f3fc39be5492522ce03d859c0aa3ce9f9",
+      "compressed_bytes": 6016558
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/run-async-ast-baseline-v2.log",
+      "artifact": "inputs/0086-run-async-ast-baseline-v2.log.gz",
+      "sha256": "2a38f5d9ce2820bc050b092022935d77625d1fb13a9129c785bf73cea27fcd54",
+      "bytes": 1560,
+      "compressed_sha256": "526475dfd89f32b2c37846606f94bfd558e40091b39a4e54d3a52a050d4efbaf",
+      "compressed_bytes": 766
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/run-async-ast-baseline-v2.py",
+      "artifact": "inputs/0087-run-async-ast-baseline-v2.py.gz",
+      "sha256": "634ff8119e780e4e96a4a68b85c0b051371864213a7e6db4dcb5e934adec3159",
+      "bytes": 1727,
+      "compressed_sha256": "5b95ed300ccdaba5f7a698e60e80ec8253a263aa377bb090f77f7e70ec29724e",
+      "compressed_bytes": 890
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/run-async-ast-baseline.log",
+      "artifact": "inputs/0088-run-async-ast-baseline.log.gz",
+      "sha256": "01ad1726f43a2032d56806b6ef94a2eaf6f9435f780b665281fd0ac0ebef33ad",
+      "bytes": 1309,
+      "compressed_sha256": "2806856537c538a0feff02678a57d1cc62106092fc2c92a0a33b3f5b3c443bdd",
+      "compressed_bytes": 620
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/run-async-ast-baseline.py",
+      "artifact": "inputs/0089-run-async-ast-baseline.py.gz",
+      "sha256": "1d12b92b5d1e8ba12a26d53d6aa21fa4098829042ddd7d8c166bc1663826078c",
+      "bytes": 1724,
+      "compressed_sha256": "a4f90b3cc4cd9b6b0a4cac616d54d1e2885cf76fb146203d5ce6744816904eb1",
+      "compressed_bytes": 886
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/run-async-ast-repaired.log",
+      "artifact": "inputs/0090-run-async-ast-repaired.log.gz",
+      "sha256": "926677a53c13c55b84591f4e504a27a1cee488f21fcc087e6b7eb3141ef74ada",
+      "bytes": 1607,
+      "compressed_sha256": "f2fcee3dd1e9b95ffc745b1fc58441ed28e46e1b9b79a7dbc0c9a514397f0744",
+      "compressed_bytes": 792
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/run-async-ast-repaired.py",
+      "artifact": "inputs/0091-run-async-ast-repaired.py.gz",
+      "sha256": "ce880a3ce0f314de0b51211d570efb0d42dd6f10bbdfac225c1ebb6e22c10521",
+      "bytes": 1771,
+      "compressed_sha256": "d419f3bb6eaea03225209a2455f46970ec34f1d3cb7c3b3c80a2f6387788ddbf",
+      "compressed_bytes": 915
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/run-async-handler-ordinary.log",
+      "artifact": "inputs/0092-run-async-handler-ordinary.log.gz",
+      "sha256": "8be0e73750aa619a5d0c4f4b166d12f5e9501bd2670d0ca8cf01217dbf9a6bec",
+      "bytes": 2834,
+      "compressed_sha256": "0739180d8e998e46ccbe759f92ea0086cb2ddd96d3f28b7fa0d25ac6ebc696e0",
+      "compressed_bytes": 1341
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/run-async-handler-ordinary.py",
+      "artifact": "inputs/0093-run-async-handler-ordinary.py.gz",
+      "sha256": "93316f368494063b16cf3cc283ae0ff1f7297f1403f4cc7b23a98f5a02c9c23a",
+      "bytes": 3105,
+      "compressed_sha256": "d8fc16b230588d26ce06c254653057d434e240ea37c91c4c676cca3f334354f3",
+      "compressed_bytes": 1453
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/run-handler-full-sanitizers.log",
+      "artifact": "inputs/0094-run-handler-full-sanitizers.log.gz",
+      "sha256": "54987ba4ea447fec82a9befedfa50b3a6fb23ccbee4f3bc7064652162bb9aa0c",
+      "bytes": 1376,
+      "compressed_sha256": "5632e9c96c9a2560fc3c12f0f121d8eef258c3297974cda9e8fcf595ff596c25",
+      "compressed_bytes": 656
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/run-handler-full-sanitizers.py",
+      "artifact": "inputs/0095-run-handler-full-sanitizers.py.gz",
+      "sha256": "e65e0ac60ffe722d743fab34d4fc3a47e5c13c22068afeea942eb51d83809c7a",
+      "bytes": 1671,
+      "compressed_sha256": "66191dc0bcfa2a62f488f081080bf218626cfb5ffb386aa951c4dcb485acb9f1",
+      "compressed_bytes": 877
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/run-handler-symbol-repaired.log",
+      "artifact": "inputs/0096-run-handler-symbol-repaired.log.gz",
+      "sha256": "2020049a76522e3c0fa0b9ee3e3ade55d9461ede495606909109eba79509cabe",
+      "bytes": 1616,
+      "compressed_sha256": "7ce6c0704f9b0d68a82d1627ae16c5b24c174ae81786ee69da4a85dff00bb737",
+      "compressed_bytes": 794
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/run-handler-symbol-repaired.py",
+      "artifact": "inputs/0097-run-handler-symbol-repaired.py.gz",
+      "sha256": "9b53e6d61ab769edc44cfb2f9e66523147d9f5ef6694d749234d753cd21c040b",
+      "bytes": 1805,
+      "compressed_sha256": "a001f5d1bb8e85971d0fc77cee8b64f74aea4bb2702e5443e9362ca3d037cd94",
+      "compressed_bytes": 926
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/Makefile.gnu",
+      "artifact": "inputs/0009-Makefile.gnu.gz",
+      "sha256": "1812716a73b63b9c4a12f494822c7acd7408e52461de30cb6476ff0e72808a2c",
+      "bytes": 435409,
+      "compressed_sha256": "574c75c364a91b6adaf97fa8184772673af2ae8d7b6262ee3f6eec7417315bbd",
+      "compressed_bytes": 73295
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/bin/nano_aot_runtime.o",
+      "artifact": "inputs/0099-nano_aot_runtime.o.gz",
+      "sha256": "3a646e6980d0946e0bc2f544e60227a5908caff36d10031e2e75c9ab0f95b7e4",
+      "bytes": 8563296,
+      "compressed_sha256": "37c51f1cf3143390da526dcde0c4eb7d215d5a1570c8f123a1bd4366fcef0ce9",
+      "compressed_bytes": 61044
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/bin/nano_as_capture.so",
+      "artifact": "inputs/0100-nano_as_capture.so.gz",
+      "sha256": "9ec617676446d59249220eef6afaf4cff53a8166a44fd3219029920f99c7758b",
+      "bytes": 102656,
+      "compressed_sha256": "5fcec467e0d51e49ef2b3d31508de837793e71059b1d19a9c5045c3111fd6c43",
+      "compressed_bytes": 21749
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/bin/nano_virt",
+      "artifact": "inputs/0101-nano_virt.gz",
+      "sha256": "ebc5ebe706c5f64bfabd3bdbb64b557be76191a7af50c9f00ba767cf62d4c751",
+      "bytes": 27350608,
+      "compressed_sha256": "fee8e587523141930e73cd6002d209b97512d6f332a475f18b1615613b0bcb4a",
+      "compressed_bytes": 8180178
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/bin/nano_vm",
+      "artifact": "inputs/0102-nano_vm.gz",
+      "sha256": "7e641084d9850a28a6fd9f70efeddde946390ea0800069861a191cfc0c61f93e",
+      "bytes": 25348440,
+      "compressed_sha256": "d1bc651b2b3e1b2d677a319d7f5efab57c43a15d89368c5a3f5ab14218058dec",
+      "compressed_bytes": 7310425
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/bin/nanoc_c",
+      "artifact": "inputs/0103-nanoc_c.gz",
+      "sha256": "4650dece6c527928430981ad9354597f00268ed611cc3c333a22d0014a9280d5",
+      "bytes": 27509136,
+      "compressed_sha256": "4f7ebae01e4a67869c6bb245072615758d8236a6532dc6c698bfd5a041969293",
+      "compressed_bytes": 8252171
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/bin/nvm2c",
+      "artifact": "inputs/0104-nvm2c.gz",
+      "sha256": "f32ba2574bb869f6759d04e3516cb4075e280b340a8e2e2aa797160e39f9ed44",
+      "bytes": 6554608,
+      "compressed_sha256": "e7fbe3ea6081b6fe2848590ec88f6309c8e97d549574ed71b3bcd089a3923bb3",
+      "compressed_bytes": 2824564
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/src/env.c",
+      "artifact": "inputs/0105-env.c.gz",
+      "sha256": "1bb2c1459a0191e0b9881e60c4832f52e7871fe949b7ee285cb4a9f72364eaaf",
+      "bytes": 115586,
+      "compressed_sha256": "2ab408dd385f436d2523d2fc32889dd1a572c51420e44860b280d4be73e94209",
+      "compressed_bytes": 22569
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/src/nanolang.h",
+      "artifact": "inputs/0106-nanolang.h.gz",
+      "sha256": "6438019703130ae3458c1f05a37e7d9437421ef5372b6a2fc7206ad1385a0e46",
+      "bytes": 64658,
+      "compressed_sha256": "b7548851434dd67776fac5791b6ec24ef80c9934955655679b2b1a3d68d4a71b",
+      "compressed_bytes": 16102
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/src/parser.c",
+      "artifact": "inputs/0035-parser.c.gz",
+      "sha256": "491b8bc99e5fd91f60d9cd6b5149ac2bea6fae0d30f1f927ef14844fda8c84f1",
+      "bytes": 285987,
+      "compressed_sha256": "fc8ce26fac07336cc9f27f3981bc6b9a0445725f88bad06ffa15c4f8d1176b07",
+      "compressed_bytes": 44318
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/src/typechecker.c",
+      "artifact": "inputs/0059-typechecker.c.gz",
+      "sha256": "38c1e03b364ce3504ab23a9c0ffcdddd8a93be0cd95826bc2a597fafd685c8ab",
+      "bytes": 518917,
+      "compressed_sha256": "05c529dbb467eb6649dab49edec7c07196fb42e5534b8e24031ac5f08ba0faae",
+      "compressed_bytes": 83700
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/tests/test_eval.c",
+      "artifact": "inputs/0060-test_eval.c.gz",
+      "sha256": "18fe30b1fbbab6f6dcca8e18fc63ff1a94528e9e13047b2153ab9266471b7da2",
+      "bytes": 145472,
+      "compressed_sha256": "44b979c821d03b7b2a4471a4833cf89d900330806d3026f9c2d179725ce95f1a",
+      "compressed_bytes": 25795
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/tests/test_eval_async_ownership.c",
+      "artifact": "inputs/0011-test_eval_async_ownership.c.gz",
+      "sha256": "ee0f50742ed1c5d3cc71e340482e75a93999bada13c337c875a84380d809f841",
+      "bytes": 222,
+      "compressed_sha256": "09d1cead43e3467352d9b0e4b1b9ded670a325cdcd27a485ebaaca16b994a8bb",
+      "compressed_bytes": 174
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/tests/test_eval_effect_metadata_ownership.c",
+      "artifact": "inputs/0111-test_eval_effect_metadata_ownership.c.gz",
+      "sha256": "17016ee452e436c42fc6ec5392820c410ecaf8d95827eaa2c7b72e315ca4a2c5",
+      "bytes": 854,
+      "compressed_sha256": "7efa76a634ee80066eb9f3925310cb228427f55aa6b5b1693098518fd59810a9",
+      "compressed_bytes": 383
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/tests/test_parser.c",
+      "artifact": "inputs/0012-test_parser.c.gz",
+      "sha256": "e81f79c3a1ef7e54e1ddea721d5e03df6af18a3acbfd964641560810a198e22d",
+      "bytes": 48576,
+      "compressed_sha256": "a5558b528cdc9e587af8756a4cbb920286cdf1bc47e987f578d9d009dd433f40",
+      "compressed_bytes": 8684
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/tests/test_parser_async_ownership.c",
+      "artifact": "inputs/0013-test_parser_async_ownership.c.gz",
+      "sha256": "88c1c4c42958a5a3d63c3edd3fa20703e0423f3103644af8810f9c9fee2ab4a5",
+      "bytes": 211,
+      "compressed_sha256": "f98dded8e50e837b290e6bc826506549fc5ac16271b47406d5a96e8f635a9eee",
+      "compressed_bytes": 174
+    }
+  ],
+  "base_revision": "bdffa4cccff93ed5b6870aa2f74289f94f2643ee",
+  "ordinary_sources_unchanged": true
+}

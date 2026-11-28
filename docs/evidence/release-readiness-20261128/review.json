@@ -1,0 +1,138 @@
+{
+  "release": "5.1.0",
+  "snapshot_utc": "2026-11-28T08:27:14.804881+00:00",
+  "initial_inventory": {
+    "open_issues": 138,
+    "open_pull_requests": 25,
+    "lexically_release_scoped_items": 124
+  },
+  "current_open_counts": {
+    "issues": {
+      "totalCount": 138
+    },
+    "pullRequests": {
+      "totalCount": 22
+    }
+  },
+  "consolidated_pull_requests": [
+    {
+      "number": 1066,
+      "head": "e952ed9b375922cb36233a187e5898c82e383314",
+      "replacement": 1168,
+      "integration_evidence_head": "2c6784e9d9b22fb1ee80e966f415e451a2a78126",
+      "annotation": "https://github.com/jordanhubbard/nanolang/pull/1066#issuecomment-7236285038",
+      "after": {
+        "headRefOid": "e952ed9b375922cb36233a187e5898c82e383314",
+        "state": "CLOSED",
+        "url": "https://github.com/jordanhubbard/nanolang/pull/1066"
+      },
+      "source_changed": false,
+      "branch_deleted": false,
+      "acceptance_issue_closed": false,
+      "annotation_file": "pr-1066-consolidation.md"
+    },
+    {
+      "number": 1072,
+      "head": "c4a75a230bdf006ee169e6000db6f3972a928960",
+      "replacement": 1168,
+      "integration_evidence_head": "2c6784e9d9b22fb1ee80e966f415e451a2a78126",
+      "annotation": "https://github.com/jordanhubbard/nanolang/pull/1072#issuecomment-7236285891",
+      "after": {
+        "headRefOid": "c4a75a230bdf006ee169e6000db6f3972a928960",
+        "state": "CLOSED",
+        "url": "https://github.com/jordanhubbard/nanolang/pull/1072"
+      },
+      "source_changed": false,
+      "branch_deleted": false,
+      "acceptance_issue_closed": false,
+      "annotation_file": "pr-1072-consolidation.md"
+    },
+    {
+      "number": 1069,
+      "head": "fbbe94cc4dc21bc7759e22f6dfc8abd3b5fb9282",
+      "replacement": 1168,
+      "integration_evidence_head": "560bdac00e1172a631dc1985376110e1f0040292",
+      "annotation": "https://github.com/jordanhubbard/nanolang/pull/1069#issuecomment-7236583272",
+      "source_changed": false,
+      "branch_deleted": false,
+      "acceptance_issue_closed": false,
+      "after": {
+        "headRefOid": "fbbe94cc4dc21bc7759e22f6dfc8abd3b5fb9282",
+        "state": "CLOSED",
+        "url": "https://github.com/jordanhubbard/nanolang/pull/1069"
+      },
+      "annotation_file": "pr1069-consolidation.md"
+    }
+  ],
+  "source_retention": [
+    {
+      "number": 1066,
+      "head": "e952ed9b375922cb36233a187e5898c82e383314",
+      "integration": "2c6784e9d9b22fb1ee80e966f415e451a2a78126",
+      "ancestry_retained": true,
+      "exact_files": [
+        {
+          "path": "tests/test_affine_scalar_union_source.py",
+          "sha256": "c7179805ecd52902595fc2f9f3fa8ea6ad715a6dae2a7abb0066f33e187e306c"
+        },
+        {
+          "path": "tests/test_checked_owner_selection.py",
+          "sha256": "e72081e4a69931af8f41575be94a6639d0efe85a52eb50d0cdc93a048a812637"
+        },
+        {
+          "path": "tests/test_explicit_generic_constructors.py",
+          "sha256": "8453c17c2806a41e3fa547cc0d1f65168ea8114edd2da5ed962c7c27f275abe6"
+        },
+        {
+          "path": "tests/test_nanoisa_functional_arrays.py",
+          "sha256": "d3dab930c2c7cf86b081aebc7d721aa3498a0a81c8417884633ee8c3068e433f"
+        },
+        {
+          "path": "tests/test_nanoisa_shadow_emitter.py",
+          "sha256": "5b7ba340dbb0c8d833c7e06d1b19c60408b9e0fa9a8ef57b2d3caa4ce3e90357"
+        },
+        {
+          "path": "tests/test_ordinary_record_producers.py",
+          "sha256": "be91274f465deba1c2cf8bade22bea9f78e4fe89cb6df8c64b2e0ffd65fcfbdf"
+        }
+      ]
+    },
+    {
+      "number": 1072,
+      "head": "c4a75a230bdf006ee169e6000db6f3972a928960",
+      "integration": "2c6784e9d9b22fb1ee80e966f415e451a2a78126",
+      "ancestry_retained": true,
+      "exact_files": [
+        {
+          "path": "tests/nanoisa/test_ordinary_record_authority.c",
+          "sha256": "2bd74b02a72fc12bb42950b65373d23c82a9e7d32fc20dc7942657231e38233c"
+        },
+        {
+          "path": "tests/test_ordinary_record_authority.py",
+          "sha256": "1439d115c3755447538f22379b5d7cddfc064587e1dfd805db496718386a9b9d"
+        }
+      ]
+    },
+    {
+      "number": 1069,
+      "head": "fbbe94cc4dc21bc7759e22f6dfc8abd3b5fb9282",
+      "integration": "560bdac00e1172a631dc1985376110e1f0040292",
+      "ancestry_retained": true,
+      "exact_files": [
+        {
+          "path": "scripts/check_test_prerequisites.py",
+          "sha256": "3efbe59df51ea17ec8b7f6cf069b8f3d9e08fd8849f5c1cdb3a2039d0dccded2"
+        },
+        {
+          "path": "tests/test_make_prerequisites.py",
+          "sha256": "4e30cc330a493f4c0ecf34e4516a49c49d42794a5d4d03d778bf08dbc6225df5"
+        }
+      ]
+    }
+  ],
+  "all_open_item_reviews_complete": false,
+  "release_gate_passed": false,
+  "all_69_requirements_complete": false,
+  "raw_query_output": "I retain complete initial query bodies privately in the volume audit namespace; this public summary does not reproduce them or claim a complete manual review.",
+  "source_and_deadlines_changed": false
+}

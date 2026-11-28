@@ -1,0 +1,21 @@
+from pathlib import Path
+import os,json,subprocess,hashlib
+j=Path(__file__).resolve().parent;s=json.loads((j/'result.json').read_bytes());assert s['terminal'] and s['admitted_setup'] and s['all_guards_match'];sha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest()
+r=dict(terminal=False,free_bytes=os.statvfs(j).f_bavail*os.statvfs(j).f_frsize,loadavg=os.getloadavg(),affinity=sorted(os.sched_getaffinity(0)),other_jobs=[])
+try:
+ proof=json.loads((j/'preflight-result.json').read_bytes());assert proof['terminal'] and proof['accepted'] and sha(j/'cohort_journal.py')==proof['observer_helper_sha256']
+ r['filesystem']=subprocess.check_output(['stat','-f','-c','%T',str(j)],text=True).strip();assert r['filesystem']!='nfs' and r['free_bytes']>15*1024**3
+ for p in Path('/proc').iterdir():
+  if not p.name.isdigit():continue
+  try:name=Path(os.readlink(p/'exe')).name;cwd=os.readlink(p/'cwd')
+  except OSError:continue
+  if name in ['nano_vm','nano_virt','nvm2c'] or name.startswith('nanoc'):r['other_jobs'].append(dict(pid=int(p.name),image=name,cwd=cwd))
+ assert not r['other_jobs'],r['other_jobs']
+ assert s['source_base']=='7b75651234c3235cd5a0ddd82d0a02c45fb3c8a8' and not (j/'source/bin/nanoc_stage2').exists() and not (j/'source/bin/nanoc_bootstrap.json').exists() and not list((j/'source').glob('.bootstrap*.built'))
+ assert sha(s['producer'])==s['producer_sha256']
+ for group in ['source_after','images_after']:
+  assert all(sha(j/'source'/n)==h for n,h in s[group].items())
+ for group in ['tools_after','hosts_after']:assert all(sha(n)==h for n,h in s[group].items())
+ assert all(v['share']>=.75 for v in s['cpu_rounds'])
+ r['output_directories']={name:(j/name).is_dir() for name in ['products','tmp']};assert all(r['output_directories'].values());r['accepted']=True
+finally:r['terminal']=True;(j/'admission-result.json').write_text(json.dumps(r,indent=2)+'\n')

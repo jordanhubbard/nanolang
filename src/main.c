@@ -172,6 +172,13 @@ static void resolve_project_root(const char *argv0) {
     }
 }
 
+/* I retain the complete accepted name; the detection table owns each copy. */
+static char *copy_native_list_name(const char *start, size_t length) {
+    char *name = strndup(start, length);
+    if (!name) { fputs("I cannot retain a native list type name.\n", stderr); exit(1); }
+    return name;
+}
+
 static void json_escape(FILE *out, const char *s) {
     if (!s) return;
     for (const unsigned char *p = (const unsigned char *)s; *p; p++) {
@@ -377,6 +384,72 @@ static int output_paths_alias(const char *artifact, const char *diagnostic,
     return 0;
 }
 
+/* I compare stable entries, including symlink and hard-link aliases. This is
+ * not a sandbox against concurrent filesystem mutation. */
+static int reject_source_output_alias(const char *input, const char *output) {
+    struct stat source, destination;
+    if (!output || !output[0]) return 0;
+    if (stat(input, &source) != 0) {
+        fprintf(stderr, "I cannot verify source identity '%s': %s\n", input, strerror(errno));
+        return -1;
+    }
+    if (stat(output, &destination) != 0) {
+        int failure = errno;
+        if (failure == ENOENT && lstat(output, &destination) != 0 && errno == ENOENT) return 0;
+        fprintf(stderr, "I cannot verify output identity '%s': %s\n", output, strerror(failure));
+        return -1;
+    }
+    if (source.st_dev == destination.st_dev && source.st_ino == destination.st_ino) {
+        fprintf(stderr, "I require separate source and output files: '%s' and '%s'\n", input, output);
+        return -1;
+    }
+    return 0;
+}
+
+static int reject_graph_output_alias(const char *input, const ModuleList *modules,
+                                     const char *output) {
+    if (reject_source_output_alias(input, output) != 0) return -1;
+    if (modules) for (int i = 0; i < modules->count; i++) {
+        if (reject_source_output_alias(modules->module_paths[i], output) != 0) return -1;
+    }
+    return 0;
+}
+
+static int reject_source_diagnostic_aliases(const char *input, const ModuleList *modules,
+                                           const char *output, const CompilerOptions *opts) {
+    const char *paths[] = {output, opts->profile_output_path, opts->profile_flamegraph_path,
+        opts->llm_diags_json_path, opts->llm_diags_toon_path, opts->llm_shadow_json_path,
+        opts->reflect_output_path, opts->bench_json};
+    for (size_t i = 0; i < sizeof(paths) / sizeof(paths[0]); i++) {
+        if (reject_graph_output_alias(input, modules, paths[i]) != 0) return -1;
+    }
+    return 0;
+}
+
+/* I keep the provisional executable on the destination filesystem. mkstemp
+ * reserves only my own random entry; I never lend the requested path to cc.
+ * Coverage metadata beside this entry remains usable by gcov after publication. */
+static char *create_native_staging(const char *output) {
+    const char *slash = strrchr(output, '/');
+    size_t parent_length = slash ? (size_t)(slash - output) + 1 : 0;
+    const char suffix[] = ".nano-native.XXXXXX";
+    char *path = malloc(parent_length + sizeof(suffix));
+    if (!path) return NULL;
+    memcpy(path, output, parent_length);
+    memcpy(path + parent_length, suffix, sizeof(suffix));
+    int fd = mkstemp(path);
+    if (fd < 0) { free(path); return NULL; }
+    if (close(fd) != 0) { int failure = errno; unlink(path); free(path); errno = failure; return NULL; }
+    return path;
+}
+
+static bool remove_native_staging(char *path) {
+    if (!path) return true;
+    if (unlink(path) == 0 || errno == ENOENT) return true;
+    fprintf(stderr, "I cannot remove provisional native output '%s': %s\n", path, strerror(errno));
+    return false;
+}
+
 static int reject_artifact_diagnostic_aliases(const char *artifact,
                                                const CompilerOptions *opts) {
     const char *diagnostics[] = {
@@ -403,6 +476,19 @@ static int reject_artifact_diagnostic_aliases(const char *artifact,
                     artifact, diagnostics[i]);
             return -1;
         }
+    }
+    return 0;
+}
+
+static int reject_native_auxiliary_aliases(const char *input, const ModuleList *modules,
+                                           const char *output, const char *auxiliary,
+                                           const CompilerOptions *opts) {
+    bool alias = false;
+    if (reject_graph_output_alias(input, modules, auxiliary) != 0 ||
+        reject_artifact_diagnostic_aliases(auxiliary, opts) != 0) return -1;
+    if (output_paths_alias(output, auxiliary, &alias) != 0 || alias) {
+        fprintf(stderr, "I require separate native and generated-C outputs: '%s' and '%s'\n", output, auxiliary);
+        return -1;
     }
     return 0;
 }
@@ -546,10 +632,12 @@ static bool check_interpreted_shadows(ASTNode *program, Environment *env,
     pid_t waited;
     for (;;) {
         waited = waitpid(child, &status, WNOHANG);
-        if (waited == child || (waited < 0 && errno != EINTR)) break;
+        if (waited < 0 && errno != EINTR) break;
+        /* I check the deadline even when a delayed polling wakeup reaps my child. */
         clock_failed = !clock_ok || clock_gettime(CLOCK_MONOTONIC, &now) != 0;
         timed_out = !clock_failed && (now.tv_sec - start.tv_sec > shadow_seconds ||
             (now.tv_sec - start.tv_sec == shadow_seconds && now.tv_nsec >= start.tv_nsec));
+        if (waited == child) break;
         if (clock_failed || timed_out) {
             kill(child, SIGKILL);
             do { waited = waitpid(child, &status, 0); } while (waited < 0 && errno == EINTR);
@@ -577,6 +665,100 @@ static bool check_interpreted_shadows(ASTNode *program, Environment *env,
         return false;
     }
     return true;
+}
+
+typedef struct {
+    ASTNode *program;
+    const char *source;
+    char *module;
+} CSourceOwner;
+typedef struct {
+    Environment *env;
+    CSourceOwner *owners;
+    size_t count;
+} CSourceResolution;
+
+/* I reuse my checked owner-scoped lookup and return only its original AST
+ * declaration. I borrow bodies and source owners for this synchronous call. */
+static ASTNode *resolve_c_source_function(void *opaque, ASTNode *owner, const char *name) {
+    CSourceResolution *graph = opaque;
+    CSourceOwner *unit = NULL;
+    for (size_t i = 0; i < graph->count; i++)
+        if (graph->owners[i].program == owner) { unit = &graph->owners[i]; break; }
+    if (!unit) return NULL;
+    char *saved_module = graph->env->current_module;
+    const char *saved_file = env_current_file(graph->env);
+    graph->env->current_module = unit->module;
+    env_set_current_file(graph->env, unit->source);
+    Function *function = env_get_function(graph->env, name);
+    graph->env->current_module = saved_module;
+    env_set_current_file(graph->env, saved_file);
+    if (!function || function->lexical_scope) return NULL;
+    ASTNode *found = NULL;
+    for (size_t i = 0; i < graph->count; i++) {
+        ASTNode *program = graph->owners[i].program;
+        for (int j = 0; j < program->as.program.count; j++) {
+            ASTNode *declaration = program->as.program.items[j];
+            if (declaration->type != AST_FUNCTION) continue;
+            bool exact = function->body && function->body == declaration->as.function.body;
+            if (function->is_extern && declaration->as.function.is_extern && function->source_file &&
+                !strcmp(function->source_file, graph->owners[i].source)) {
+                const char *original = function->alias_of ? function->alias_of : function->name;
+                const char *dot = strrchr(original, '.');
+                exact = !strcmp(dot ? dot + 1 : original, declaration->as.function.name);
+            }
+            if (exact) { if (found && found != declaration) return NULL; found = declaration; }
+        }
+    }
+    return found;
+}
+
+static int emit_checked_c_graph(ASTNode *root, Environment *env, ModuleList *modules,
+                                 const char *input, const char *output, const CBOptions *options) {
+    size_t count = (size_t)modules->count + 1, declarations = 0;
+    CSourceOwner *owners = calloc(count, sizeof *owners);
+    ASTNode **items = NULL;
+    CBSourceDeclaration *entries = NULL;
+    int result = 1;
+    if (!owners) goto done;
+    for (size_t i = 0; i < count; i++) {
+        bool entry = i + 1 == count;
+        owners[i].source = entry ? input : modules->module_paths[i];
+        owners[i].program = entry ? root : get_cached_module_ast(owners[i].source);
+        if (!owners[i].program || owners[i].program->type != AST_PROGRAM) goto done;
+        owners[i].module = entry ? (env->current_module ? strdup(env->current_module) : NULL) :
+                                  module_program_name(owners[i].program, owners[i].source);
+        if ((!entry || env->current_module) && !owners[i].module) goto done;
+        size_t size = (size_t)owners[i].program->as.program.count;
+        if (size > INT_MAX - declarations) goto done;
+        declarations += size;
+    }
+    if (declarations > SIZE_MAX / sizeof *items || declarations > SIZE_MAX / sizeof *entries) goto done;
+    items = calloc(declarations ? declarations : 1, sizeof *items);
+    entries = calloc(declarations ? declarations : 1, sizeof *entries);
+    if (!items || !entries) goto done;
+    size_t used = 0;
+    for (size_t i = 0; i < count; i++) {
+        ASTNode *program = owners[i].program;
+        for (int j = 0; j < program->as.program.count; j++) {
+            ASTNode *node = program->as.program.items[j];
+            if (node->type == AST_IMPORT || node->type == AST_MODULE_DECL || node->type == AST_SHADOW) continue;
+            items[used] = node;
+            entries[used++] = (CBSourceDeclaration){node, program};
+        }
+    }
+    ASTNode merged = {0};
+    merged.type = AST_PROGRAM;
+    merged.as.program.items = items;
+    merged.as.program.count = (int)used;
+    CSourceResolution resolution = {env, owners, count};
+    CBSourceGraph graph = {root, entries, used, &resolution, resolve_c_source_function};
+    result = c_backend_emit_graph(&merged, &graph, output, input, options);
+done:
+    if (owners) for (size_t i = 0; i < count; i++) free(owners[i].module);
+    free(entries); free(items); free(owners);
+    if (result) fputs("I could not emit my checked C source graph.\n", stderr);
+    return result;
 }
 
 /* Compile nanolang source to executable */
@@ -684,7 +866,18 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     env->profile_output_path = opts->profile_output_path;
     
     ModuleList *modules = create_module_list();
-    if (!process_imports_for_service(program, env, modules, input_file)) {
+    bool imports_loaded = process_imports_for_service(program, env, modules, input_file);
+    if (reject_source_diagnostic_aliases(input_file, modules, output_file, opts) != 0) {
+        free_ast(program);
+        free_tokens(tokens, token_count);
+        free_environment(env);
+        free_module_list(modules);
+        clear_module_cache();
+        free(source);
+        nl_list_CompilerDiagnostic_free(diags);
+        return 1;
+    }
+    if (!imports_loaded) {
         human_diag(NL_DIAG_IMPORT_FAILED);
         diags_push_id(diags, CompilerPhase_PHASE_PARSER, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_IMPORT_FAILED);
         free_ast(program);
@@ -889,7 +1082,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         }
         if (opts->verbose) printf("Emitting C → %s\n", c_out);
         CBOptions cb_opts = {0}; cb_opts.verbose = opts->verbose;
-        int c_rc = c_backend_emit(program, c_out, input_file, &cb_opts);
+        int c_rc = emit_checked_c_graph(program, env, modules, input_file, c_out, &cb_opts);
         if (c_rc == 0 && opts->verbose) {
             printf("✓ C source emitted to %s\n", c_out);
             printf("  Compile with: gcc -std=c11 %s -o prog\n", c_out);
@@ -1270,11 +1463,14 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         fflush(stdout);
     }
     
+    bool native_paths_valid = true;
     /* Save generated C to .genC file if -S flag is set */
     if (opts->save_asm) {
         char gen_c_file[512];
-        snprintf(gen_c_file, sizeof(gen_c_file), "%s.genC", input_file);
-        FILE *gen_c = fopen(gen_c_file, "w");
+        int length = snprintf(gen_c_file, sizeof(gen_c_file), "%s.genC", input_file);
+        native_paths_valid = length >= 0 && (size_t)length < sizeof(gen_c_file) &&
+            reject_native_auxiliary_aliases(input_file, modules, output_file, gen_c_file, opts) == 0;
+        FILE *gen_c = native_paths_valid ? fopen(gen_c_file, "w") : NULL;
         if (gen_c) {
             fprintf(gen_c, "%s", c_code);
             fclose(gen_c);
@@ -1288,16 +1484,20 @@ static int compile_file(const char *input_file, const char *output_file, Compile
 
     /* Write C code to temporary file in /tmp (or keep in output dir if --keep-c) */
     char temp_c_file[512];
+    int temp_c_length;
     if (opts->keep_c) {
         /* Keep in output directory if --keep-c is set */
-        snprintf(temp_c_file, sizeof(temp_c_file), "%s.c", output_file);
+        temp_c_length = snprintf(temp_c_file, sizeof(temp_c_file), "%s.c", output_file);
     } else {
         /* Use TMPDIR (or /tmp) for temporary files */
-        snprintf(temp_c_file, sizeof(temp_c_file), "%s/nanoc_%d_%s.c",
+        temp_c_length = snprintf(temp_c_file, sizeof(temp_c_file), "%s/nanoc_%d_%s.c",
                  get_tmp_dir(), (int)getpid(), strrchr(output_file, '/') ? strrchr(output_file, '/') + 1 : output_file);
     }
 
-    FILE *c_file = fopen(temp_c_file, "w");
+    native_paths_valid = native_paths_valid && temp_c_length >= 0 &&
+        (size_t)temp_c_length < sizeof(temp_c_file) &&
+        reject_native_auxiliary_aliases(input_file, modules, output_file, temp_c_file, opts) == 0;
+    FILE *c_file = native_paths_valid ? fopen(temp_c_file, "w") : NULL;
     if (!c_file) {
         fprintf(stderr, "%s: %s\n", nl_catalog_text(NL_DIAG_C_TEMP),
                 nl_utf8_cstr_or_marker(temp_c_file));
@@ -1412,7 +1612,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     
     /* Detect and generate generic list types from the C code AND compiler_schema.h */
     char generated_lists[1024] = "";
-    char detected_types[64][64]; /* Increased to handle more types */
+    char *detected_types[64]; /* I preserve the existing detection-count policy. */
     int detected_count = 0;
     
     /* First, scan compiler_schema.h if it exists */
@@ -1437,10 +1637,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                     end++;
                 }
                 if (*end == '*' || *end == ' ' || *end == '\n' || *end == ';') {
-                    int len = end - ptr;
-                    char type_name[64];
-                    strncpy(type_name, ptr, len);
-                    type_name[len] = '\0';
+                    char *type_name = copy_native_list_name(ptr, (size_t)(end - ptr));
                     
                     if (strcmp(type_name, "int") != 0 && strcmp(type_name, "string") != 0 && strcmp(type_name, "token") != 0 && strcmp(type_name, "Generic") != 0) {
                         bool found = false;
@@ -1451,9 +1648,11 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                             }
                         }
                         if (!found && detected_count < 64) {
-                            strcpy(detected_types[detected_count++], type_name);
+                            detected_types[detected_count++] = type_name;
+                            type_name = NULL;
                         }
                     }
+                    free(type_name);
                 }
             }
             free(schema_content);
@@ -1477,15 +1676,13 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         
         /* Check if followed by * or space (valid list type) */
         if (*end_ptr == '*' || *end_ptr == ' ' || *end_ptr == '\n') {
-            int len = end_ptr - scan_ptr;
-            char type_name[64];
-            strncpy(type_name, scan_ptr, len);
-            type_name[len] = '\0';
+            char *type_name = copy_native_list_name(scan_ptr, (size_t)(end_ptr - scan_ptr));
             
             /* Skip built-in types */
             if (strcmp(type_name, "int") == 0 || 
                 strcmp(type_name, "string") == 0 || 
                 strcmp(type_name, "token") == 0) {
+                free(type_name);
                 continue;
             }
             
@@ -1499,8 +1696,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
             }
             
             if (!already_detected && detected_count < 32) {
-                snprintf(detected_types[detected_count], 64, "%s", type_name);
-                detected_count++;
+                detected_types[detected_count++] = type_name;
                 
                 /* Check if this type already has a runtime list implementation.
                  * If so, skip wrapper generation to avoid duplicate symbols —
@@ -1643,6 +1839,8 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                 int list_length = snprintf(list_file, sizeof(list_file), "%s/list_%s_wrapper.c", get_tmp_dir(), type_name);
                 if (list_length < 0 || (size_t)list_length >= sizeof(list_file)) include_paths_valid = false;
                 include_paths_valid = module_append_path_flag(generated_lists, sizeof(generated_lists), "", list_file) && include_paths_valid;
+            } else {
+                free(type_name);
             }
         }
     }
@@ -1655,6 +1853,8 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         printf("\n");
     }
     
+    for (int i = 0; i < detected_count; ++i) free(detected_types[i]);
+
     /* Build runtime files string (paths relative to project root) */
     /* Note: sdl_helpers.c is NOT included here - it's provided by the sdl_helpers module */
     static const char *runtime_basenames[] = {
@@ -1732,7 +1932,9 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     const char *nano_cflags = getenv("NANO_CFLAGS");
     if (!nano_cflags) nano_cflags = "";
 
-    char *quoted_output = module_quote_path(output_file);
+    char *native_staging = create_native_staging(output_file);
+    if (!native_staging) fprintf(stderr, "I cannot stage native output '%s': %s\n", output_file, strerror(errno));
+    char *quoted_output = native_staging ? module_quote_path(native_staging) : NULL;
     char *quoted_temp_source = module_quote_path(temp_c_file);
     int cmd_len = quoted_output && quoted_temp_source ? snprintf(compile_cmd, sizeof(compile_cmd),
             "%s -std=c99 -Wall -Wextra -Werror -Wno-error=unused-function -Wno-error=unused-parameter -Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=logical-not-parentheses -Wno-error=duplicate-decl-specifier %s %s %s %s %s -o %s %s %s %s %s %s",
@@ -1742,6 +1944,8 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     free(module_objs);
     
     if (!include_paths_valid || cmd_len < 0 || cmd_len >= (int)sizeof(compile_cmd)) {
+        (void)remove_native_staging(native_staging);
+        free(native_staging);
         human_diag(NL_DIAG_CC_CMD);
         fprintf(stderr, "I could not represent all compiler arguments (%d command bytes, limit %zu).\n", cmd_len, sizeof(compile_cmd));
         fprintf(stderr, "Try reducing the number of modules or shortening paths.\n");
@@ -1766,13 +1970,32 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     int result = system(compile_cmd);
 
     if (result == 0) {
-        if (deterministic_outputs_enabled()) {
-#ifdef __APPLE__
-            (void)determinize_macho_uuid_and_signature(output_file);
-#endif
+        struct stat product;
+        if (lstat(native_staging, &product) != 0 || !S_ISREG(product.st_mode) ||
+            product.st_nlink != 1 || product.st_size == 0 || !(product.st_mode & 0111)) {
+            fputs("I require a completed regular executable before native publication.\n", stderr);
+            result = -1;
         }
+    }
+    if (result == 0 && deterministic_outputs_enabled()) {
+#ifdef __APPLE__
+        if (determinize_macho_uuid_and_signature(native_staging) != 0) result = -1;
+#endif
+    }
+    if (result == 0 && !opts->keep_c && remove(temp_c_file) != 0) {
+        fprintf(stderr, "I cannot remove temporary C before publication: %s\n", strerror(errno));
+        result = -1;
+    }
+    if (result == 0 && reject_source_diagnostic_aliases(input_file, modules, output_file, opts) != 0) result = -1;
+    if (result == 0 && rename(native_staging, output_file) != 0) {
+        fprintf(stderr, "I cannot publish native output '%s': %s\n", output_file, strerror(errno));
+        result = -1;
+    }
+    if (result == 0) {
         if (opts->verbose) printf("✓ Compilation successful: %s\n", output_file);
     } else {
+        (void)remove_native_staging(native_staging);
+        free(native_staging);
         human_diag(NL_DIAG_CC_FAILED);
         diags_push_id(diags, CompilerPhase_PHASE_BACKEND, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_CC_FAILED);
         /* Cleanup */
@@ -1793,10 +2016,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         return 1;  /* Return error if C compilation failed */
     }
 
-    /* Remove temporary C file unless --keep-c (cleanup on both success and failure) */
-    if (!opts->keep_c) {
-        remove(temp_c_file);
-    }
+    free(native_staging);
 
     llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 0, diags);
     llm_emit_diags_toon(opts->llm_diags_toon_path, input_file, output_file, 0, diags);
@@ -2239,7 +2459,8 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    if (reject_artifact_diagnostic_aliases(output_file, &opts) != 0) {
+    if (reject_source_diagnostic_aliases(input_file, NULL, output_file, &opts) != 0 ||
+        reject_artifact_diagnostic_aliases(output_file, &opts) != 0) {
         free(include_paths);
         free(library_paths);
         free(libraries);

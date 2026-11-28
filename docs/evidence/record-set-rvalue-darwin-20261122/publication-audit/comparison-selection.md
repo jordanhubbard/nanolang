@@ -1,0 +1,1 @@
+I preserve both the first and final Darwin suite logs. My first comparison selector matched both commands.json paths and refused before comparison. The corrected reader selects only the explicit final typed-source control path; no product check or expected result changes.

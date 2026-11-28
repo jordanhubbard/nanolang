@@ -1,0 +1,63 @@
+{
+  "files": [
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/module-verifier-20261121/independent-archive-verification.json",
+      "artifact": "inputs/000-independent-archive-verification.json.gz",
+      "bytes": 395,
+      "sha256": "fb924dec6fb2933eda66a2c42baf011af6a1833a75f8a249191d9b37322dec1d",
+      "compressed_bytes": 267,
+      "compressed_sha256": "595aa967cdfdd99dfbdda89434391096a4f72653590c3f2330d9647abea26550"
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/module-verifier-20261121/linux-launch.log",
+      "artifact": "inputs/001-linux-launch.log.gz",
+      "bytes": 2614,
+      "sha256": "3fb1291bdb629f7960ee451cddc4a791e81022702790f736fb56a826b5c29c75",
+      "compressed_bytes": 1059,
+      "compressed_sha256": "c4baa4d7cb02f9e2ee97d0374be8c63a2f6d9a7b4ff180ddb7d877c2b986d035"
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/module-verifier-20261121/reference-sanitizers.log",
+      "artifact": "inputs/002-reference-sanitizers.log.gz",
+      "bytes": 748,
+      "sha256": "afd7f70ce9811bc2c155e48e7ae016cc81c49b3371a9ea25f875e820f0306068",
+      "compressed_bytes": 465,
+      "compressed_sha256": "e8a031783a8ab4b37f8a2e7c4f55eb5e485a71713dce3fb92fd701a66120a080"
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/module-verifier-20261121/native-preflight.log",
+      "artifact": "inputs/003-native-preflight.log.gz",
+      "bytes": 641,
+      "sha256": "e8406e3d96b403b644bb300d7571b6b48f3ae5564cd92d8fae653f896477cb8d",
+      "compressed_bytes": 254,
+      "compressed_sha256": "225832b1a8341ed14717252a38926ee97cf9b896c02bc921df494276f70f44ac"
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/module-verifier-20261121/native-corrected.log",
+      "artifact": "inputs/004-native-corrected.log.gz",
+      "bytes": 218,
+      "sha256": "86025a77bdaaa135d2a05bb5d526ad44b71746595477989f2a162290b0005bbe",
+      "compressed_bytes": 167,
+      "compressed_sha256": "9db346ffa00459b0d3929ded5e945018e1bdb3bb431ec44174af31a8acb4ec8b"
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/module-verifier-20261121/original-source-preflight.json",
+      "artifact": "inputs/005-original-source-preflight.json.gz",
+      "bytes": 811,
+      "sha256": "794e0819e3c01942525a86a129ad31c040e99bcf1cef928c4cf19598efa3d08f",
+      "compressed_bytes": 193,
+      "compressed_sha256": "95646b9aac1f5a12f815f82b0498a7eb79b50311a989891629ebe7e35ea44138"
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/module-verifier-20261121/vm-cli.log",
+      "artifact": "inputs/006-vm-cli.log.gz",
+      "bytes": 148,
+      "sha256": "ca925728af24355a2a4a5a3e29bdd9f55c86ec5ea6fadead54829043c80ad7f8",
+      "compressed_bytes": 138,
+      "compressed_sha256": "8df00b1e284af0fab11652a0acb21214e7078983b2472339391ca22d335eaf46"
+    }
+  ],
+  "limits": [
+    "I retain independent archive/Git-pin verification and completed Linux qualification/publication records. These supplement the main archive counts. Paired Darwin remains pending during Puck's reserved capture run; no ownership/private/linked/pure-emitter or final-source bootstrap acceptance is added."
+  ]
+}

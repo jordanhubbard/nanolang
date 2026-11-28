@@ -1,0 +1,900 @@
+﻿2026-11-27T17:28:57.1930940Z Current runner version: '2.338.2'
+2026-11-27T17:28:57.1947170Z ##[group]Runner Image Provisioner
+2026-11-27T17:28:57.1947680Z Hosted Compute Agent
+2026-11-27T17:28:57.1948050Z Version: 20261111.635
+2026-11-27T17:28:57.1948460Z Commit: b8a594ea514ff44cadb5342986c68b1eac6e22ed
+2026-11-27T17:28:57.1948930Z Build Date: 2026-11-11T01:49:01Z
+2026-11-27T17:28:57.1949370Z Worker ID: {8b643265-60b5-4bad-8bfd-b38d768e99e7}
+2026-11-27T17:28:57.1949830Z Region: westus
+2026-11-27T17:28:57.1950190Z Cloud: MacCloud
+2026-11-27T17:28:57.1950540Z ##[endgroup]
+2026-11-27T17:28:57.1951490Z ##[group]Operating System
+2026-11-27T17:28:57.1951880Z macOS
+2026-11-27T17:28:57.1952210Z 27.0.1
+2026-11-27T17:28:57.1952530Z 26A434
+2026-11-27T17:28:57.1952870Z ##[endgroup]
+2026-11-27T17:28:57.1953220Z ##[group]Runner Image
+2026-11-27T17:28:57.1953600Z Image: xcode-27-arm64
+2026-11-27T17:28:57.1953980Z Version: 20261123.0387.2
+2026-11-27T17:28:57.1954800Z Included Software: https://github.com/actions/runner-images/blob/xcode-27-arm64/20261123.0387/images/macos/xcode-27-arm64-Readme.md
+2026-11-27T17:28:57.1955820Z Image Release: https://github.com/actions/runner-images/releases/tag/xcode-27-arm64%2F20261123.0387
+2026-11-27T17:28:57.1956500Z ##[endgroup]
+2026-11-27T17:28:57.1957240Z ##[group]GITHUB_TOKEN Permissions
+2026-11-27T17:28:57.1958320Z Contents: read
+2026-11-27T17:28:57.1958690Z Metadata: read
+2026-11-27T17:28:57.1959050Z ##[endgroup]
+2026-11-27T17:28:57.1961150Z Secret source: Actions
+2026-11-27T17:28:57.1961780Z Cache mode: write
+2026-11-27T17:28:57.1962250Z Prepare workflow directory
+2026-11-27T17:28:57.2516600Z Prepare all required actions
+2026-11-27T17:28:57.2554650Z Getting action download info
+2026-11-27T17:28:57.3940720Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-11-27T17:28:57.9078780Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-11-27T17:28:58.1201460Z Complete job name: C repair original gates (xcode-27, bootstrap)
+2026-11-27T17:28:58.2070580Z ##[group]Run test 'github-hosted' = github-hosted
+2026-11-27T17:28:58.2071360Z [36;1mtest 'github-hosted' = github-hosted[0m
+2026-11-27T17:28:58.2071860Z [36;1muname -a[0m
+2026-11-27T17:28:58.2072290Z [36;1mecho "I qualify $GITHUB_SHA on $RUNNER_NAME."[0m
+2026-11-27T17:28:58.2239320Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-27T17:28:58.2241520Z ##[endgroup]
+2026-11-27T17:28:58.2660240Z Darwin iad20-fj918-3607eb47-2b10-4173-8efb-e17166f5326b-0A85C08343F6.local 27.0.0 Darwin Kernel Version 27.0.0: Tue Aug 11 21:00:07 PDT 2026; root:xnu-13432.1.9~1/RELEASE_ARM64_VMAPPLE arm64
+2026-11-27T17:28:58.2661680Z I qualify d18fed86140b6a4cf983898ac32a079002f6b784 on GitHub Actions 1000226308.
+2026-11-27T17:28:58.2873440Z ##[group]Run actions/checkout@v4
+2026-11-27T17:28:58.2873970Z with:
+2026-11-27T17:28:58.2874380Z   sparse-checkout-cone-mode: false
+2026-11-27T17:28:58.2874890Z   sparse-checkout: /*
+!/docs/evidence/
+
+2026-11-27T17:28:58.2875390Z   repository: jordanhubbard/nanolang
+2026-11-27T17:28:58.2878800Z   token: ***
+2026-11-27T17:28:58.2879170Z   ssh-strict: true
+2026-11-27T17:28:58.2879560Z   ssh-user: git
+2026-11-27T17:28:58.2879940Z   persist-credentials: true
+2026-11-27T17:28:58.2880360Z   clean: true
+2026-11-27T17:28:58.2880730Z   fetch-depth: 1
+2026-11-27T17:28:58.2881110Z   fetch-tags: false
+2026-11-27T17:28:58.2881520Z   show-progress: true
+2026-11-27T17:28:58.2881920Z   lfs: false
+2026-11-27T17:28:58.2882550Z   submodules: false
+2026-11-27T17:28:58.2883040Z   set-safe-directory: true
+2026-11-27T17:28:58.2883500Z   allow-unsafe-pr-checkout: false
+2026-11-27T17:28:58.2884040Z ##[endgroup]
+2026-11-27T17:28:58.5373750Z Syncing repository: jordanhubbard/nanolang
+2026-11-27T17:28:58.5376490Z ##[group]Getting Git version info
+2026-11-27T17:28:58.5377220Z Working directory is '/Users/runner/work/nanolang/nanolang'
+2026-11-27T17:28:58.5378420Z [command]/opt/homebrew/bin/git version
+2026-11-27T17:28:58.5670290Z git version 2.56.1
+2026-11-27T17:28:58.5685220Z ##[endgroup]
+2026-11-27T17:28:58.5694830Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/3c51585f-c1b7-4b34-be24-78bfbd50aa75/.gitconfig'
+2026-11-27T17:28:58.5705200Z Temporarily overriding HOME='/Users/runner/work/_temp/3c51585f-c1b7-4b34-be24-78bfbd50aa75' before making global git config changes
+2026-11-27T17:28:58.5708660Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-27T17:28:58.5711440Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/nanolang/nanolang
+2026-11-27T17:28:58.5831400Z Deleting the contents of '/Users/runner/work/nanolang/nanolang'
+2026-11-27T17:28:58.5835580Z ##[group]Initializing the repository
+2026-11-27T17:28:58.5838920Z [command]/opt/homebrew/bin/git init /Users/runner/work/nanolang/nanolang
+2026-11-27T17:28:58.6070290Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-27T17:28:58.6074690Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-27T17:28:58.6078200Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-27T17:28:58.6080610Z hint: call:
+2026-11-27T17:28:58.6082700Z hint:
+2026-11-27T17:28:58.6086170Z hint: 	git config --global init.defaultBranch <name>
+2026-11-27T17:28:58.6088190Z hint:
+2026-11-27T17:28:58.6090600Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-27T17:28:58.6093840Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-27T17:28:58.6098090Z hint:
+2026-11-27T17:28:58.6099560Z hint: 	git branch -m <name>
+2026-11-27T17:28:58.6101170Z hint:
+2026-11-27T17:28:58.6104960Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-27T17:28:58.6109110Z Initialized empty Git repository in /Users/runner/work/nanolang/nanolang/.git/
+2026-11-27T17:28:58.6118920Z [command]/opt/homebrew/bin/git remote add origin https://github.com/jordanhubbard/nanolang
+2026-11-27T17:28:58.6227420Z ##[endgroup]
+2026-11-27T17:28:58.6229620Z ##[group]Disabling automatic garbage collection
+2026-11-27T17:28:58.6231860Z [command]/opt/homebrew/bin/git config --local gc.auto 0
+2026-11-27T17:28:58.6311980Z ##[endgroup]
+2026-11-27T17:28:58.6314900Z ##[group]Setting up auth
+2026-11-27T17:28:58.6317190Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-27T17:28:58.6403410Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-27T17:28:58.7633110Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-27T17:28:58.7714840Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-27T17:28:58.9063490Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-27T17:28:58.9393460Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-27T17:28:59.1096640Z [command]/opt/homebrew/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-27T17:28:59.1213500Z ##[endgroup]
+2026-11-27T17:28:59.1215970Z ##[group]Fetching the repository
+2026-11-27T17:28:59.1227440Z [command]/opt/homebrew/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --filter=blob:none --depth=1 origin +d18fed86140b6a4cf983898ac32a079002f6b784:refs/remotes/origin/feat/5.1-service-module-integration
+2026-11-27T17:29:01.9387500Z From https://github.com/jordanhubbard/nanolang
+2026-11-27T17:29:01.9428780Z  * [new ref]         d18fed86140b6a4cf983898ac32a079002f6b784 -> origin/feat/5.1-service-module-integration
+2026-11-27T17:29:01.9476290Z ##[endgroup]
+2026-11-27T17:29:01.9480030Z ##[group]Determining the checkout info
+2026-11-27T17:29:01.9482660Z ##[endgroup]
+2026-11-27T17:29:01.9484200Z ##[group]Setting up sparse checkout
+2026-11-27T17:29:01.9485270Z [command]/opt/homebrew/bin/git config core.sparseCheckout true
+2026-11-27T17:29:01.9668030Z [command]/opt/homebrew/bin/git rev-parse --git-path info/sparse-checkout
+2026-11-27T17:29:01.9746790Z .git/info/sparse-checkout
+2026-11-27T17:29:01.9800700Z ##[endgroup]
+2026-11-27T17:29:01.9821460Z ##[group]Checking out the ref
+2026-11-27T17:29:01.9840160Z [command]/opt/homebrew/bin/git checkout --progress --force -B feat/5.1-service-module-integration refs/remotes/origin/feat/5.1-service-module-integration
+2026-11-27T17:29:07.7386160Z Updating files:   0% (1/5290)
+2026-11-27T17:29:07.7458530Z Updating files:   1% (53/5290)
+2026-11-27T17:29:07.7532550Z Updating files:   2% (106/5290)
+2026-11-27T17:29:07.7617700Z Updating files:   3% (159/5290)
+2026-11-27T17:29:07.7721780Z Updating files:   4% (212/5290)
+2026-11-27T17:29:07.7800060Z Updating files:   5% (265/5290)
+2026-11-27T17:29:07.7877310Z Updating files:   6% (318/5290)
+2026-11-27T17:29:07.7948510Z Updating files:   7% (371/5290)
+2026-11-27T17:29:07.8018210Z Updating files:   8% (424/5290)
+2026-11-27T17:29:07.8098440Z Updating files:   9% (477/5290)
+2026-11-27T17:29:07.8159610Z Updating files:  10% (529/5290)
+2026-11-27T17:29:07.9109460Z Updating files:  11% (582/5290)
+2026-11-27T17:29:07.9348280Z Updating files:  12% (635/5290)
+2026-11-27T17:29:07.9416440Z Updating files:  13% (688/5290)
+2026-11-27T17:29:07.9522010Z Updating files:  14% (741/5290)
+2026-11-27T17:29:07.9616410Z Updating files:  15% (794/5290)
+2026-11-27T17:29:07.9734340Z Updating files:  16% (847/5290)
+2026-11-27T17:29:07.9830250Z Updating files:  17% (900/5290)
+2026-11-27T17:29:07.9929480Z Updating files:  18% (953/5290)
+2026-11-27T17:29:08.0014660Z Updating files:  19% (1006/5290)
+2026-11-27T17:29:08.0162710Z Updating files:  20% (1058/5290)
+2026-11-27T17:29:08.0285940Z Updating files:  21% (1111/5290)
+2026-11-27T17:29:08.0411110Z Updating files:  22% (1164/5290)
+2026-11-27T17:29:08.0507590Z Updating files:  23% (1217/5290)
+2026-11-27T17:29:08.0631290Z Updating files:  24% (1270/5290)
+2026-11-27T17:29:08.0712300Z Updating files:  25% (1323/5290)
+2026-11-27T17:29:08.0849260Z Updating files:  26% (1376/5290)
+2026-11-27T17:29:08.0946230Z Updating files:  27% (1429/5290)
+2026-11-27T17:29:08.1002220Z Updating files:  28% (1482/5290)
+2026-11-27T17:29:08.1120100Z Updating files:  29% (1535/5290)
+2026-11-27T17:29:08.1229680Z Updating files:  30% (1587/5290)
+2026-11-27T17:29:08.1321660Z Updating files:  31% (1640/5290)
+2026-11-27T17:29:08.1389710Z Updating files:  32% (1693/5290)
+2026-11-27T17:29:08.1466610Z Updating files:  33% (1746/5290)
+2026-11-27T17:29:08.1575220Z Updating files:  34% (1799/5290)
+2026-11-27T17:29:08.1688690Z Updating files:  35% (1852/5290)
+2026-11-27T17:29:08.1775110Z Updating files:  36% (1905/5290)
+2026-11-27T17:29:08.1831030Z Updating files:  37% (1958/5290)
+2026-11-27T17:29:08.1968890Z Updating files:  38% (2011/5290)
+2026-11-27T17:29:08.2089590Z Updating files:  39% (2064/5290)
+2026-11-27T17:29:08.2159770Z Updating files:  40% (2116/5290)
+2026-11-27T17:29:08.2214460Z Updating files:  41% (2169/5290)
+2026-11-27T17:29:08.2263410Z Updating files:  42% (2222/5290)
+2026-11-27T17:29:08.2420330Z Updating files:  43% (2275/5290)
+2026-11-27T17:29:08.2481650Z Updating files:  44% (2328/5290)
+2026-11-27T17:29:08.2557550Z Updating files:  45% (2381/5290)
+2026-11-27T17:29:08.2660500Z Updating files:  46% (2434/5290)
+2026-11-27T17:29:08.2732440Z Updating files:  47% (2487/5290)
+2026-11-27T17:29:08.2846970Z Updating files:  48% (2540/5290)
+2026-11-27T17:29:08.2952950Z Updating files:  49% (2593/5290)
+2026-11-27T17:29:08.3044530Z Updating files:  50% (2645/5290)
+2026-11-27T17:29:08.3205090Z Updating files:  51% (2698/5290)
+2026-11-27T17:29:08.3498890Z Updating files:  52% (2751/5290)
+2026-11-27T17:29:08.3742640Z Updating files:  53% (2804/5290)
+2026-11-27T17:29:08.3778070Z Updating files:  54% (2857/5290)
+2026-11-27T17:29:08.3897360Z Updating files:  55% (2910/5290)
+2026-11-27T17:29:08.4102080Z Updating files:  56% (2963/5290)
+2026-11-27T17:29:08.4206020Z Updating files:  57% (3016/5290)
+2026-11-27T17:29:08.4261910Z Updating files:  58% (3069/5290)
+2026-11-27T17:29:08.4316850Z Updating files:  59% (3122/5290)
+2026-11-27T17:29:08.4423790Z Updating files:  60% (3174/5290)
+2026-11-27T17:29:08.4484590Z Updating files:  61% (3227/5290)
+2026-11-27T17:29:08.4556100Z Updating files:  62% (3280/5290)
+2026-11-27T17:29:08.4635470Z Updating files:  63% (3333/5290)
+2026-11-27T17:29:08.4764690Z Updating files:  64% (3386/5290)
+2026-11-27T17:29:08.4886670Z Updating files:  65% (3439/5290)
+2026-11-27T17:29:08.4981160Z Updating files:  66% (3492/5290)
+2026-11-27T17:29:08.5057170Z Updating files:  67% (3545/5290)
+2026-11-27T17:29:08.5180080Z Updating files:  68% (3598/5290)
+2026-11-27T17:29:08.5270200Z Updating files:  68% (3635/5290)
+2026-11-27T17:29:08.5318260Z Updating files:  69% (3651/5290)
+2026-11-27T17:29:08.5386940Z Updating files:  70% (3703/5290)
+2026-11-27T17:29:08.5516200Z Updating files:  71% (3756/5290)
+2026-11-27T17:29:08.5626760Z Updating files:  72% (3809/5290)
+2026-11-27T17:29:08.5758760Z Updating files:  73% (3862/5290)
+2026-11-27T17:29:08.5869780Z Updating files:  74% (3915/5290)
+2026-11-27T17:29:08.6016220Z Updating files:  75% (3968/5290)
+2026-11-27T17:29:08.6133720Z Updating files:  76% (4021/5290)
+2026-11-27T17:29:08.6299210Z Updating files:  77% (4074/5290)
+2026-11-27T17:29:08.6385640Z Updating files:  78% (4127/5290)
+2026-11-27T17:29:08.6532080Z Updating files:  79% (4180/5290)
+2026-11-27T17:29:08.6646870Z Updating files:  80% (4232/5290)
+2026-11-27T17:29:08.6860880Z Updating files:  81% (4285/5290)
+2026-11-27T17:29:08.6907110Z Updating files:  82% (4338/5290)
+2026-11-27T17:29:08.6967920Z Updating files:  83% (4391/5290)
+2026-11-27T17:29:08.7070160Z Updating files:  84% (4444/5290)
+2026-11-27T17:29:08.7162570Z Updating files:  85% (4497/5290)
+2026-11-27T17:29:08.7241730Z Updating files:  86% (4550/5290)
+2026-11-27T17:29:08.7317380Z Updating files:  87% (4603/5290)
+2026-11-27T17:29:08.7455010Z Updating files:  88% (4656/5290)
+2026-11-27T17:29:08.7537900Z Updating files:  89% (4709/5290)
+2026-11-27T17:29:08.7711380Z Updating files:  90% (4761/5290)
+2026-11-27T17:29:08.7872610Z Updating files:  91% (4814/5290)
+2026-11-27T17:29:08.7931700Z Updating files:  92% (4867/5290)
+2026-11-27T17:29:08.8031060Z Updating files:  93% (4920/5290)
+2026-11-27T17:29:08.8202860Z Updating files:  94% (4973/5290)
+2026-11-27T17:29:08.8308570Z Updating files:  95% (5026/5290)
+2026-11-27T17:29:08.8392960Z Updating files:  96% (5079/5290)
+2026-11-27T17:29:08.8503300Z Updating files:  97% (5132/5290)
+2026-11-27T17:29:08.8608240Z Updating files:  98% (5185/5290)
+2026-11-27T17:29:08.8694900Z Updating files:  99% (5238/5290)
+2026-11-27T17:29:08.8695960Z Updating files: 100% (5290/5290)
+2026-11-27T17:29:08.8696330Z Updating files: 100% (5290/5290), done.
+2026-11-27T17:29:09.7489630Z Switched to a new branch 'feat/5.1-service-module-integration'
+2026-11-27T17:29:09.7522460Z branch 'feat/5.1-service-module-integration' set up to track 'origin/feat/5.1-service-module-integration'.
+2026-11-27T17:29:09.7638600Z ##[endgroup]
+2026-11-27T17:29:09.7858550Z [command]/opt/homebrew/bin/git log -1 --format=%H
+2026-11-27T17:29:09.7970940Z d18fed86140b6a4cf983898ac32a079002f6b784
+2026-11-27T17:29:09.8208540Z ##[group]Run python3 - <<'PY'
+2026-11-27T17:29:09.8208830Z [36;1mpython3 - <<'PY'[0m
+2026-11-27T17:29:09.8209170Z [36;1mimport os, shutil, tempfile[0m
+2026-11-27T17:29:09.8209560Z [36;1mfor path in ['.', tempfile.gettempdir(), os.environ['RUNNER_TEMP']]:[0m
+2026-11-27T17:29:09.8210090Z [36;1m    disk = shutil.disk_usage(path)[0m
+2026-11-27T17:29:09.8210540Z [36;1m    assert disk.free >= 20*1024**3 and disk.free/disk.total >= .10, (path, disk)[0m
+2026-11-27T17:29:09.8211010Z [36;1mPY[0m
+2026-11-27T17:29:09.8288940Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-27T17:29:09.8289320Z ##[endgroup]
+2026-11-27T17:29:10.1663020Z ##[group]Run ./scripts/ci-brew-install.sh pkg-config openssl sqlite sdl2 \
+2026-11-27T17:29:10.1663600Z [36;1m./scripts/ci-brew-install.sh pkg-config openssl sqlite sdl2 \[0m
+2026-11-27T17:29:10.1663980Z [36;1m  sdl2_image sdl2_mixer sdl2_ttf utf8proc[0m
+2026-11-27T17:29:10.1702560Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-27T17:29:10.1702840Z ##[endgroup]
+2026-11-27T17:29:10.2324630Z note: no timeout binary found; relying on the job timeout
+2026-11-27T17:29:12.7032740Z brew: pkg-config already installed; skipping
+2026-11-27T17:29:13.4273310Z brew: openssl already installed; skipping
+2026-11-27T17:29:13.4506110Z brew: sqlite already installed; skipping
+2026-11-27T17:29:14.2581480Z brew install attempt 1/3 (timeout 600s): sdl2
+2026-11-27T17:29:16.2000890Z [32m==>[0m [1mDownloading bottle manifests[0m
+2026-11-27T17:29:16.2142730Z ✔︎ Bottle Manifest sdl2-compat (2.32.74)
+2026-11-27T17:29:16.3106830Z [34m==>[0m [1mWould install 1 formula:[0m
+2026-11-27T17:29:16.3146980Z sdl2 2.32.74 (638.6KB)
+2026-11-27T17:29:16.3156240Z [34m==>[0m [1mWould install 1 dependency for sdl2-compat:[0m
+2026-11-27T17:29:16.3156810Z sdl3 3.4.20
+2026-11-27T17:29:16.3228900Z [32m==>[0m [1mFetching downloads for: [32msdl2-compat[39m[0m
+2026-11-27T17:29:16.8311260Z ✔︎ Bottle Manifest sdl3 (3.4.20)
+2026-11-27T17:29:18.6947300Z ✔︎ Bottle sdl3 (3.4.20)
+2026-11-27T17:29:18.7474820Z ✔︎ Bottle sdl2-compat (2.32.74)
+2026-11-27T17:29:18.7561080Z [32m==>[0m [1mInstalling sdl2-compat dependency: [32msdl3[39m (3.4.20)[0m
+2026-11-27T17:29:18.7635400Z [34m==>[0m [1mPouring sdl3--3.4.20.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T17:29:20.8876790Z 🍺  /opt/homebrew/Cellar/sdl3/3.4.20: 103 files, 6.3MB
+2026-11-27T17:29:20.8935320Z [32m==>[0m [1mInstalling [32msdl2-compat[39m[0m
+2026-11-27T17:29:20.8937010Z [34m==>[0m [1mPouring sdl2-compat--2.32.74.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T17:29:23.0163030Z 🍺  /opt/homebrew/Cellar/sdl2-compat/2.32.74: 117 files, 3.3MB
+2026-11-27T17:29:23.0343300Z brew install succeeded on attempt 1: sdl2
+2026-11-27T17:29:23.9612240Z brew install attempt 1/3 (timeout 600s): sdl2_image
+2026-11-27T17:29:26.0959170Z [32m==>[0m [1mDownloading bottle manifests[0m
+2026-11-27T17:29:26.1074320Z ✔︎ Bottle Manifest sdl2_image (2.8.12_2)
+2026-11-27T17:29:26.4050530Z [34m==>[0m [1mWould install 1 formula:[0m
+2026-11-27T17:29:26.4154200Z sdl2_image 2.8.12_2 (132.6KB)
+2026-11-27T17:29:26.4257670Z [34m==>[0m [1mWould install 10 dependencies for sdl2_image:[0m
+2026-11-27T17:29:26.4359580Z highway     1.4.0
+2026-11-27T17:29:26.4481600Z imath       3.2.3
+2026-11-27T17:29:26.4584910Z libdeflate  1.26
+2026-11-27T17:29:26.4687240Z openjph     0.33.0
+2026-11-27T17:29:26.4789700Z openexr     3.5.5
+2026-11-27T17:29:26.4892260Z jpeg-xl     0.13.0
+2026-11-27T17:29:26.5001730Z libvmaf     3.2.1
+2026-11-27T17:29:26.5116340Z aom         3.15.3
+2026-11-27T17:29:26.5226760Z dav1d       1.5.5
+2026-11-27T17:29:26.5330040Z libavif     1.4.2
+2026-11-27T17:29:26.9070450Z [32m==>[0m [1mFetching downloads for: [32msdl2_image[39m[0m
+2026-11-27T17:29:28.2269110Z ✔︎ Bottle Manifest highway (1.4.0)
+2026-11-27T17:29:28.2526950Z ✔︎ Bottle Manifest imath (3.2.3)
+2026-11-27T17:29:28.2531270Z ✔︎ Bottle Manifest libdeflate (1.26)
+2026-11-27T17:29:28.5477160Z ✔︎ Bottle Manifest openexr (3.5.5)
+2026-11-27T17:29:28.6007440Z ✔︎ Bottle Manifest openjph (0.33.0)
+2026-11-27T17:29:32.2953080Z ✔︎ Bottle sdl2_image (2.8.12_2)
+2026-11-27T17:29:32.2998190Z ✔︎ Bottle Manifest jpeg-xl (0.13.0)
+2026-11-27T17:29:32.3605360Z ✔︎ Bottle openexr (3.5.5)
+2026-11-27T17:29:32.3820780Z ✔︎ Bottle highway (1.4.0)
+2026-11-27T17:29:32.3922310Z ✔︎ Bottle Manifest libvmaf (3.2.1)
+2026-11-27T17:29:32.4024770Z ✔︎ Bottle Manifest aom (3.15.3)
+2026-11-27T17:29:32.4126720Z ✔︎ Bottle Manifest dav1d (1.5.5)
+2026-11-27T17:29:32.5211530Z ✔︎ Bottle imath (3.2.3)
+2026-11-27T17:29:32.5616670Z ✔︎ Bottle openjph (0.33.0)
+2026-11-27T17:29:32.5716910Z ✔︎ Bottle Manifest libavif (1.4.2)
+2026-11-27T17:29:32.7454970Z ✔︎ Bottle libdeflate (1.26)
+2026-11-27T17:29:35.5423340Z ✔︎ Bottle aom (3.15.3)
+2026-11-27T17:29:35.5546460Z ✔︎ Bottle libvmaf (3.2.1)
+2026-11-27T17:29:35.5749170Z ✔︎ Bottle dav1d (1.5.5)
+2026-11-27T17:29:35.6054530Z ✔︎ Bottle libavif (1.4.2)
+2026-11-27T17:29:35.6258740Z ✔︎ Bottle jpeg-xl (0.13.0)
+2026-11-27T17:29:35.7584330Z [32m==>[0m [1mInstalling dependencies for sdl2_image:[0m [32mhighway[39m, [32mimath[39m, [32mlibdeflate[39m, [32mopenjph[39m, [32mopenexr[39m, [32mjpeg-xl[39m, [32mlibvmaf[39m, [32maom[39m, [32mdav1d[39m and [32mlibavif[39m[0m
+2026-11-27T17:29:35.7586000Z [32m==>[0m [1mInstalling sdl2_image dependency: [32mhighway[39m (1.4.0)[0m
+2026-11-27T17:29:35.7711170Z [34m==>[0m [1mPouring highway--1.4.0.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T17:29:37.6020870Z 🍺  /opt/homebrew/Cellar/highway/1.4.0: 87 files, 5.7MB
+2026-11-27T17:29:37.6023000Z [32m==>[0m [1mInstalling sdl2_image dependency: [32mimath[39m (3.2.3)[0m
+2026-11-27T17:29:37.6076100Z [34m==>[0m [1mPouring imath--3.2.3.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T17:29:39.2105180Z 🍺  /opt/homebrew/Cellar/imath/3.2.3: 50 files, 977.3KB
+2026-11-27T17:29:39.2107790Z [32m==>[0m [1mInstalling sdl2_image dependency: [32mlibdeflate[39m (1.26)[0m
+2026-11-27T17:29:39.2152220Z [34m==>[0m [1mPouring libdeflate--1.26.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T17:29:40.9952260Z 🍺  /opt/homebrew/Cellar/libdeflate/1.26: 17 files, 303.3KB
+2026-11-27T17:29:40.9955080Z [32m==>[0m [1mInstalling sdl2_image dependency: [32mopenjph[39m (0.33.0)[0m
+2026-11-27T17:29:41.0612550Z [34m==>[0m [1mPouring openjph--0.33.0.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T17:29:42.9740700Z 🍺  /opt/homebrew/Cellar/openjph/0.33.0: 25 files, 635.3KB
+2026-11-27T17:29:42.9744000Z [32m==>[0m [1mInstalling sdl2_image dependency: [32mopenexr[39m (3.5.5)[0m
+2026-11-27T17:29:43.1004160Z [34m==>[0m [1mPouring openexr--3.5.5.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T17:29:44.9396350Z 🍺  /opt/homebrew/Cellar/openexr/3.5.5: 214 files, 4.7MB
+2026-11-27T17:29:44.9401550Z [32m==>[0m [1mInstalling sdl2_image dependency: [32mjpeg-xl[39m (0.13.0)[0m
+2026-11-27T17:29:45.0677740Z [34m==>[0m [1mPouring jpeg-xl--0.13.0.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T17:29:47.7951990Z 🍺  /opt/homebrew/Cellar/jpeg-xl/0.13.0: 65 files, 36.8MB
+2026-11-27T17:29:47.7963740Z [32m==>[0m [1mInstalling sdl2_image dependency: [32mlibvmaf[39m (3.2.1)[0m
+2026-11-27T17:29:47.8070930Z [34m==>[0m [1mPouring libvmaf--3.2.1.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T17:29:49.6587640Z 🍺  /opt/homebrew/Cellar/libvmaf/3.2.1: 243 files, 8.2MB
+2026-11-27T17:29:49.6589150Z [32m==>[0m [1mInstalling sdl2_image dependency: [32maom[39m (3.15.3)[0m
+2026-11-27T17:29:49.6776710Z [34m==>[0m [1mPouring aom--3.15.3.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T17:29:51.4091420Z 🍺  /opt/homebrew/Cellar/aom/3.15.3: 30 files, 11.3MB
+2026-11-27T17:29:51.4093940Z [32m==>[0m [1mInstalling sdl2_image dependency: [32mdav1d[39m (1.5.5)[0m
+2026-11-27T17:29:51.4269540Z [34m==>[0m [1mPouring dav1d--1.5.5.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T17:29:53.1405990Z 🍺  /opt/homebrew/Cellar/dav1d/1.5.5: 16 files, 978.4KB
+2026-11-27T17:29:53.1408210Z [32m==>[0m [1mInstalling sdl2_image dependency: [32mlibavif[39m (1.4.2)[0m
+2026-11-27T17:29:53.2449670Z [34m==>[0m [1mPouring libavif--1.4.2.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T17:29:56.8432210Z 🍺  /opt/homebrew/Cellar/libavif/1.4.2: 22 files, 1.1MB
+2026-11-27T17:29:56.8479790Z [32m==>[0m [1mInstalling [32msdl2_image[39m[0m
+2026-11-27T17:29:56.8485220Z [34m==>[0m [1mPouring sdl2_image--2.8.12_2.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T17:30:01.2902510Z 🍺  /opt/homebrew/Cellar/sdl2_image/2.8.12_2: 15 files, 408.2KB
+2026-11-27T17:30:01.3299560Z brew install succeeded on attempt 1: sdl2_image
+2026-11-27T17:30:02.6518690Z brew install attempt 1/3 (timeout 600s): sdl2_mixer
+2026-11-27T17:30:04.8127670Z [32m==>[0m [1mDownloading bottle manifests[0m
+2026-11-27T17:30:04.8322720Z ✔︎ Bottle Manifest sdl2_mixer (2.8.2)
+2026-11-27T17:30:04.9804110Z [34m==>[0m [1mWould install 1 formula:[0m
+2026-11-27T17:30:04.9825350Z sdl2_mixer 2.8.2 (160KB)
+2026-11-27T17:30:04.9843760Z [34m==>[0m [1mWould install 13 dependencies for sdl2_mixer:[0m
+2026-11-27T17:30:04.9844580Z libogg          1.3.6
+2026-11-27T17:30:04.9844940Z flac            1.5.0
+2026-11-27T17:30:04.9846420Z mpg123          1.33.7
+2026-11-27T17:30:04.9847230Z lame            4.0
+2026-11-27T17:30:04.9848170Z libvorbis       1.3.7
+2026-11-27T17:30:04.9848420Z opus            1.6.1
+2026-11-27T17:30:04.9848790Z libsndfile      1.2.2_1
+2026-11-27T17:30:04.9849150Z portaudio       19.7.0
+2026-11-27T17:30:04.9849760Z fluid-synth     2.6.3
+2026-11-27T17:30:04.9850610Z game-music-emu  0.6.5
+2026-11-27T17:30:04.9850940Z libxmp          4.7.4
+2026-11-27T17:30:04.9851400Z opusfile        0.12_3
+2026-11-27T17:30:04.9851820Z wavpack         5.9.0
+2026-11-27T17:30:05.3307210Z [32m==>[0m [1mFetching downloads for: [32msdl2_mixer[39m[0m
+2026-11-27T17:30:06.8619300Z ✔︎ Bottle Manifest libogg (1.3.6)
+2026-11-27T17:30:06.8621890Z ✔︎ Bottle Manifest flac (1.5.0)
+2026-11-27T17:30:06.8622360Z ✔︎ Bottle Manifest mpg123 (1.33.7)
+2026-11-27T17:30:07.0339870Z ✔︎ Bottle Manifest lame (4.0)
+2026-11-27T17:30:07.1752160Z ✔︎ Bottle Manifest libvorbis (1.3.7)
+2026-11-27T17:30:07.1855750Z ✔︎ Bottle Manifest opus (1.6.1)
+2026-11-27T17:30:10.5972000Z ✔︎ Bottle flac (1.5.0)
+2026-11-27T17:30:10.6599500Z ✔︎ Bottle sdl2_mixer (2.8.2)
+2026-11-27T17:30:10.6699740Z ✔︎ Bottle Manifest libsndfile (1.2.2_1)
+2026-11-27T17:30:10.6801940Z ✔︎ Bottle Manifest portaudio (19.7.0)
+2026-11-27T17:30:10.7304720Z ✔︎ Bottle mpg123 (1.33.7)
+2026-11-27T17:30:10.8107750Z ✔︎ Bottle libogg (1.3.6)
+2026-11-27T17:30:10.8220750Z ✔︎ Bottle Manifest fluid-synth (2.6.3)
+2026-11-27T17:30:11.0562200Z ✔︎ Bottle lame (4.0)
+2026-11-27T17:30:11.0664000Z ✔︎ Bottle Manifest game-music-emu (0.6.5)
+2026-11-27T17:30:11.0771130Z ✔︎ Bottle Manifest libxmp (4.7.4)
+2026-11-27T17:30:11.0873610Z ✔︎ Bottle libvorbis (1.3.7)
+2026-11-27T17:30:11.0974010Z ✔︎ Bottle Manifest opusfile (0.12_3)
+2026-11-27T17:30:14.0697070Z ✔︎ Bottle opus (1.6.1)
+2026-11-27T17:30:14.0799850Z ✔︎ Bottle Manifest wavpack (5.9.0)
+2026-11-27T17:30:14.0904330Z ✔︎ Bottle libsndfile (1.2.2_1)
+2026-11-27T17:30:14.1764150Z ✔︎ Bottle portaudio (19.7.0)
+2026-11-27T17:30:14.3946450Z ✔︎ Bottle fluid-synth (2.6.3)
+2026-11-27T17:30:14.4147360Z ✔︎ Bottle libxmp (4.7.4)
+2026-11-27T17:30:14.4349610Z ✔︎ Bottle game-music-emu (0.6.5)
+2026-11-27T17:30:16.1060170Z ✔︎ Bottle wavpack (5.9.0)
+2026-11-27T17:30:16.1315130Z ✔︎ Bottle opusfile (0.12_3)
+2026-11-27T17:30:16.3458870Z [32m==>[0m [1mInstalling dependencies for sdl2_mixer:[0m [32mlibogg[39m, [32mflac[39m, [32mmpg123[39m, [32mlame[39m, [32mlibvorbis[39m, [32mopus[39m, [32mlibsndfile[39m, [32mportaudio[39m, [32mfluid-synth[39m, [32mgame-music-emu[39m, [32mlibxmp[39m, [32mopusfile[39m and [32mwavpack[39m[0m
+2026-11-27T17:30:16.3465480Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mlibogg[39m (1.3.6)[0m
+2026-11-27T17:30:16.3503550Z [34m==>[0m [1mPouring libogg--1.3.6.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T17:30:18.6451360Z 🍺  /opt/homebrew/Cellar/libogg/1.3.6: 103 files, 533.8KB
+2026-11-27T17:30:18.6455930Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mflac[39m (1.5.0)[0m
+2026-11-27T17:30:18.6935190Z [34m==>[0m [1mPouring flac--1.5.0.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T17:30:20.7203870Z 🍺  /opt/homebrew/Cellar/flac/1.5.0: 40 files, 1.9MB
+2026-11-27T17:30:20.7347190Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mmpg123[39m (1.33.7)[0m
+2026-11-27T17:30:20.7633990Z [34m==>[0m [1mPouring mpg123--1.33.7.arm64_golden_gate.bottle.1.tar.gz[0m
+2026-11-27T17:30:23.0286390Z 🍺  /opt/homebrew/Cellar/mpg123/1.33.7: 34 files, 1.9MB
+2026-11-27T17:30:23.0328190Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mlame[39m (4.0)[0m
+2026-11-27T17:30:23.0467100Z [34m==>[0m [1mPouring lame--4.0.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T17:30:25.0690030Z 🍺  /opt/homebrew/Cellar/lame/4.0: 29 files, 1.9MB
+2026-11-27T17:30:25.0737950Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mlibvorbis[39m (1.3.7)[0m
+2026-11-27T17:30:25.0862490Z [34m==>[0m [1mPouring libvorbis--1.3.7.arm64_golden_gate.bottle.1.tar.gz[0m
+2026-11-27T17:30:27.2235540Z 🍺  /opt/homebrew/Cellar/libvorbis/1.3.7: 158 files, 2.4MB
+2026-11-27T17:30:27.2238290Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mopus[39m (1.6.1)[0m
+2026-11-27T17:30:27.2280530Z [34m==>[0m [1mPouring opus--1.6.1.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T17:30:29.0415770Z 🍺  /opt/homebrew/Cellar/opus/1.6.1: 16 files, 1.1MB
+2026-11-27T17:30:29.0417220Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mlibsndfile[39m (1.2.2_1)[0m
+2026-11-27T17:30:29.1018010Z [34m==>[0m [1mPouring libsndfile--1.2.2_1.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T17:30:30.8573720Z 🍺  /opt/homebrew/Cellar/libsndfile/1.2.2_1: 55 files, 1.8MB
+2026-11-27T17:30:30.8576170Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mportaudio[39m (19.7.0)[0m
+2026-11-27T17:30:30.8611850Z [34m==>[0m [1mPouring portaudio--19.7.0.arm64_golden_gate.bottle.1.tar.gz[0m
+2026-11-27T17:30:32.7982210Z 🍺  /opt/homebrew/Cellar/portaudio/19.7.0: 34 files, 527.7KB
+2026-11-27T17:30:32.8086500Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mfluid-synth[39m (2.6.3)[0m
+2026-11-27T17:30:32.9112930Z [34m==>[0m [1mPouring fluid-synth--2.6.3.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T17:30:34.9485540Z 🍺  /opt/homebrew/Cellar/fluid-synth/2.6.3: 43 files, 3.2MB
+2026-11-27T17:30:34.9489120Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mgame-music-emu[39m (0.6.5)[0m
+2026-11-27T17:30:34.9523370Z [34m==>[0m [1mPouring game-music-emu--0.6.5.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T17:30:37.0861620Z 🍺  /opt/homebrew/Cellar/game-music-emu/0.6.5: 13 files, 761.4KB
+2026-11-27T17:30:37.0864530Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mlibxmp[39m (4.7.4)[0m
+2026-11-27T17:30:37.0952590Z [34m==>[0m [1mPouring libxmp--4.7.4.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T17:30:38.6749650Z 🍺  /opt/homebrew/Cellar/libxmp/4.7.4: 15 files, 1.1MB
+2026-11-27T17:30:38.6754840Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mopusfile[39m (0.12_3)[0m
+2026-11-27T17:30:38.7091110Z [34m==>[0m [1mPouring opusfile--0.12_3.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T17:30:40.3313950Z 🍺  /opt/homebrew/Cellar/opusfile/0.12_3: 18 files, 327.1KB
+2026-11-27T17:30:40.3316620Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mwavpack[39m (5.9.0)[0m
+2026-11-27T17:30:40.3346810Z [34m==>[0m [1mPouring wavpack--5.9.0.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T17:30:42.0774240Z 🍺  /opt/homebrew/Cellar/wavpack/5.9.0: 26 files, 1.1MB
+2026-11-27T17:30:42.0783950Z [32m==>[0m [1mInstalling [32msdl2_mixer[39m[0m
+2026-11-27T17:30:42.0787580Z [34m==>[0m [1mPouring sdl2_mixer--2.8.2.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T17:30:44.0387400Z 🍺  /opt/homebrew/Cellar/sdl2_mixer/2.8.2: 25 files, 552.3KB
+2026-11-27T17:30:44.0600700Z brew install succeeded on attempt 1: sdl2_mixer
+2026-11-27T17:30:44.9020450Z brew install attempt 1/3 (timeout 600s): sdl2_ttf
+2026-11-27T17:30:46.4009940Z [32m==>[0m [1mDownloading bottle manifests[0m
+2026-11-27T17:30:46.4213210Z ✔︎ Bottle Manifest sdl2_ttf (2.24.0)
+2026-11-27T17:30:46.7215950Z [32m==>[0m [1mFetching downloads for: [32msdl2_ttf[39m[0m
+2026-11-27T17:30:48.5636220Z ✔︎ Bottle sdl2_ttf (2.24.0)
+2026-11-27T17:30:48.7063390Z [34m==>[0m [1mPouring sdl2_ttf--2.24.0.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T17:30:50.3216210Z 🍺  /opt/homebrew/Cellar/sdl2_ttf/2.24.0: 13 files, 273.3KB
+2026-11-27T17:30:50.3416070Z brew install succeeded on attempt 1: sdl2_ttf
+2026-11-27T17:30:51.0823960Z brew install attempt 1/3 (timeout 600s): utf8proc
+2026-11-27T17:30:52.6015250Z [32m==>[0m [1mDownloading bottle manifests[0m
+2026-11-27T17:30:52.6148460Z ✔︎ Bottle Manifest utf8proc (2.12.0)
+2026-11-27T17:30:52.6981000Z [32m==>[0m [1mFetching downloads for: [32mutf8proc[39m[0m
+2026-11-27T17:30:54.9794630Z ✔︎ Bottle utf8proc (2.12.0)
+2026-11-27T17:30:54.9874700Z [34m==>[0m [1mPouring utf8proc--2.12.0.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T17:30:56.9929810Z 🍺  /opt/homebrew/Cellar/utf8proc/2.12.0: 15 files, 461.5KB
+2026-11-27T17:30:57.0032410Z brew install succeeded on attempt 1: utf8proc
+2026-11-27T17:30:57.0429790Z ##[group]Run python3 scripts/ci_select_capture_clang.py
+2026-11-27T17:30:57.0430420Z [36;1mpython3 scripts/ci_select_capture_clang.py[0m
+2026-11-27T17:30:57.0490920Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-27T17:30:57.0491240Z ##[endgroup]
+2026-11-27T17:31:03.2476100Z ##[group]Run python3 -c 'import yaml' 2>/dev/null && exit 0
+2026-11-27T17:31:03.2476870Z [36;1mpython3 -c 'import yaml' 2>/dev/null && exit 0[0m
+2026-11-27T17:31:03.2477430Z [36;1mpython3 -m pip install --user pyyaml \[0m
+2026-11-27T17:31:03.2477880Z [36;1m  || python3 -m pip install --user --break-system-packages pyyaml[0m
+2026-11-27T17:31:03.2479620Z [36;1mpython3 -c 'import yaml'[0m
+2026-11-27T17:31:03.2574370Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-27T17:31:03.2574750Z env:
+2026-11-27T17:31:03.2575160Z   DEVELOPER_DIR: /Applications/Xcode_27.2.0.app/Contents/Developer
+2026-11-27T17:31:03.2575770Z   SDKROOT: /Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
+2026-11-27T17:31:03.2576420Z ##[endgroup]
+2026-11-27T17:31:05.4059470Z error: externally-managed-environment
+2026-11-27T17:31:05.4092210Z 
+2026-11-27T17:31:05.4120170Z × This environment is externally managed
+2026-11-27T17:31:05.4134420Z ╰─> To install Python packages system-wide, try brew install
+2026-11-27T17:31:05.4142510Z     xyz, where xyz is the package you are trying to
+2026-11-27T17:31:05.4150190Z     install.
+2026-11-27T17:31:05.4150590Z     
+2026-11-27T17:31:05.4150970Z     If you wish to install a Python library that isn't in Homebrew,
+2026-11-27T17:31:05.4152000Z     use a virtual environment:
+2026-11-27T17:31:05.4152310Z     
+2026-11-27T17:31:05.4152650Z     python3 -m venv path/to/venv
+2026-11-27T17:31:05.4153030Z     source path/to/venv/bin/activate
+2026-11-27T17:31:05.4153430Z     python3 -m pip install xyz
+2026-11-27T17:31:05.4154080Z     
+2026-11-27T17:31:05.4154500Z     If you wish to install a Python application that isn't in Homebrew,
+2026-11-27T17:31:05.4154970Z     it may be easiest to use 'pipx install xyz', which will manage a
+2026-11-27T17:31:05.4155550Z     virtual environment for you. You can install pipx with
+2026-11-27T17:31:05.4155970Z     
+2026-11-27T17:31:05.4156280Z     brew install pipx
+2026-11-27T17:31:05.4156650Z     
+2026-11-27T17:31:05.4156940Z     You may restore the old behavior of pip by passing
+2026-11-27T17:31:05.4157470Z     the '--break-system-packages' flag to pip, or by adding
+2026-11-27T17:31:05.4157930Z     'break-system-packages = true' to your pip.conf file. The latter
+2026-11-27T17:31:05.4158420Z     will permanently disable this error.
+2026-11-27T17:31:05.4158750Z     
+2026-11-27T17:31:05.4159170Z     If you disable this error, we STRONGLY recommend that you additionally
+2026-11-27T17:31:05.4159660Z     pass the '--user' flag to pip, or set 'user = true' in your pip.conf
+2026-11-27T17:31:05.4182780Z     file. Failure to do this can result in a broken Homebrew installation.
+2026-11-27T17:31:05.4185850Z     
+2026-11-27T17:31:05.4186980Z     Read more about this behavior here: <https://peps.python.org/pep-0668/>
+2026-11-27T17:31:05.4187780Z 
+2026-11-27T17:31:05.4189590Z note: If you believe this is a mistake, please contact your Python installation or OS distribution provider. You can override this, at the risk of breaking your Python installation or OS, by passing --break-system-packages.
+2026-11-27T17:31:05.4191730Z hint: See PEP 668 for the detailed specification.
+2026-11-27T17:31:06.2816440Z Collecting pyyaml
+2026-11-27T17:31:06.3891820Z   Downloading pyyaml-6.0.4-cp315-cp315-macosx_11_0_arm64.whl.metadata (2.3 kB)
+2026-11-27T17:31:06.6558460Z Downloading pyyaml-6.0.4-cp315-cp315-macosx_11_0_arm64.whl (181 kB)
+2026-11-27T17:31:06.9422970Z Installing collected packages: pyyaml
+2026-11-27T17:31:07.2071180Z Successfully installed pyyaml-6.0.4
+2026-11-27T17:31:07.3533150Z ##[group]Run mkdir -p .test_output/c-repair-original-gates
+2026-11-27T17:31:07.3534170Z [36;1mmkdir -p .test_output/c-repair-original-gates[0m
+2026-11-27T17:31:07.3534590Z [36;1mgit rev-parse HEAD > .test_output/c-repair-original-gates/revision.txt[0m
+2026-11-27T17:31:07.3535170Z [36;1mgit ls-tree -r HEAD > .test_output/c-repair-original-gates/source-tree.txt[0m
+2026-11-27T17:31:07.3535610Z [36;1mpython3 - <<'PY'[0m
+2026-11-27T17:31:07.3535990Z [36;1mimport hashlib, json, os, shlex, shutil, subprocess[0m
+2026-11-27T17:31:07.3536380Z [36;1mfrom pathlib import Path[0m
+2026-11-27T17:31:07.3536760Z [36;1mroot=Path('.test_output/c-repair-original-gates')[0m
+2026-11-27T17:31:07.3537210Z [36;1mcompiler=shlex.split(os.environ.get('CC','cc'))[0m
+2026-11-27T17:31:07.3537610Z [36;1mversion=subprocess.check_output(compiler+['--version'])[0m
+2026-11-27T17:31:07.3538150Z [36;1m(root/'compiler-version.txt').write_bytes(version)[0m
+2026-11-27T17:31:07.3538660Z [36;1mselected=[compiler[0],'as','ld','make','python3'][0m
+2026-11-27T17:31:07.3539000Z [36;1mfor tool in ('as','ld'):[0m
+2026-11-27T17:31:07.3539550Z [36;1m    selected.append(subprocess.check_output(compiler+['-print-prog-name='+tool]).decode().strip())[0m
+2026-11-27T17:31:07.3540110Z [36;1mtools={str(Path(shutil.which(n)).resolve()) for n in selected}[0m
+2026-11-27T17:31:07.3540630Z [36;1mhashes={n:hashlib.sha256(Path(n).read_bytes()).hexdigest() for n in tools}[0m
+2026-11-27T17:31:07.3541130Z [36;1m(root/'tools-before.json').write_text(json.dumps(hashes,indent=2)+'\n')[0m
+2026-11-27T17:31:07.3541670Z [36;1mcopies=root/'selected-tools';copies.mkdir()[0m
+2026-11-27T17:31:07.3542110Z [36;1mfor i,n in enumerate(sorted(tools)):[0m
+2026-11-27T17:31:07.3542430Z [36;1m    copy=copies/(str(i)+'-'+Path(n).name)[0m
+2026-11-27T17:31:07.3542850Z [36;1m    shutil.copyfile(n,copy)[0m
+2026-11-27T17:31:07.3543210Z [36;1m    assert hashlib.sha256(copy.read_bytes()).hexdigest()==hashes[n][0m
+2026-11-27T17:31:07.3543730Z [36;1mPY[0m
+2026-11-27T17:31:07.3636570Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-27T17:31:07.3637470Z env:
+2026-11-27T17:31:07.3637760Z   DEVELOPER_DIR: /Applications/Xcode_27.2.0.app/Contents/Developer
+2026-11-27T17:31:07.3639690Z   SDKROOT: /Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
+2026-11-27T17:31:07.3641100Z ##[endgroup]
+2026-11-27T17:31:08.6341420Z ##[group]Run set -o pipefail
+2026-11-27T17:31:08.6342500Z [36;1mset -o pipefail[0m
+2026-11-27T17:31:08.6343700Z [36;1mmake -f Makefile.gnu -j2 CC="${CC:-cc}" bin/nanoc_c nano_virt nano_vm \[0m
+2026-11-27T17:31:08.6345270Z [36;1m  nvm2c nanoisa_dump nvm2c-runtime \[0m
+2026-11-27T17:31:08.6346540Z [36;1m  2>&1 | tee .test_output/c-repair-original-gates/cold-tools.log[0m
+2026-11-27T17:31:08.6348790Z [36;1mpython3 - <<'PY'[0m
+2026-11-27T17:31:08.6349450Z [36;1mimport hashlib,json[0m
+2026-11-27T17:31:08.6350600Z [36;1mfrom pathlib import Path[0m
+2026-11-27T17:31:08.6351880Z [36;1mnames=['nanoc_c','nano_virt','nano_vm','nvm2c','nanoisa','nano_aot_runtime.o'][0m
+2026-11-27T17:31:08.6353450Z [36;1mif Path('bin/nano_as_capture.so').is_file():names.append('nano_as_capture.so')[0m
+2026-11-27T17:31:08.6354560Z [36;1mhashes={n:hashlib.sha256((Path('bin')/n).read_bytes()).hexdigest() for n in names}[0m
+2026-11-27T17:31:08.6357630Z [36;1mPath('.test_output/c-repair-original-gates/images-before.json').write_text(json.dumps(hashes,indent=2)+'\n')[0m
+2026-11-27T17:31:08.6358250Z [36;1mPY[0m
+2026-11-27T17:31:08.6417420Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-27T17:31:08.6417880Z env:
+2026-11-27T17:31:08.6418390Z   DEVELOPER_DIR: /Applications/Xcode_27.2.0.app/Contents/Developer
+2026-11-27T17:31:08.6419120Z   SDKROOT: /Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
+2026-11-27T17:31:08.6420400Z ##[endgroup]
+2026-11-27T17:31:11.1157400Z mkdir -p obj/build_bootstrap
+2026-11-27T17:31:11.1326200Z mkdir -p obj
+2026-11-27T17:31:11.1591830Z mkdir -p obj/nanoisa
+2026-11-27T17:31:11.1895200Z mkdir -p obj/nanovirt
+2026-11-27T17:31:11.2048040Z mkdir -p obj/nanovm
+2026-11-27T17:31:11.2307900Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/websocket_flow.c -o obj/nanoisa/websocket_flow.o
+2026-11-27T17:31:11.3050160Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/websocket_codec.c -o obj/nanoisa/websocket_codec.o
+2026-11-27T17:31:11.6707740Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_websocket_nominal.c -o obj/nanoisa/service_websocket_nominal.o
+2026-11-27T17:31:11.8244470Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_websocket_nominal_plan.c -o obj/nanoisa/service_websocket_nominal_plan.o
+2026-11-27T17:31:12.0257600Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_multi_nominal.c -o obj/nanoisa/service_multi_nominal.o
+2026-11-27T17:31:12.1897470Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_multi_nominal_plan.c -o obj/nanoisa/service_multi_nominal_plan.o
+2026-11-27T17:31:12.3899720Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_socket_nominal.c -o obj/nanoisa/service_socket_nominal.o
+2026-11-27T17:31:12.5749920Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_socket_nominal_plan.c -o obj/nanoisa/service_socket_nominal_plan.o
+2026-11-27T17:31:12.7716980Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_source_snapshot.c -o obj/nanoisa/file_source_snapshot.o
+2026-11-27T17:31:12.9586840Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_source_plan.c -o obj/nanoisa/file_source_plan.o
+2026-11-27T17:31:13.1350200Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_source_catalog.c -o obj/nanoisa/file_source_catalog.o
+2026-11-27T17:31:13.2891750Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/socket_flow.c -o obj/nanoisa/socket_flow.o
+2026-11-27T17:31:13.3965760Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/services_flow.c -o obj/nanoisa/services_flow.o
+2026-11-27T17:31:14.9563300Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/services_nominal.c -o obj/nanoisa/services_nominal.o
+2026-11-27T17:31:15.1105260Z cc  -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -std=c11 -c src/nanoisa/file_host_grant.c -o obj/nanoisa/file_host_grant.o
+2026-11-27T17:31:15.1291750Z cc  -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -DNVM_FILE_PUBLIC_ENGINE -c src/nanoisa/file_runtime.c -o obj/nanoisa/file_runtime_public.o
+2026-11-27T17:31:15.2360220Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_public_native.c -o obj/nanoisa/file_public_native.o
+2026-11-27T17:31:15.4665260Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nanovm/file_public_vm.c -o obj/nanovm/file_public_vm.o
+2026-11-27T17:31:15.7219000Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_cyclic_public_native.c -o obj/nanoisa/file_cyclic_public_native.o
+2026-11-27T17:31:15.9976120Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nanovm/file_cyclic_public_vm.c -o obj/nanovm/file_cyclic_public_vm.o
+2026-11-27T17:31:16.0321040Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_cyclic_public_abi.c -o obj/nanoisa/file_cyclic_public_abi.o
+2026-11-27T17:31:16.1310950Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_indirect_public_native.c -o obj/nanoisa/file_indirect_public_native.o
+2026-11-27T17:31:16.2329690Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nanovm/file_indirect_public_vm.c -o obj/nanovm/file_indirect_public_vm.o
+2026-11-27T17:31:16.4192050Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_indirect_public_abi.c -o obj/nanoisa/file_indirect_public_abi.o
+2026-11-27T17:31:16.4880310Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/socket_runtime.c -o obj/nanoisa/socket_runtime.o
+2026-11-27T17:31:16.5484000Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/socket_host_grant.c -o obj/nanoisa/socket_host_grant.o
+2026-11-27T17:31:16.6441680Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/socket_indirect_public_native.c -o obj/nanoisa/socket_indirect_public_native.o
+2026-11-27T17:31:16.9739060Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/socket_indirect_public_abi.c -o obj/nanoisa/socket_indirect_public_abi.o
+2026-11-27T17:31:17.0640330Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nanovm/socket_indirect_public_vm.c -o obj/nanovm/socket_indirect_public_vm.o
+2026-11-27T17:31:17.3153890Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/services_runtime.c -o obj/nanoisa/services_runtime.o
+2026-11-27T17:31:17.3560150Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/services_host_grant.c -o obj/nanoisa/services_host_grant.o
+2026-11-27T17:31:17.5206400Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/services_indirect_public_native.c -o obj/nanoisa/services_indirect_public_native.o
+2026-11-27T17:31:17.8874480Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/services_indirect_public_abi.c -o obj/nanoisa/services_indirect_public_abi.o
+2026-11-27T17:31:18.0379280Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nanovm/services_indirect_public_vm.c -o obj/nanovm/services_indirect_public_vm.o
+2026-11-27T17:31:18.3625420Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/websocket_runtime.c -o obj/nanoisa/websocket_runtime.o
+2026-11-27T17:31:18.4133260Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/websocket_host_grant.c -o obj/nanoisa/websocket_host_grant.o
+2026-11-27T17:31:18.5398730Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/websocket_indirect_public_native.c -o obj/nanoisa/websocket_indirect_public_native.o
+2026-11-27T17:31:18.8660680Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/websocket_indirect_public_abi.c -o obj/nanoisa/websocket_indirect_public_abi.o
+2026-11-27T17:31:19.0037160Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nanovm/websocket_indirect_public_vm.c -o obj/nanovm/websocket_indirect_public_vm.o
+2026-11-27T17:31:19.1619610Z mkdir -p bin
+2026-11-27T17:31:19.1911920Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nanovirt/main.c -o obj/nanovirt/main.o
+2026-11-27T17:31:19.3206600Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nanovm/vmd_protocol.c -o obj/nanovm/vmd_protocol.o
+2026-11-27T17:31:19.4490240Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nanovm/vmd_client.c -o obj/nanovm/vmd_client.o
+2026-11-27T17:31:19.4685170Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nanovm/main.c -o obj/nanovm/main.o
+2026-11-27T17:31:19.5659460Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_cli.c -o obj/nanoisa/file_cli.o
+2026-11-27T17:31:19.6826650Z python3 scripts/embed_binary64_parser.py --check
+2026-11-27T17:31:19.6960190Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -Imodules/nanoisa -c src/nanoisa/nvm2c_main.c -o obj/nanoisa/nvm2c_main.o
+2026-11-27T17:31:19.7724090Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -Imodules/nanoisa -c modules/nanoisa/dump_main.c -o obj/nanoisa/dump_main.o
+2026-11-27T17:31:19.8228260Z [schema] Generating compiler schema artifacts...
+2026-11-27T17:31:19.8320200Z [schema] Using Python version (bootstrap)...
+2026-11-27T17:31:19.8607310Z mkdir -p obj/runtime
+2026-11-27T17:31:19.8863710Z mkdir -p obj/eval
+2026-11-27T17:31:19.9097220Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/affine_bytecode.c -o obj/nanoisa/affine_bytecode.o
+2026-11-27T17:31:19.9198330Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/affine_state.c -o obj/nanoisa/affine_state.o
+2026-11-27T17:31:20.3952850Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/assembler.c -o obj/nanoisa/assembler.o
+2026-11-27T17:31:21.1301380Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/disassembler.c -o obj/nanoisa/disassembler.o
+2026-11-27T17:31:21.4155830Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_flow.c -o obj/nanoisa/file_flow.o
+2026-11-27T17:31:21.4569800Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/frontend.c -o obj/nanoisa/frontend.o
+2026-11-27T17:31:21.6637780Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/isa.c -o obj/nanoisa/isa.o
+2026-11-27T17:31:21.8042990Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/local_bindings.c -o obj/nanoisa/local_bindings.o
+2026-11-27T17:31:21.9734460Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/managed_array_shapes.c -o obj/nanoisa/managed_array_shapes.o
+2026-11-27T17:31:23.5555430Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/mixed_float_proof.c -o obj/nanoisa/mixed_float_proof.o
+2026-11-27T17:31:24.0034240Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -Imodules/nanoisa -c modules/nanoisa/nanoisa.c -o obj/nanoisa/nanoisa_facade.o
+2026-11-27T17:31:24.2866770Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm2c.c -o obj/nanoisa/nvm2c.o
+2026-11-27T17:31:24.4210450Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm2c_callables.c -o obj/nanoisa/nvm2c_callables.o
+2026-11-27T17:31:24.8116450Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm2c_shape.c -o obj/nanoisa/nvm2c_shape.o
+2026-11-27T17:31:25.1945780Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_format.c -o obj/nanoisa/nvm_format.o
+2026-11-27T17:31:25.8260100Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_format_v2.c -o obj/nanoisa/nvm_format_v2.o
+2026-11-27T17:31:25.9888060Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_constants.c -o obj/nanoisa/nvm_v2_constants.o
+2026-11-27T17:31:26.1043740Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_convert.c -o obj/nanoisa/nvm_v2_convert.o
+2026-11-27T17:31:26.3651050Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_cursor.c -o obj/nanoisa/nvm_v2_cursor.o
+2026-11-27T17:31:26.4920410Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_functions.c -o obj/nanoisa/nvm_v2_functions.o
+2026-11-27T17:31:26.5959480Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_imports.c -o obj/nanoisa/nvm_v2_imports.o
+2026-11-27T17:31:26.7527110Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_layouts.c -o obj/nanoisa/nvm_v2_layouts.o
+2026-11-27T17:31:26.9213250Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_module.c -o obj/nanoisa/nvm_v2_module.o
+2026-11-27T17:31:27.1256290Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_signatures.c -o obj/nanoisa/nvm_v2_signatures.o
+2026-11-27T17:31:27.2846020Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/ownership_contracts.c -o obj/nanoisa/ownership_contracts.o
+2026-11-27T17:31:27.4933330Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/passive.c -o obj/nanoisa/passive.o
+2026-11-27T17:31:27.8757410Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/reference_places.c -o obj/nanoisa/reference_places.o
+2026-11-27T17:31:27.9296420Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/retained_layouts.c -o obj/nanoisa/retained_layouts.o
+2026-11-27T17:31:27.9881030Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_bindings.c -o obj/nanoisa/service_bindings.o
+2026-11-27T17:31:28.0834400Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_bindings_module.c -o obj/nanoisa/service_bindings_module.o
+2026-11-27T17:31:28.2761790Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_file_nominal.c -o obj/nanoisa/service_file_nominal.o
+2026-11-27T17:31:28.4070080Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_file_nominal_plan.c -o obj/nanoisa/service_file_nominal_plan.o
+2026-11-27T17:31:28.4811150Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/verifier.c -o obj/nanoisa/verifier.o
+2026-11-27T17:31:28.5628630Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/verifier_types.c -o obj/nanoisa/verifier_types.o
+2026-11-27T17:31:28.7230270Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nanovirt/codegen.c -o obj/nanovirt/codegen.o
+2026-11-27T17:31:29.2090480Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nanovirt/shadow_runner.c -o obj/nanovirt/shadow_runner.o
+2026-11-27T17:31:29.4268390Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -DNANO_WRAPPER_CRYPTO_DIR='"/opt/homebrew/Cellar/openssl@4/4.1.0/lib"' -DNANO_WRAPPER_INSTRUMENT_FLAGS='""' -c src/nanovirt/wrapper_gen.c -o obj/nanovirt/wrapper_gen.o
+2026-11-27T17:31:29.7049740Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nanovm/cop_protocol.c -o obj/nanovm/cop_protocol.o
+2026-11-27T17:31:30.1045800Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nanovm/heap.c -o obj/nanovm/heap.o
+2026-11-27T17:31:30.5808920Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nanovm/heap_cycles.c -o obj/nanovm/heap_cycles.o
+2026-11-27T17:31:30.7490020Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nanovm/value.c -o obj/nanovm/value.o
+2026-11-27T17:31:30.8479360Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -ffp-contract=off -fno-fast-math -c src/nanovm/vm.c -o obj/nanovm/vm.o
+2026-11-27T17:31:31.6736280Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nanovm/vm_builtins.c -o obj/nanovm/vm_builtins.o
+2026-11-27T17:31:31.9024730Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nanovm/vm_callback.c -o obj/nanovm/vm_callback.o
+2026-11-27T17:31:32.0290170Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nanovm/vm_decode.c -o obj/nanovm/vm_decode.o
+2026-11-27T17:31:32.1602390Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nanovm/vm_dispatch.c -o obj/nanovm/vm_dispatch.o
+2026-11-27T17:31:32.2927100Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nanovm/vm_ffi.c -o obj/nanovm/vm_ffi.o
+2026-11-27T17:31:33.0992060Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nanovm/vm_ffi_arrays.c -o obj/nanovm/vm_ffi_arrays.o
+2026-11-27T17:31:33.3223970Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/bcp47.c -o obj/bcp47.o
+2026-11-27T17:31:33.4089710Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/bench.c -o obj/bench.o
+2026-11-27T17:31:33.5097960Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/bench_native.c -o obj/bench_native.o
+2026-11-27T17:31:33.6344910Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/builtins_registry.c -o obj/builtins_registry.o
+2026-11-27T17:31:33.6595010Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/cJSON.c -o obj/cJSON.o
+2026-11-27T17:31:33.7632240Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/c_backend.c -o obj/c_backend.o
+2026-11-27T17:31:34.2117700Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/catalog.c -o obj/catalog.o
+2026-11-27T17:31:34.4476780Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/channel.c -o obj/channel.o
+2026-11-27T17:31:34.6391790Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/checked_borrow_facts.c -o obj/checked_borrow_facts.o
+2026-11-27T17:31:34.9463680Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/coroutine.c -o obj/coroutine.o
+2026-11-27T17:31:35.0364830Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/cps_pass.c -o obj/cps_pass.o
+2026-11-27T17:31:35.1921520Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/dce_pass.c -o obj/dce_pass.o
+2026-11-27T17:31:35.2347570Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/diag_id.c -o obj/diag_id.o
+2026-11-27T17:31:35.3271410Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/docgen.c -o obj/docgen.o
+2026-11-27T17:31:35.4177740Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/docgen_md.c -o obj/docgen_md.o
+2026-11-27T17:31:35.6360350Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/dwarf_info.c -o obj/dwarf_info.o
+2026-11-27T17:31:35.6499950Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/effects.c -o obj/effects.o
+2026-11-27T17:31:35.7478500Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/emit_typed_ast.c -o obj/emit_typed_ast.o
+2026-11-27T17:31:35.8655350Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/env.c -o obj/env.o
+2026-11-27T17:31:35.9397530Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -ffp-contract=off -fno-fast-math -c src/eval.c -o obj/eval.o
+2026-11-27T17:31:36.9057370Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/eval/carrier_heap.c -o obj/eval/carrier_heap.o
+2026-11-27T17:31:37.1429010Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/eval/carrier_runtime.c -o obj/eval/carrier_runtime.o
+2026-11-27T17:31:37.4036220Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/eval/carrier_values.c -o obj/eval/carrier_values.o
+2026-11-27T17:31:37.7546470Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/eval/eval_hashmap.c -o obj/eval/eval_hashmap.o
+2026-11-27T17:31:37.9406930Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/eval/eval_io.c -o obj/eval/eval_io.o
+2026-11-27T17:31:38.1615260Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/eval/eval_math.c -o obj/eval/eval_math.o
+2026-11-27T17:31:38.2565060Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/eval/eval_string.c -o obj/eval/eval_string.o
+2026-11-27T17:31:38.2798210Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/fmt.c -o obj/fmt.o
+2026-11-27T17:31:38.4047900Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/fold_constants.c -o obj/fold_constants.o
+2026-11-27T17:31:38.4554940Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/interpreter_ffi.c -o obj/interpreter_ffi.o
+2026-11-27T17:31:38.5492320Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/json_diagnostics.c -o obj/json_diagnostics.o
+2026-11-27T17:31:38.6338550Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/lexer.c -o obj/lexer.o
+2026-11-27T17:31:38.6766720Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/locale.c -o obj/locale.o
+2026-11-27T17:31:38.7679300Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/main.c -o obj/main.o
+2026-11-27T17:31:38.8859380Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/module.c -o obj/module.o
+2026-11-27T17:31:39.2591820Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/module_builder.c -o obj/module_builder.o
+2026-11-27T17:31:39.4923500Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/module_metadata.c -o obj/module_metadata.o
+2026-11-27T17:31:40.0469810Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nanocore_export.c -o obj/nanocore_export.o
+2026-11-27T17:31:40.4227780Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nanocore_subset.c -o obj/nanocore_subset.o
+2026-11-27T17:31:40.6374650Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nominal_types.c -o obj/nominal_types.o
+2026-11-27T17:31:41.0065660Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/opencl_backend.c -o obj/opencl_backend.o
+2026-11-27T17:31:41.2592060Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/par_let_pass.c -o obj/par_let_pass.o
+2026-11-27T17:31:41.2996270Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/parser.c -o obj/parser.o
+2026-11-27T17:31:41.4296050Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/pgo_pass.c -o obj/pgo_pass.o
+2026-11-27T17:31:41.6714700Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/ptx_backend.c -o obj/ptx_backend.o
+2026-11-27T17:31:41.9346550Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/reflection.c -o obj/reflection.o
+2026-11-27T17:31:42.1263600Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/resource_flow.c -o obj/resource_flow.o
+2026-11-27T17:31:42.7361780Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/resource_tracking.c -o obj/resource_tracking.o
+2026-11-27T17:31:43.0065420Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/riscv_backend.c -o obj/riscv_backend.o
+2026-11-27T17:31:43.0434580Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/callback_runtime.c -o obj/runtime/callback_runtime.o
+2026-11-27T17:31:43.2326970Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/cli.c -o obj/runtime/cli.o
+2026-11-27T17:31:43.2468120Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/dyn_array.c -o obj/runtime/dyn_array.o
+2026-11-27T17:31:43.3287630Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/effect_runtime.c -o obj/runtime/effect_runtime.o
+2026-11-27T17:31:43.4340780Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/ffi_loader.c -o obj/runtime/ffi_loader.o
+2026-11-27T17:31:43.4514760Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/gc.c -o obj/runtime/gc.o
+2026-11-27T17:31:43.5832550Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/gc_struct.c -o obj/runtime/gc_struct.o
+2026-11-27T17:31:43.6123810Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_ASTArrayLiteral.c -o obj/runtime/list_ASTArrayLiteral.o
+2026-11-27T17:31:43.7507460Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_ASTAssert.c -o obj/runtime/list_ASTAssert.o
+2026-11-27T17:31:43.7870810Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_ASTBinaryOp.c -o obj/runtime/list_ASTBinaryOp.o
+2026-11-27T17:31:43.9429910Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_ASTBlock.c -o obj/runtime/list_ASTBlock.o
+2026-11-27T17:31:43.9670470Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_ASTBool.c -o obj/runtime/list_ASTBool.o
+2026-11-27T17:31:44.0781630Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_ASTCall.c -o obj/runtime/list_ASTCall.o
+2026-11-27T17:31:44.0898880Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_ASTEnum.c -o obj/runtime/list_ASTEnum.o
+2026-11-27T17:31:44.1856860Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_ASTFieldAccess.c -o obj/runtime/list_ASTFieldAccess.o
+2026-11-27T17:31:44.2109680Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_ASTFloat.c -o obj/runtime/list_ASTFloat.o
+2026-11-27T17:31:44.3043170Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_ASTFor.c -o obj/runtime/list_ASTFor.o
+2026-11-27T17:31:44.3163570Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_ASTFunction.c -o obj/runtime/list_ASTFunction.o
+2026-11-27T17:31:44.4174000Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_ASTIdentifier.c -o obj/runtime/list_ASTIdentifier.o
+2026-11-27T17:31:44.4275090Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_ASTIf.c -o obj/runtime/list_ASTIf.o
+2026-11-27T17:31:44.5139560Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_ASTImport.c -o obj/runtime/list_ASTImport.o
+2026-11-27T17:31:44.5321730Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_ASTLet.c -o obj/runtime/list_ASTLet.o
+2026-11-27T17:31:44.6271540Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_ASTMatch.c -o obj/runtime/list_ASTMatch.o
+2026-11-27T17:31:44.6618350Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_ASTModuleQualifiedCall.c -o obj/runtime/list_ASTModuleQualifiedCall.o
+2026-11-27T17:31:44.7575380Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_ASTNumber.c -o obj/runtime/list_ASTNumber.o
+2026-11-27T17:31:44.7707070Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_ASTOpaqueType.c -o obj/runtime/list_ASTOpaqueType.o
+2026-11-27T17:31:44.8682440Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_ASTPrint.c -o obj/runtime/list_ASTPrint.o
+2026-11-27T17:31:44.8822190Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_ASTReturn.c -o obj/runtime/list_ASTReturn.o
+2026-11-27T17:31:44.9598920Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_ASTServiceDecl.c -o obj/runtime/list_ASTServiceDecl.o
+2026-11-27T17:31:44.9960900Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_ASTSet.c -o obj/runtime/list_ASTSet.o
+2026-11-27T17:31:45.1122360Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_ASTShadow.c -o obj/runtime/list_ASTShadow.o
+2026-11-27T17:31:45.1568270Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_ASTStmtRef.c -o obj/runtime/list_ASTStmtRef.o
+2026-11-27T17:31:45.2758680Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_ASTString.c -o obj/runtime/list_ASTString.o
+2026-11-27T17:31:45.2870920Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_ASTStruct.c -o obj/runtime/list_ASTStruct.o
+2026-11-27T17:31:45.3657820Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_ASTStructLiteral.c -o obj/runtime/list_ASTStructLiteral.o
+2026-11-27T17:31:45.3972590Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_ASTTupleIndex.c -o obj/runtime/list_ASTTupleIndex.o
+2026-11-27T17:31:45.4760940Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_ASTTupleLiteral.c -o obj/runtime/list_ASTTupleLiteral.o
+2026-11-27T17:31:45.5125520Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_ASTUnion.c -o obj/runtime/list_ASTUnion.o
+2026-11-27T17:31:45.5570710Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_ASTUnionConstruct.c -o obj/runtime/list_ASTUnionConstruct.o
+2026-11-27T17:31:45.5984570Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_ASTUnsafeBlock.c -o obj/runtime/list_ASTUnsafeBlock.o
+2026-11-27T17:31:45.6454700Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_ASTWhile.c -o obj/runtime/list_ASTWhile.o
+2026-11-27T17:31:45.6942190Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_CompilerDiagnostic.c -o obj/runtime/list_CompilerDiagnostic.o
+2026-11-27T17:31:45.7326310Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_CompilerSourceLocation.c -o obj/runtime/list_CompilerSourceLocation.o
+2026-11-27T17:31:45.7944180Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_LexerToken.c -o obj/runtime/list_LexerToken.o
+2026-11-27T17:31:45.8201920Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_bool.c -o obj/runtime/list_bool.o
+2026-11-27T17:31:45.9114230Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_int.c -o obj/runtime/list_int.o
+2026-11-27T17:31:45.9297550Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_string.c -o obj/runtime/list_string.o
+2026-11-27T17:31:46.0172600Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/list_token.c -o obj/runtime/list_token.o
+2026-11-27T17:31:46.0452620Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/module_build_dir.c -o obj/runtime/module_build_dir.o
+2026-11-27T17:31:46.1169920Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/nl_string.c -o obj/runtime/nl_string.o
+2026-11-27T17:31:46.1374560Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/regex.c -o obj/runtime/regex.o
+2026-11-27T17:31:46.2155970Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/token_helpers.c -o obj/runtime/token_helpers.o
+2026-11-27T17:31:46.2282360Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/service_bodies.c -o obj/service_bodies.o
+2026-11-27T17:31:46.2969560Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/service_namespace.c -o obj/service_namespace.o
+2026-11-27T17:31:46.4972150Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/service_ownership.c -o obj/service_ownership.o
+2026-11-27T17:31:46.5368320Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/stdlib_runtime.c -o obj/stdlib_runtime.o
+2026-11-27T17:31:46.7148340Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/tco_pass.c -o obj/tco_pass.o
+2026-11-27T17:31:46.7426890Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/toon_output.c -o obj/toon_output.o
+2026-11-27T17:31:46.8367380Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/tracing.c -o obj/tracing.o
+2026-11-27T17:31:46.9257660Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/transpiler.c -o obj/transpiler.o
+2026-11-27T17:31:46.9416940Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/type_infer.c -o obj/type_infer.o
+2026-11-27T17:31:47.2479320Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/typechecker.c -o obj/typechecker.o
+2026-11-27T17:31:49.7569800Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/utf8.c -o obj/utf8.o
+2026-11-27T17:31:49.8854370Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nsi_websocket_binding.c -o obj/nsi_websocket_binding.o
+2026-11-27T17:31:49.9353310Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nsi_websocket_plan.c -o obj/nsi_websocket_plan.o
+2026-11-27T17:31:50.0656020Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nsi_socket_binding.c -o obj/nsi_socket_binding.o
+2026-11-27T17:31:50.1868110Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nsi_socket_plan.c -o obj/nsi_socket_plan.o
+2026-11-27T17:31:50.2921170Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nsi_file_binding.c -o obj/nsi_file_binding.o
+2026-11-27T17:31:50.3614730Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nsi.c -o obj/nsi.o
+2026-11-27T17:31:50.6230160Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nsi_file_plan.c -o obj/nsi_file_plan.o
+2026-11-27T17:31:50.6969590Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/service_driver.c -o obj/service_driver.o
+2026-11-27T17:31:50.7796240Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/service_lowering.c -o obj/service_lowering.o
+2026-11-27T17:31:50.8171460Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/service_product.c -o obj/runtime/service_product.o
+2026-11-27T17:31:51.0000420Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/service_shadows.c -o obj/runtime/service_shadows.o
+2026-11-27T17:31:51.1254770Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nsi_cap.c -o obj/nsi_cap.o
+2026-11-27T17:31:51.3099170Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nsi_file.c -o obj/nsi_file.o
+2026-11-27T17:31:51.3843240Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nsi_file_values.c -o obj/nsi_file_values.o
+2026-11-27T17:31:51.4572800Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nsi_socket.c -o obj/nsi_socket.o
+2026-11-27T17:31:51.5437450Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nsi_socket_values.c -o obj/nsi_socket_values.o
+2026-11-27T17:31:51.6416640Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/runtime/service_policy.c -o obj/runtime/service_policy.o
+2026-11-27T17:31:51.6896740Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nsi_services_values.c -o obj/nsi_services_values.o
+2026-11-27T17:31:51.7361970Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nsi_websocket_values.c -o obj/nsi_websocket_values.o
+2026-11-27T17:31:51.8662960Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nsi_websocket_transport.c -o obj/nsi_websocket_transport.o
+2026-11-27T17:31:51.8752750Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nsi_websocket_protocol.c -o obj/nsi_websocket_protocol.o
+2026-11-27T17:31:52.0716070Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -MMD -MP -c src/nsi_socket_resolver.c -o obj/nsi_socket_resolver.o
+2026-11-27T17:31:52.1026090Z cc -r -nostdlib -o bin/nano_aot_runtime.o obj/runtime/dyn_array.o obj/runtime/gc.o obj/runtime/gc_struct.o obj/runtime/regex.o obj/utf8.o
+2026-11-27T17:31:52.2533400Z ar rcs lib/libnano_compiler_inputs.a obj/nanoisa/websocket_flow.o obj/nanoisa/websocket_codec.o obj/nanoisa/service_websocket_nominal.o obj/nanoisa/service_websocket_nominal_plan.o obj/nsi_websocket_binding.o obj/nsi_websocket_plan.o obj/nanoisa/service_multi_nominal.o obj/nanoisa/service_multi_nominal_plan.o obj/nanoisa/service_socket_nominal.o obj/nanoisa/service_socket_nominal_plan.o obj/nsi_socket_binding.o obj/nsi_socket_plan.o obj/nanoisa/file_source_snapshot.o obj/nanoisa/file_source_plan.o obj/nanoisa/file_source_catalog.o obj/nsi_file_binding.o obj/nsi.o obj/nsi_file_plan.o
+2026-11-27T17:31:53.7206190Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -o bin/nanoisa obj/nanoisa/dump_main.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o lib/libnano_compiler_inputs.a obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@4/4.1.0/lib
+2026-11-27T17:31:53.8311160Z Stage 1: Building C reference compiler...
+2026-11-27T17:31:53.8653350Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -o bin/nano_virt obj/nanovirt/codegen.o obj/nanovirt/wrapper_gen.o obj/nanovirt/shadow_runner.o obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o lib/libnano_compiler_inputs.a \
+2026-11-27T17:31:53.8682500Z 		obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/tracing.o obj/eval/carrier_heap.o obj/eval/carrier_values.o obj/eval/carrier_runtime.o obj/checked_borrow_facts.o obj/resource_flow.o obj/nominal_types.o obj/service_namespace.o obj/service_bodies.o obj/service_ownership.o lib/libnano_compiler_inputs.a obj/runtime/list_int.o obj/runtime/list_bool.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o obj/nanovirt/main.o obj/service_driver.o obj/service_lowering.o obj/runtime/service_product.o obj/runtime/service_shadows.o lib/libnano_file_runtime.a lib/libnano_socket_runtime.a lib/libnano_services_runtime.a lib/libnano_websocket_runtime.a -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@4/4.1.0/lib
+2026-11-27T17:31:53.9288470Z ld: warning: ignoring duplicate libraries: 'lib/libnano_compiler_inputs.a'
+2026-11-27T17:31:54.0325940Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -o bin/nano_vm obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o lib/libnano_compiler_inputs.a obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/tracing.o obj/eval/carrier_heap.o obj/eval/carrier_values.o obj/eval/carrier_runtime.o obj/checked_borrow_facts.o obj/resource_flow.o obj/nominal_types.o obj/service_namespace.o obj/service_bodies.o obj/service_ownership.o lib/libnano_compiler_inputs.a obj/runtime/list_int.o obj/runtime/list_bool.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o \
+2026-11-27T17:31:54.0338740Z 		obj/nanovm/vmd_protocol.o obj/nanovm/vmd_client.o \
+2026-11-27T17:31:54.0339930Z 		obj/nanovm/main.o obj/nanoisa/file_cli.o lib/libnano_file_runtime.a lib/libnano_socket_runtime.a lib/libnano_services_runtime.a lib/libnano_websocket_runtime.a -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@4/4.1.0/lib 
+2026-11-27T17:31:54.0971020Z ld: warning: ignoring duplicate libraries: 'lib/libnano_compiler_inputs.a'
+2026-11-27T17:31:54.1667900Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -o bin/nvm2c obj/nanoisa/nvm2c_main.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o lib/libnano_compiler_inputs.a obj/utf8.o obj/nanoisa/file_cli.o lib/libnano_file_runtime.a lib/libnano_socket_runtime.a lib/libnano_services_runtime.a lib/libnano_websocket_runtime.a -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@4/4.1.0/lib
+2026-11-27T17:31:55.2860360Z ✓ C Compiler: bin/nanoc_c
+2026-11-27T17:31:55.4613990Z ##[group]Run set -o pipefail
+2026-11-27T17:31:55.4614660Z [36;1mset -o pipefail[0m
+2026-11-27T17:31:55.4615120Z [36;1mmake -f Makefile.gnu -j1 CC="${CC:-cc}" test-env-string-binding-hint test-env-symbol-index \[0m
+2026-11-27T17:31:55.4615660Z [36;1m  2>&1 | tee .test_output/c-repair-original-gates/string-binding-regression.log[0m
+2026-11-27T17:31:55.4754320Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-27T17:31:55.4754640Z env:
+2026-11-27T17:31:55.4754990Z   DEVELOPER_DIR: /Applications/Xcode_27.2.0.app/Contents/Developer
+2026-11-27T17:31:55.4755600Z   SDKROOT: /Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
+2026-11-27T17:31:55.4756040Z ##[endgroup]
+2026-11-27T17:31:55.9505920Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -UNDEBUG -o obj/test_env_string_binding_hint tests/test_env_string_binding_hint.c obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/tracing.o obj/eval/carrier_heap.o obj/eval/carrier_values.o obj/eval/carrier_runtime.o obj/checked_borrow_facts.o obj/resource_flow.o obj/nominal_types.o obj/service_namespace.o obj/service_bodies.o obj/service_ownership.o lib/libnano_compiler_inputs.a obj/runtime/list_int.o obj/runtime/list_bool.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@4/4.1.0/lib
+2026-11-27T17:31:56.1452920Z tests/test_env_string_binding_hint.c:100:12: error: call to undeclared function 'mkdtemp'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+2026-11-27T17:31:56.1553360Z   100 |     assert(mkdtemp(directory));
+2026-11-27T17:31:56.1559760Z       |            ^
+2026-11-27T17:31:56.1600830Z 1 error generated.
+2026-11-27T17:31:56.1623330Z make: *** [test-env-string-binding-hint] Error 1
+2026-11-27T17:31:56.1663110Z ##[error]Process completed with exit code 2.
+2026-11-27T17:31:56.1975220Z ##[group]Run git diff --exit-code HEAD
+2026-11-27T17:31:56.1975620Z [36;1mgit diff --exit-code HEAD[0m
+2026-11-27T17:31:56.1975990Z [36;1mpython3 - <<'PY'[0m
+2026-11-27T17:31:56.1976310Z [36;1mimport hashlib,json[0m
+2026-11-27T17:31:56.1976620Z [36;1mfrom pathlib import Path[0m
+2026-11-27T17:31:56.1977560Z [36;1mroot=Path('.test_output/c-repair-original-gates')[0m
+2026-11-27T17:31:56.1978830Z [36;1mfor name,base in [('tools',Path('/')),('images',Path('bin'))]:[0m
+2026-11-27T17:31:56.1979800Z [36;1m    before=root/(name+'-before.json')[0m
+2026-11-27T17:31:56.1980920Z [36;1m    if not before.exists():continue[0m
+2026-11-27T17:31:56.1981690Z [36;1m    expected=json.loads(before.read_text())[0m
+2026-11-27T17:31:56.1982860Z [36;1m    actual={n:hashlib.sha256((base/n).read_bytes()).hexdigest() for n in expected}[0m
+2026-11-27T17:31:56.1984070Z [36;1m    (root/(name+'-after.json')).write_text(json.dumps(actual,indent=2)+'\n')[0m
+2026-11-27T17:31:56.1984710Z [36;1m    assert actual==expected,(name,expected,actual)[0m
+2026-11-27T17:31:56.1985180Z [36;1mPY[0m
+2026-11-27T17:31:56.2049820Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-27T17:31:56.2050310Z env:
+2026-11-27T17:31:56.2050670Z   DEVELOPER_DIR: /Applications/Xcode_27.2.0.app/Contents/Developer
+2026-11-27T17:31:56.2051390Z   SDKROOT: /Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
+2026-11-27T17:31:56.2051960Z ##[endgroup]
+2026-11-27T17:31:57.1384900Z ##[group]Run python3 - <<'PY'
+2026-11-27T17:31:57.1385250Z [36;1mpython3 - <<'PY'[0m
+2026-11-27T17:31:57.1385450Z [36;1mfrom pathlib import Path[0m
+2026-11-27T17:31:57.1385790Z [36;1mfor path in sorted(Path('obj/bootstrap-nanoisa').glob('run-*/*.log')):[0m
+2026-11-27T17:31:57.1386210Z [36;1m    print(str(path),flush=True)[0m
+2026-11-27T17:31:57.1386650Z [36;1m    print(path.read_text(errors='replace')[-32000:],flush=True)[0m
+2026-11-27T17:31:57.1386950Z [36;1mPY[0m
+2026-11-27T17:31:57.1471480Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-27T17:31:57.1472180Z env:
+2026-11-27T17:31:57.1472900Z   DEVELOPER_DIR: /Applications/Xcode_27.2.0.app/Contents/Developer
+2026-11-27T17:31:57.1474180Z   SDKROOT: /Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
+2026-11-27T17:31:57.1475320Z ##[endgroup]
+2026-11-27T17:31:57.2525950Z ##[group]Run actions/upload-artifact@v4
+2026-11-27T17:31:57.2527050Z with:
+2026-11-27T17:31:57.2527460Z   name: c-repair-original-xcode-27-bootstrap-d18fed86140b6a4cf983898ac32a079002f6b784
+2026-11-27T17:31:57.2528540Z   path: .test_output/
+bin/nanoc*
+bin/nano_vm
+bin/nano_virt
+bin/nvm2c
+bin/nanoisa
+bin/nano_aot_runtime.o
+bin/nano_as_capture.so
+obj/bootstrap-nanoisa/
+obj/module_cache/
+modules/index.json
+modules/**/.build/**
+/Users/runner/work/_temp/nano-*/
+
+2026-11-27T17:31:57.2529440Z   include-hidden-files: true
+2026-11-27T17:31:57.2529640Z   if-no-files-found: error
+2026-11-27T17:31:57.2529870Z   retention-days: 30
+2026-11-27T17:31:57.2530090Z   compression-level: 6
+2026-11-27T17:31:57.2530280Z   overwrite: false
+2026-11-27T17:31:57.2531140Z env:
+2026-11-27T17:31:57.2531400Z   DEVELOPER_DIR: /Applications/Xcode_27.2.0.app/Contents/Developer
+2026-11-27T17:31:57.2531970Z   SDKROOT: /Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
+2026-11-27T17:31:57.2532390Z ##[endgroup]
+2026-11-27T17:31:57.8021310Z (node:7341) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-27T17:31:57.8022190Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-27T17:31:57.8920570Z Multiple search paths detected. Calculating the least common ancestor of all paths
+2026-11-27T17:31:57.8926730Z The least common ancestor is /Users/runner/work. This will be the root directory of the artifact
+2026-11-27T17:31:57.8927210Z With the provided path, there will be 28 files uploaded
+2026-11-27T17:31:57.8927700Z Artifact name is valid!
+2026-11-27T17:31:57.8927930Z Root directory input is valid!
+2026-11-27T17:31:58.1847070Z Beginning upload of artifact content to blob storage
+2026-11-27T17:31:58.7653340Z (node:7341) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-27T17:31:58.9562370Z Uploaded bytes 8388608
+2026-11-27T17:31:59.6566400Z Uploaded bytes 16777216
+2026-11-27T17:32:00.2764710Z Uploaded bytes 25165824
+2026-11-27T17:32:00.9817900Z Uploaded bytes 33554432
+2026-11-27T17:32:01.0062660Z Uploaded bytes 33801232
+2026-11-27T17:32:01.0366820Z Finished uploading artifact content to blob storage!
+2026-11-27T17:32:01.0383820Z SHA256 digest of uploaded artifact zip is 0bcfc8b4d922293bd393caa8786520ed8cdd491d1f061aa45ffa50ee732dc0b1
+2026-11-27T17:32:01.0386360Z Finalizing artifact upload
+2026-11-27T17:32:01.4173180Z Artifact c-repair-original-xcode-27-bootstrap-d18fed86140b6a4cf983898ac32a079002f6b784.zip successfully finalized. Artifact ID 15221635906
+2026-11-27T17:32:01.4174490Z Artifact c-repair-original-xcode-27-bootstrap-d18fed86140b6a4cf983898ac32a079002f6b784 has been successfully uploaded! Final size is 33801232 bytes. Artifact ID is 15221635906
+2026-11-27T17:32:01.4190600Z Artifact download URL: https://github.com/jordanhubbard/nanolang/actions/runs/46042142609/artifacts/15221635906
+2026-11-27T17:32:01.4895210Z Post job cleanup.
+2026-11-27T17:32:01.7066530Z [command]/opt/homebrew/bin/git version
+2026-11-27T17:32:01.7201620Z git version 2.56.1
+2026-11-27T17:32:01.7258680Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/d1854a90-f67c-4ec5-9cb4-7ed0e151ba5b/.gitconfig'
+2026-11-27T17:32:01.7277130Z Temporarily overriding HOME='/Users/runner/work/_temp/d1854a90-f67c-4ec5-9cb4-7ed0e151ba5b' before making global git config changes
+2026-11-27T17:32:01.7280590Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-27T17:32:01.7284000Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/nanolang/nanolang
+2026-11-27T17:32:01.7478350Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-27T17:32:01.7606160Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-27T17:32:02.0684890Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-27T17:32:02.0787340Z http.https://github.com/.extraheader
+2026-11-27T17:32:02.0798420Z [command]/opt/homebrew/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-27T17:32:02.0800340Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-27T17:32:02.2956070Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-27T17:32:02.3262700Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-27T17:32:02.5356750Z Cleaning up orphan processes
+2026-11-27T17:32:06.7553230Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

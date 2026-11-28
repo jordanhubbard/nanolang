@@ -199,6 +199,7 @@ uint64_t vm_gc_collect_cycles(VmHeap *heap);
 void vm_gc_note_suspect(VmHeap *heap, NanoValue v);
 
 /* Release the suspect buffer itself. */
+void vm_gc_maybe_collect(VmHeap *heap);
 void vm_gc_cycle_buffer_free(VmHeap *heap);
 
 /* Initialize/destroy heap */

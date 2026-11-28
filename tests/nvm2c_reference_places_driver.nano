@@ -1,0 +1,97 @@
+module "src_nano/nvm2c/reference_places.nano" as refs
+module "src_nano/nvm2c/container.nano" as wire
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+struct ParsedPlace { valid: bool, end: int, place: refs.Place }
+fn parse_place(bytes: array<u8>, start: int) -> ParsedPlace {
+    let empty: refs.Place = refs.Place { present: false, invocation_low: 0, invocation_high: 0,
+        local: 0, root_layout: 0, fields_present: false, fields: [], referent_layout: 0, mode: 0 }
+    let refused: ParsedPlace = ParsedPlace { valid: false, end: start, place: empty }
+    if (not (wire.contains bytes start 36)) { return refused }
+    let count: int = (wire.read_u32 bytes (+ start 24))
+    let local_index: int = (wire.read_u32 bytes (+ start 12))
+    if (or (> count 65535) (> local_index 65535)) { return refused }
+    let end: int = (+ (+ start 36) (* count 4))
+    if (not (wire.contains bytes start (- end start))) { return refused }
+    let mut fields: array<int> = []
+    let mut i: int = 0
+    while (< i count) {
+        let field: int = (wire.read_u32 bytes (+ (+ start 36) (* i 4)))
+        if (> field 65535) { return refused }
+        set fields (array_push fields field)
+        set i (+ i 1)
+    }
+    let place: refs.Place = refs.Place {
+        present: (!= (wire.read_u32 bytes start) 0),
+        invocation_low: (wire.read_u32 bytes (+ start 4)),
+        invocation_high: (wire.read_u32 bytes (+ start 8)),
+        local: local_index, root_layout: (wire.read_u32 bytes (+ start 16)),
+        fields_present: (!= (wire.read_u32 bytes (+ start 20)) 0), fields: fields,
+        referent_layout: (wire.read_u32 bytes (+ start 28)), mode: (wire.read_u32 bytes (+ start 32)) }
+    return ParsedPlace { valid: true, end: end, place: place }
+}
+shadow parse_place {
+    assert (not (parse_place [] 0).valid)
+    assert (not (parse_place [0,0,0,0] -1).valid)
+}
+
+fn flag(value: bool) -> string { if value { return "1" } return "0" }
+shadow flag { assert (== (flag true) "1") assert (== (flag false) "0") }
+
+fn describe(bytes: array<u8>) -> string {
+    if (not (wire.contains bytes 0 20)) { return "D" }
+    let count: int = (wire.read_u32 bytes 8)
+    if (> count 65536) { return "D" }
+    let mut rows: array<refs.Layout> = []
+    let mut cursor: int = 20
+    let mut i: int = 0
+    while (< i count) {
+        if (not (wire.contains bytes cursor 12)) { return "D" }
+        let kind: int = (wire.read_u32 bytes cursor)
+        let present: bool = (!= (wire.read_u32 bytes (+ cursor 4)) 0)
+        let fields_count: int = (wire.read_u32 bytes (+ cursor 8))
+        if (or (> kind 255) (> fields_count 65535)) { return "D" }
+        set cursor (+ cursor 12)
+        if (not (wire.contains bytes cursor (* fields_count 8))) { return "D" }
+        let mut fields: array<refs.Field> = []
+        let mut f: int = 0
+        while (< f fields_count) {
+            let tag: int = (wire.read_u32 bytes cursor)
+            if (> tag 255) { return "D" }
+            set fields (array_push fields refs.Field { tag: tag, nested: (wire.read_u32 bytes (+ cursor 4)) })
+            set cursor (+ cursor 8)
+            set f (+ f 1)
+        }
+        set rows (array_push rows refs.Layout { kind: kind, fields_present: present, fields: fields })
+        set i (+ i 1)
+    }
+    let left: ParsedPlace = (parse_place bytes cursor)
+    if (not left.valid) { return "D" }
+    let right: ParsedPlace = (parse_place bytes left.end)
+    if (or (not right.valid) (!= right.end (array_length bytes))) { return "D" }
+    let layouts: refs.Layouts = refs.Layouts { present: (!= (wire.read_u32 bytes 0) 0),
+        items_present: (!= (wire.read_u32 bytes 4) 0), rows: rows }
+    let mut result: string = (+ (flag (refs.valid layouts (wire.read_u32 bytes 12) left.place))
+        (flag (refs.valid layouts (wire.read_u32 bytes 16) right.place)))
+    set result (+ result (flag (refs.overlap left.place right.place)))
+    set result (+ result (flag (refs.overlap right.place left.place)))
+    set result (+ result (flag (refs.holds_conflict left.place right.place)))
+    set result (+ result (flag (refs.holds_conflict right.place left.place)))
+    set result (+ result (flag (refs.owner_access_conflicts left.place right.place false)))
+    set result (+ result (flag (refs.owner_access_conflicts left.place right.place true)))
+    set result (+ result (flag (refs.owner_access_conflicts right.place left.place false)))
+    return (+ result (flag (refs.owner_access_conflicts right.place left.place true)))
+}
+shadow describe { assert (== (describe []) "D") }
+
+fn main() -> int {
+    unsafe {
+        let mut i: int = 1
+        while (< i (get_argc)) {
+            (println (describe (file_read_bytes (get_argv i))))
+            set i (+ i 1)
+        }
+    }
+    return 0
+}

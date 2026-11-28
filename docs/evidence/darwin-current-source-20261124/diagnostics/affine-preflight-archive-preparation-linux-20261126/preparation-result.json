@@ -1,0 +1,32 @@
+{
+  "terminal": true,
+  "prepared_only": true,
+  "accepted_component": false,
+  "whole_release": false,
+  "syntax": true,
+  "refusal_exit": 1,
+  "archive_created": false,
+  "compiler_commands": 0,
+  "controls": "/var/tmp/nanolang-preflight-after-six-archive-20261126-_nm1untl",
+  "expected_reports": 7374,
+  "methods": 1,
+  "cases": {
+    "original": 1001,
+    "preflight": 228
+  },
+  "guards": [
+    "source",
+    "images",
+    "tools",
+    "hosts",
+    "object_inputs",
+    "observer",
+    "providers",
+    "journal",
+    "published_six_parent"
+  ],
+  "controller_sha256": {
+    "package_terminal.py": "dad1b57b5528d10e5270224488cc7deaf61077c86321e31d97ea46e15065b6a5",
+    "read_preflight.template.py": "f535400980400d071c315d139584689409eca3ff365b4ecbe977acfe8ca48a03"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "qualification": "PARTIAL_WITH_OPEN_GCC_TSAN_GATE",
+  "source_commit": "8e69d96d67e7a1ccc50ecf568aa75143c966b9e3",
+  "foundation_commit": "dde9d40aed0d5a1cd529f69874fd04b3b08f45e5",
+  "records": 15244,
+  "raw_bytes": 4893586401,
+  "clang_methods": 12,
+  "gcc_source_abi_methods": 14,
+  "make_methods": 2,
+  "integrated_source_methods_per_compiler": 8
+}

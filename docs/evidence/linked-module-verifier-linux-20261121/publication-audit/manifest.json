@@ -1,0 +1,50 @@
+{
+  "limits": "I retain post-archive publication observations separately from the main lossless input counts.",
+  "files": [
+    {
+      "file": "independent-archive-verification.json",
+      "bytes": 393,
+      "sha256": "dce44f810065c9aac4a24bd161cefc500ac11c06257236d9f395146a4d35caef"
+    },
+    {
+      "file": "independent-archive-verification.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "archive.stdout",
+      "bytes": 120,
+      "sha256": "75df0776882082cab3ea44c2d0567433b1f163e730d5b99789e294ee01c25240"
+    },
+    {
+      "file": "archive.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "linux-controller.stdout",
+      "bytes": 3144,
+      "sha256": "fbe593cf8987481f68dfd72346fd3b050df3ac185e0410adf5d02a22493294bd"
+    },
+    {
+      "file": "linux-controller.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "linked-sanitizers.stdout",
+      "bytes": 766,
+      "sha256": "322bfac8a9ecb8269e61b0acfc9d8b4e71ceb48b9f9f462722218a6637b45640"
+    },
+    {
+      "file": "unlinked-sanitizers.stdout",
+      "bytes": 749,
+      "sha256": "56bdd59f79cc496a88839bd3ead7ab16b0ea78bc4b1296e903a0e2a8283d6219"
+    },
+    {
+      "file": "original-example-inputs/manifest.json",
+      "bytes": 1391,
+      "sha256": "fe7a35cb5b443cdb8769d674ee101a14217c2368732c4ad1d13b511583b7ee58"
+    }
+  ]
+}

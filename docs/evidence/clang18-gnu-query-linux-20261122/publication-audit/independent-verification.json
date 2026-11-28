@@ -1,0 +1,28 @@
+{
+  "logical_files": 11410,
+  "unique_artifacts": 3843,
+  "raw_bytes": 98458758,
+  "compressed_bytes": 9506655,
+  "source_sets": {
+    "provider_axis": {
+      "files": 3569,
+      "implementation": "0419b4d237f0dc16b5b67555aa51883f32d9b68e",
+      "overrides": {}
+    },
+    "red": {
+      "files": 3573,
+      "implementation": "5bb78f2f43ac78d08134cf81e38aee83c6ee593f",
+      "overrides": {
+        "src/module_builder.c": "8ccb24f418d33e93e8a3e02ee15670927e30b5c6"
+      }
+    },
+    "green": {
+      "files": 3573,
+      "implementation": "5bb78f2f43ac78d08134cf81e38aee83c6ee593f",
+      "overrides": {}
+    }
+  },
+  "all_raw_and_compressed_hashes_verified": true,
+  "all_sources_match_declared_git_pins": true,
+  "all_native_tool_images_retained": true
+}

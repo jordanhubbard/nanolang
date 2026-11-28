@@ -1,0 +1,20 @@
+{
+  "cwd": "/var/tmp/nanolang-darwin-publication-qkk55gi3/docs/evidence/darwin-current-source-20261124/diagnostics/affine-array-values-c-linux-20261125",
+  "ordinary_pathspecs": [
+    "src/",
+    "src_nano/",
+    "tests/",
+    "Makefile.gnu"
+  ],
+  "ordinary_result": [],
+  "rooted_pathspecs": [
+    ":(top)src/",
+    ":(top)src_nano/",
+    ":(top)tests/",
+    ":(top)Makefile.gnu"
+  ],
+  "rooted_result": [
+    "tests/test_nanolang_translator_affine_arrays.py"
+  ],
+  "scope": "I retain the verifier draft pathspec failure; no compiler/test product changed."
+}

@@ -6,6 +6,7 @@
 #include <stdarg.h>
 #include <stdint.h>
 #include <limits.h>
+#include <errno.h>
 
 /* Maximum recursion depth to prevent stack overflow */
 #define MAX_RECURSION_DEPTH 1000
@@ -3875,14 +3876,15 @@ static ASTNode *parse_enum_def(Stage1Parser *p) {
     int capacity = 8;
     int count = 0;
     char **variant_names = malloc(sizeof(char*) * capacity);
-    int *variant_values = malloc(sizeof(int) * capacity);
-    int next_auto_value = 0;
+    long long *variant_values = malloc(sizeof *variant_values * capacity);
+    long long next_auto_value = 0;
+    bool auto_overflow = false;
     
     while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF)) {
         if (count >= capacity) {
             capacity *= 2;
             variant_names = realloc(variant_names, sizeof(char*) * capacity);
-            variant_values = realloc(variant_values, sizeof(int) * capacity);
+            variant_values = realloc(variant_values, sizeof *variant_values * capacity);
         }
         
         /* Parse variant name */
@@ -3910,23 +3912,35 @@ static ASTNode *parse_enum_def(Stage1Parser *p) {
         }
         advance(p);
         
-        /* Check for explicit value */
+        /* I retain signed64 values before any enum/list lowering. */
+        long long value = 0;
         if (match(p, TOKEN_ASSIGN)) {
             advance(p);
-            if (!match(p, TOKEN_NUMBER)) {
-                parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected number after '='\n",
-                        current_token(p)->line, current_token(p)->column);
-                variant_values[count] = next_auto_value++;
+            Token *number = current_token(p);
+            if (!match(p, TOKEN_NUMBER) || !number || !number->value) {
+                parser_error(p, number ? number->line : line, number ? number->column : column,
+                             "I require an integer enum value.\n");
             } else {
-                Token *num_tok = current_token(p);
-                variant_values[count] = (num_tok && num_tok->value) ? atoi(num_tok->value) : 0;
-                next_auto_value = variant_values[count] + 1;
+                char *end = NULL;
+                errno = 0;
+                value = strtoll(number->value, &end, 10);
+                if (errno == ERANGE || end == number->value || !end || *end) {
+                    parser_error(p, number->line, number->column,
+                                 "I require an enum value in my signed64 range.\n");
+                    value = 0;
+                }
                 advance(p);
             }
+        } else if (auto_overflow) {
+            parser_error(p, tok->line, tok->column,
+                         "I cannot infer an enum successor beyond my signed64 range.\n");
         } else {
-            variant_values[count] = next_auto_value++;
+            value = next_auto_value;
         }
-        
+        variant_values[count] = value;
+        auto_overflow = value == LLONG_MAX;
+        next_auto_value = auto_overflow ? LLONG_MAX : value + 1;
+
         count++;
         
         /* Optional comma */
@@ -5082,6 +5096,51 @@ bool ast_always_returns(const ASTNode *node) {
     return false;
 }
 
+/* I enumerate value alternatives without evaluating conditions or changing scope. */
+int ast_value_branch_count(const ASTNode *node) {
+    if (!node) return 0;
+    switch (node->type) {
+        case AST_IF: return 2;
+        case AST_COND: return node->as.cond_expr.clause_count + 1;
+        case AST_MATCH: return node->as.match_expr.arm_count;
+        case AST_BLOCK: return node->as.block.count ? 1 : 0;
+        default: return 0;
+    }
+}
+
+ASTNode *ast_value_branch(ASTNode *node, int index) {
+    if (!node || index < 0 || index >= ast_value_branch_count(node)) return NULL;
+    switch (node->type) {
+        case AST_IF: return index ? node->as.if_stmt.else_branch : node->as.if_stmt.then_branch;
+        case AST_COND:
+            return index == node->as.cond_expr.clause_count ? node->as.cond_expr.else_value
+                : node->as.cond_expr.values[index];
+        case AST_MATCH: return node->as.match_expr.arm_bodies[index];
+        case AST_BLOCK: return node->as.block.statements[node->as.block.count - 1];
+        default: return NULL;
+    }
+}
+
+/* I project only destination value leaves, never conditions, call arguments or
+ * preceding statements. Concrete instance context does not mutate a template. */
+const TypeInfo *ast_array_value_context(ASTNode *value, const TypeInfo *expected,
+                                         ASTNode *target) {
+    if (!value || !expected) return NULL;
+    if (value == target) return expected;
+    if (value->type == AST_ARRAY_LITERAL && expected->base_type == TYPE_ARRAY) {
+        for (int i = 0; i < value->as.array_literal.element_count; ++i) {
+            const TypeInfo *info = ast_array_value_context(value->as.array_literal.elements[i],
+                                                       expected->element_type, target);
+            if (info) return info;
+        }
+    }
+    for (int i = 0; i < ast_value_branch_count(value); ++i) {
+        const TypeInfo *info = ast_array_value_context(ast_value_branch(value, i), expected, target);
+        if (info) return info;
+    }
+    return NULL;
+}
+
 /* Recursively inject implicit returns at tail positions of a block.
  * Called from parse_function when return_type is non-void.
  * Wraps bare expression statements at the end of function bodies (and
@@ -5396,6 +5455,7 @@ static ASTNode *parse_module_decl(Stage1Parser *p) {
 
     ASTNode *node = create_node(AST_MODULE_DECL, line, column);
     node->as.module_decl.name = module_name;
+    node->as.module_decl.is_unsafe = false;
     return node;
 }
 
@@ -5622,14 +5682,9 @@ static ASTNode *parse_shadow(Stage1Parser *p) {
 /* I inspect valid parser roots: service declarations occur only at program
  * scope. Module declarations hold names, not child ASTs; imported programs are
  * separately checked by process_imports. I do not validate arbitrary forged ASTs. */
-bool ast_has_service_declaration(const ASTNode *program) {
-    if (!program) return false;
-    if (program->type == AST_SERVICE_DECL) return true;
-    if (program->type != AST_PROGRAM) return false;
-    for (int i = 0; i < program->as.program.count; ++i)
-        if (ast_has_service_declaration(program->as.program.items[i])) return true;
-    return false;
-}
+#define NL_DEFINE_AST_SERVICE_QUERY
+#include "type_metadata_queries.inc"
+#undef NL_DEFINE_AST_SERVICE_QUERY
 
 static ASTNode *parse_service_declaration(Stage1Parser *p) {
     Token *start = current_token(p);
@@ -5768,9 +5823,10 @@ ASTNode *parse_program(Token *tokens, int token_count) {
                     /* unsafe module "path" - import */
                     parsed = parse_import(&parser);
                 } else if (after_module && after_module->token_type == TOKEN_IDENTIFIER) {
-                    /* unsafe module name {...} - declaration (TODO: implement) */
+                    /* I retain the declaration marker for module metadata. */
                     advance(&parser); /* consume unsafe */
                     parsed = parse_module_decl(&parser);
+                    if (parsed) parsed->as.module_decl.is_unsafe = true;
                 } else {
                     advance(&parser); /* consume unsafe */
                     parsed = parse_import(&parser);
@@ -6200,6 +6256,13 @@ void free_ast(ASTNode *node) {
                 free_ast(node->as.block.statements[i]);
             }
             free(node->as.block.statements);
+            break;
+        /* I own the children beneath these syntax wrappers. */
+        case AST_ASYNC_FN:
+            free_ast(node->as.async_fn.function);
+            break;
+        case AST_AWAIT:
+            free_ast(node->as.await_expr.expr);
             break;
         case AST_FUNCTION:
             free(node->as.function.name);

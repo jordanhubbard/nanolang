@@ -1,0 +1,11 @@
+# My continued release proposal review
+
+I review PRs1070,1071 and1074 against immutable integrationf878d817b73424cb38b9b1817f29ea1efd197af5 and their exact published heads. All three heads are ancestors of that integration. Ancestry alone is insufficient; I verify eight complete changed source/test files and nine explicit workflow/Make/container/guidance/version fragments.
+
+I retain PR1070's exact selector and regression, and its complete eight-step Darwin job except the later explicit diagnostic-mode condition. All new modes default to the original Darwin selection. PR1071's exact installer/tests, Docker installation, complete runtime prerequisite block, direct record prerequisites and original guidance remain. Its fast gate now selects the same original test module alongside the Make prerequisite audit. PR1074's version generator/header/hybrid entry/test remain byte-identical; the complete timestamp-free C version branch and both quick/unit Make edges are exact. No assertion is removed or runtime acceptance inferred from these comparisons.
+
+I close these old PRs as consolidated into PR1168 after publishing the source proof and adding the required annotations. I preserve their branches and linked issues. Scoped issues1045/1073/1060 are already closed with their own acceptance evidence. Broader Darwin blocking/native1049, unit/retained1054 and adoption/reproducibility1039 remain open. This review does not merge PR1168 to main or complete product qualification. The two new join matrices and original Darwin cache gate remain separate and required.
+
+Run `python3 verify.py --repo /path/to/nanolang` with PyYAML and the referenced Git objects available. The proof is hash-pinned; the reader executes no product. I retain a changed-proof refusal before closure. This is a three-proposal continuation of the partial review. The entire open issue/PR inventory and all69 release requirements remain incomplete; my release gate remains false.
+
+I retain actual closed/unmerged API states, the three exact annotations and matching remote branch refs in `closures.json`. Run `python3 verify_closures.py` for that separate hash-pinned administrative receipt; a changed passing-gate claim must refuse.

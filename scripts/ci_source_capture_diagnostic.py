@@ -17,12 +17,13 @@ selected_environment = dict(os.environ)
 backend_hashes = {}
 
 
-def run(args, label):
+def run(args, label, cwd=None):
     try:
         result = subprocess.run(list(map(str, args)), capture_output=True, text=True, timeout=30,
-                                env=selected_environment)
+                                env=selected_environment, cwd=cwd)
         record = {'label': label, 'command': list(map(str, args)), 'returncode': result.returncode,
                   'stdout': result.stdout, 'stderr': result.stderr,
+                  'cwd': str(cwd or Path.cwd()),
                   'developer_dir': selected_environment.get('DEVELOPER_DIR'),
                   'sdk_root': selected_environment.get('SDKROOT')}
     except subprocess.TimeoutExpired as error:
@@ -84,6 +85,97 @@ for number, (compiler, developer) in enumerate(compilers):
         'sha256': hashlib.sha256(resolved.read_bytes()).hexdigest()}, indent=2)+'\n')
     version = run([compiler, '--version'], f'{number}-compiler-version')
     run([compiler, '-print-prog-name=as'], f'{number}-assembler-path')
+    # I measure each actual driver's response grammar without a shell or a
+    # version-derived parser choice. These observations do not admit a tool.
+    response_source = work/'response-source.c'
+    response_source.write_text('VALUE\n')
+    response_forms = [
+        '-DVALUE=42', "'-DVALUE=two words'", '"-DVALUE=cost$HOME"',
+        r"'-DVALUE=a\b'", r'"-DVALUE=a\qb"', r'-DVALUE=one\ two',
+        r'-DVALUE=\"literal\ text\"', '-DVALUE=42\r\n-U VALUE\n-D VALUE=43',
+        r"'-DVALUE=a\\b'", r'"-DVALUE=a\\b"',
+        r"'-DVALUE=a\'b'", r'"-DVALUE=a\"b"',
+        r"'-DVALUE=a\"b'", r'"-DVALUE=a\'b"',
+    ]
+    for form_index, form in enumerate(response_forms):
+        response = work/f'response-{form_index}.rsp'
+        response.write_text(form + '\n')
+        run([compiler, '-E', '-P', '-x', 'c', response_source, '@'+str(response)],
+            f'{number}-response-grammar-{form_index}')
+    nested_response = work/'response-nested.rsp'
+    nested_response.write_text('@'+str(work/'response-3.rsp')+'\n')
+    run([compiler, '-E', '-P', '-x', 'c', response_source, '@'+str(nested_response)],
+        f'{number}-response-grammar-nested')
+    if sys.platform.startswith('linux'):
+        # I preserve the original failing native .S flags separately from
+        # capture admission, then retain a diagnostic preprocessor action.
+        native_source = work/'payload.S'
+        native_source.write_text('#define INSTRUCTION nop\n.text\nINSTRUCTION\n.data\n'
+                                 '.globl snapshot_payload\nsnapshot_payload:\n.byte 42\n')
+        native_object = work/'payload-native.o'
+        native_command = [compiler, '-c', '-fPIC', '-g', native_source, '-o', native_object]
+        run(native_command, f'{number}-native-preprocessed-debug')
+        run([*native_command, '-###'], f'{number}-native-preprocessed-debug-report')
+        run([compiler, '-E', '-fPIC', '-g', native_source, '-o', work/'payload-preprocessed.s'],
+            f'{number}-native-preprocessor-action')
+        reader = shutil.which('readelf')
+        if reader and native_object.is_file():
+            backend_hashes[str(Path(reader).resolve())] = hashlib.sha256(Path(reader).read_bytes()).hexdigest()
+            (out/'backend-hashes.json').write_text(json.dumps(backend_hashes, indent=2)+'\n')
+            run([reader, '--version'], f'{number}-native-debug-reader')
+            run([reader, '--debug-dump=info', native_object], f'{number}-native-debug-info')
+            run([reader, '--debug-dump=decodedline', native_object], f'{number}-native-debug-lines')
+    if sys.platform.startswith('linux'):
+        macros = '.macro read_payload path\n.incbin "\\path"\n.endm\n.macro step operation\n\\operation\n.endm\n'
+        for variant in ('include-plain', 'inline-step', 'include-step', 'original-includes',
+                        'marker-inline-step', 'marker-include-step', 'marker-include-restore'):
+            case = work/('native-nop-' + variant); case.mkdir(exist_ok=True)
+            (case/'debug macro.s').write_text(macros)
+            (case/'debug payload.bin').write_bytes(b'*')
+            raw = variant.startswith('marker-')
+            include = variant not in ('inline-step', 'marker-inline-step')
+            prefix = ('.include "' + ('debug macro.s' if raw else str(case/'debug macro.s')) + '"\n') if include else macros
+            if variant == 'marker-include-restore': prefix += '# 3 "payload.S"\n'
+            instruction = ('nop' if raw else 'INSTRUCTION') if variant == 'include-plain' else ('step nop' if raw else 'step INSTRUCTION')
+            data = ('read_payload "' + str(case/'debug payload.bin') + '"') if variant == 'original-includes' else '.byte 42'
+            contents = ('# 1 "payload.S"\n' if raw else '#define INSTRUCTION nop\n') + prefix
+            contents += '.text\n' + instruction + '\n.data\n.globl snapshot_payload\nsnapshot_payload:\n' + data + '\n'
+            source_case = case/('repro.s' if raw else 'payload.S'); source_case.write_text(contents)
+            output_case = case/'native.o'
+            command = [compiler, '-c', '-fPIC', '-g', source_case, '-o', output_case]
+            label = f'{number}-native-{variant}'
+            run(command, label, cwd=case)
+            run([*command, '-###'], label+'-report', cwd=case)
+            if not raw:
+                run([compiler, '-E', '-fPIC', '-g', source_case, '-o', case/'preprocessed.s'],
+                    label+'-preprocess', cwd=case)
+            reader = shutil.which('readelf')
+            if reader and output_case.is_file():
+                run([reader, '--debug-dump=info', output_case], label+'-info', cwd=case)
+                run([reader, '--debug-dump=decodedline', output_case], label+'-lines', cwd=case)
+            if not raw and (case/'preprocessed.s').is_file():
+                # I replay actual preprocessing bytes separately from native
+                # acceptance, then isolate marker effects without changing it.
+                expanded = (case/'preprocessed.s').read_text()
+                lines = expanded.splitlines(keepends=True)
+                variants = {
+                    'actual': expanded,
+                    'without-directory': ''.join(line for line in lines
+                                                 if not (line.startswith('# ') and '//"' in line)),
+                    'without-predef': ''.join(line for line in lines
+                                              if not (line.startswith('# ') and 'stdc-predef.h' in line)),
+                    'source-marker-only': '# 1 "' + str(source_case) + '"\n' +
+                                          ''.join(line for line in lines if not line.startswith('# ')),
+                }
+                for replay, text in variants.items():
+                    replay_source = case/('replay-' + replay + '.s')
+                    replay_object = case/('replay-' + replay + '.o')
+                    replay_source.write_text(text)
+                    run([compiler, '-c', '-x', 'assembler', '-fPIC', '-g',
+                         replay_source, '-o', replay_object], label+'-replay-'+replay, cwd=case)
+                    if reader and replay_object.is_file():
+                        run([reader, '--debug-dump=info', replay_object],
+                            label+'-replay-'+replay+'-info', cwd=case)
     assembly = work/'answer.s'
     run([compiler, '-S', '-O0', source, '-o', assembly], f'{number}-emit-assembly')
     for integrated in (True, False):

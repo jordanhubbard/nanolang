@@ -1,0 +1,7 @@
+# My private caller-root current ARM consumer qualification
+
+At exact source54a43a9af9917428a6b9840c7a44cf789eaf227d I pass the complete original14 structured-C consumer methods plus my five array-write inference and one mixed record-pointer regression:20 discovered/run methods,0 failures/errors/skips in2560.988seconds. I retain every generated input/product and actual command stream with source/tool/image and qualified-root before/after guards. I preserve original tests, corpora and600/60/default10 deadlines; my reader binds all eight original test modules and both common process/route helpers to unchanged c426 Git bytes.
+
+My explicit genuine ARM Stage2 is SHA256bccfa964cb5d2cc8652bb456592c00f74f7bcb330725631e3f34e84ecd3a803a. Its separate pinned prerequisite passes17 bootstrap phases, raw equality, installation/no-C-seed,36 native and12 emitter methods plus final ordinary caller-root/GC/split controls. I bind the actual bootstrap/final-gate receipt hashes and compiler identity. I retain worker admission/renewal and the conservative deadline guard in that sibling capsule. I do not reuse the previously interrupted1fe roots or its controller.
+
+Run `python3 verify.py --workspace /path/on/large/volume --repo /path/to/nanolang` without executing products; verify the pinned sibling prerequisite separately. This invocation does not replace the failed Linux emitter gate, enable default/full-graph ownership, complete pure NanoLang translation/cutover or satisfy all69 release requirements.

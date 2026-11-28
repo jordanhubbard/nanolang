@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/home/jkh/.worktrees/nanolang/clang18-gnu-query-20261122-control/archive-focused.py", line 19, in <module>
+    assert actual==m.get('initial_status',''),(name,actual)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('red', ' M src/module_builder.c')

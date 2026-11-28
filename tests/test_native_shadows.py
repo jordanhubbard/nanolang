@@ -8,7 +8,7 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-COMPILER = ROOT / "bin/nanoc_stage2"
+COMPILER = Path(os.environ.get("NANO_NATIVE_SHADOW_SOURCE_COMPILER") or ROOT / "bin/nanoc_stage2")
 
 
 class NativeShadows(unittest.TestCase):

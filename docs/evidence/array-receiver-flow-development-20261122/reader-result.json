@@ -1,0 +1,18 @@
+{
+  "status": "passed",
+  "logical_records": 7963,
+  "files": 4385,
+  "git_sources": 3578,
+  "raw_bytes": 1772276600,
+  "unique_objects": 1735,
+  "compressed_bytes": 89776287,
+  "mutation_methods": 10,
+  "mutation_sources": 101,
+  "mutation_commands": 483,
+  "neighbor_methods": 25,
+  "sanitizer_methods": 10,
+  "sanitizer_scanned_commands": 161,
+  "sanitizer_reports": 0,
+  "raw_self_compilation_claimed": false,
+  "paired_darwin_claimed": false
+}

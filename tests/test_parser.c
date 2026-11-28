@@ -67,6 +67,36 @@ static ASTNode *parse_repl(const char *src) {
     return prog;
 }
 
+/* I keep async wrappers, awaited calls and callable annotations owned by my AST. */
+void test_free_ast_async_and_await(void) {
+    for (int repeat = 0; repeat < 3; ++repeat) {
+        ASTNode *program = parse_ok(
+            "async fn get() -> string { return \"kept\" } "
+            "async fn wrap(f: fn(string) -> string) -> string { return await (f (get)) }");
+        ASSERT_NOT_NULL(program);
+        ASSERT_EQ(program->as.program.count, 2);
+        ASTNode *first = program->as.program.items[0];
+        ASTNode *second = program->as.program.items[1];
+        ASSERT_EQ(first->type, AST_ASYNC_FN);
+        ASSERT_EQ(second->type, AST_ASYNC_FN);
+        ASTNode *function = second->as.async_fn.function;
+        ASSERT_EQ(function->type, AST_FUNCTION);
+        ASSERT(strcmp(function->as.function.name, "wrap") == 0);
+        ASSERT_EQ(function->as.function.param_count, 1);
+        ASSERT_EQ(function->as.function.params[0].type, TYPE_FUNCTION);
+        ASSERT_NOT_NULL(function->as.function.params[0].fn_sig);
+        ASSERT_EQ(function->as.function.params[0].fn_sig->param_types[0], TYPE_STRING);
+        ASSERT_EQ(function->as.function.params[0].fn_sig->return_type, TYPE_STRING);
+        ASTNode *statement = function->as.function.body->as.block.statements[0];
+        ASSERT_EQ(statement->type, AST_RETURN);
+        ASTNode *awaited = statement->as.return_stmt.value;
+        ASSERT_EQ(awaited->type, AST_AWAIT);
+        ASSERT_EQ(awaited->as.await_expr.expr->type, AST_CALL);
+        ASSERT_EQ(awaited->as.await_expr.expr->as.call.arg_count, 1);
+        free_ast(program);
+    }
+}
+
 /* ============================================================================
  * Basic parsing tests
  * ============================================================================ */
@@ -1291,6 +1321,7 @@ int main(void) {
     printf("\n--- free_ast edge cases ---\n");
     TEST(free_ast_null);
     TEST(free_ast_complex);
+    TEST(free_ast_async_and_await);
 
     printf("\n--- Error cases ---\n");
     TEST(parse_ascii_identifiers_only);

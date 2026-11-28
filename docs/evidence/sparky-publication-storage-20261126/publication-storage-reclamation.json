@@ -1,0 +1,17 @@
+{
+  "verified": true,
+  "publication_head": "9aafa84d91dd310ea2a24d51f910d5afb18c7bb8",
+  "remote_head": "9aafa84d91dd310ea2a24d51f910d5afb18c7bb8",
+  "retained_original": "/var/tmp/nanolang-darwin-publication-qkk55gi3-retained-before-shared-storage-20261126",
+  "active_destination": "/home/jkh/.local/share/fleet-migration/puck-volume/nanolang/worktrees/darwin-publication-qkk55gi3",
+  "source_removed": true,
+  "old_copy_allocated_bytes": 6236938240,
+  "root_available_before": 6173245440,
+  "root_available_after": 12410142720,
+  "observed_root_available_delta": 6236897280,
+  "other_filesystem_activity_possible": true,
+  "active_logical_path_preserved": true,
+  "git_registration_preserved": true,
+  "other_worktrees_and_puck_originals_untouched": true,
+  "utc": "2026-11-26T22:30:02Z"
+}

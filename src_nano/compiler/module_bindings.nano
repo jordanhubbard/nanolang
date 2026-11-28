@@ -12,6 +12,7 @@ let mut mb_names: array<string> = []
 let mut mb_targets: array<string> = []
 let mut mb_definition_owners: array<int> = []
 let mut mb_source_paths: array<string> = []
+let mut mb_tool_directory: string = ""
 let mut mb_header_names: array<string> = []
 let mut mb_header_values: array<string> = []
 let mut mb_header_owners: array<int> = []
@@ -75,6 +76,7 @@ pub fn mb_reset(starts: array<int>) -> void {
     set mb_targets []
     set mb_definition_owners []
     set mb_source_paths []
+    set mb_tool_directory ""
     set mb_header_names []
     set mb_header_values []
     set mb_header_owners []
@@ -203,6 +205,51 @@ shadow mb_add {
     (mb_reset [])
 }
 
+# I expose a value snapshot, retaining the original declaration's owner.
+pub struct ModuleBindingEntry {
+    owner: int,
+    name: string,
+    target: string,
+    definition_owner: int
+}
+
+pub fn mb_has(owner: int, name: string) -> bool {
+    if (not (mb_active)) { return false }
+    return (>= (mb_binding_index owner name) 0)
+}
+shadow mb_has {
+    (mb_reset [1, 8])
+    assert (not (mb_has 1 "unknown"))
+    assert (== (mb_target_owner 1 "unknown") 1)
+    (mb_add_target 1 "same" "same" 0)
+    assert (mb_has 1 "same")
+    assert (not (mb_has 0 "same"))
+    (mb_reset [])
+    assert (not (mb_has 1 "same"))
+}
+
+pub fn mb_entries() -> array<ModuleBindingEntry> {
+    let mut entries: array<ModuleBindingEntry> = []
+    for i in (range 0 (array_length mb_names)) {
+        set entries (array_push entries ModuleBindingEntry { owner: (at mb_owners i), name: (at mb_names i), target: (at mb_targets i), definition_owner: (at mb_definition_owners i) })
+    }
+    return entries
+}
+shadow mb_entries {
+    (mb_reset [1, 8])
+    (mb_add_target 1 "chosen" "leaf_answer" 0)
+    let entries: array<ModuleBindingEntry> = (mb_entries)
+    assert (== (array_length entries) 1)
+    assert (== (at entries 0).owner 1)
+    assert (== (at entries 0).definition_owner 0)
+    assert (== (at entries 0).target "leaf_answer")
+    (array_set entries 0 ModuleBindingEntry { owner: 0, name: "changed", target: "other", definition_owner: 1 })
+    assert (== (mb_lookup 1 "chosen") "leaf_answer")
+    assert (== (mb_target_owner 1 "chosen") 0)
+    (mb_reset [])
+    assert (== (array_length (mb_entries)) 0)
+}
+
 pub fn mb_lookup(owner: int, name: string) -> string {
     if (not (mb_active)) { return name }
     let index: int = (mb_binding_index owner name)
@@ -250,6 +297,29 @@ shadow mb_target_owner {
     assert (== (mb_target_owner 1 "local") 1)
     (mb_reset [])
     assert (== (mb_target_owner 1 "alias") -1)
+}
+
+# I retain the compiler-selected standard module root separately from user sources.
+pub fn mb_set_tool_root(root: string) -> void {
+    set mb_tool_directory root
+}
+shadow mb_set_tool_root {
+    (mb_reset [1])
+    (mb_set_tool_root "/retained/compiler")
+    assert (== (mb_tool_root) "/retained/compiler")
+    (mb_reset [])
+    assert (== (mb_tool_root) "")
+}
+
+pub fn mb_tool_root() -> string {
+    return mb_tool_directory
+}
+shadow mb_tool_root {
+    (mb_reset [])
+    assert (== (mb_tool_root) "")
+    (mb_set_tool_root "/different/compiler")
+    assert (== (mb_tool_root) "/different/compiler")
+    (mb_reset [])
 }
 
 pub fn mb_set_sources(paths: array<string>) -> void {

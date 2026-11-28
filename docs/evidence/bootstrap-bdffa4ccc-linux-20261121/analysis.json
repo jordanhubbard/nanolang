@@ -1,0 +1,310 @@
+{
+  "pin": "bdffa4cccff93ed5b6870aa2f74289f94f2643ee",
+  "steps": [
+    {
+      "label": "seed",
+      "argv": [
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/bin/nano_virt",
+        "src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "--strip-debug",
+        "-o",
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/bootstrap-nanoisa/run-gizcv7nl/seed.nvm"
+      ],
+      "log": "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/bootstrap-nanoisa/run-gizcv7nl/00-seed.log",
+      "exit_code": 0,
+      "elapsed_seconds": 135.78063942000153,
+      "log_sha256": "0985fa0a7bdda4f3ebf3f817c153420462a94ba2f6e24b3537c64a3fe9adcf26"
+    },
+    {
+      "label": "seed-verify",
+      "argv": [
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/bin/nano_vm",
+        "--verify-only",
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/bootstrap-nanoisa/run-gizcv7nl/seed.nvm"
+      ],
+      "log": "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/bootstrap-nanoisa/run-gizcv7nl/01-seed-verify.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.2655457330038189,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "stage1",
+      "argv": [
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/bin/nano_vm",
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/bin/nanoc_seed.nvm",
+        "--",
+        "src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "-o",
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/bootstrap-nanoisa/run-gizcv7nl/stage1.nvm"
+      ],
+      "log": "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/bootstrap-nanoisa/run-gizcv7nl/02-stage1.log",
+      "exit_code": 0,
+      "elapsed_seconds": 757.1174974819951,
+      "log_sha256": "960ae7602178935cc79b509fb34b48d88b842fdad893cdbd7a76de170feb2dd5"
+    },
+    {
+      "label": "stage1-verify",
+      "argv": [
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/bin/nano_vm",
+        "--verify-only",
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/bootstrap-nanoisa/run-gizcv7nl/stage1.nvm"
+      ],
+      "log": "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/bootstrap-nanoisa/run-gizcv7nl/03-stage1-verify.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.21659717099828413,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "stage1-translate",
+      "argv": [
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/bin/nvm2c",
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/bin/nanoc_stage1.nvm",
+        "-o",
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/bootstrap-nanoisa/run-gizcv7nl/stage1.c"
+      ],
+      "log": "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/bootstrap-nanoisa/run-gizcv7nl/04-stage1-translate.log",
+      "exit_code": 0,
+      "elapsed_seconds": 60.632159209002566,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "stage1-native",
+      "argv": [
+        "/usr/bin/cc",
+        "-std=c11",
+        "-O1",
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/bootstrap-nanoisa/run-gizcv7nl/stage1.c",
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/bin/nano_aot_runtime.o",
+        "-lm",
+        "-rdynamic",
+        "-ldl",
+        "-lm",
+        "-lcrypto",
+        "-lffi",
+        "-rdynamic",
+        "-o",
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/bootstrap-nanoisa/run-gizcv7nl/stage1"
+      ],
+      "log": "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/bootstrap-nanoisa/run-gizcv7nl/05-stage1-native.log",
+      "exit_code": 0,
+      "elapsed_seconds": 274.6570150280022,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "stage1-hello-compile",
+      "argv": [
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/bootstrap-nanoisa/run-gizcv7nl/stage1",
+        "examples/language/nl_hello.nano",
+        "-o",
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/bootstrap-nanoisa/run-gizcv7nl/stage1-hello"
+      ],
+      "log": "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/bootstrap-nanoisa/run-gizcv7nl/06-stage1-hello-compile.log",
+      "exit_code": 0,
+      "elapsed_seconds": 1.1186279309986276,
+      "log_sha256": "2f18cf6d69e1480be1a8ee33d142197a2e5d90c2c17325c7de6546034102ab55"
+    },
+    {
+      "label": "stage1-hello-execute",
+      "argv": [
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/bootstrap-nanoisa/run-gizcv7nl/stage1-hello"
+      ],
+      "log": "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/bootstrap-nanoisa/run-gizcv7nl/07-stage1-hello-execute.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.004859793996729422,
+      "log_sha256": "2f18cf6d69e1480be1a8ee33d142197a2e5d90c2c17325c7de6546034102ab55"
+    },
+    {
+      "label": "stage2",
+      "argv": [
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/bin/nano_vm",
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/bin/nanoc_stage1.nvm",
+        "--",
+        "src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "-o",
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/bootstrap-nanoisa/run-gizcv7nl/stage2.nvm"
+      ],
+      "log": "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/bootstrap-nanoisa/run-gizcv7nl/08-stage2.log",
+      "exit_code": 0,
+      "elapsed_seconds": 721.7224741680038,
+      "log_sha256": "1ec13afec3166b4bc0f38168cd687f61c422fb8f17138914cd11b1f7b637f558"
+    },
+    {
+      "label": "stage2-verify",
+      "argv": [
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/bin/nano_vm",
+        "--verify-only",
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/bootstrap-nanoisa/run-gizcv7nl/stage2.nvm"
+      ],
+      "log": "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/bootstrap-nanoisa/run-gizcv7nl/09-stage2-verify.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.21502979600336403,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "stage2-translate",
+      "argv": [
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/bin/nvm2c",
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/bin/nanoc_stage2.nvm",
+        "-o",
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/bootstrap-nanoisa/run-gizcv7nl/stage2.c"
+      ],
+      "log": "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/bootstrap-nanoisa/run-gizcv7nl/10-stage2-translate.log",
+      "exit_code": 0,
+      "elapsed_seconds": 59.56944237100106,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "stage2-native",
+      "argv": [
+        "/usr/bin/cc",
+        "-std=c11",
+        "-O1",
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/bootstrap-nanoisa/run-gizcv7nl/stage2.c",
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/bin/nano_aot_runtime.o",
+        "-lm",
+        "-rdynamic",
+        "-ldl",
+        "-lm",
+        "-lcrypto",
+        "-lffi",
+        "-rdynamic",
+        "-o",
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/bootstrap-nanoisa/run-gizcv7nl/stage2"
+      ],
+      "log": "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/bootstrap-nanoisa/run-gizcv7nl/11-stage2-native.log",
+      "exit_code": 0,
+      "elapsed_seconds": 264.5857459340041,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "stage2-hello-compile",
+      "argv": [
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/bootstrap-nanoisa/run-gizcv7nl/stage2",
+        "examples/language/nl_hello.nano",
+        "-o",
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/bootstrap-nanoisa/run-gizcv7nl/stage2-hello"
+      ],
+      "log": "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/bootstrap-nanoisa/run-gizcv7nl/12-stage2-hello-compile.log",
+      "exit_code": 0,
+      "elapsed_seconds": 1.0197859769978095,
+      "log_sha256": "2f18cf6d69e1480be1a8ee33d142197a2e5d90c2c17325c7de6546034102ab55"
+    },
+    {
+      "label": "stage2-hello-execute",
+      "argv": [
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/bootstrap-nanoisa/run-gizcv7nl/stage2-hello"
+      ],
+      "log": "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/bootstrap-nanoisa/run-gizcv7nl/13-stage2-hello-execute.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.007343851997575257,
+      "log_sha256": "2f18cf6d69e1480be1a8ee33d142197a2e5d90c2c17325c7de6546034102ab55"
+    },
+    {
+      "label": "seed-final-verify",
+      "argv": [
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/bin/nano_vm",
+        "--verify-only",
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/bin/nanoc_seed.nvm"
+      ],
+      "log": "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/bootstrap-nanoisa/run-gizcv7nl/14-seed-final-verify.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.26686706200416666,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "stage1-final-verify",
+      "argv": [
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/bin/nano_vm",
+        "--verify-only",
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/bin/nanoc_stage1.nvm"
+      ],
+      "log": "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/bootstrap-nanoisa/run-gizcv7nl/15-stage1-final-verify.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.21624652599712135,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "stage2-final-verify",
+      "argv": [
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/bin/nano_vm",
+        "--verify-only",
+        "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/bin/nanoc_stage2.nvm"
+      ],
+      "log": "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/bootstrap-nanoisa/run-gizcv7nl/16-stage2-final-verify.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.215849865002383,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "original_commands": [
+    {
+      "label": "build-original-tools",
+      "argv": [
+        "make",
+        "-j8",
+        "CC=/usr/bin/cc",
+        "nano_virt",
+        "nano_vm",
+        "nanoisa_dump",
+        "nvm2c",
+        "nvm2c-runtime",
+        "bin/nano_as_capture.so"
+      ],
+      "pid": 2906664,
+      "returncode": 0,
+      "elapsed_seconds": 26.57815022799332
+    },
+    {
+      "label": "vm-heap-regressions",
+      "argv": [
+        "make",
+        "CC=/usr/bin/cc",
+        "test-nanovm",
+        "test-vm-heap-allocation-sanitizers",
+        "test-record-map-heap",
+        "test-record-map-ordinary-heap",
+        "test-record-map-string-heap"
+      ],
+      "pid": 2909272,
+      "returncode": 0,
+      "elapsed_seconds": 88.6640699540003
+    },
+    {
+      "label": "complete-bootstrap3",
+      "argv": [
+        "make",
+        "CC=/usr/bin/cc",
+        "BOOTSTRAP_NANOISA_TIMEOUT=1800",
+        "bootstrap3"
+      ],
+      "pid": 2912774,
+      "returncode": 0,
+      "elapsed_seconds": 2295.580176135998
+    }
+  ],
+  "guards_unchanged": true,
+  "raw_equal": true,
+  "raw_sha256": "92b1c7a7a91fa58b2f0d06c34e5afb3efe46844f3a73d998f97a3a4267f59671",
+  "raw_bytes": 1033296,
+  "hosts": {
+    "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/module_cache/v2-4b353dd8636e99b329dfb98e84afd50415e36fa9edcb0a91314329136d4c4dee/.nano-gen-2XX8Av/libcompiler_support.so": "bdbdbf3ee9f8e6e63da5b5696a617b154df5c9cc4123fc67bbdc2d9d9e8e2fc6",
+    "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/module_cache/v2-6ba153f0b4715ba2d4c569c72df31c8340f6ce24cd199c48dbed9d82d95b4fe8/.nano-gen-HTNuR3/libfile_source_catalog.so": "fe3cb18b89ca36b0d1e6363a3806cc0018b37105da2ab40f6abfde7a07ad3cfa",
+    "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/module_cache/v2-8570dbcf0aef76a56a96e9724ef31d543c5b308f0ac423992b8153f5e4e5ae58/.nano-gen-EIrhae/libnanoisa.so": "f46e245ab8c77aae7124fb8f869fad863135d0c13a4fb900aeffecf39d4cc0de",
+    "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/module_cache/v2-ba6f07fafe81ff7d9ffda5fd6781114b336dacc5ac4c8394efb9ccd02e00e8e1/.nano-gen-vJJZIj/libstd.so": "62006770aa6efff24fbbf6009e89fd69d69b6fdf064f73e7ecee36e6b124bdc4",
+    "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/module_cache/v2-be6bb2a7f67c318d6b4ae9c40fd67726669021ab0e1e65f44c39dacbf16f1493/.nano-gen-1SkgzH/libfile_product.so": "e6d8d137cee4c9c885363f4fbbf05a1ace5788913d6af89941ad86b9ff5bb573",
+    "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/module_cache/v2-fb0fac58e5726fae99c2e7e1fbbc0fe2d47ba31e135109beeea1f70c5bd1c4fe/.nano-gen-GWz1ZD/libfile_source_inputs.so": "84141f52b6d1e4fc982031f84beeef3be7bfc6de519373c000721320f8f38be8"
+  },
+  "receipt_sha256": "c76d723871bd3f935b1ea40afb677ffd0e0f159f5db043416b3673c769900ebc",
+  "cache": "/home/jkh/.worktrees/nanolang/installed-tools-bootstrap-20261121/obj/module_cache",
+  "installed_link": "nanoc_stage2",
+  "bootstrap3_sentinel": true,
+  "vm_terminal_lines": [
+    "=== Results: 569591 passed, 0 failed, 569591 total ==="
+  ],
+  "limits": [
+    "I preserve successful exact-source bdffa4ccc Linux bootstrap and original VM/heap gates. These bytes do not qualify later parser/checker/workflow changes or explain the different-pin c908523c3 timeout. I do not rewrite raw imports or substitute stages."
+  ]
+}

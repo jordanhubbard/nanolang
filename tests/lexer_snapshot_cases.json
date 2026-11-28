@@ -1,0 +1,127 @@
+{
+  "baseline_commit": "3021c729bdb5a204b23de28a3baa48777c0ae199",
+  "baseline_lexer_sha256": "20710cf3f1b84089dba42d0466e717f8531265bd3af085c320756025031c667b",
+  "coverage": "I retain complete token values/octet counts/locations and lexer diagnostics from my original lexer.",
+  "cases": [
+    {
+      "name": "empty",
+      "source_hex": "",
+      "expected": "TOKENS\n1\n0\n0\n0\n1\n1\nDIAGNOSTICS\n0\n"
+    },
+    {
+      "name": "function",
+      "source_hex": "666e206d61696e2829202d3e20696e74207b2072657475726e202d3132207d",
+      "expected": "TOKENS\n11\n24\n2\n102\n110\n2\n1\n1\n4\n4\n109\n97\n105\n110\n4\n1\n4\n7\n0\n0\n1\n8\n8\n0\n0\n1\n9\n16\n0\n0\n1\n11\n50\n3\n105\n110\n116\n3\n1\n14\n9\n0\n0\n1\n18\n34\n6\n114\n101\n116\n117\n114\n110\n6\n1\n20\n1\n3\n45\n49\n50\n3\n1\n27\n10\n0\n0\n1\n31\n0\n0\n0\n1\n31\nDIAGNOSTICS\n0\n"
+    },
+    {
+      "name": "operators",
+      "source_hex": "6c65742078203d202d31322e350a2078213d33207c3e2066203a3a2067202d3e2068203c2d2069207c206a",
+      "expected": "TOKENS\n18\n25\n3\n108\n101\n116\n3\n1\n1\n4\n1\n120\n1\n1\n5\n17\n0\n0\n1\n7\n2\n5\n45\n49\n50\n46\n53\n5\n1\n9\n4\n1\n120\n1\n2\n2\n63\n0\n0\n2\n3\n1\n1\n51\n1\n2\n5\n74\n0\n0\n2\n7\n4\n1\n102\n1\n2\n10\n15\n0\n0\n2\n12\n4\n1\n103\n1\n2\n15\n16\n0\n0\n2\n17\n4\n1\n104\n1\n2\n20\n76\n0\n0\n2\n22\n4\n1\n105\n1\n2\n25\n79\n0\n0\n2\n27\n4\n1\n106\n1\n2\n29\n0\n0\n0\n2\n29\nDIAGNOSTICS\n0\n"
+    },
+    {
+      "name": "comments",
+      "source_hex": "232068690a2f2a206d756c74690a6c696e65202a2f0a7768696c652074727565207b20636f6e74696e7565207d",
+      "expected": "TOKENS\n6\n31\n5\n119\n104\n105\n108\n101\n5\n4\n1\n5\n4\n116\n114\n117\n101\n4\n4\n7\n9\n0\n0\n4\n12\n36\n8\n99\n111\n110\n116\n105\n110\n117\n101\n8\n4\n14\n10\n0\n0\n4\n23\n0\n0\n0\n4\n23\nDIAGNOSTICS\n0\n"
+    },
+    {
+      "name": "escapes",
+      "source_hex": "22615c6e625c305c753030653922",
+      "expected": "TOKENS\n2\n3\n12\n97\n92\n110\n98\n92\n48\n92\n117\n48\n48\n101\n57\n10\n1\n1\n0\n0\n0\n1\n1\nDIAGNOSTICS\n0\n"
+    },
+    {
+      "name": "unicode-string",
+      "source_hex": "22c3a9f09f988022",
+      "expected": "TOKENS\n2\n3\n6\n195\n169\n240\n159\n152\n128\n6\n1\n1\n0\n0\n0\n1\n1\nDIAGNOSTICS\n0\n"
+    },
+    {
+      "name": "characters",
+      "source_hex": "27612720275c6e2720275c302720275c742720275c5c27",
+      "expected": "TOKENS\n6\n1\n2\n57\n55\n2\n1\n1\n1\n2\n49\n48\n2\n1\n5\n1\n1\n48\n1\n1\n10\n1\n1\n57\n1\n1\n15\n1\n2\n57\n50\n2\n1\n20\n0\n0\n0\n1\n20\nDIAGNOSTICS\n0\n"
+    },
+    {
+      "name": "grammar",
+      "source_hex": "6772616d6d6172207b206f75746572207b20696e6e6572207d207d207461696c",
+      "expected": "TOKENS\n4\n75\n7\n103\n114\n97\n109\n109\n97\n114\n7\n1\n1\n3\n17\n32\n111\n117\n116\n101\n114\n32\n123\n32\n105\n110\n110\n101\n114\n32\n125\n32\n17\n1\n1\n4\n4\n116\n97\n105\n108\n4\n1\n29\n0\n0\n0\n1\n29\nDIAGNOSTICS\n0\n"
+    },
+    {
+      "name": "fstring-expression",
+      "source_hex": "6622707265666978207b282b20312032297d2073756666697822",
+      "expected": "TOKENS\n17\n7\n0\n0\n1\n1\n4\n10\n115\n116\n114\n95\n99\n111\n110\n99\n97\n116\n10\n1\n1\n3\n7\n112\n114\n101\n102\n105\n120\n32\n7\n1\n1\n7\n0\n0\n1\n1\n4\n10\n115\n116\n114\n95\n99\n111\n110\n99\n97\n116\n10\n1\n1\n7\n0\n0\n1\n1\n4\n9\n116\n111\n95\n115\n116\n114\n105\n110\n103\n9\n1\n1\n7\n0\n0\n1\n1\n57\n0\n0\n1\n2\n1\n1\n49\n1\n1\n4\n1\n1\n50\n1\n1\n6\n8\n0\n0\n1\n7\n8\n0\n0\n1\n1\n3\n7\n32\n115\n117\n102\n102\n105\n120\n7\n1\n1\n8\n0\n0\n1\n1\n8\n0\n0\n1\n1\n0\n0\n0\n1\n1\nDIAGNOSTICS\n0\n"
+    },
+    {
+      "name": "fstring-only-expression",
+      "source_hex": "66227b317d22",
+      "expected": "TOKENS\n5\n7\n0\n0\n1\n1\n4\n9\n116\n111\n95\n115\n116\n114\n105\n110\n103\n9\n1\n1\n1\n1\n49\n1\n1\n1\n8\n0\n0\n1\n1\n0\n0\n0\n1\n1\nDIAGNOSTICS\n0\n"
+    },
+    {
+      "name": "fstring-static",
+      "source_hex": "6622656d70747922",
+      "expected": "TOKENS\n2\n3\n5\n101\n109\n112\n116\n121\n5\n1\n1\n0\n0\n0\n1\n1\nDIAGNOSTICS\n0\n"
+    },
+    {
+      "name": "unterminated-string",
+      "source_hex": "22756e7465726d696e61746564",
+      "expected": "TOKENS\n1\n0\n0\n0\n1\n1\nDIAGNOSTICS\n1\n0\n2\n5\n76\n48\n48\n48\n50\n27\n85\n110\n116\n101\n114\n109\n105\n110\n97\n116\n101\n100\n32\n115\n116\n114\n105\n110\n103\n32\n108\n105\n116\n101\n114\n97\n108\n13\n115\n101\n109\n97\n110\n116\n105\n99\n46\n110\n97\n110\n111\n1\n1\n"
+    },
+    {
+      "name": "unterminated-character",
+      "source_hex": "27",
+      "expected": "TOKENS\n1\n0\n0\n0\n1\n1\nDIAGNOSTICS\n1\n0\n2\n5\n76\n48\n48\n48\n49\n41\n85\n110\n116\n101\n114\n109\n105\n110\n97\n116\n101\n100\n32\n111\n114\n32\n105\n110\n118\n97\n108\n105\n100\n32\n99\n104\n97\n114\n97\n99\n116\n101\n114\n32\n108\n105\n116\n101\n114\n97\n108\n13\n115\n101\n109\n97\n110\n116\n105\n99\n46\n110\n97\n110\n111\n1\n1\n"
+    },
+    {
+      "name": "long-character",
+      "source_hex": "27616227",
+      "expected": "TOKENS\n1\n0\n0\n0\n1\n1\nDIAGNOSTICS\n1\n0\n2\n5\n76\n48\n48\n48\n49\n41\n85\n110\n116\n101\n114\n109\n105\n110\n97\n116\n101\n100\n32\n111\n114\n32\n105\n110\n118\n97\n108\n105\n100\n32\n99\n104\n97\n114\n97\n99\n116\n101\n114\n32\n108\n105\n116\n101\n114\n97\n108\n13\n115\n101\n109\n97\n110\n116\n105\n99\n46\n110\n97\n110\n111\n1\n1\n"
+    },
+    {
+      "name": "unterminated-fstring",
+      "source_hex": "66227b3122",
+      "expected": "TOKENS\n1\n0\n0\n0\n1\n1\nDIAGNOSTICS\n1\n0\n2\n5\n76\n48\n48\n48\n52\n38\n85\n110\n99\n108\n111\n115\n101\n100\n32\n39\n123\n39\n32\n105\n110\n32\n102\n45\n115\n116\n114\n105\n110\n103\n32\n105\n110\n116\n101\n114\n112\n111\n108\n97\n116\n105\n111\n110\n13\n115\n101\n109\n97\n110\n116\n105\n99\n46\n110\n97\n110\n111\n1\n1\n"
+    },
+    {
+      "name": "unterminated-comment",
+      "source_hex": "2f2a20756e7465726d696e61746564",
+      "expected": "TOKENS\n1\n0\n0\n0\n1\n1\nDIAGNOSTICS\n0\n"
+    },
+    {
+      "name": "invalid-ascii",
+      "source_hex": "4020242060",
+      "expected": "TOKENS\n0\nDIAGNOSTICS\n3\n0\n2\n5\n76\n48\n48\n48\n51\n20\n85\n110\n101\n120\n112\n101\n99\n116\n101\n100\n32\n99\n104\n97\n114\n97\n99\n116\n101\n114\n13\n115\n101\n109\n97\n110\n116\n105\n99\n46\n110\n97\n110\n111\n1\n1\n0\n2\n5\n76\n48\n48\n48\n51\n20\n85\n110\n101\n120\n112\n101\n99\n116\n101\n100\n32\n99\n104\n97\n114\n97\n99\n116\n101\n114\n13\n115\n101\n109\n97\n110\n116\n105\n99\n46\n110\n97\n110\n111\n1\n3\n0\n2\n5\n76\n48\n48\n48\n51\n20\n85\n110\n101\n120\n112\n101\n99\n116\n101\n100\n32\n99\n104\n97\n114\n97\n99\n116\n101\n114\n13\n115\n101\n109\n97\n110\n116\n105\n99\n46\n110\n97\n110\n111\n1\n5\n"
+    },
+    {
+      "name": "unicode-identifier-refusal",
+      "source_hex": "c3a961626320f09f98802078797a",
+      "expected": "TOKENS\n0\nDIAGNOSTICS\n2\n0\n2\n5\n76\n48\n48\n48\n51\n20\n85\n110\n101\n120\n112\n101\n99\n116\n101\n100\n32\n99\n104\n97\n114\n97\n99\n116\n101\n114\n13\n115\n101\n109\n97\n110\n116\n105\n99\n46\n110\n97\n110\n111\n1\n1\n0\n2\n5\n76\n48\n48\n48\n51\n20\n85\n110\n101\n120\n112\n101\n99\n116\n101\n100\n32\n99\n104\n97\n114\n97\n99\n116\n101\n114\n13\n115\n101\n109\n97\n110\n116\n105\n99\n46\n110\n97\n110\n111\n1\n7\n"
+    },
+    {
+      "name": "invalid-utf8",
+      "source_hex": "fffe80207461696c",
+      "expected": "TOKENS\n0\nDIAGNOSTICS\n2\n0\n2\n5\n76\n48\n48\n48\n51\n20\n85\n110\n101\n120\n112\n101\n99\n116\n101\n100\n32\n99\n104\n97\n114\n97\n99\n116\n101\n114\n13\n115\n101\n109\n97\n110\n116\n105\n99\n46\n110\n97\n110\n111\n1\n1\n0\n2\n5\n76\n48\n48\n48\n51\n20\n85\n110\n101\n120\n112\n101\n99\n116\n101\n100\n32\n99\n104\n97\n114\n97\n99\n116\n101\n114\n13\n115\n101\n109\n97\n110\n116\n105\n99\n46\n110\n97\n110\n111\n1\n2\n"
+    },
+    {
+      "name": "bang",
+      "source_hex": "6c6574207821203d2031",
+      "expected": "TOKENS\n6\n25\n3\n108\n101\n116\n3\n1\n1\n4\n1\n120\n1\n1\n5\n70\n1\n33\n1\n1\n6\n17\n0\n0\n1\n8\n1\n1\n49\n1\n1\n10\n0\n0\n0\n1\n10\nDIAGNOSTICS\n0\n"
+    },
+    {
+      "name": "keywords",
+      "source_hex": "6173796e632061776169742068616e646c652065666665637420726573756d65",
+      "expected": "TOKENS\n6\n85\n5\n97\n115\n121\n110\n99\n5\n1\n1\n86\n5\n97\n119\n97\n105\n116\n5\n1\n7\n81\n6\n104\n97\n110\n100\n108\n101\n6\n1\n13\n80\n6\n101\n102\n102\n101\n99\n116\n6\n1\n20\n4\n6\n114\n101\n115\n117\n109\n101\n6\n1\n27\n0\n0\n0\n1\n27\nDIAGNOSTICS\n0\n"
+    },
+    {
+      "name": "nested-fstring",
+      "source_hex": "66227b66227b317d227d22",
+      "expected": "TOKENS\n8\n7\n0\n0\n1\n1\n4\n9\n116\n111\n95\n115\n116\n114\n105\n110\n103\n9\n1\n1\n7\n0\n0\n1\n1\n4\n9\n116\n111\n95\n115\n116\n114\n105\n110\n103\n9\n1\n1\n1\n1\n49\n1\n1\n1\n8\n0\n0\n1\n1\n8\n0\n0\n1\n1\n0\n0\n0\n1\n1\nDIAGNOSTICS\n0\n"
+    },
+    {
+      "name": "grammar-without-brace",
+      "source_hex": "6772616d6d6172206e6f7065",
+      "expected": "TOKENS\n3\n75\n7\n103\n114\n97\n109\n109\n97\n114\n7\n1\n1\n4\n4\n110\n111\n112\n101\n4\n1\n9\n0\n0\n0\n1\n9\nDIAGNOSTICS\n0\n"
+    },
+    {
+      "name": "multiline",
+      "source_hex": "666e2066280a20613a20737472696e670a29202d3e20696e74207b0a2072657475726e20310a7d0a",
+      "expected": "TOKENS\n14\n24\n2\n102\n110\n2\n1\n1\n4\n1\n102\n1\n1\n4\n7\n0\n0\n1\n5\n4\n1\n97\n1\n2\n2\n14\n0\n0\n2\n3\n54\n6\n115\n116\n114\n105\n110\n103\n6\n2\n5\n8\n0\n0\n3\n1\n16\n0\n0\n3\n3\n50\n3\n105\n110\n116\n3\n3\n6\n9\n0\n0\n3\n10\n34\n6\n114\n101\n116\n117\n114\n110\n6\n4\n2\n1\n1\n49\n1\n4\n9\n10\n0\n0\n5\n1\n0\n0\n0\n6\n1\nDIAGNOSTICS\n0\n"
+    }
+  ]
+}

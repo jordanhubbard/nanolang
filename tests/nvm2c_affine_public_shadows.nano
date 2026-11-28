@@ -1,0 +1,3 @@
+module "src_nano/nvm2c/affine_public.nano" as checked
+fn main() -> int { return 0 }
+shadow main { assert (== (main) 0) }

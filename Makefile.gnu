@@ -218,7 +218,7 @@ EXAMPLES_STAGE_SUFFIX = $(if $(EXAMPLES_IS_NANOISA),_nanoisa,$(if $(filter $(EXA
 EXAMPLES_EFFECTIVE_BIN_SUFFIX = $(if $(EXAMPLES_BIN_SUFFIX),$(EXAMPLES_BIN_SUFFIX),$(EXAMPLES_STAGE_SUFFIX))
 
 # Source files
-COMMON_SOURCES = $(SRC_DIR)/lexer.c $(SRC_DIR)/parser.c $(SRC_DIR)/typechecker.c $(SRC_DIR)/transpiler.c $(SRC_DIR)/stdlib_runtime.c $(SRC_DIR)/env.c $(SRC_DIR)/builtins_registry.c $(SRC_DIR)/module.c $(SRC_DIR)/module_metadata.c $(SRC_DIR)/cJSON.c $(SRC_DIR)/toon_output.c $(SRC_DIR)/module_builder.c $(SRC_DIR)/resource_tracking.c $(SRC_DIR)/eval.c $(SRC_DIR)/eval/eval_hashmap.c $(SRC_DIR)/eval/eval_math.c $(SRC_DIR)/eval/eval_string.c $(SRC_DIR)/eval/eval_io.c $(SRC_DIR)/interpreter_ffi.c $(SRC_DIR)/json_diagnostics.c $(SRC_DIR)/reflection.c $(SRC_DIR)/nanocore_subset.c $(SRC_DIR)/nanocore_export.c $(SRC_DIR)/emit_typed_ast.c $(SRC_DIR)/type_infer.c $(SRC_DIR)/effects.c $(SRC_DIR)/fold_constants.c $(SRC_DIR)/dce_pass.c $(SRC_DIR)/par_let_pass.c $(SRC_DIR)/ptx_backend.c $(SRC_DIR)/opencl_backend.c $(SRC_DIR)/tco_pass.c $(SRC_DIR)/cps_pass.c $(SRC_DIR)/coroutine.c $(SRC_DIR)/pgo_pass.c $(SRC_DIR)/c_backend.c $(SRC_DIR)/bench.c $(SRC_DIR)/bench_native.c $(SRC_DIR)/riscv_backend.c $(SRC_DIR)/dwarf_info.c $(SRC_DIR)/docgen_md.c $(SRC_DIR)/docgen.c $(SRC_DIR)/fmt.c $(SRC_DIR)/channel.c $(SRC_DIR)/bcp47.c $(SRC_DIR)/locale.c $(SRC_DIR)/utf8.c $(SRC_DIR)/diag_id.c $(SRC_DIR)/catalog.c
+COMMON_SOURCES = $(SRC_DIR)/lexer.c $(SRC_DIR)/parser.c $(SRC_DIR)/typechecker.c $(SRC_DIR)/transpiler.c $(SRC_DIR)/stdlib_runtime.c $(SRC_DIR)/env.c $(SRC_DIR)/builtins_registry.c $(SRC_DIR)/module.c $(SRC_DIR)/module_metadata.c $(SRC_DIR)/cJSON.c $(SRC_DIR)/toon_output.c $(SRC_DIR)/module_builder.c $(SRC_DIR)/resource_tracking.c $(SRC_DIR)/eval.c $(SRC_DIR)/eval/eval_hashmap.c $(SRC_DIR)/eval/eval_math.c $(SRC_DIR)/eval/eval_string.c $(SRC_DIR)/eval/eval_io.c $(SRC_DIR)/interpreter_ffi.c $(SRC_DIR)/json_diagnostics.c $(SRC_DIR)/reflection.c $(SRC_DIR)/nanocore_subset.c $(SRC_DIR)/nanocore_export.c $(SRC_DIR)/emit_typed_ast.c $(SRC_DIR)/type_infer.c $(SRC_DIR)/effects.c $(SRC_DIR)/fold_constants.c $(SRC_DIR)/dce_pass.c $(SRC_DIR)/par_let_pass.c $(SRC_DIR)/ptx_backend.c $(SRC_DIR)/opencl_backend.c $(SRC_DIR)/tco_pass.c $(SRC_DIR)/cps_pass.c $(SRC_DIR)/coroutine.c $(SRC_DIR)/pgo_pass.c $(SRC_DIR)/c_backend.c $(SRC_DIR)/bench.c $(SRC_DIR)/bench_native.c $(SRC_DIR)/riscv_backend.c $(SRC_DIR)/dwarf_info.c $(SRC_DIR)/docgen_md.c $(SRC_DIR)/docgen.c $(SRC_DIR)/fmt.c $(SRC_DIR)/channel.c $(SRC_DIR)/bcp47.c $(SRC_DIR)/locale.c $(SRC_DIR)/utf8.c $(SRC_DIR)/diag_id.c $(SRC_DIR)/catalog.c $(SRC_DIR)/tracing.c $(SRC_DIR)/eval/carrier_heap.c $(SRC_DIR)/eval/carrier_values.c $(SRC_DIR)/eval/carrier_runtime.c
 COMMON_SOURCES += $(SRC_DIR)/checked_borrow_facts.c $(SRC_DIR)/resource_flow.c $(SRC_DIR)/nominal_types.c $(SRC_DIR)/service_namespace.c $(SRC_DIR)/service_bodies.c $(SRC_DIR)/service_ownership.c
 COMPILER_INPUT_OBJECTS = $(OBJ_DIR)/nanoisa/websocket_flow.o $(OBJ_DIR)/nanoisa/websocket_codec.o $(OBJ_DIR)/nanoisa/service_websocket_nominal.o $(OBJ_DIR)/nanoisa/service_websocket_nominal_plan.o $(OBJ_DIR)/nsi_websocket_binding.o $(OBJ_DIR)/nsi_websocket_plan.o $(OBJ_DIR)/nanoisa/service_multi_nominal.o $(OBJ_DIR)/nanoisa/service_multi_nominal_plan.o $(OBJ_DIR)/nanoisa/service_socket_nominal.o $(OBJ_DIR)/nanoisa/service_socket_nominal_plan.o $(OBJ_DIR)/nsi_socket_binding.o $(OBJ_DIR)/nsi_socket_plan.o $(OBJ_DIR)/nanoisa/file_source_snapshot.o $(OBJ_DIR)/nanoisa/file_source_plan.o $(OBJ_DIR)/nanoisa/file_source_catalog.o $(OBJ_DIR)/nsi_file_binding.o $(OBJ_DIR)/nsi.o $(OBJ_DIR)/nsi_file_plan.o
 COMPILER_INPUT_ARCHIVE = lib/libnano_compiler_inputs.a
@@ -265,7 +265,7 @@ SCHEMA_OUTPUTS = $(SRC_NANO_DIR)/generated/compiler_schema.nano $(SRC_NANO_DIR)/
 SCHEMA_STAMP = $(BUILD_DIR)/schema.stamp
 
 HEADERS = $(SRC_DIR)/nanolang.h $(SRC_DIR)/generated/compiler_schema.h $(SRC_DIR)/builtins_registry.h $(RUNTIME_DIR)/list_int.h $(RUNTIME_DIR)/list_string.h $(RUNTIME_DIR)/list_LexerToken.h $(RUNTIME_DIR)/token_helpers.h $(RUNTIME_DIR)/gc.h $(RUNTIME_DIR)/dyn_array.h $(RUNTIME_DIR)/gc_struct.h $(RUNTIME_DIR)/nl_string.h $(RUNTIME_DIR)/ffi_loader.h $(RUNTIME_DIR)/module_build_dir.h $(SRC_DIR)/module_builder.h $(SRC_DIR)/bcp47.h $(SRC_DIR)/locale.h $(SRC_DIR)/utf8.h $(SRC_DIR)/diag_id.h
-HEADERS += $(RUNTIME_DIR)/native_array_abi.h
+HEADERS += $(RUNTIME_DIR)/native_array_abi.h $(SRC_DIR)/native_local_names.h
 
 .PHONY: schema schema-check
 schema: $(SCHEMA_STAMP)
@@ -552,7 +552,7 @@ test-nvm2c-sanitizers:
 
 # I provide the native host ABI required by artifact-backed array operations.
 # A relocatable object retains exports even when only a dlopened module uses them.
-AOT_RUNTIME_OBJECTS = $(OBJ_DIR)/runtime/dyn_array.o $(OBJ_DIR)/runtime/gc.o $(OBJ_DIR)/runtime/gc_struct.o $(OBJ_DIR)/utf8.o
+AOT_RUNTIME_OBJECTS = $(OBJ_DIR)/runtime/dyn_array.o $(OBJ_DIR)/runtime/gc.o $(OBJ_DIR)/runtime/gc_struct.o $(OBJ_DIR)/runtime/regex.o $(OBJ_DIR)/utf8.o
 .PHONY: nvm2c-runtime
 nvm2c-runtime: $(BIN_DIR)/nano_aot_runtime.o
 $(BIN_DIR)/nano_aot_runtime.o: $(AOT_RUNTIME_OBJECTS) Makefile.gnu | $(BIN_DIR)
@@ -652,6 +652,18 @@ test-nvm2c: test-native-effects test-native-array-pop test-native-local-clear te
 	@CC="$(CC)" $(TIMEOUT_CMD) $(NVM2C_TEST_BINARY) $(BIN_DIR)/nvm2c
 	@rm -f $(NVM2C_TEST_BINARY)
 
+.PHONY: test-native-array-write-inference
+test-native-array-write-inference: nano_vm $(BIN_DIR)/nanoisa nvm2c nvm2c-runtime
+	@python3 -m unittest -v tests.test_native_array_write_inference
+
+test-nvm2c: test-native-array-write-inference
+
+.PHONY: test-native-record-pointer-storage
+test-native-record-pointer-storage: nano_vm $(BIN_DIR)/nanoisa nvm2c nvm2c-runtime
+	@python3 -m unittest -v tests.test_native_record_pointer_storage
+
+test-nvm2c: test-native-record-pointer-storage
+
 .PHONY: test-nvm2c371pass0fail
 test-nvm2c371pass0fail: test-nvm2c
 
@@ -730,6 +742,29 @@ $(OBJ_DIR)/nvm2c_instruction_reference: tests/nvm2c_instruction_reference.c $(NA
 test-nanolang-translator-instructions: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_instruction_reference
 	python3 -m unittest -v tests.test_nanolang_translator_instructions
 
+# I compare closed-profile height dataflow with the actual shared verifier.
+$(OBJ_DIR)/nvm2c_record_stack_reference: tests/nvm2c_record_stack_reference.c tests/nvm2c_record_instructions_reference.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ $< $(filter-out $(OBJ_DIR)/nanoisa/managed_array_shapes.o $(OBJ_DIR)/nanoisa/verifier.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-record-stack
+test-nanolang-translator-record-stack: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_record_stack_reference
+	NANOLANG_RECORD_STACK_REFERENCE="$(OBJ_DIR)/nvm2c_record_stack_reference" python3 -m unittest -v tests.test_nanolang_translator_record_stack
+
+# I use the actual private copier as a descriptive test oracle.
+$(OBJ_DIR)/nvm2c_record_instructions_reference: tests/nvm2c_record_instructions_reference.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ $< $(filter-out $(OBJ_DIR)/nanoisa/managed_array_shapes.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-record-instructions
+test-nanolang-translator-record-instructions: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_instruction_reference $(OBJ_DIR)/nvm2c_record_instructions_reference
+	NANOLANG_RECORD_INSTRUCTIONS_REFERENCE="$(OBJ_DIR)/nvm2c_record_instructions_reference" NANOLANG_PRIMARY_REFERENCE="$(OBJ_DIR)/nvm2c_instruction_reference" python3 -m unittest -v tests.test_nanolang_translator_record_instructions
+
+$(OBJ_DIR)/nvm2c_functions_reference: tests/nvm2c_functions_reference.c $(VM_DECODE_OBJECT) $(OBJ_DIR)/nanoisa/isa.o | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ $< $(VM_DECODE_OBJECT) $(OBJ_DIR)/nanoisa/isa.o $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-functions
+test-nanolang-translator-functions: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_instruction_reference $(OBJ_DIR)/nvm2c_functions_reference
+	python3 -m unittest -v tests.test_nanolang_translator_functions
+
 $(OBJ_DIR)/nvm2c_passive_calls_reference: tests/nvm2c_passive_calls_reference.c $(NANOISA_DIR)/passive.c $(NANOISA_DIR)/passive_calls.inc $(OBJ_DIR)/nanoisa/isa.o | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -o $@ $< $(OBJ_DIR)/nanoisa/isa.o $(LDFLAGS)
 
@@ -751,6 +786,16 @@ $(OBJ_DIR)/nvm2c_module_reference: tests/nvm2c_module_reference.c $(NANOISA_OBJE
 test-nanolang-translator-module: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_module_reference test-nominal-owner-context
 	python3 -m unittest -v tests.test_nanolang_translator_module
 
+.PHONY: test-nanolang-translator-conversion
+test-nanolang-translator-conversion: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_module_reference $(OBJ_DIR)/nvm2c_declaration_reference
+	python3 -m unittest -v tests.test_nanolang_translator_conversion
+
+test-units: test-nanolang-translator-conversion
+
+.PHONY: test-nanolang-translator-service-modules
+test-nanolang-translator-service-modules: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_module_reference $(OBJ_DIR)/nvm2c_service_nominal_reference
+	python3 -m unittest -v tests.test_nanolang_translator_service_modules
+
 .PHONY: test-nanolang-translator-ownership-module
 test-nanolang-translator-ownership-module: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_module_reference $(OBJ_DIR)/nvm2c_declaration_reference
 	python3 -m unittest -v tests.test_nanolang_translator_ownership_module
@@ -765,6 +810,18 @@ $(OBJ_DIR)/nvm2c_ownership_reference: tests/nvm2c_ownership_reference.c $(NANOIS
 .PHONY: test-nanolang-translator-ownership
 test-nanolang-translator-ownership: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_ownership_reference
 	python3 -m unittest -v tests.test_nanolang_translator_ownership
+
+$(OBJ_DIR)/nvm2c_ownership_queries_reference: tests/nvm2c_ownership_queries_reference.c tests/nvm2c_affine_model_reader.h $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ $< $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+
+$(OBJ_DIR)/nvm2c_ownership_queries_reference_asan: tests/nvm2c_ownership_queries_reference.c tests/nvm2c_affine_model_reader.h $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) -std=c99 -D_GNU_SOURCE -Isrc -g -O1 -fsanitize=address,undefined -fno-sanitize-recover=all -o $@ $< $(addprefix $(NANOISA_DIR)/,ownership_contracts.c retained_layouts.c reference_places.c nvm_v2_layouts.c nvm_v2_cursor.c isa.c) $(filter-out $(addprefix $(OBJ_DIR)/nanoisa/,ownership_contracts.o retained_layouts.o reference_places.o nvm_v2_layouts.o nvm_v2_cursor.o isa.o),$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-ownership-queries
+test-nanolang-translator-ownership-queries: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_ownership_queries_reference $(OBJ_DIR)/nvm2c_ownership_queries_reference_asan
+	python3 -m unittest -v tests.test_nanolang_translator_ownership_queries
+
+test-units: test-nanolang-translator-ownership-queries
 
 $(OBJ_DIR)/nvm2c_private_layout_reference: tests/nvm2c_private_layout_reference.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -o $@ $< $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
@@ -843,6 +900,73 @@ test-nvm2c: test-native-byte-array-results
 .PHONY: test-nanolang-translator-services
 test-nanolang-translator-services: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_service_reference $(OBJ_DIR)/nvm2c_service_reference_asan
 	python3 -m unittest -v tests.test_nanolang_translator_services
+
+# I check C tokens with actual C execution before translator emission.
+.PHONY: test-nanolang-translator-c-text
+test-nanolang-translator-c-text: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_nanolang_translator_c_text
+
+test-units: test-nanolang-translator-c-text
+
+.PHONY: test-nanolang-translator-scalar-c
+test-nanolang-translator-scalar-c: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_nanolang_translator_scalar_c
+
+test-units: test-nanolang-translator-scalar-c
+
+.PHONY: test-nanolang-translator-binary64-c
+test-nanolang-translator-binary64-c: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_nanolang_translator_binary64_c
+
+test-units: test-nanolang-translator-binary64-c
+
+.PHONY: test-nanolang-translator-parallel-c
+test-nanolang-translator-parallel-c: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_nanolang_translator_parallel_c
+
+test-units: test-nanolang-translator-parallel-c
+
+.PHONY: test-nanolang-translator-shape-graph
+test-nanolang-translator-shape-graph: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_nanolang_translator_shape_graph
+
+test-units: test-nanolang-translator-shape-graph
+
+.PHONY: test-nanolang-translator-shape-solver
+test-nanolang-translator-shape-solver: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_nanolang_translator_shape_solver
+
+test-units: test-nanolang-translator-shape-solver
+
+.PHONY: test-nanolang-translator-constant-reachability
+test-nanolang-translator-constant-reachability: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_nanolang_translator_constant_reachability
+
+test-units: test-nanolang-translator-constant-reachability
+
+.PHONY: test-nanolang-translator-effect-flow
+test-nanolang-translator-effect-flow: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_nanolang_translator_effect_flow
+
+test-units: test-nanolang-translator-effect-flow
+
+.PHONY: test-nanolang-translator-callables
+test-nanolang-translator-callables: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	python3 -m unittest -v tests.test_nanolang_translator_callables
+
+test-units: test-nanolang-translator-callables
+
+.PHONY: test-lexer-snapshot
+test-lexer-snapshot: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_lexer_snapshot
+
+test-units: test-lexer-snapshot
+
+.PHONY: test-typecheck-scope-copy
+test-typecheck-scope-copy: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_typecheck_scope_copy
+
+test-units: test-typecheck-scope-copy
 
 .PHONY: test-nanolang-translator-container
 test-nanolang-translator-container: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_container_reference
@@ -1067,7 +1191,7 @@ test-units: test-collection-aot
 
 .PHONY: test-collection-handles
 test-collection-handles:
-	python3 -m unittest tests.test_collection_handles
+	python3 -m unittest tests.test_collection_handles tests.test_builder_handles
 
 test-units: test-collection-handles
 
@@ -1462,10 +1586,187 @@ test-eval-callable-lifetimes: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/te
 	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_callable_lifetimes tests/test_eval_callable_lifetimes.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/env.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@$(OBJ_DIR)/test_eval_callable_lifetimes
 
+test-units: test-eval-callable-lifetimes
+
+.PHONY: test-eval-callable-record-escape
+test-eval-callable-record-escape: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_callable_record_escape tests/test_eval_callable_record_escape.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/env.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_eval_callable_record_escape
+
+test-units: test-eval-callable-record-escape
+
+.PHONY: test-eval-callable-expression-ownership
+test-eval-callable-expression-ownership: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_callable_expression_ownership tests/test_eval_callable_expression_ownership.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/env.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_eval_callable_expression_ownership
+
+test-units: test-eval-callable-expression-ownership
+
+.PHONY: test-env-borrowed-values
+test-env-borrowed-values: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_env_borrowed_values tests/test_env_borrowed_values.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/env.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_env_borrowed_values
+
+test-units: test-env-borrowed-values
+
+.PHONY: test-checker-record-parameters
+test-checker-record-parameters: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_checker_record_parameters tests/test_checker_record_parameters.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_checker_record_parameters
+
+test-units: test-checker-record-parameters
+
+.PHONY: test-eval-record-binding-ownership
+test-eval-record-binding-ownership: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_record_binding_ownership tests/test_eval_record_binding_ownership.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/env.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_eval_record_binding_ownership
+
+test-units: test-eval-record-binding-ownership
+
+.PHONY: test-eval-carrier-heap
+test-eval-carrier-heap:
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_carrier_heap tests/test_eval_carrier_heap.c $(SRC_DIR)/eval/carrier_heap.c $(LDFLAGS)
+	$(OBJ_DIR)/test_eval_carrier_heap
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_carrier_heap_faults tests/test_eval_carrier_heap_faults.c $(LDFLAGS)
+	$(OBJ_DIR)/test_eval_carrier_heap_faults
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_carrier_heap_compaction tests/test_eval_carrier_heap_compaction.c $(LDFLAGS)
+	$(OBJ_DIR)/test_eval_carrier_heap_compaction
+
+test-units: test-eval-carrier-heap
+
+.PHONY: test-env-generated-list-metadata
+test-env-generated-list-metadata: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_env_generated_list_metadata tests/test_env_generated_list_metadata.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(OBJ_DIR)/test_env_generated_list_metadata
+
+test-units: test-env-generated-list-metadata
+
+.PHONY: test-eval-string-buffer-failures
+test-eval-string-buffer-failures: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/runtime_nl_string_faults.o
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_string_buffer_failures tests/test_eval_string_buffer_failures.c $(COMMON_OBJECTS) $(filter-out $(OBJ_DIR)/runtime/nl_string.o,$(RUNTIME_OBJECTS)) $(OBJ_DIR)/runtime_nl_string_faults.o $(LDFLAGS)
+	$(OBJ_DIR)/test_eval_string_buffer_failures
+
+$(OBJ_DIR)/runtime_nl_string_faults.o: src/runtime/nl_string.c src/runtime/nl_string.h Makefile.gnu | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -Dmalloc=nano_string_buffer_malloc -c $< -o $@
+
+test-units: test-eval-string-buffer-failures
+
+.PHONY: test-checker-loop-metadata
+test-checker-loop-metadata: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_checker_loop_metadata tests/test_checker_loop_metadata.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(OBJ_DIR)/test_checker_loop_metadata
+	$(OBJ_DIR)/test_checker_loop_metadata --private-runtime
+
+test-units: test-checker-loop-metadata
+
+.PHONY: test-cseed-result-list-payloads
+test-cseed-result-list-payloads: $(COMPILER_C)
+	NANO_CSEED_PAYLOAD_COMPILER="$(abspath $(COMPILER_C))" python3 -m unittest tests.test_cseed_result_list_payloads -v
+
+.PHONY: test-record-list-iteration
+test-record-list-iteration: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_record_list_iteration tests/test_record_list_iteration.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/env.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(OBJ_DIR)/test_record_list_iteration
+	$(OBJ_DIR)/test_record_list_iteration --runtime
+
+test-units: test-record-list-iteration
+
+.PHONY: test-eval-string-reference-mode
+test-eval-string-reference-mode: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_string_reference_mode tests/test_eval_string_reference_mode.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/env.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(OBJ_DIR)/test_eval_string_reference_mode
+	$(OBJ_DIR)/test_eval_string_reference_mode --full
+
+test-units: test-eval-string-reference-mode
+
+.PHONY: test-eval-carrier-string-scopes
+test-eval-carrier-string-scopes: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_carrier_string_scopes tests/test_eval_carrier_string_scopes.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/env.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(OBJ_DIR)/test_eval_carrier_string_scopes
+
+test-units: test-eval-carrier-string-scopes
+
+.PHONY: test-eval-carrier-collection-scratch
+test-eval-carrier-collection-scratch: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_carrier_collection_scratch tests/test_eval_carrier_collection_scratch.c $(filter-out $(OBJ_DIR)/eval/carrier_runtime.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(OBJ_DIR)/test_eval_carrier_collection_scratch
+
+test-units: test-eval-carrier-collection-scratch
+
+.PHONY: test-eval-carrier-native-bytes
+test-eval-carrier-native-bytes: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_carrier_native_bytes tests/test_eval_carrier_native_bytes.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/env.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(OBJ_DIR)/test_eval_carrier_native_bytes
+
+test-units: test-eval-carrier-native-bytes
+
+.PHONY: test-eval-carrier-active-roots
+test-eval-carrier-active-roots: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_carrier_active_roots tests/test_eval_carrier_active_roots.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/env.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(OBJ_DIR)/test_eval_carrier_active_roots
+
+test-units: test-eval-carrier-active-roots
+
+.PHONY: test-eval-carrier-values
+test-eval-carrier-values: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/eval_carrier_heap_allocations.o $(OBJ_DIR)/eval_carrier_values_allocations.o
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_carrier_values tests/test_eval_carrier_values.c $(filter-out $(OBJ_DIR)/eval/carrier_heap.o $(OBJ_DIR)/eval/carrier_values.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(OBJ_DIR)/eval_carrier_heap_allocations.o $(OBJ_DIR)/eval_carrier_values_allocations.o $(LDFLAGS)
+	$(OBJ_DIR)/test_eval_carrier_values
+
+$(OBJ_DIR)/eval_carrier_heap_allocations.o: src/eval/carrier_heap.c src/eval/carrier_heap.h tests/support/carrier_value_allocations.h Makefile.gnu | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -include tests/support/carrier_value_allocations.h -c $< -o $@
+
+$(OBJ_DIR)/eval_carrier_values_allocations.o: src/eval/carrier_values.c src/eval/carrier_values.h src/eval/carrier_heap.h tests/support/carrier_value_allocations.h $(HEADERS) Makefile.gnu | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -include tests/support/carrier_value_allocations.h -c $< -o $@
+
+test-units: test-eval-carrier-values
+
+.PHONY: test-eval-legacy-record-lists test-carrier-legacy-list-values
+test-eval-legacy-record-lists: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_legacy_record_lists tests/test_eval_legacy_record_lists.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_eval_legacy_record_lists
+
+test-carrier-legacy-list-values: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_carrier_legacy_list_values tests/test_carrier_legacy_list_values.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_carrier_legacy_list_values
+
+test-units: test-eval-legacy-record-lists test-carrier-legacy-list-values
+
+.PHONY: test-eval-scalar-projection-ownership
+test-eval-scalar-projection-ownership: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_scalar_projection_ownership tests/test_eval_scalar_projection_ownership.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/env.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_eval_scalar_projection_ownership
+
+test-units: test-eval-scalar-projection-ownership
+
+.PHONY: test-eval-scalar-projection-sources
+test-eval-scalar-projection-sources: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_scalar_projection_sources tests/test_eval_scalar_projection_sources.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/env.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_eval_scalar_projection_sources
+
+test-units: test-eval-scalar-projection-sources
+
+
 $(OBJ_DIR)/eval_io_faults.o: src/eval/eval_io.c src/runtime/file_write.h tests/support/file_write_faults.h Makefile.gnu | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -include tests/support/file_write_faults.h -c $< -o $@
 
+$(OBJ_DIR)/eval.o $(OBJ_DIR)/env.o $(OBJ_DIR)/eval_clock_test.o $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/eval_trace_metadata_test.o: src/eval/carrier_runtime.h src/eval/carrier_values.h src/eval/carrier_heap.h
+
 $(OBJ_DIR)/eval.o $(OBJ_DIR)/eval_clock_test.o $(OBJ_DIR)/eval_frame_metadata_test.o: src/eval/call_arguments.h
+
+# I enable actual tracing only in this observer's evaluator and tracer.
+$(OBJ_DIR)/eval_trace_metadata_test.o: src/eval.c src/tracing.h tests/support/eval_frame_metadata.h src/runtime/binary64_parse.h $(NANOISA_DIR)/binary64_parse.h $(HEADERS) Makefile.gnu | $(OBJ_DIR)
+	$(CC) $(CFLAGS) $(DEPFLAGS) -DNANO_INTERPRETER -Dtrace_var_set=nano_test_trace_var_set -Dclock_gettime=nano_test_clock_gettime -include tests/support/eval_frame_metadata.h -c $< -o $@
+
+$(OBJ_DIR)/tracing_enabled_test.o: src/tracing.c src/tracing.h $(HEADERS) Makefile.gnu | $(OBJ_DIR)
+	$(CC) $(CFLAGS) $(DEPFLAGS) -DNANO_INTERPRETER -c $< -o $@
+
+.PHONY: test-eval-assignment-tracing
+test-eval-assignment-tracing: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_trace_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/tracing_enabled_test.o
+	$(CC) $(CFLAGS) -DNANO_INTERPRETER -o $(OBJ_DIR)/test_eval_assignment_tracing tests/test_eval_assignment_tracing.c $(filter-out $(OBJ_DIR)/tracing.o $(OBJ_DIR)/eval.o $(OBJ_DIR)/env.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_trace_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/tracing_enabled_test.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_eval_assignment_tracing
+
+test-units: test-eval-assignment-tracing
 
 $(OBJ_DIR)/eval_clock_test.o: src/eval.c src/runtime/binary64_parse.h $(NANOISA_DIR)/binary64_parse.h $(HEADERS) Makefile.gnu | $(OBJ_DIR)
 	$(CC) $(CFLAGS) $(DEPFLAGS) -Dclock_gettime=nano_test_clock_gettime -c $< -o $@
@@ -1506,6 +1807,25 @@ test-eval: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_
 	$(CC) $(CFLAGS) -o tests/test_eval tests/test_eval.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/env.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@./tests/test_eval
 	@rm -f tests/test_eval
+
+.PHONY: test-parser-async-ownership test-eval-async-ownership
+test-parser-async-ownership: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_parser_async_ownership tests/test_parser_async_ownership.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_parser_async_ownership
+
+test-eval-async-ownership: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_async_ownership tests/test_eval_async_ownership.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/env.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_eval_async_ownership
+
+.PHONY: test-eval-effect-metadata-ownership
+test-eval-effect-metadata-ownership: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_effect_metadata_ownership tests/test_eval_effect_metadata_ownership.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/env.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_eval_effect_metadata_ownership
+
+.PHONY: test-eval-enum-ownership
+test-eval-enum-ownership: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_enum_ownership tests/test_eval_enum_ownership.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/env.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_eval_enum_ownership
 
 .PHONY: test-eval-global-bindings test-eval-global-binding-ownership
 test-eval-global-bindings: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
@@ -1711,6 +2031,30 @@ test-typechecker: stage1
 	$(CC) $(CFLAGS) -o tests/test_typechecker tests/test_typechecker.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@./tests/test_typechecker
 	@rm -f tests/test_typechecker
+
+.PHONY: test-env-fresh-record-bindings
+test-env-fresh-record-bindings: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_env_fresh_record_bindings tests/test_env_fresh_record_bindings.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_env_fresh_record_bindings
+
+test-units: test-env-fresh-record-bindings
+
+.PHONY: test-env-string-binding-hint
+test-env-string-binding-hint: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -UNDEBUG -o $(OBJ_DIR)/test_env_string_binding_hint tests/test_env_string_binding_hint.c $(filter-out $(OBJ_DIR)/env.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_env_string_binding_hint
+
+test-units: test-env-string-binding-hint
+
+.PHONY: test-eval-builtin-resolution
+$(OBJ_DIR)/eval_builtin_resolution_test.o: src/eval.c $(HEADERS) Makefile.gnu | $(OBJ_DIR)
+	$(CC) $(CFLAGS) $(DEPFLAGS) -Denv_get_function=nano_test_env_get_function -c $< -o $@
+
+test-eval-builtin-resolution: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/eval_builtin_resolution_test.o
+	$(CC) $(CFLAGS) -UNDEBUG -o $(OBJ_DIR)/test_eval_builtin_resolution tests/test_eval_builtin_resolution.c $(filter-out $(OBJ_DIR)/eval.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_builtin_resolution_test.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_eval_builtin_resolution
+
+test-units: test-eval-builtin-resolution
 
 .PHONY: test-env-symbol-index
 test-env-symbol-index: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
@@ -2096,6 +2440,10 @@ test-gc-shutdown-sanitizers: | $(OBJ_DIR)
 		tests/test_gc_struct.c src/runtime/gc.c src/runtime/dyn_array.c src/runtime/gc_struct.c \
 		-o $(OBJ_DIR)/test_gc_shutdown $(LDFLAGS)
 	ASAN_OPTIONS=detect_leaks=$(if $(filter Darwin,$(UNAME_S)),0,1) $(OBJ_DIR)/test_gc_shutdown
+	$(CC) $(CFLAGS) -UNDEBUG -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer \
+		tests/test_gc_allocation_failure.c src/runtime/dyn_array.c src/runtime/gc_struct.c \
+		-o $(OBJ_DIR)/test_gc_allocation_failure $(LDFLAGS)
+	ASAN_OPTIONS=detect_leaks=$(if $(filter Darwin,$(UNAME_S)),0,1) $(OBJ_DIR)/test_gc_allocation_failure
 
 test-units: test-gc-shutdown-sanitizers
 
@@ -2223,6 +2571,18 @@ test-verifier: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 		tests/nanoisa/test_verifier.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 	@./tests/nanoisa/test_verifier
 	@rm -f tests/nanoisa/test_verifier
+
+.PHONY: test-function-depth-batch
+test-function-depth-batch: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	$(CC) $(CFLAGS) -UNDEBUG -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_function_depth_batch tests/nanoisa/test_function_depth_batch.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+	$(OBJ_DIR)/test_function_depth_batch
+	$(CC) $(CFLAGS) -UNDEBUG -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_function_depth_profiles tests/nanoisa/test_function_depth_profiles.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+	$(OBJ_DIR)/test_function_depth_profiles
+	$(CC) $(CFLAGS) $(DEPFLAGS) -Dmalloc=depth_test_malloc -Dcalloc=depth_test_calloc -Drealloc=depth_test_realloc -Dfree=depth_test_free -c $(NANOISA_DIR)/verifier.c -o $(OBJ_DIR)/verifier_depth_alloc.o
+	$(CC) $(CFLAGS) -UNDEBUG -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_function_depth_alloc tests/nanoisa/test_function_depth_alloc.c $(filter-out $(OBJ_DIR)/nanoisa/verifier.o,$(NANOISA_OBJECTS)) $(OBJ_DIR)/verifier_depth_alloc.o $(NANOISA_UTF8) $(LDFLAGS)
+	$(OBJ_DIR)/test_function_depth_alloc
+
+test-units: test-function-depth-batch
 
 .PHONY: test-nvm-v2-imports
 test-nvm-v2-imports: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
@@ -2951,6 +3311,15 @@ test-module-builder-cache: $(OBJ_DIR)/cJSON.o $(OBJ_DIR)/utf8.o $(OBJ_DIR)/runti
 	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_module_builder_cache tests/test_module_builder_cache.c $^ $(LDFLAGS)
 	@$(OBJ_DIR)/test_module_builder_cache
 
+$(OBJ_DIR)/test_module_assembly_workers: tests/test_module_assembly_workers.c src/module_builder.c $(OBJ_DIR)/cJSON.o $(OBJ_DIR)/utf8.o $(OBJ_DIR)/runtime/module_build_dir.o
+	$(CC) $(CFLAGS) -o $@ tests/test_module_assembly_workers.c $(OBJ_DIR)/cJSON.o $(OBJ_DIR)/utf8.o $(OBJ_DIR)/runtime/module_build_dir.o $(LDFLAGS)
+
+.PHONY: test-module-assembly-workers
+test-module-assembly-workers: $(OBJ_DIR)/test_module_assembly_workers
+	@python3 -m unittest -v tests.test_module_assembly_workers
+
+test-units: test-module-assembly-workers
+
 test-failed-import-publication: nano_virt
 	@bash tests/test_failed_import_publication.sh
 
@@ -3314,7 +3683,7 @@ test-bytecode-shadows: nano_virt nano_vm nanoisa_dump $(COMPILER_C) $(OBJ_DIR)/t
 	@python3 tests/test_bytecode_shadows.py
 	@python3 -m unittest tests.test_module_cache_publication
 	@python3 -m unittest tests.test_linux_link_cache
-	@python3 -m unittest tests.test_source_snapshots
+	@python3 -m unittest tests.test_source_snapshots tests.test_response_driver_grammar tests.test_gnu_tool_queries
 	@python3 -m unittest tests.test_link_argument_transport
 	@python3 -m unittest tests.test_link_response_graph
 	@python3 -m unittest tests.test_link_response_query
@@ -3325,7 +3694,7 @@ test-native-shadow-emitter: nanoisa_dump nano_vm nvm2c nvm2c-runtime
 
 .PHONY: test-native-shadows
 test-native-shadows:
-	@python3 -m unittest tests.test_native_shadows tests.test_shadow_runner tests.test_make_timeouts
+	@python3 -m unittest tests.test_native_shadows tests.test_shadow_runner tests.test_make_timeouts tests.test_native_shadow_only_entry tests.test_native_shadow_helpers
 
 .PHONY: test-selfhost-build-isolation
 test-selfhost-build-isolation:
@@ -4000,6 +4369,66 @@ $(REPL_BINARY): $(REPL_OBJECTS) | $(BIN_DIR)
 	$(CC) $(CFLAGS) -o $(REPL_BINARY) $(REPL_OBJECTS) $(LDFLAGS)
 	@echo "✓ REPL: $(REPL_BINARY)"
 
+.PHONY: test-eval-tuple-vector-guards
+test-eval-tuple-vector-guards: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/eval_tuple_vector_allocations.o $(OBJ_DIR)/eval_io_faults.o
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_tuple_vector_guards tests/test_eval_tuple_vector_guards.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_tuple_vector_allocations.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(OBJ_DIR)/test_eval_tuple_vector_guards
+
+$(OBJ_DIR)/eval_tuple_vector_allocations.o: src/eval.c $(HEADERS) Makefile.gnu | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -Dmalloc=nano_tuple_test_malloc -c $< -o $@
+
+test-units: test-eval-tuple-vector-guards
+
+.PHONY: test-repl-callable-lifetimes
+test-repl-callable-lifetimes: $(REPL_BINARY)
+	NANO_REPL=$(abspath $(REPL_BINARY)) python3 -m unittest -v tests.test_repl_callable_lifetimes
+
+.PHONY: test-module-list-preparation
+test-module-list-preparation: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_module_list_preparation tests/test_module_list_preparation.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(OBJ_DIR)/test_module_list_preparation "$(CURDIR)"
+
+test-units: test-module-list-preparation
+
+.PHONY: test-module-rejection-rollback
+test-module-rejection-rollback: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_module_rejection_rollback tests/test_module_rejection_rollback.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(OBJ_DIR)/test_module_rejection_rollback
+
+test-units: test-module-rejection-rollback
+
+.PHONY: test-repl-admission
+test-repl-admission: $(REPL_BINARY)
+	NANO_REPL=$(abspath $(REPL_BINARY)) python3 -m unittest -v tests.test_repl_admission
+
+test-units: test-repl-admission
+
+ifeq ($(UNAME_S),Linux)
+REPL_SAVE_FAULT_LIBRARY ?= $(OBJ_DIR)/repl_save_faults.so
+$(REPL_SAVE_FAULT_LIBRARY): tests/support/repl_save_faults.c | $(OBJ_DIR)
+	$(CC) $(filter-out -D_GNU_SOURCE,$(CFLAGS)) -shared -o $@ $< -ldl
+endif
+
+.PHONY: test-repl-session
+test-repl-session: $(REPL_BINARY) $(REPL_SAVE_FAULT_LIBRARY)
+	NANO_REPL=$(abspath $(REPL_BINARY)) NANO_REPL_SAVE_FAULTS="$(abspath $(REPL_SAVE_FAULT_LIBRARY))" python3 -m unittest -v tests.test_repl_session
+
+test-units: test-repl-session
+
+.PHONY: test-repl-result-scopes
+test-repl-result-scopes: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_repl_result_scopes tests/test_repl_result_scopes.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_repl_result_scopes
+
+test-units: test-repl-result-scopes
+
+.PHONY: test-repl-state
+test-repl-state: $(REPL_BINARY)
+	NANO_REPL=$(abspath $(REPL_BINARY)) python3 -m unittest -v tests.test_repl_state
+
+# I include both gates after qualifying the strict standalone build (#1205).
+test-units: test-repl-callable-lifetimes test-repl-state
+
 .PHONY: repl
 repl: $(REPL_BINARY)
 
@@ -4506,8 +4935,9 @@ coverage-check: coverage.info
 	fi
 
 # Install binaries
-install: $(COMPILER) vm nvm2c install-resolver install-websocket-public-runtime install-file-public-runtime install-socket-public-runtime install-services-public-runtime
+install: $(COMPILER) vm nvm2c nvm2c-runtime install-resolver install-websocket-public-runtime install-file-public-runtime install-socket-public-runtime install-services-public-runtime
 	install -d $(PREFIX)/bin
+	python3 scripts/install_host_artifacts.py --binary "$(COMPILER)" --prefix "$(PREFIX)" --name nanoc
 	install -m 755 $(COMPILER) $(PREFIX)/bin/nanoc
 	install -m 755 bin/nano_virt $(PREFIX)/bin/nano_virt
 	install -m 755 bin/nano_vm $(PREFIX)/bin/nano_vm
@@ -4515,14 +4945,16 @@ install: $(COMPILER) vm nvm2c install-resolver install-websocket-public-runtime 
 	install -m 755 bin/nano_vmd $(PREFIX)/bin/nano_vmd
 	install -m 755 bin/nanoisa $(PREFIX)/bin/nanoisa
 	install -m 755 bin/nvm2c $(PREFIX)/bin/nvm2c
+	install -m 644 bin/nano_aot_runtime.o $(PREFIX)/bin/nano_aot_runtime.o
 ifeq ($(UNAME_S),Linux)
 	install -m 755 bin/nano_as_capture.so $(PREFIX)/bin/nano_as_capture.so
 endif
 	@echo "Installed to $(PREFIX)/bin (nanoc, nano_virt, nano_vm, nano_cop, nano_vmd, nanoisa, nvm2c; explicit File runtime package)"
 
 uninstall:
+	python3 scripts/install_host_artifacts.py --prefix "$(PREFIX)" --name nanoc --uninstall
 	rm -f "$(PREFIX)/bin/nano-resolver"
-	rm -f "$(PREFIX)/lib/libnano_file_runtime.a" "$(PREFIX)/bin/nvm2c"
+	rm -f "$(PREFIX)/lib/libnano_file_runtime.a" "$(PREFIX)/bin/nvm2c" "$(PREFIX)/bin/nano_aot_runtime.o"
 	@for header in $(FILE_PUBLIC_HEADERS); do rm -f "$(PREFIX)/include/nanolang/file/$$header"; done
 ifeq ($(UNAME_S),Linux)
 	rm -f $(PREFIX)/bin/nano_as_capture.so
@@ -6495,8 +6927,9 @@ test-cseed-shadow-trace: bin/nanoc_c
 test-units: test-cseed-shadow-trace
 
 .PHONY: test-shadow-completion-observation
-test-shadow-completion-observation: bin/nanoc_c
-	python3 -m unittest -v tests.test_shadow_completion_observation tests.test_cseed_shadow_trace
+test-shadow-completion-observation: bin/nanoc_c bin/nano_virt
+	@mkdir -p .test_output
+	python3 -m unittest -v tests.test_shadow_completion_observation tests.test_cseed_shadow_trace tests.test_shadow_reap_deadline
 
 test-units: test-shadow-completion-observation
 
@@ -7672,3 +8105,508 @@ test-legacy-bang-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2
 .PHONY: test-array-sort-contracts
 test-array-sort-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
 	python3 -m unittest -v tests.test_array_sort_contracts
+
+# I retain one exact deployment loader in standalone generated products.
+$(NANOISA_DIR)/host_artifact_source.h: scripts/embed_host_artifact_loader.py $(NANOISA_DIR)/host_artifact_digest.h $(NANOISA_DIR)/host_artifact_loader.h
+	python3 scripts/embed_host_artifact_loader.py
+
+$(OBJ_DIR)/nanoisa/nvm2c.o: $(NANOISA_DIR)/host_artifact_source.h $(NANOISA_DIR)/host_artifact_digest.h
+
+.PHONY: test-host-artifact-deployment
+test-host-artifact-deployment: nanoisa_dump nano_vm nvm2c
+	python3 scripts/embed_host_artifact_loader.py --check
+	python3 -m unittest -v tests.test_host_artifact_deployment
+
+test-units: test-host-artifact-deployment
+
+$(OBJ_DIR)/nvm2c_stack_types_reference: tests/nvm2c_stack_types_reference.c $(NANOISA_DIR)/verifier_types.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -o $@ $< $(filter-out $(OBJ_DIR)/nanoisa/verifier_types.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-stack-types
+test-nanolang-translator-stack-types: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_stack_types_reference
+	NANOLANG_STACK_TYPES_REFERENCE="$(OBJ_DIR)/nvm2c_stack_types_reference" python3 -m unittest -v tests.test_nanolang_translator_stack_types
+
+# I compare ordinary height and explicit-retain dataflow with my shared helper.
+$(OBJ_DIR)/nvm2c_stack_heights_reference: tests/nvm2c_stack_heights_reference.c $(NANOISA_DIR)/verifier.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -o $@ $< $(filter-out $(OBJ_DIR)/nanoisa/verifier.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-stack-heights
+test-nanolang-translator-stack-heights: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_stack_heights_reference
+	NANOLANG_STACK_HEIGHTS_REFERENCE="$(OBJ_DIR)/nvm2c_stack_heights_reference" python3 -m unittest -v tests.test_nanolang_translator_stack_heights
+
+# I compose ordinary operand, height/retain and shallow type checks in order.
+$(OBJ_DIR)/nvm2c_function_body_reference: tests/nvm2c_function_body_reference.c $(NANOISA_DIR)/verifier.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -o $@ $< $(filter-out $(OBJ_DIR)/nanoisa/verifier.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-function-body
+test-nanolang-translator-function-body: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_function_body_reference
+	NANOLANG_FUNCTION_BODY_REFERENCE="$(OBJ_DIR)/nvm2c_function_body_reference" python3 -m unittest -v tests.test_nanolang_translator_function_body
+
+# I compose ordinary unlinked module structure, declared depths and bodies.
+$(OBJ_DIR)/nvm2c_module_verifier_reference: tests/nvm2c_module_verifier_reference.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ $< $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-module-verifier
+test-nanolang-translator-module-verifier: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_module_verifier_reference
+	python3 -m unittest -v tests.test_nanolang_translator_module_verifier
+
+test-units: test-nanolang-translator-module-verifier
+
+.PHONY: test-empty-function-results
+test-empty-function-results: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_empty_function_results
+
+test-units: test-empty-function-results
+
+# I compare ordinary linked roots and every present flat-graph target.
+$(OBJ_DIR)/nvm2c_linked_module_verifier_reference: tests/nvm2c_linked_module_verifier_reference.c tests/nvm2c_module_verifier_reference.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ $< $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-linked-module-verifier
+test-nanolang-translator-linked-module-verifier: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_linked_module_verifier_reference
+	python3 -m unittest -v tests.test_nanolang_translator_linked_module_verifier
+
+test-units: test-nanolang-translator-linked-module-verifier
+
+# I qualify the affine walk's place dependency before local/bytecode admission.
+$(OBJ_DIR)/nvm2c_reference_places_reference: tests/nvm2c_reference_places_reference.c $(NANOISA_DIR)/reference_places.c $(NANOISA_DIR)/reference_places.h | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o $@ $< $(NANOISA_DIR)/reference_places.c $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-reference-places
+test-nanolang-translator-reference-places: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_reference_places_reference
+	NANOLANG_REFERENCE_PLACES_REFERENCE="$(OBJ_DIR)/nvm2c_reference_places_reference" python3 -m unittest -v tests.test_nanolang_translator_reference_places
+
+test-units: test-nanolang-translator-reference-places
+
+# I compare shared affine local transitions before bytecode/profile admission.
+$(OBJ_DIR)/nvm2c_affine_state_reference: tests/nvm2c_affine_state_reference.c tests/nvm2c_affine_model_reader.h $(NANOISA_DIR)/affine_state.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -o $@ $< $(filter-out $(OBJ_DIR)/nanoisa/affine_state.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-affine-state
+test-nanolang-translator-affine-state: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_affine_state_reference
+	NANOLANG_AFFINE_STATE_REFERENCE="$(OBJ_DIR)/nvm2c_affine_state_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_state
+
+test-units: test-nanolang-translator-affine-state
+
+# I require source-level nominal mutation checks before any product publication.
+.PHONY: test-nominal-record-array-mutation
+test-nominal-record-array-mutation: $(COMPILER_C) nano_virt nano_vm $(if $(NANOLANG_SELFHOST_COMPILER),,bootstrap3)
+	python3 -m unittest -v tests.test_nominal_record_array_mutation
+
+test-units: test-nominal-record-array-mutation
+
+# I retain concrete storage at generic empty-array value joins.
+.PHONY: test-generic-empty-array-values
+test-generic-empty-array-values: $(COMPILER_C) nano_virt nano_vm $(if $(NANOLANG_SELFHOST_COMPILER),,bootstrap3)
+	python3 -m unittest -v tests.test_generic_empty_array_values
+
+test-units: test-generic-empty-array-values
+
+.PHONY: test-nanolang-translator-affine-graph
+$(OBJ_DIR)/nvm2c_affine_graph_reference: tests/nvm2c_affine_graph_reference.c tests/nvm2c_affine_model_reader.h $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ tests/nvm2c_affine_graph_reference.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS) -lm
+
+test-nanolang-translator-affine-graph: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_affine_graph_reference
+	NANOLANG_AFFINE_GRAPH_REFERENCE="$(OBJ_DIR)/nvm2c_affine_graph_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_graph
+
+test-units: test-nanolang-translator-affine-graph
+
+.PHONY: test-nanovirt-emission-scopes
+test-nanovirt-emission-scopes: $(COMPILER_C) nano_virt nano_vm
+	@if [ -z "$(NANOLANG_SELFHOST_COMPILER)" ]; then $(MAKE) --no-print-directory bootstrap3; fi
+	python3 -m unittest -v tests.test_nanovirt_emission_scopes
+
+test-units: test-nanovirt-emission-scopes
+
+.PHONY: test-regex-replacement-runtime
+test-regex-replacement-runtime:
+	python3 -m unittest -v tests.test_regex_replace_all_runtime
+
+test-units: test-regex-replacement-runtime
+
+# I compare CFG frame primitives before whole-function affine admission.
+.PHONY: test-nanolang-translator-affine-frame
+$(OBJ_DIR)/nvm2c_affine_frame_reference: tests/nvm2c_affine_frame_reference.c tests/nvm2c_affine_model_reader.h src/nanoisa/affine_bytecode.c src/nanoisa/affine_global_flow.h $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ tests/nvm2c_affine_frame_reference.c $(filter-out $(OBJ_DIR)/nanoisa/affine_bytecode.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS) -lm
+
+test-nanolang-translator-affine-frame: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_affine_frame_reference
+	NANOLANG_AFFINE_FRAME_REFERENCE="$(OBJ_DIR)/nvm2c_affine_frame_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_frame.AffineFrame
+
+test-units: test-nanolang-translator-affine-frame
+
+.PHONY: test-nanolang-translator-affine-flow
+test-nanolang-translator-affine-flow: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_affine_frame_reference
+	NANOLANG_AFFINE_FRAME_REFERENCE="$(OBJ_DIR)/nvm2c_affine_frame_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_frame.AffineFlow
+
+test-units: test-nanolang-translator-affine-flow
+
+# I preserve exact producer refusals while characterizing inferred copy views.
+.PHONY: test-nvm2c-scalar-copy-shapes
+test-nvm2c-scalar-copy-shapes: | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_inferred_scalar_copies tests/nanoisa/test_inferred_scalar_copies.c $(NANOISA_DIR)/nvm2c_shape.c
+	@$(OBJ_DIR)/test_inferred_scalar_copies
+
+test-units: test-nvm2c-scalar-copy-shapes
+
+.PHONY: test-native-scalar-copy-inference
+test-native-scalar-copy-inference: nano_virt nano_vm nanoisa_dump nvm2c
+	python3 -m unittest -v tests.test_native_scalar_copy_inference
+
+test-units: test-native-scalar-copy-inference
+
+.PHONY: test-native-nested-array-results
+test-native-nested-array-results: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_native_nested_array_result_inference
+
+test-units: test-native-nested-array-results
+
+.PHONY: test-eval-legacy-list-free test-carrier-legacy-list-free
+test-eval-legacy-list-free: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_legacy_list_free tests/test_eval_legacy_list_free.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_eval_legacy_list_free
+
+$(OBJ_DIR)/eval_carrier_list_free_test.o: src/eval/carrier_values.c src/eval/carrier_values.h src/eval/carrier_heap.h $(HEADERS) Makefile.gnu | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -Dlist_int_free=nano_test_list_int_free -c $< -o $@
+
+test-carrier-legacy-list-free: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/eval_carrier_list_free_test.o
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_carrier_legacy_list_free tests/test_carrier_legacy_list_free.c $(filter-out %/carrier_values.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_carrier_list_free_test.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_carrier_legacy_list_free
+
+test-units: test-eval-legacy-list-free test-carrier-legacy-list-free
+
+.PHONY: test-eval-carrier-root-selection
+test-eval-carrier-root-selection: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_carrier_root_selection tests/test_eval_carrier_root_selection.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_eval_carrier_root_selection
+
+test-units: test-eval-carrier-root-selection
+
+.PHONY: test-eval-carrier-field-metadata
+test-eval-carrier-field-metadata: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_carrier_field_metadata tests/test_eval_carrier_field_metadata.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_eval_carrier_field_metadata
+
+test-units: test-eval-carrier-field-metadata
+
+.PHONY: test-eval-carrier-field-walk
+test-eval-carrier-field-walk: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_carrier_field_walk tests/test_eval_carrier_field_walk.c $(filter-out %/carrier_runtime.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_eval_carrier_field_walk
+
+test-units: test-eval-carrier-field-walk
+
+.PHONY: test-eval-carrier-pressure
+test-eval-carrier-pressure: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_carrier_pressure tests/test_eval_carrier_pressure.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_eval_carrier_pressure
+
+test-units: test-eval-carrier-pressure
+
+.PHONY: test-carrier-scalar-list-values test-eval-enum-list-values
+test-carrier-scalar-list-values: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_carrier_scalar_list_values tests/test_carrier_scalar_list_values.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_carrier_scalar_list_values
+
+test-eval-enum-list-values: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_enum_list_values tests/test_eval_enum_list_values.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_eval_enum_list_values
+
+test-units: test-carrier-scalar-list-values test-eval-enum-list-values
+
+.PHONY: test-cseed-record-lists
+test-cseed-record-lists: $(COMPILER_C)
+	NANO_RECORD_LIST_COMPILER="$(abspath $(COMPILER_C))" python3 -m unittest -v tests.test_cseed_record_lists
+
+test-units: test-cseed-record-lists
+
+.PHONY: test-cseed-enum-lists
+test-cseed-enum-lists: $(COMPILER_C)
+	NANO_ENUM_LIST_COMPILER="$(abspath $(COMPILER_C))" python3 -m unittest -v tests.test_cseed_enum_lists
+
+test-units: test-cseed-enum-lists
+
+.PHONY: test-enum-int64-metadata
+test-enum-int64-metadata: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_enum_int64_metadata tests/test_enum_int64_metadata.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_enum_int64_metadata
+
+test-units: test-enum-int64-metadata
+
+.PHONY: test-type-metadata-queries
+test-type-metadata-queries: tests/test_type_metadata_queries.c src/type_metadata_queries.inc src/nanolang.h
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -Isrc -o $(OBJ_DIR)/test_type_metadata_queries tests/test_type_metadata_queries.c $(LDFLAGS)
+	@$(OBJ_DIR)/test_type_metadata_queries
+
+test-units: test-type-metadata-queries
+
+.PHONY: test-cseed-native-publication
+test-cseed-native-publication: $(COMPILER_C)
+	@NANOLANG_PUBLICATION_COMPILER="$(COMPILER_C)" python3 -m unittest tests.test_cseed_native_publication
+
+.PHONY: test-source-c-imports test-source-c-graph-api
+test-source-c-imports: $(COMPILER_C) test-source-c-graph-api
+	@NANO_SOURCE_C_COMPILER="$(COMPILER_C)" python3 -m unittest tests.test_source_c_imports
+
+test-source-c-graph-api: tests/test_source_c_graph_api.c tests/support/public_c_fixture_providers.c src/c_backend.c src/c_backend.h src/c_backend_values.inc
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -D_POSIX_C_SOURCE=200809L -Isrc -o $(OBJ_DIR)/test_source_c_graph_api tests/test_source_c_graph_api.c tests/support/public_c_fixture_providers.c $(LDFLAGS)
+	@$(OBJ_DIR)/test_source_c_graph_api $(OBJ_DIR)/source_c_graph_api.c
+
+test-units: test-source-c-imports
+
+.PHONY: test-checker-rejected-declarations test-checker-rejected-declaration-cli
+test-checker-rejected-declarations: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -UNDEBUG -o $(OBJ_DIR)/test_checker_rejected_declarations tests/test_checker_rejected_declarations.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(OBJ_DIR)/test_checker_rejected_declarations
+
+test-checker-rejected-declaration-cli: $(BIN_DIR)/nanoc_c
+	python3 -m unittest -v tests.test_checker_rejected_declarations
+
+test-units: test-checker-rejected-declarations test-checker-rejected-declaration-cli
+
+.PHONY: test-checker-owned-contexts
+test-checker-owned-contexts: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_checker_owned_contexts tests/test_checker_owned_contexts.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(OBJ_DIR)/test_checker_owned_contexts
+
+test-units: test-checker-owned-contexts
+
+.PHONY: test-native-c-keywords
+test-native-c-keywords: $(BIN_DIR)/nano $(BIN_DIR)/nanoc_c $(BIN_DIR)/nano_virt $(BIN_DIR)/nano_vm
+	PYTHONPATH=. python3 -m unittest -v tests.test_native_c_names tests.test_native_keyword_bindings
+
+# I compare the complete opcode predicate and bounded stack operations with C.
+.PHONY: test-nanolang-translator-affine-operands
+test-nanolang-translator-affine-operands: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_affine_frame_reference
+	NANOLANG_AFFINE_FRAME_REFERENCE="$(OBJ_DIR)/nvm2c_affine_frame_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_frame.AffineOperands
+
+test-units: test-nanolang-translator-affine-operands
+
+# I compare my scalar transfer leaf with the actual unchanged C instruction step.
+.PHONY: test-nanolang-translator-affine-scalar
+$(OBJ_DIR)/nvm2c_affine_scalar_reference: tests/nvm2c_affine_scalar_reference.c tests/nvm2c_affine_frame_reference.c tests/nvm2c_affine_model_reader.h src/nanoisa/affine_bytecode.c src/nanoisa/affine_global_flow.h $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ tests/nvm2c_affine_scalar_reference.c $(filter-out $(OBJ_DIR)/nanoisa/affine_bytecode.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS) -lm
+
+test-nanolang-translator-affine-scalar: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_affine_scalar_reference
+	NANOLANG_AFFINE_SCALAR_REFERENCE="$(OBJ_DIR)/nvm2c_affine_scalar_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_scalar.AffineScalar
+
+test-units: test-nanolang-translator-affine-scalar
+
+# I compare my local transfer leaf with the actual unchanged C instruction step.
+.PHONY: test-nanolang-translator-affine-locals
+$(OBJ_DIR)/nvm2c_affine_locals_reference: tests/nvm2c_affine_locals_reference.c tests/nvm2c_affine_scalar_reference.c tests/nvm2c_affine_frame_reference.c tests/nvm2c_affine_model_reader.h src/nanoisa/affine_bytecode.c src/nanoisa/affine_global_flow.h $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ tests/nvm2c_affine_locals_reference.c $(filter-out $(OBJ_DIR)/nanoisa/affine_bytecode.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS) -lm
+
+test-nanolang-translator-affine-locals: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_affine_locals_reference
+	NANOLANG_AFFINE_LOCALS_REFERENCE="$(OBJ_DIR)/nvm2c_affine_locals_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_locals.AffineLocals
+
+test-units: test-nanolang-translator-affine-locals
+
+# I compare exact global transfer and entry preconditions with the unchanged C step.
+.PHONY: test-nanolang-translator-affine-globals
+$(OBJ_DIR)/nvm2c_affine_globals_reference: tests/nvm2c_affine_globals_reference.c tests/nvm2c_affine_frame_reference.c tests/nvm2c_affine_model_reader.h src/nanoisa/affine_bytecode.c src/nanoisa/affine_global_flow.h $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ tests/nvm2c_affine_globals_reference.c $(filter-out $(OBJ_DIR)/nanoisa/affine_bytecode.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS) -lm
+
+test-nanolang-translator-affine-globals: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_affine_globals_reference
+	NANOLANG_AFFINE_GLOBALS_REFERENCE="$(OBJ_DIR)/nvm2c_affine_globals_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_globals.AffineGlobals
+
+test-units: test-nanolang-translator-affine-globals
+
+# I compare all nine affine array operations with the unchanged C step.
+.PHONY: test-nanolang-translator-affine-arrays
+$(OBJ_DIR)/nvm2c_affine_arrays_reference: tests/nvm2c_affine_arrays_reference.c tests/nvm2c_affine_frame_reference.c tests/nvm2c_affine_model_reader.h src/nanoisa/affine_bytecode.c src/nanoisa/affine_array_flow.inc $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ tests/nvm2c_affine_arrays_reference.c $(filter-out $(OBJ_DIR)/nanoisa/affine_bytecode.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS) -lm
+
+test-nanolang-translator-affine-arrays: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_affine_arrays_reference
+	NANOLANG_AFFINE_ARRAYS_REFERENCE="$(OBJ_DIR)/nvm2c_affine_arrays_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_arrays.AffineArrays
+
+test-units: test-nanolang-translator-affine-arrays
+
+# I compare complete owner/reference state using unchanged production sources.
+.PHONY: test-nanolang-translator-affine-owners
+$(OBJ_DIR)/nvm2c_affine_owners_reference: tests/nvm2c_affine_owners_reference.c tests/nvm2c_affine_owners_state.c tests/nvm2c_affine_frame_reference.c tests/nvm2c_affine_model_reader.h src/nanoisa/affine_bytecode.c src/nanoisa/affine_state.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ tests/nvm2c_affine_owners_reference.c tests/nvm2c_affine_owners_state.c $(filter-out $(OBJ_DIR)/nanoisa/affine_bytecode.o $(OBJ_DIR)/nanoisa/affine_state.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS) -lm
+
+test-nanolang-translator-affine-owners: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_affine_owners_reference
+	NANOLANG_AFFINE_OWNERS_REFERENCE="$(OBJ_DIR)/nvm2c_affine_owners_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_owners.AffineOwners
+
+test-units: test-nanolang-translator-affine-owners
+
+.PHONY: test-nanolang-translator-affine-aggregates
+$(OBJ_DIR)/nvm2c_affine_aggregates_reference: tests/nvm2c_affine_aggregates_reference.c tests/nvm2c_affine_owners_state.c tests/nvm2c_affine_frame_reference.c tests/nvm2c_affine_model_reader.h src/nanoisa/affine_bytecode.c src/nanoisa/affine_state.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ tests/nvm2c_affine_aggregates_reference.c tests/nvm2c_affine_owners_state.c $(filter-out $(OBJ_DIR)/nanoisa/affine_bytecode.o $(OBJ_DIR)/nanoisa/affine_state.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS) -lm
+
+test-nanolang-translator-affine-aggregates: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_affine_aggregates_reference
+	NANOLANG_AFFINE_AGGREGATES_REFERENCE="$(OBJ_DIR)/nvm2c_affine_aggregates_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_aggregates.AffineAggregates
+
+test-units: test-nanolang-translator-affine-aggregates
+
+.PHONY: test-nanolang-translator-affine-effects
+$(OBJ_DIR)/nvm2c_affine_effects_reference: tests/nvm2c_affine_effects_reference.c tests/nvm2c_affine_owners_state.c tests/nvm2c_affine_frame_reference.c tests/nvm2c_affine_model_reader.h src/nanoisa/affine_bytecode.c src/nanoisa/affine_state.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ tests/nvm2c_affine_effects_reference.c tests/nvm2c_affine_owners_state.c $(filter-out $(OBJ_DIR)/nanoisa/affine_bytecode.o $(OBJ_DIR)/nanoisa/affine_state.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS) -lm
+
+test-nanolang-translator-affine-effects: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_affine_effects_reference
+	NANOLANG_AFFINE_EFFECTS_REFERENCE="$(OBJ_DIR)/nvm2c_affine_effects_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_effects.AffineEffects
+
+test-units: test-nanolang-translator-affine-effects
+
+.PHONY: test-nanolang-translator-affine-value-calls
+$(OBJ_DIR)/nvm2c_affine_value_calls_reference: tests/nvm2c_affine_value_calls_reference.c tests/nvm2c_affine_owners_state.c tests/nvm2c_affine_frame_reference.c tests/nvm2c_affine_model_reader.h src/nanoisa/affine_bytecode.c src/nanoisa/affine_state.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ tests/nvm2c_affine_value_calls_reference.c tests/nvm2c_affine_owners_state.c $(filter-out $(OBJ_DIR)/nanoisa/affine_bytecode.o $(OBJ_DIR)/nanoisa/affine_state.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS) -lm
+
+test-nanolang-translator-affine-value-calls: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_affine_value_calls_reference
+	NANOLANG_AFFINE_VALUE_CALLS_REFERENCE="$(OBJ_DIR)/nvm2c_affine_value_calls_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_value_calls.AffineValueCalls
+
+test-units: test-nanolang-translator-affine-value-calls
+
+.PHONY: test-nanolang-translator-affine-call-context
+$(OBJ_DIR)/nvm2c_affine_call_context_reference: tests/nvm2c_affine_call_context_reference.c tests/nvm2c_affine_frame_reference.c tests/nvm2c_affine_model_reader.h src/nanoisa/affine_bytecode.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ tests/nvm2c_affine_call_context_reference.c $(filter-out $(OBJ_DIR)/nanoisa/affine_bytecode.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS) -lm
+
+test-nanolang-translator-affine-call-context: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_affine_call_context_reference
+	NANOLANG_AFFINE_CALL_CONTEXT_REFERENCE="$(OBJ_DIR)/nvm2c_affine_call_context_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_call_context.AffineCallContext
+
+test-units: test-nanolang-translator-affine-call-context
+
+.PHONY: test-nanolang-translator-affine-analysis-cache-shadows
+test-nanolang-translator-affine-analysis-cache-shadows: nano_virt | $(OBJ_DIR)
+	@perl -e 'alarm 600; exec @ARGV; die "I cannot execute the requested command: $$!\n"' ./bin/nano_virt tests/nvm2c_affine_analysis_cache_shadows.nano --emit-nvm -o $(OBJ_DIR)/nvm2c_affine_analysis_cache_shadows.nvm
+
+test-units: test-nanolang-translator-affine-analysis-cache-shadows
+
+.PHONY: test-nanolang-translator-affine-analysis-cache
+$(OBJ_DIR)/nvm2c_affine_analysis_cache_reference: tests/nvm2c_affine_analysis_cache_reference.c tests/nvm2c_affine_frame_reference.c tests/nvm2c_affine_model_reader.h src/nanoisa/affine_bytecode.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ tests/nvm2c_affine_analysis_cache_reference.c $(filter-out $(OBJ_DIR)/nanoisa/affine_bytecode.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS) -lm
+
+test-nanolang-translator-affine-analysis-cache: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_affine_analysis_cache_reference
+	NANOLANG_AFFINE_ANALYSIS_CACHE_REFERENCE="$(OBJ_DIR)/nvm2c_affine_analysis_cache_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_analysis_cache.AffineAnalysisCache
+
+test-units: test-nanolang-translator-affine-analysis-cache
+
+.PHONY: test-nanolang-translator-affine-preflight-shadows
+test-nanolang-translator-affine-preflight-shadows: nano_virt | $(OBJ_DIR)
+	@perl -e 'alarm 600; exec @ARGV; die "I cannot execute the requested command: $$!\n"' ./bin/nano_virt tests/nvm2c_affine_preflight_shadows.nano --emit-nvm -o $(OBJ_DIR)/nvm2c_affine_preflight_shadows.nvm
+
+test-units: test-nanolang-translator-affine-preflight-shadows
+
+.PHONY: test-nanolang-translator-affine-preflight
+$(OBJ_DIR)/nvm2c_affine_preflight_reference: tests/nvm2c_affine_preflight_reference.c tests/nvm2c_affine_frame_reference.c tests/nvm2c_affine_model_reader.h src/nanoisa/affine_bytecode.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ tests/nvm2c_affine_preflight_reference.c $(filter-out $(OBJ_DIR)/nanoisa/affine_bytecode.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS) -lm
+
+test-nanolang-translator-affine-preflight: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_affine_preflight_reference
+	NANOLANG_AFFINE_PREFLIGHT_REFERENCE="$(OBJ_DIR)/nvm2c_affine_preflight_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_preflight.AffinePreflight
+
+test-units: test-nanolang-translator-affine-preflight
+
+.PHONY: test-nanolang-translator-affine-analysis-shadows
+test-nanolang-translator-affine-analysis-shadows: nano_virt | $(OBJ_DIR)
+	@perl -e 'alarm 600; exec @ARGV; die "I cannot execute the requested command: $$!\n"' ./bin/nano_virt tests/nvm2c_affine_analysis_shadows.nano --emit-nvm -o $(OBJ_DIR)/nvm2c_affine_analysis_shadows.nvm
+
+test-units: test-nanolang-translator-affine-analysis-shadows
+
+.PHONY: test-nanolang-translator-affine-analysis
+$(OBJ_DIR)/nvm2c_affine_analysis_reference: tests/nvm2c_affine_analysis_reference.c tests/nvm2c_affine_frame_reference.c tests/nvm2c_affine_model_reader.h src/nanoisa/affine_bytecode.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ tests/nvm2c_affine_analysis_reference.c $(filter-out $(OBJ_DIR)/nanoisa/affine_bytecode.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS) -lm
+
+test-nanolang-translator-affine-analysis: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_affine_analysis_reference
+	NANOLANG_AFFINE_ANALYSIS_REFERENCE="$(OBJ_DIR)/nvm2c_affine_analysis_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_analysis.AffineAnalysis
+
+test-units: test-nanolang-translator-affine-analysis
+
+.PHONY: test-nanolang-translator-affine-public-shadows
+test-nanolang-translator-affine-public-shadows: nano_virt | $(OBJ_DIR)
+	@perl -e 'alarm 600; exec @ARGV; die "I cannot execute the requested command: $$!\n"' ./bin/nano_virt tests/nvm2c_affine_public_shadows.nano --emit-nvm -o $(OBJ_DIR)/nvm2c_affine_public_shadows.nvm
+
+test-units: test-nanolang-translator-affine-public-shadows
+
+.PHONY: test-nanolang-translator-affine-public
+$(OBJ_DIR)/nvm2c_affine_public_reference: tests/nvm2c_affine_public_reference.c tests/nvm2c_affine_frame_reference.c tests/nvm2c_affine_model_reader.h src/nanoisa/affine_bytecode.c src/nanoisa/affine_effect_globals.inc $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ tests/nvm2c_affine_public_reference.c $(filter-out $(OBJ_DIR)/nanoisa/affine_bytecode.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS) -lm
+
+test-nanolang-translator-affine-public: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_affine_public_reference
+	NANOLANG_AFFINE_PUBLIC_REFERENCE="$(OBJ_DIR)/nvm2c_affine_public_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_public.AffinePublic
+
+test-units: test-nanolang-translator-affine-public
+
+.PHONY: test-nanolang-translator-storage-kinds
+test-nanolang-translator-storage-kinds: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_nanolang_translator_storage_kinds
+
+test-units: test-nanolang-translator-storage-kinds
+
+.PHONY: test-nanolang-translator-carrier-masks
+test-nanolang-translator-carrier-masks: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_nanolang_translator_carrier_masks
+
+test-units: test-nanolang-translator-carrier-masks
+
+.PHONY: test-nanolang-translator-c-abi-types
+test-nanolang-translator-c-abi-types: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_nanolang_translator_c_abi_types
+
+test-units: test-nanolang-translator-c-abi-types
+
+.PHONY: test-nanolang-translator-representation-facts
+test-nanolang-translator-representation-facts: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_nanolang_translator_representation_facts
+
+test-units: test-nanolang-translator-representation-facts
+
+.PHONY: test-nanolang-translator-representation-shapes
+test-nanolang-translator-representation-shapes: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_nanolang_translator_representation_shapes
+
+test-units: test-nanolang-translator-representation-shapes
+
+.PHONY: test-nanolang-translator-representation-stack
+test-nanolang-translator-representation-stack: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_nanolang_translator_representation_stack
+
+test-units: test-nanolang-translator-representation-stack
+
+.PHONY: test-nanolang-translator-representation-joins
+test-nanolang-translator-representation-joins: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_nanolang_translator_representation_joins
+
+test-units: test-nanolang-translator-representation-joins
+
+# I require an explicit real NanoLang compiler for my five-route splitter test.
+.PHONY: test-compiler-line-splitting
+test-compiler-line-splitting: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_compiler_line_splitting
+
+.PHONY: test-eval-string-split
+test-eval-string-split: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -UNDEBUG -o $(OBJ_DIR)/test_eval_string_split tests/test_eval_string_split.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(OBJ_DIR)/test_eval_string_split
+
+test-units: test-eval-string-split
+
+.PHONY: test-gc-registry-working-set
+test-gc-registry-working-set: | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -UNDEBUG tests/test_gc_registry_working_set.c src/runtime/dyn_array.c src/runtime/gc_struct.c -o $(OBJ_DIR)/test_gc_registry_working_set $(LDFLAGS)
+	$(OBJ_DIR)/test_gc_registry_working_set
+	$(CC) $(CFLAGS) -UNDEBUG tests/test_gc_registry_growth_failure.c src/runtime/dyn_array.c src/runtime/gc_struct.c -o $(OBJ_DIR)/test_gc_registry_growth_failure $(LDFLAGS)
+	$(OBJ_DIR)/test_gc_registry_growth_failure
+
+.PHONY: test-gc-registry-working-set-sanitizers
+test-gc-registry-working-set-sanitizers: | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -UNDEBUG -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer tests/test_gc_registry_working_set.c src/runtime/dyn_array.c src/runtime/gc_struct.c -o $(OBJ_DIR)/test_gc_registry_working_set_sanitized $(LDFLAGS)
+	ASAN_OPTIONS=detect_leaks=$(if $(filter Darwin,$(UNAME_S)),0,1) $(OBJ_DIR)/test_gc_registry_working_set_sanitized
+	$(CC) $(CFLAGS) -UNDEBUG -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer tests/test_gc_registry_growth_failure.c src/runtime/dyn_array.c src/runtime/gc_struct.c -o $(OBJ_DIR)/test_gc_registry_growth_failure_sanitized $(LDFLAGS)
+	ASAN_OPTIONS=detect_leaks=$(if $(filter Darwin,$(UNAME_S)),0,1) $(OBJ_DIR)/test_gc_registry_growth_failure_sanitized
+
+test-units: test-gc-registry-working-set test-gc-registry-working-set-sanitizers
+
+.PHONY: test-nanovirt-qualified-record-projection
+test-nanovirt-qualified-record-projection: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_nanovirt_qualified_record_projection
+
+test-units: test-nanovirt-qualified-record-projection
+
+.PHONY: test-nvm2c-representation-join-allocation
+test-nvm2c-representation-join-allocation: $(COMPILER_C)
+	python3 -m unittest -v tests.test_nvm2c_representation_join_allocation
+
+test-units: test-nvm2c-representation-join-allocation

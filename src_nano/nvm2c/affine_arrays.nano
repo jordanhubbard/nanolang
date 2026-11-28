@@ -1,0 +1,157 @@
+module nvm2c_affine_arrays
+module "src_nano/nvm2c/affine_frame.nano" as frame
+module "src_nano/nvm2c/affine_state.nano" as state
+module "src_nano/nvm2c/affine_facts.nano" as facts
+module "src_nano/nvm2c/affine_scalar.nano" as scalar
+module "src_nano/nvm2c/affine_value_contract.nano" as values
+module "src_nano/nvm2c/ownership_queries.nano" as queries
+module "src_nano/nvm2c/ownership.nano" as owner
+
+# I consume decoded operands and checked facts; I do not admit a function.
+pub fn handles(opcode: int) -> bool { return (and (>= opcode 80) (<= opcode 88)) }
+shadow handles {
+    assert (handles 80) assert (handles 88)
+    assert (not (handles 79)) assert (not (handles 89))
+}
+
+fn reject(input: frame.Frame, message: string) -> scalar.Transition {
+    return scalar.Transition { handled: true, valid: false, frame: (frame.clone input), message: message }
+}
+shadow reject {
+    let input: frame.Frame = (frame.create (state.empty) 1)
+    let result: scalar.Transition = (reject input "missing")
+    (array_set result.frame.globals 0 15)
+    assert result.handled assert (not result.valid) assert (== result.message "missing")
+    assert (== (at input.globals 0) 9)
+}
+
+fn index_value(item: frame.Value) -> bool { return (and (== item.tag 1) (and (not item.owned) (not item.observation))) }
+shadow index_value {
+    assert (index_value (frame.value 1 false 65535 false 4294967295 65535))
+    assert (not (index_value (frame.value 1 true 0 false 4294967295 65535)))
+    assert (not (index_value (frame.value 1 false 0 true 4294967295 65535)))
+    assert (not (index_value (frame.value 2 false 65535 false 4294967295 65535)))
+}
+
+fn push_type(input: frame.Frame, consumed: int, result_type: facts.Slot, message: string) -> scalar.Transition {
+    let reduced: frame.Frame = frame.Frame { locals: input.locals,
+        stack: (array_slice input.stack 0 (- (array_length input.stack) consumed)),
+        globals: input.globals, handlers: input.handlers, floor: input.floor, activation: input.activation }
+    let result: frame.Join = (frame.push reduced (frame.value result_type.tag false 65535
+        (state.type_owned input.locals result_type) result_type.layout 65535))
+    if (not result.valid) { return (reject input message) }
+    return scalar.Transition { handled: true, valid: true, frame: result.frame, message: "" }
+}
+shadow push_type {
+    let input: frame.Frame = (frame.create (state.empty) 1)
+    let result: scalar.Transition = (push_type input 0 (facts.slot 1 4294967295) "full")
+    assert result.valid assert (== (array_length result.frame.stack) 1)
+    assert (== (at result.frame.stack 0).tag 1) assert (== (array_length input.stack) 0)
+    (array_set result.frame.globals 0 15)
+    assert (== (at input.globals 0) 9)
+}
+
+pub fn transfer(input: frame.Frame, opcode: int, tag: int, literal_count: int,
+    ownership: array<u8>, context: queries.Context, function: int, offset: int) -> scalar.Transition {
+    if (not (handles opcode)) {
+        return scalar.Transition { handled: false, valid: false, frame: (frame.clone input), message: "" }
+    }
+    if (not (state.has_array_types input.locals)) {
+        return (reject input "I require retained element types for array flow")
+    }
+    let total: int = (array_length input.stack)
+    if (or (== opcode 80) (== opcode 88)) {
+        let mut count: int = 0
+        if (== opcode 88) { set count literal_count }
+        if (> count total) { return (reject input "I require all declared array literal elements") }
+        let mut array_type: facts.Slot = (facts.slot 7 4294967295)
+        if (== count 0) {
+            let declaration: queries.Query = (queries.array_constructor ownership context function offset true true)
+            if (!= declaration.status 0) { return (reject input "I require checked empty-array constructor declarations") }
+            if (!= declaration.number 4294967295) {
+                set array_type (facts.slot 7 declaration.number)
+                let element: state.Query = (state.array_element input.locals array_type)
+                if (or (not element.valid) (!= element.value.tag tag)) {
+                    return (reject input "I require the exact declared empty-array element tag")
+                }
+            } else {
+                let selected: state.Query = (state.array_tag_type input.locals tag)
+                if (not selected.valid) {
+                    return (reject input "I require an unambiguous retained element type for empty array construction")
+                }
+                set array_type selected.value
+            }
+        } else {
+            let first: frame.Value = (at input.stack (- total count))
+            let element: facts.Slot = (facts.slot first.tag first.layout)
+            let selected: state.Query = (state.array_type input.locals element)
+            if (or (!= element.tag tag) (not selected.valid)) {
+                return (reject input "I require an exact retained array literal element type")
+            }
+            set array_type selected.value
+            for index in (range (- total count) total) {
+                if (not (values.matches input.locals (at input.stack index) element)) {
+                    return (reject input "I require exact array literal element ownership in source order")
+                }
+            }
+        }
+        return (push_type input count array_type "I cannot retain an array construction result")
+    }
+    let mut count: int = 1
+    if (or (== opcode 84) (== opcode 86)) { set count 3 }
+    else if (or (== opcode 81) (or (== opcode 83) (== opcode 87))) { set count 2 }
+    if (< total count) { return (reject input "I require every array operation operand") }
+    let receiver: frame.Value = (at input.stack (- total count))
+    let mut result_type: facts.Slot = (facts.slot receiver.tag receiver.layout)
+    let element: state.Query = (state.array_element input.locals result_type)
+    if (not element.valid) { return (reject input "I require an exact array operand") }
+    if (== opcode 85) {
+        if (or receiver.owned (and receiver.observation (not (state.owner_access input.locals receiver.root [] false)))) {
+            return (reject input "I require a live owner observation for resource-array length")
+        }
+        return (push_type input 1 (facts.slot 1 4294967295) "I cannot retain array length")
+    }
+    if receiver.observation { return (reject input "I cannot mutate or extract through an array owner observation") }
+    if (and (!= opcode 81) receiver.owned) {
+        return (reject input "I require explicit resource-element extraction and disposal contracts")
+    }
+    if (or (== opcode 83) (or (== opcode 87) (or (== opcode 84) (== opcode 86)))) {
+        if (not (index_value (at input.stack (+ (- total count) 1)))) {
+            return (reject input "I require an integer array index")
+        }
+    }
+    if (and (== opcode 86) (not (index_value (at input.stack (- total 1))))) {
+        return (reject input "I require an integer slice end")
+    }
+    if (or (== opcode 81) (== opcode 84)) {
+        if (not (values.matches input.locals (at input.stack (- total 1)) element.value)) {
+            return (reject input "I require the exact array element type and ownership")
+        }
+    }
+    if (or (== opcode 83) (== opcode 82)) { set result_type element.value }
+    return (push_type input count result_type "I cannot retain an array operation result")
+}
+shadow transfer {
+    let input: frame.Frame = (frame.create (state.empty) 1)
+    let context: queries.Context = queries.Context { present: false, ownership_present: false, layouts_present: false,
+        model: owner.Module { layouts: [], code: [], strings: [], functions: [], params: [], results: [], records: 0, enums: 0, unions: 0 } }
+    let f: facts.Facts = facts.Facts { valid: true, analysis: 1, module_identity: 1, function: 0,
+        rows: [], flags: [], locals: [], result: (facts.slot 0 4294967295), parameters: 0,
+        result_count: 0, result_tag: 0, arrays: [(facts.slot 1 4294967295)], variants: [], effects: [] }
+    let typed: frame.Frame = (frame.create (state.create f 0) 1)
+    let literal: frame.Frame = (frame.push typed (frame.value 1 false 65535 false 4294967295 65535)).frame
+    let made: scalar.Transition = (transfer literal 88 1 1 [] context 0 0)
+    assert made.valid assert (== (at made.frame.stack 0).tag 7)
+    assert (== (at made.frame.stack 0).layout 0) assert (not (at made.frame.stack 0).owned)
+    let length: scalar.Transition = (transfer made.frame 85 0 0 [] context 0 0)
+    assert length.valid assert (== (at length.frame.stack 0).tag 1)
+    assert (== (at literal.stack 0).tag 1) assert (== (at made.frame.stack 0).tag 7)
+    let absent: scalar.Transition = (transfer typed 80 1 0 [] context 0 0)
+    assert (not absent.valid) assert (== absent.message "I require checked empty-array constructor declarations")
+    let result: scalar.Transition = (transfer input 80 1 0 [] context 0 0)
+    assert result.handled assert (not result.valid)
+    assert (== result.message "I require retained element types for array flow")
+    assert (not (transfer input 79 1 0 [] context 0 0).handled)
+    (array_set result.frame.globals 0 15)
+    assert (== (at input.globals 0) 9)
+}

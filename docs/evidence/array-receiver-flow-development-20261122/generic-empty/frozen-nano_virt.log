@@ -1,0 +1,9 @@
+
+Runtime error: Index out of bounds
+  AGG_GET field 0 is unavailable
+Stack trace (most recent call first):
+  #0   main  /home/jkh/.worktrees/nanolang/service-module-integration/.test_output/array-receiver-flow-20261122/generic-empty/main.nano:4:155
+  #1   $shadow_1_main  /home/jkh/.worktrees/nanolang/service-module-integration/.test_output/array-receiver-flow-20261122/generic-empty/main.nano:5:13
+  #2   $shadow_entry  /home/jkh/.worktrees/nanolang/service-module-integration/.test_output/array-receiver-flow-20261122/generic-empty/main.nano:?
+I failed a shadow: AGG_GET field 0 is unavailable
+I will not publish output after failed shadow execution

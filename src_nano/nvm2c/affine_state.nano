@@ -1,0 +1,1056 @@
+module nvm2c_affine_state
+module "src_nano/nvm2c/affine_facts.nano" as facts
+module "src_nano/nvm2c/reference_places.nano" as places
+
+pub struct Reference { live: bool, region: int, parent: int, place: places.Place }
+pub struct Origin { low: int, high: int, local: int, layout: int }
+pub struct State {
+    valid: bool, facts: facts.Facts, live: array<bool>, variants: array<int>,
+    references: array<Reference>, control: array<int>, origins: array<Origin>
+}
+# Control retains region, caller-bound, handler, first arm local, handler key,
+# resume tag/layout and the low/high invocation words. I copy before mutation.
+pub struct Transition { valid: bool, changed: bool, state: State }
+pub struct Query { valid: bool, value: facts.Slot, number: int, values: array<facts.Slot> }
+
+fn absent_place() -> places.Place {
+    return places.Place { present: true, invocation_low: 0, invocation_high: 0,
+        local: 0, root_layout: 0, fields_present: true, fields: [], referent_layout: 0, mode: 0 }
+}
+shadow absent_place { assert (not (places.descriptor_valid (absent_place))) }
+
+fn empty_reference() -> Reference { return Reference { live: false, region: 0, parent: 0, place: (absent_place) } }
+shadow empty_reference { assert (not (empty_reference).live) }
+
+pub fn empty() -> State {
+    return State { valid: false, facts: (facts.empty), live: [], variants: [],
+        references: [], control: [0,0,0,0,0,0,0,1,0], origins: [] }
+}
+shadow empty { assert (not (empty).valid) assert (== (at (empty).control 7) 1) }
+
+fn refused(s: State) -> Transition { return Transition { valid: false, changed: false, state: s } }
+shadow refused { assert (not (refused (empty)).valid) assert (not (refused (empty)).changed) }
+
+fn accepted(s: State) -> Transition { return Transition { valid: true, changed: false, state: s } }
+shadow accepted { assert (accepted (empty)).valid }
+
+fn no_value() -> Query { return Query { valid: false, value: (facts.slot 0 0), number: 0, values: [] } }
+shadow no_value { assert (not (no_value).valid) assert (== (array_length (no_value).values) 0) }
+
+fn value(item: facts.Slot, number: int) -> Query { return Query { valid: true, value: item, number: number, values: [] } }
+shadow value { assert (value (facts.slot 1 0) 7).valid assert (== (value (facts.slot 1 0) 7).number 7) }
+
+fn clone_place(p: places.Place) -> places.Place {
+    return places.Place { present: p.present, invocation_low: p.invocation_low, invocation_high: p.invocation_high,
+        local: p.local, root_layout: p.root_layout, fields_present: p.fields_present,
+        fields: (array_slice p.fields 0 (array_length p.fields)), referent_layout: p.referent_layout, mode: p.mode }
+}
+shadow clone_place {
+    let p: places.Place = places.Place { present: true, invocation_low: 1, invocation_high: 0,
+        local: 0, root_layout: 1, fields_present: true, fields: [0], referent_layout: 0, mode: 1 }
+    let copied: places.Place = (clone_place p)
+    (array_set p.fields 0 1)
+    assert (== (at copied.fields 0) 0)
+}
+
+pub fn clone(s: State) -> State {
+    if (not s.valid) { return s }
+    let mut references: array<Reference> = []
+    let mut i: int = 0
+    while (< i (array_length s.references)) {
+        let ref: Reference = (at s.references i)
+        let copied: places.Place = (clone_place ref.place)
+        set references (array_push references Reference { live: ref.live, region: ref.region, parent: ref.parent, place: copied })
+        set i (+ i 1)
+    }
+    return State { valid: true, facts: s.facts,
+        live: (array_slice s.live 0 (array_length s.live)),
+        variants: (array_slice s.variants 0 (array_length s.variants)),
+        references: references,
+        control: (array_slice s.control 0 (array_length s.control)),
+        origins: (array_slice s.origins 0 (array_length s.origins)) }
+}
+shadow clone { assert (not (clone (empty)).valid) }
+
+fn with_origins(s: State, origins: array<Origin>) -> State {
+    return State { valid: s.valid, facts: s.facts, live: s.live, variants: s.variants,
+        references: s.references, control: s.control, origins: origins }
+}
+shadow with_origins { assert (== (array_length (with_origins (empty) [Origin { low: 1, high: 0, local: 2, layout: 3 }]).origins) 1) }
+
+pub fn create(f: facts.Facts, references: int) -> State {
+    if (or (not f.valid) (or (< references 0) (> references 4294967295))) { return (empty) }
+    let mut live: array<bool> = []
+    let mut variants: array<int> = []
+    let mut refs: array<Reference> = []
+    let mut i: int = 0
+    while (< i (array_length f.locals)) {
+        set live (array_push live (< i f.parameters))
+        set variants (array_push variants 65535)
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i references) { set refs (array_push refs (empty_reference)) set i (+ i 1) }
+    set i 0
+    while (< i f.parameters) {
+        let item: facts.Slot = (at f.locals i)
+        if (!= item.mode 0) {
+            if (>= i references) { return (empty) }
+            let place: places.Place = places.Place { present: true, invocation_low: 1, invocation_high: 0,
+                local: i, root_layout: item.layout, fields_present: true, fields: [], referent_layout: item.layout, mode: item.mode }
+            (array_set refs i Reference { live: true, region: 0, parent: 4294967295, place: place })
+        }
+        set i (+ i 1)
+    }
+    return State { valid: true, facts: f, live: live, variants: variants, references: refs,
+        control: [0,0,0,0,0,0,0,1,0], origins: [] }
+}
+shadow create { assert (not (create (facts.empty) 0).valid) }
+
+fn sample() -> State {
+    let f: facts.Facts = facts.Facts { valid: true, analysis: 1, module_identity: 1, function: 0,
+        rows: [places.Layout { kind: 0, fields_present: true, fields: [places.Field { tag: 1, nested: 4294967295 }] }],
+        flags: [3], locals: [(facts.slot 1 4294967295), (facts.slot 8 0), (facts.slot 8 0)],
+        result: (facts.slot 0 4294967295), parameters: 0, result_count: 0, result_tag: 0,
+        arrays: [], variants: [], effects: [] }
+    return (define_scalar (create f 3) 0).state
+}
+shadow sample { assert (sample).valid assert (at (sample).live 0) assert (not (at (sample).live 1)) }
+
+fn local_exists(s: State, local: int) -> bool {
+    return (and s.valid (and (>= local 0) (< local (array_length s.facts.locals))))
+}
+shadow local_exists { assert (not (local_exists (empty) 0)) }
+
+fn value_local(s: State, local: int) -> bool {
+    if (not (local_exists s local)) { return false }
+    let item: facts.Slot = (at s.facts.locals local)
+    return (and (== item.mode 0) (not (and (!= (at s.control 2) 0)
+        (and (< local (at s.control 3)) (facts.resource_value s.facts item)))))
+}
+shadow value_local { assert (not (value_local (empty) 0)) }
+
+fn resolve(s: State, local: int, path: array<int>) -> Query {
+    if (not (local_exists s local)) { return (no_value) }
+    let mut item: facts.Slot = (at s.facts.locals local)
+    let mut i: int = 0
+    while (< i (array_length path)) {
+        if (or (!= item.tag 8) (or (< item.layout 0) (>= item.layout (array_length s.facts.rows)))) { return (no_value) }
+        let row: places.Layout = (at s.facts.rows item.layout)
+        let field: int = (at path i)
+        if (or (!= row.kind 0) (or (< field 0) (>= field (array_length row.fields)))) { return (no_value) }
+        let child: places.Field = (at row.fields field)
+        set item (facts.slot child.tag child.nested)
+        set i (+ i 1)
+    }
+    if (or (facts.scalar item.tag) (or (and (== item.tag 5) (== item.layout 4294967295)) (!= item.layout 4294967295))) {
+        return (value item 0)
+    }
+    return (no_value)
+}
+shadow resolve { assert (not (resolve (empty) 0 []).valid) }
+
+fn owner_place(s: State, local: int, path: array<int>, referent: int, mode: int) -> places.Place {
+    return places.Place { present: true, invocation_low: (at s.control 7), invocation_high: (at s.control 8),
+        local: local, root_layout: (at s.facts.locals local).layout,
+        fields_present: true, fields: path, referent_layout: referent, mode: mode }
+}
+shadow owner_place {
+    let f: facts.Facts = facts.Facts { valid: true, analysis: 1, module_identity: 1, function: 0,
+        rows: [], flags: [], locals: [(facts.slot 1 4294967295)], result: (facts.slot 0 4294967295),
+        parameters: 0, result_count: 0, result_tag: 0, arrays: [], variants: [], effects: [] }
+    assert (== (owner_place (create f 0) 0 [] 4294967295 1).invocation_low 1)
+}
+
+pub fn owner_access(s: State, local: int, path: array<int>, write: bool) -> bool {
+    if (not (value_local s local)) { return false }
+    if (not (at s.live local)) { return false }
+    let found: Query = (resolve s local path)
+    if (not found.valid) { return false }
+    let place: places.Place = (owner_place s local path found.value.layout 1)
+    let mut i: int = 0
+    while (< i (array_length s.references)) {
+        let ref: Reference = (at s.references i)
+        if (and ref.live (places.owner_access_conflicts ref.place place write)) { return false }
+        set i (+ i 1)
+    }
+    return true
+}
+shadow owner_access { assert (not (owner_access (empty) 0 [] false)) }
+
+fn destination(s: State, local: int) -> bool {
+    if (not (value_local s local)) { return false }
+    if (not (at s.live local)) { return true }
+    let item: facts.Slot = (at s.facts.locals local)
+    if (== item.tag 10) { return (not (facts.resource_value s.facts item)) }
+    return (and (not (facts.resource_value s.facts item)) (owner_access s local [] true))
+}
+shadow destination { assert (not (destination (empty) 0)) }
+
+pub fn define_scalar(s: State, local: int) -> Transition {
+    if (not (destination s local)) { return (refused s) }
+    if (not (facts.scalar (at s.facts.locals local).tag)) { return (refused s) }
+    let out: State = (clone s)
+    (array_set out.live local true)
+    return (accepted out)
+}
+shadow define_scalar { assert (not (define_scalar (empty) 0).valid) }
+
+pub fn define_string(s: State, local: int) -> Transition {
+    if (not (destination s local)) { return (refused s) }
+    let item: facts.Slot = (at s.facts.locals local)
+    if (or (!= item.tag 5) (!= item.layout 4294967295)) { return (refused s) }
+    let out: State = (clone s)
+    (array_set out.live local true)
+    return (accepted out)
+}
+shadow define_string { assert (not (define_string (empty) 0).valid) }
+
+pub fn record_copyable(s: State, layout: int) -> bool {
+    if (or (not s.valid) (or (< layout 0) (>= layout (array_length s.facts.rows)))) { return false }
+    let flag: int = (at s.facts.flags layout)
+    return (and (== (at s.facts.rows layout).kind 0) (and (facts.complete flag) (not (facts.resource_flag flag))))
+}
+shadow record_copyable { assert (not (record_copyable (empty) 0)) }
+
+pub fn define_record(s: State, local: int, layout: int) -> Transition {
+    if (or (not (record_copyable s layout)) (not (destination s local))) { return (refused s) }
+    let item: facts.Slot = (at s.facts.locals local)
+    if (or (!= item.tag 8) (!= item.layout layout)) { return (refused s) }
+    let out: State = (clone s)
+    (array_set out.live local true)
+    return (accepted out)
+}
+shadow define_record { assert (not (define_record (empty) 0 0).valid) }
+
+pub fn define_array(s: State, local: int, element: int) -> Transition {
+    let item: facts.Slot = (facts.slot 7 element)
+    if (or (not s.valid) (or (not (facts.supported s.facts item)) (facts.resource_value s.facts item))) { return (refused s) }
+    if (not (destination s local)) { return (refused s) }
+    if (not (facts.same s.facts (at s.facts.locals local) item)) { return (refused s) }
+    let out: State = (clone s)
+    (array_set out.live local true)
+    return (accepted out)
+}
+shadow define_array { assert (not (define_array (empty) 0 0).valid) }
+
+pub fn define_union(s: State, local: int, layout: int, variant: int) -> Transition {
+    if (not (destination s local)) { return (refused s) }
+    let item: facts.Slot = (at s.facts.locals local)
+    if (or (!= item.layout layout) (or (not (facts.union_value s.facts item)) (facts.resource_value s.facts item))) { return (refused s) }
+    if (and (!= variant 65535) (< (facts.variant_index s.facts layout variant) 0)) { return (refused s) }
+    let out: State = (clone s)
+    (array_set out.live local true)
+    (array_set out.variants local variant)
+    return (accepted out)
+}
+shadow define_union { assert (not (define_union (empty) 0 0 0).valid) }
+
+pub fn refine_union(s: State, local: int, variant: int) -> Transition {
+    if (not (value_local s local)) { return (refused s) }
+    if (not (at s.live local)) { return (refused s) }
+    let item: facts.Slot = (at s.facts.locals local)
+    if (not (facts.union_value s.facts item)) { return (refused s) }
+    let prior: int = (at s.variants local)
+    if (and (!= prior 65535) (!= prior variant)) { return (refused s) }
+    if (< (facts.variant_index s.facts item.layout variant) 0) { return (refused s) }
+    let out: State = (clone s)
+    (array_set out.variants local variant)
+    return (accepted out)
+}
+shadow refine_union { assert (not (refine_union (empty) 0 0).valid) }
+
+pub fn union_variant(s: State, local: int) -> Query {
+    if (not (value_local s local)) { return (no_value) }
+    if (or (not (at s.live local)) (not (facts.union_value s.facts (at s.facts.locals local)))) { return (no_value) }
+    let variant: int = (at s.variants local)
+    if (== variant 65535) { return (no_value) }
+    return (value (at s.facts.locals local) variant)
+}
+shadow union_variant { assert (not (union_variant (empty) 0).valid) }
+
+pub fn move_local(s: State, source: int, target: int) -> Transition {
+    if (or (== source target) (not (destination s target))) { return (refused s) }
+    if (not (owner_access s source [] true)) { return (refused s) }
+    let item: facts.Slot = (at s.facts.locals source)
+    if (not (facts.same s.facts item (at s.facts.locals target))) { return (refused s) }
+    let out: State = (clone s)
+    (array_set out.live source false)
+    (array_set out.live target true)
+    if (== item.tag 10) {
+        (array_set out.variants target (at s.variants source))
+        (array_set out.variants source 65535)
+    }
+    return (accepted out)
+}
+shadow move_local { assert (not (move_local (empty) 0 1).valid) }
+
+fn fields_check(s: State, root: int, fields: array<int>, offset: int, count: int, unpack: bool) -> bool {
+    let row: places.Layout = (at s.facts.rows (at s.facts.locals root).layout)
+    if (and unpack (not (owner_access s root [] true))) { return false }
+    if (and (not unpack) (not (destination s root))) { return false }
+    let mut i: int = 0
+    while (< i count) {
+        let local: int = (at fields i)
+        if (or (== local root) (not (value_local s local))) { return false }
+        let item: facts.Slot = (at s.facts.locals local)
+        let field: places.Field = (at row.fields (+ offset i))
+        if (not (facts.same s.facts item (facts.slot field.tag field.nested))) { return false }
+        let mut j: int = 0
+        while (< j i) {
+            if (and (== (at fields j) local) (or unpack (facts.resource_value s.facts item))) { return false }
+            set j (+ j 1)
+        }
+        if unpack {
+            if (not (destination s local)) { return false }
+        } else {
+            if (not (owner_access s local [] (facts.resource_value s.facts item))) { return false }
+        }
+        set i (+ i 1)
+    }
+    return true
+}
+shadow fields_check {
+    assert (fields_check (sample) 1 [0] 0 1 false)
+    assert (not (fields_check (sample) 1 [2] 0 1 false))
+}
+
+fn transferred(s: State, root: int, fields: array<int>, unpack: bool, union_transfer: bool, variant: int) -> Transition {
+    let out: State = (clone s)
+    let mut i: int = 0
+    while (< i (array_length fields)) {
+        let local: int = (at fields i)
+        if unpack {
+            (array_set out.live local true)
+            (array_set out.variants local 65535)
+        } else if (facts.resource_value s.facts (at s.facts.locals local)) {
+            (array_set out.live local false)
+            (array_set out.variants local 65535)
+        }
+        set i (+ i 1)
+    }
+    (array_set out.live root (not unpack))
+    if union_transfer { (array_set out.variants root (cond (unpack 65535) (else variant))) }
+    return (accepted out)
+}
+shadow transferred {
+    let s: State = (sample)
+    let out: Transition = (transferred s 1 [0] false false 0)
+    assert out.valid assert (at out.state.live 1) assert (not (at s.live 1))
+}
+
+pub fn record_transfer(s: State, root: int, fields: array<int>, unpack: bool) -> Transition {
+    if (not (value_local s root)) { return (refused s) }
+    let item: facts.Slot = (at s.facts.locals root)
+    if (or (!= item.tag 8) (or (< item.layout 0) (>= item.layout (array_length s.facts.rows)))) { return (refused s) }
+    let row: places.Layout = (at s.facts.rows item.layout)
+    if (or (!= row.kind 0) (!= (array_length fields) (array_length row.fields))) { return (refused s) }
+    if (not (fields_check s root fields 0 (array_length fields) unpack)) { return (refused s) }
+    return (transferred s root fields unpack false 0)
+}
+shadow record_transfer { assert (not (record_transfer (empty) 0 [] false).valid) }
+
+pub fn union_transfer(s: State, root: int, variant: int, fields: array<int>, unpack: bool) -> Transition {
+    if (not (value_local s root)) { return (refused s) }
+    let item: facts.Slot = (at s.facts.locals root)
+    if (not (facts.union_value s.facts item)) { return (refused s) }
+    let index: int = (facts.variant_index s.facts item.layout variant)
+    if (< index 0) { return (refused s) }
+    let fact: facts.Variant = (at s.facts.variants index)
+    if (!= fact.count (array_length fields)) { return (refused s) }
+    if unpack {
+        if (or (not (at s.live root)) (!= (at s.variants root) variant)) { return (refused s) }
+    }
+    if (not (fields_check s root fields fact.offset fact.count unpack)) { return (refused s) }
+    return (transferred s root fields unpack true variant)
+}
+shadow union_transfer { assert (not (union_transfer (empty) 0 0 [] false).valid) }
+
+pub fn region_begin(s: State) -> Transition {
+    if (or (not s.valid) (== (at s.control 0) 4294967295)) { return (refused s) }
+    let out: State = (clone s)
+    (array_set out.control 0 (+ (at s.control 0) 1))
+    return (accepted out)
+}
+shadow region_begin { assert (not (region_begin (empty)).valid) }
+
+pub fn region_end(s: State) -> Transition {
+    if (or (not s.valid) (== (at s.control 0) 0)) { return (refused s) }
+    let out: State = (clone s)
+    let mut i: int = 0
+    while (< i (array_length s.references)) {
+        let ref: Reference = (at s.references i)
+        if (and ref.live (== ref.region (at s.control 0))) {
+            let empty_ref: Reference = (empty_reference)
+            (array_set out.references i empty_ref)
+        }
+        set i (+ i 1)
+    }
+    (array_set out.control 0 (- (at s.control 0) 1))
+    return (accepted out)
+}
+shadow region_end { assert (not (region_end (empty)).valid) }
+
+fn ancestor(s: State, possible: int, child: int) -> bool {
+    let mut current: int = child
+    let mut count: int = 0
+    while (and (< count (array_length s.references)) (!= current 4294967295)) {
+        if (== current possible) { return true }
+        if (or (< current 0) (>= current (array_length s.references))) { return false }
+        set current (at s.references current).parent
+        set count (+ count 1)
+    }
+    return false
+}
+shadow ancestor { assert (not (ancestor (empty) 0 4294967295)) }
+
+fn authoritative_root(s: State, place: places.Place) -> int {
+    if (and (and (== place.invocation_low (at s.control 7)) (== place.invocation_high (at s.control 8)))
+        (and (>= place.local 0) (< place.local (array_length s.facts.locals)))) { return (at s.facts.locals place.local).layout }
+    let mut i: int = 0
+    while (< i (array_length s.origins)) {
+        let origin: Origin = (at s.origins i)
+        if (and (== origin.low place.invocation_low)
+            (and (== origin.high place.invocation_high) (== origin.local place.local))) { return origin.layout }
+        set i (+ i 1)
+    }
+    return 4294967295
+}
+shadow authoritative_root { assert (== (authoritative_root (empty) (absent_place)) 4294967295) }
+
+fn install(s: State, reference: int, place: places.Place, parent: int) -> Transition {
+    if (or (not s.valid) (or (== (at s.control 0) 0)
+        (or (< reference 0) (>= reference (array_length s.references))))) { return (refused s) }
+    if (at s.references reference).live { return (refused s) }
+    let layouts: places.Layouts = places.Layouts { present: true, items_present: true, rows: s.facts.rows }
+    if (not (places.valid layouts (authoritative_root s place) place)) { return (refused s) }
+    if (not (facts.resource_value s.facts (facts.slot 8 place.referent_layout))) { return (refused s) }
+    let mut i: int = 0
+    while (< i (array_length s.references)) {
+        let ref: Reference = (at s.references i)
+        if (and ref.live (and (not (ancestor s i parent)) (places.holds_conflict ref.place place))) { return (refused s) }
+        set i (+ i 1)
+    }
+    let out: State = (clone s)
+    let copied: places.Place = (clone_place place)
+    (array_set out.references reference Reference { live: true, region: (at s.control 0), parent: parent, place: copied })
+    return (accepted out)
+}
+shadow install { assert (not (install (empty) 0 (absent_place) 4294967295).valid) }
+
+pub fn borrow_local(s: State, reference: int, root: int, path: array<int>, mode: int) -> Transition {
+    if (not (value_local s root)) { return (refused s) }
+    if (or (not (at s.live root)) (== (at s.facts.locals root).tag 7)) { return (refused s) }
+    let found: Query = (resolve s root path)
+    if (not found.valid) { return (refused s) }
+    return (install s reference (owner_place s root path found.value.layout mode) 4294967295)
+}
+shadow borrow_local { assert (not (borrow_local (empty) 0 0 [] 1).valid) }
+
+pub fn reborrow(s: State, reference: int, parent: int, mode: int) -> Transition {
+    if (or (not s.valid) (or (< parent 0) (>= parent (array_length s.references)))) { return (refused s) }
+    let ref: Reference = (at s.references parent)
+    if (or (not ref.live) (or (>= ref.region (at s.control 0))
+        (and (== mode 2) (!= ref.place.mode 2)))) { return (refused s) }
+    let p: places.Place = ref.place
+    let place: places.Place = places.Place { present: p.present, invocation_low: p.invocation_low, invocation_high: p.invocation_high,
+        local: p.local, root_layout: p.root_layout, fields_present: p.fields_present, fields: p.fields, referent_layout: p.referent_layout, mode: mode }
+    return (install s reference place parent)
+}
+shadow reborrow { assert (not (reborrow (empty) 0 0 1).valid) }
+
+pub fn reference_access(s: State, reference: int, field: int, write: bool) -> bool {
+    if (or (not s.valid) (or (< reference 0) (>= reference (array_length s.references)))) { return false }
+    let ref: Reference = (at s.references reference)
+    if (not ref.live) { return false }
+    let row: places.Layout = (at s.facts.rows ref.place.referent_layout)
+    if (or (< field 0) (or (>= field (array_length row.fields)) (and write (!= ref.place.mode 2)))) { return false }
+    if (not (facts.scalar (at row.fields field).tag)) { return false }
+    let mut i: int = 0
+    while (< i (array_length s.references)) {
+        let child: Reference = (at s.references i)
+        if (and (!= i reference) (and child.live
+            (and (ancestor s reference i) (or write (== child.place.mode 2))))) { return false }
+        set i (+ i 1)
+    }
+    return true
+}
+shadow reference_access { assert (not (reference_access (empty) 0 0 false)) }
+
+pub fn reference_field(s: State, reference: int, field: int, write: bool) -> Query {
+    if (not (reference_access s reference field write)) { return (no_value) }
+    let row: places.Layout = (at s.facts.rows (at s.references reference).place.referent_layout)
+    let item: places.Field = (at row.fields field)
+    return (value (facts.slot item.tag item.nested) 0)
+}
+shadow reference_field { assert (not (reference_field (empty) 0 0 false).valid) }
+
+pub fn can_exit(s: State, result: int) -> bool {
+    if (or (not s.valid) (!= (at s.control 0) 0)) { return false }
+    if (== result 65535) {
+        if (!= s.facts.result.tag 0) { return false }
+    } else {
+        if (not (value_local s result)) { return false }
+        if (or (not (at s.live result)) (not (facts.same s.facts (at s.facts.locals result) s.facts.result))) { return false }
+    }
+    let mut i: int = 0
+    while (< i (array_length s.facts.locals)) {
+        let item: facts.Slot = (at s.facts.locals i)
+        if (and (!= i result) (and (at s.live i) (and (== item.mode 0) (facts.resource_value s.facts item)))) { return false }
+        set i (+ i 1)
+    }
+    return true
+}
+shadow can_exit { assert (can_exit (sample) 65535) assert (not (can_exit (sample) 0)) }
+
+pub fn local_info(s: State, local: int) -> Query {
+    if (not (local_exists s local)) { return (no_value) }
+    if (not (at s.live local)) { return (no_value) }
+    let item: facts.Slot = (at s.facts.locals local)
+    if (and (!= (at s.control 1) 0) (!= item.mode 0)) { return (no_value) }
+    if (and (and (== item.mode 0) (!= item.tag 10)) (not (owner_access s local [] false))) { return (no_value) }
+    return (value item 0)
+}
+shadow local_info { assert (local_info (sample) 0).valid assert (not (local_info (sample) 1).valid) }
+
+pub fn local_type(s: State, local: int) -> Query {
+    if (not (local_exists s local)) { return (no_value) }
+    let item: facts.Slot = (at s.facts.locals local)
+    if (!= item.mode 0) { return (no_value) }
+    return (value item 0)
+}
+shadow local_type { assert (local_type (sample) 1).valid assert (== (local_type (sample) 1).value.tag 8) }
+
+pub fn scalar_field(s: State, local: int, field: int) -> Query {
+    if (not (local_exists s local)) { return (no_value) }
+    if (not (at s.live local)) { return (no_value) }
+    let root: facts.Slot = (at s.facts.locals local)
+    if (or (!= root.tag 8) (or (< root.layout 0) (>= root.layout (array_length s.facts.rows)))) { return (no_value) }
+    let row: places.Layout = (at s.facts.rows root.layout)
+    if (or (< field 0) (>= field (array_length row.fields))) { return (no_value) }
+    let item: places.Field = (at row.fields field)
+    if (not (facts.scalar item.tag)) { return (no_value) }
+    if (!= root.mode 0) {
+        if (not (reference_access s local field false)) { return (no_value) }
+    } else {
+        if (not (owner_access s local [field] false)) { return (no_value) }
+    }
+    return (value (facts.slot item.tag item.nested) 0)
+}
+shadow scalar_field {
+    let s: State = (record_transfer (sample) 1 [0] false).state
+    assert (scalar_field s 1 0).valid assert (not (scalar_field s 1 1).valid)
+}
+
+pub fn string_field(s: State, local: int, field: int) -> Query {
+    if (not (local_exists s local)) { return (no_value) }
+    if (not (at s.live local)) { return (no_value) }
+    let root: facts.Slot = (at s.facts.locals local)
+    if (or (!= root.mode 0) (or (!= root.tag 8) (or (< root.layout 0) (>= root.layout (array_length s.facts.rows))))) { return (no_value) }
+    let row: places.Layout = (at s.facts.rows root.layout)
+    if (or (< field 0) (>= field (array_length row.fields))) { return (no_value) }
+    let item: places.Field = (at row.fields field)
+    if (or (!= item.tag 5) (or (!= item.nested 4294967295) (not (owner_access s local [field] false)))) { return (no_value) }
+    return (value (facts.slot 5 4294967295) 0)
+}
+shadow string_field { assert (not (string_field (sample) 0 0).valid) }
+
+pub fn can_exit_scalar(s: State, tag: int) -> bool {
+    if (or (not s.valid) (or (!= (at s.control 0) 0)
+        (or (and (!= tag 0) (not (facts.scalar tag))) (!= s.facts.result.tag tag)))) { return false }
+    let mut i: int = 0
+    while (< i (array_length s.facts.locals)) {
+        let item: facts.Slot = (at s.facts.locals i)
+        if (and (at s.live i) (and (== item.mode 0) (facts.resource_value s.facts item))) { return false }
+        set i (+ i 1)
+    }
+    return true
+}
+shadow can_exit_scalar { assert (can_exit_scalar (sample) 0) assert (not (can_exit_scalar (sample) 1)) }
+
+pub fn can_exit_type(s: State, item: facts.Slot) -> bool {
+    if (or (not s.valid) (or (!= (at s.control 0) 0) (not (facts.same s.facts s.facts.result item)))) { return false }
+    let mut i: int = 0
+    while (< i (array_length s.facts.locals)) {
+        let local: facts.Slot = (at s.facts.locals i)
+        if (and (at s.live i) (and (== local.mode 0) (facts.resource_value s.facts local))) { return false }
+        set i (+ i 1)
+    }
+    return true
+}
+shadow can_exit_type { assert (can_exit_type (sample) (facts.slot 0 4294967295)) }
+
+pub fn can_suspend(s: State) -> bool {
+    if (or (not s.valid) (!= (at s.control 0) 0)) { return false }
+    let mut i: int = 0
+    while (< i (array_length s.references)) {
+        if (at s.references i).live { return false }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (array_length s.facts.locals)) {
+        if (and (at s.live i) (facts.resource_value s.facts (at s.facts.locals i))) { return false }
+        set i (+ i 1)
+    }
+    return true
+}
+shadow can_suspend { assert (can_suspend (sample)) assert (not (can_suspend (region_begin (sample)).state)) }
+
+pub fn can_resume(s: State, item: facts.Slot) -> bool {
+    return (and s.valid (and (!= (at s.control 2) 0)
+        (and (facts.same s.facts (facts.slot (at s.control 5) (at s.control 6)) item) (can_suspend s))))
+}
+shadow can_resume { assert (not (can_resume (sample) (facts.slot 0 4294967295))) }
+
+pub fn has_complete_unions(s: State) -> bool {
+    if (not s.valid) { return false }
+    let mut i: int = 0
+    while (< i (array_length s.facts.rows)) {
+        if (and (== (at s.facts.rows i).kind 2) (facts.complete (at s.facts.flags i))) { return true }
+        set i (+ i 1)
+    }
+    return false
+}
+shadow has_complete_unions { assert (not (has_complete_unions (sample))) }
+
+pub fn has_array_types(s: State) -> bool { return (and s.valid (> (array_length s.facts.arrays) 0)) }
+shadow has_array_types { assert (not (has_array_types (sample))) }
+
+pub fn types_equal(s: State, a: facts.Slot, b: facts.Slot) -> bool { return (and s.valid (facts.same s.facts a b)) }
+shadow types_equal { assert (types_equal (sample) (facts.slot 1 4294967295) (facts.slot 1 4294967295)) }
+
+pub fn type_owned(s: State, item: facts.Slot) -> bool {
+    if (not s.valid) { return false }
+    if (== item.tag 7) { return (and (facts.supported s.facts item) (facts.resource_value s.facts item)) }
+    if (or (< item.layout 0) (>= item.layout (array_length s.facts.rows))) { return false }
+    if (not (facts.complete (at s.facts.flags item.layout))) { return false }
+    let kind: int = (at s.facts.rows item.layout).kind
+    return (and (or (and (== item.tag 8) (== kind 0)) (and (== item.tag 10) (== kind 2))) (facts.resource_value s.facts item))
+}
+shadow type_owned { assert (type_owned (sample) (facts.slot 8 0)) assert (not (type_owned (sample) (facts.slot 1 4294967295))) }
+
+pub fn take_local(s: State, local: int) -> Transition {
+    let found: Query = (local_type s local)
+    if (not found.valid) { return (refused s) }
+    if (or (not (type_owned s found.value))
+        (or (== found.value.layout 4294967295) (not (owner_access s local [] true)))) { return (refused s) }
+    let out: State = (clone s)
+    (array_set out.live local false)
+    (array_set out.variants local 65535)
+    return (accepted out)
+}
+shadow take_local { assert (not (take_local (sample) 1).valid) }
+
+pub fn put_local(s: State, local: int, item: facts.Slot) -> Transition {
+    let found: Query = (local_type s local)
+    if (not found.valid) { return (refused s) }
+    if (or (not (type_owned s item)) (or (== item.layout 4294967295)
+        (or (not (facts.same s.facts found.value item)) (not (destination s local))))) { return (refused s) }
+    let out: State = (clone s)
+    (array_set out.live local true)
+    (array_set out.variants local 65535)
+    return (accepted out)
+}
+shadow put_local { assert (put_local (sample) 1 (facts.slot 8 0)).valid }
+
+pub fn array_element(s: State, item: facts.Slot) -> Query {
+    if (or (not s.valid) (or (!= item.tag 7)
+        (or (< item.layout 0) (>= item.layout (array_length s.facts.arrays))))) { return (no_value) }
+    return (value (at s.facts.arrays item.layout) 0)
+}
+shadow array_element { assert (not (array_element (sample) (facts.slot 7 0)).valid) }
+
+pub fn array_type(s: State, element: facts.Slot) -> Query {
+    if (not s.valid) { return (no_value) }
+    let mut i: int = 0
+    while (< i (array_length s.facts.arrays)) {
+        if (facts.same s.facts (at s.facts.arrays i) element) { return (value (facts.slot 7 i) 0) }
+        set i (+ i 1)
+    }
+    return (no_value)
+}
+shadow array_type { assert (not (array_type (sample) (facts.slot 1 4294967295)).valid) }
+
+pub fn array_tag_type(s: State, tag: int) -> Query {
+    if (not s.valid) { return (no_value) }
+    let mut selected: int = 4294967295
+    let mut i: int = 0
+    while (< i (array_length s.facts.arrays)) {
+        if (== (at s.facts.arrays i).tag tag) {
+            if (and (!= selected 4294967295) (not (facts.same s.facts (facts.slot 7 selected) (facts.slot 7 i)))) { return (no_value) }
+            set selected i
+        }
+        set i (+ i 1)
+    }
+    if (== selected 4294967295) { return (no_value) }
+    return (value (facts.slot 7 selected) 0)
+}
+shadow array_tag_type { assert (not (array_tag_type (sample) 1).valid) }
+
+pub fn record_fields(s: State, layout: int, capacity: int, output_present: bool) -> Query {
+    if (or (not s.valid) (or (< layout 0) (>= layout (array_length s.facts.rows)))) { return (no_value) }
+    if (not (facts.complete (at s.facts.flags layout))) { return (no_value) }
+    let row: places.Layout = (at s.facts.rows layout)
+    let count: int = (array_length row.fields)
+    if (or (!= row.kind 0) (or (> count capacity) (and (> count 0) (not output_present)))) { return (no_value) }
+    let mut values: array<facts.Slot> = []
+    let mut i: int = 0
+    while (< i count) {
+        let item: places.Field = (at row.fields i)
+        set values (array_push values (facts.slot item.tag item.nested))
+        set i (+ i 1)
+    }
+    return Query { valid: true, value: (facts.slot 8 layout), number: count, values: values }
+}
+shadow record_fields { assert (== (record_fields (sample) 0 1 true).number 1) assert (not (record_fields (sample) 0 1 false).valid) }
+
+pub fn union_fields(s: State, layout: int, variant: int, capacity: int, output_present: bool) -> Query {
+    if (or (not s.valid) (and (> capacity 0) (not output_present))) { return (no_value) }
+    let index: int = (facts.variant_index s.facts layout variant)
+    if (< index 0) { return (no_value) }
+    let item: facts.Variant = (at s.facts.variants index)
+    if (> item.count capacity) { return (no_value) }
+    let row: places.Layout = (at s.facts.rows layout)
+    let mut values: array<facts.Slot> = []
+    let mut i: int = 0
+    while (< i item.count) {
+        let field: places.Field = (at row.fields (+ item.offset i))
+        set values (array_push values (facts.slot field.tag field.nested))
+        set i (+ i 1)
+    }
+    return Query { valid: true, value: (facts.slot 10 layout), number: item.count, values: values }
+}
+shadow union_fields { assert (not (union_fields (sample) 0 0 0 true).valid) }
+
+pub fn owned_local_fields(s: State, local: int, capacity: int, output_present: bool) -> Query {
+    let found: Query = (local_type s local)
+    if (not found.valid) { return (no_value) }
+    if (not (type_owned s found.value)) { return (no_value) }
+    if (== found.value.tag 10) {
+        let variant: Query = (union_variant s local)
+        if (not variant.valid) { return (no_value) }
+        return (union_fields s found.value.layout variant.number capacity output_present)
+    }
+    if (== found.value.tag 8) { return (record_fields s found.value.layout capacity output_present) }
+    return (no_value)
+}
+shadow owned_local_fields { assert (owned_local_fields (sample) 1 1 true).valid }
+
+fn arrays_equal(a: array<int>, b: array<int>) -> bool {
+    if (!= (array_length a) (array_length b)) { return false }
+    let mut i: int = 0
+    while (< i (array_length a)) { if (!= (at a i) (at b i)) { return false } set i (+ i 1) }
+    return true
+}
+shadow arrays_equal { assert (arrays_equal [1,2] [1,2]) assert (not (arrays_equal [1] [1,2])) }
+
+fn copyable_slot(f: facts.Facts, item: facts.Slot) -> bool {
+    return (and (== item.mode 0) (or (facts.scalar item.tag) (or (== item.tag 5)
+        (and (or (== item.tag 10) (or (== item.tag 8) (== item.tag 7))) (not (facts.resource_value f item))))))
+}
+shadow copyable_slot { assert (copyable_slot (facts.empty) (facts.slot 1 4294967295)) }
+
+fn state_equal(a: State, b: State, meet_scalars: bool) -> bool {
+    if (or (not a.valid) (not b.valid)) { return false }
+    if (or (!= a.facts.analysis b.facts.analysis) (!= a.facts.module_identity b.facts.module_identity)) { return false }
+    if (or (not (arrays_equal a.control b.control))
+        (or (!= (array_length a.references) (array_length b.references)) (!= (array_length a.origins) (array_length b.origins)))) { return false }
+    let mut i: int = 0
+    while (< i (array_length a.facts.locals)) {
+        let item: facts.Slot = (at a.facts.locals i)
+        if (not (and meet_scalars (copyable_slot a.facts item))) {
+            if (!= (at a.live i) (at b.live i)) { return false }
+            if (and (not meet_scalars) (and (== item.tag 10)
+                (and (at a.live i) (!= (at a.variants i) (at b.variants i))))) { return false }
+        }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (array_length a.origins)) {
+        let x: Origin = (at a.origins i)
+        let y: Origin = (at b.origins i)
+        if (or (!= x.low y.low) (or (!= x.high y.high) (or (!= x.local y.local) (!= x.layout y.layout)))) { return false }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (array_length a.references)) {
+        let x: Reference = (at a.references i)
+        let y: Reference = (at b.references i)
+        if (!= x.live y.live) { return false }
+        if x.live {
+            let p: places.Place = x.place
+            let q: places.Place = y.place
+            if (or (!= x.region y.region) (or (!= x.parent y.parent)
+                (or (!= p.invocation_low q.invocation_low) (or (!= p.invocation_high q.invocation_high)
+                (or (!= p.local q.local) (or (!= p.root_layout q.root_layout)
+                (or (!= p.referent_layout q.referent_layout) (or (!= p.mode q.mode) (not (arrays_equal p.fields q.fields)))))))))) { return false }
+        }
+        set i (+ i 1)
+    }
+    return true
+}
+shadow state_equal { let s: State = (sample) assert (state_equal s (clone s) false) assert (not (state_equal s (empty) false)) }
+
+pub fn equal(a: State, b: State) -> bool { return (state_equal a b false) }
+shadow equal { let s: State = (sample) assert (equal s (clone s)) }
+
+pub fn meet_initialization(s: State, incoming: State) -> Transition {
+    if (not (state_equal s incoming true)) { return (refused s) }
+    let out: State = (clone s)
+    let mut changed: bool = false
+    let mut i: int = 0
+    while (< i (array_length s.facts.locals)) {
+        let item: facts.Slot = (at s.facts.locals i)
+        if (and (copyable_slot s.facts item) (and (at out.live i) (not (at incoming.live i)))) {
+            (array_set out.live i false)
+            if (== item.tag 10) { (array_set out.variants i 65535) }
+            set changed true
+        }
+        if (and (and (== item.mode 0) (== item.tag 10))
+            (and (and (at out.live i) (at incoming.live i))
+                (and (!= (at out.variants i) (at incoming.variants i)) (!= (at out.variants i) 65535)))) {
+            (array_set out.variants i 65535)
+            set changed true
+        }
+        set i (+ i 1)
+    }
+    return Transition { valid: true, changed: changed, state: out }
+}
+shadow meet_initialization {
+    let a: State = (sample)
+    let b: State = (clone a)
+    (array_set b.live 0 false)
+    let result: Transition = (meet_initialization a b)
+    assert result.valid assert result.changed assert (not (at result.state.live 0)) assert (at a.live 0)
+}
+
+pub fn handler_enter(s: State, key: int, first: int) -> Transition {
+    if (or (not s.valid) (or (!= (at s.control 0) 0) (or (!= (at s.control 1) 0)
+        (or (< first 0) (or (> first (array_length s.facts.locals))
+            (and (!= (at s.control 2) 0) (< first (at s.control 3)))))))) { return (refused s) }
+    let mut i: int = 0
+    while (< i (array_length s.references)) {
+        if (at s.references i).live { return (refused s) }
+        set i (+ i 1)
+    }
+    let mut selected: int = -1
+    set i 0
+    while (< i (array_length s.facts.effects)) {
+        if (== (at s.facts.effects i).key key) { set selected i }
+        set i (+ i 1)
+    }
+    if (< selected 0) { return (refused s) }
+    let operation: facts.Effect = (at s.facts.effects selected)
+    let count: int = (array_length operation.parameters)
+    if (> count (- (array_length s.facts.locals) first)) { return (refused s) }
+    set i 0
+    while (< i count) {
+        if (not (facts.same s.facts (at s.facts.locals (+ first i)) (at operation.parameters i))) { return (refused s) }
+        set i (+ i 1)
+    }
+    let out: State = (clone s)
+    (array_set out.control 2 1)
+    (array_set out.control 3 first)
+    (array_set out.control 4 key)
+    (array_set out.control 5 operation.result.tag)
+    (array_set out.control 6 operation.result.layout)
+    set i 0
+    while (< i (array_length s.facts.locals)) {
+        let item: facts.Slot = (at s.facts.locals i)
+        if (or (>= i first) (or (!= item.mode 0) (facts.resource_value s.facts item))) {
+            (array_set out.live i false)
+            (array_set out.variants i 65535)
+        }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i count) { (array_set out.live (+ first i) true) set i (+ i 1) }
+    return (accepted out)
+}
+shadow handler_enter { assert (not (handler_enter (sample) 0 0).valid) }
+
+fn place_mode(p: places.Place, mode: int) -> places.Place {
+    return places.Place { present: p.present, invocation_low: p.invocation_low, invocation_high: p.invocation_high,
+        local: p.local, root_layout: p.root_layout, fields_present: p.fields_present, fields: p.fields,
+        referent_layout: p.referent_layout, mode: mode }
+}
+shadow place_mode { assert (== (place_mode (absent_place) 2).mode 2) }
+
+pub fn bind_caller(callee: State, caller: State, reference: int) -> Transition {
+    if (or (or (not callee.valid) (not caller.valid))
+        (or (!= (at callee.control 1) 0) (or (!= (at caller.control 1) 0)
+        (or (!= callee.facts.module_identity caller.facts.module_identity)
+        (or (!= caller.facts.function 0) (or (!= callee.facts.function 1) (!= (at callee.control 0) 0))))))) { return (refused callee) }
+    let count: int = callee.facts.parameters
+    if (or (or (== count 0) (> count 8)) (or (> count (array_length callee.references))
+        (or (< reference 0) (or (> reference (array_length caller.references)) (> count (- (array_length caller.references) reference)))))) { return (refused callee) }
+    let mut i: int = count
+    while (< i (array_length callee.references)) {
+        if (at callee.references i).live { return (refused callee) }
+        set i (+ i 1)
+    }
+    set i count
+    while (< i (array_length callee.facts.locals)) {
+        if (at callee.live i) { return (refused callee) }
+        set i (+ i 1)
+    }
+    let mut requested: array<places.Place> = []
+    let mut origins: array<Origin> = []
+    let layouts: places.Layouts = places.Layouts { present: true, items_present: true, rows: caller.facts.rows }
+    let mut p: int = 0
+    while (< p count) {
+        let source: int = (+ reference p)
+        let ref: Reference = (at caller.references source)
+        let param: facts.Slot = (at callee.facts.locals p)
+        if (or (not ref.live) (or (!= param.tag 8) (or (== param.mode 0)
+            (or (!= param.layout ref.place.referent_layout) (and (== param.mode 2) (!= ref.place.mode 2)))))) { return (refused callee) }
+        let place: places.Place = (place_mode ref.place param.mode)
+        set i 0
+        while (< i (array_length caller.references)) {
+            let other: Reference = (at caller.references i)
+            if (and other.live (and (not (ancestor caller i source)) (places.holds_conflict other.place place))) { return (refused callee) }
+            set i (+ i 1)
+        }
+        if (or (!= place.invocation_low (at caller.control 7)) (or (!= place.invocation_high (at caller.control 8))
+            (or (< place.local 0) (>= place.local (array_length caller.facts.locals))))) { return (refused callee) }
+        let root: int = (at caller.facts.locals place.local).layout
+        if (not (places.valid layouts root place)) { return (refused callee) }
+        set i 0
+        while (< i p) {
+            if (places.holds_conflict (at requested i) place) { return (refused callee) }
+            set i (+ i 1)
+        }
+        set requested (array_push requested place)
+        set origins (array_push origins Origin { low: place.invocation_low, high: place.invocation_high, local: place.local, layout: root })
+        set p (+ p 1)
+    }
+    let out: State = (with_origins (clone callee) origins)
+    set p 0
+    while (< p count) {
+        let copied: places.Place = (clone_place (at requested p))
+        (array_set out.references p Reference { live: true, region: 0, parent: 4294967295, place: copied })
+        set p (+ p 1)
+    }
+    (array_set out.control 1 1)
+    (array_set out.control 7 2)
+    (array_set out.control 8 0)
+    return (accepted out)
+}
+shadow bind_caller { assert (not (bind_caller (sample) (sample) 0).valid) }
+
+pub fn parameter_at(s: State, parameter: int) -> Query {
+    if (or (not s.valid) (or (== s.facts.parameters 0) (or (> s.facts.parameters 8)
+        (or (< parameter 0) (or (>= parameter s.facts.parameters) (>= parameter (array_length s.references))))))) { return (no_value) }
+    if (not (at s.references parameter).live) { return (no_value) }
+    let param: facts.Slot = (at s.facts.locals parameter)
+    if (== param.mode 0) { return (no_value) }
+    let place: places.Place = places.Place { present: true, invocation_low: 1, invocation_high: 0,
+        local: parameter, root_layout: param.layout, fields_present: true, fields: [], referent_layout: param.layout, mode: param.mode }
+    let layouts: places.Layouts = places.Layouts { present: true, items_present: true, rows: s.facts.rows }
+    if (or (not (facts.resource_value s.facts param)) (not (places.valid layouts param.layout place))) { return (no_value) }
+    return (value param 0)
+}
+shadow parameter_at { assert (not (parameter_at (sample) 0).valid) }
+
+pub fn parameter_type(s: State) -> Query {
+    if (or (not s.valid) (!= s.facts.parameters 1)) { return (no_value) }
+    return (parameter_at s 0)
+}
+shadow parameter_type { assert (not (parameter_type (sample)).valid) }
+
+pub fn owned_parameter_type(s: State) -> Query {
+    if (or (not s.valid) (or (!= s.facts.parameters 1) (== (array_length s.facts.locals) 0))) { return (no_value) }
+    let param: facts.Slot = (at s.facts.locals 0)
+    if (or (!= param.tag 8) (or (!= param.mode 0) (not (facts.resource_value s.facts param)))) { return (no_value) }
+    if (not (facts.complete (at s.facts.flags param.layout))) { return (no_value) }
+    return (value param 0)
+}
+shadow owned_parameter_type { assert (not (owned_parameter_type (sample)).valid) }
+
+fn nested_result_tree(f: facts.Facts, root: int) -> bool {
+    let mut depths: array<int> = []
+    let mut i: int = 0
+    while (<= i root) { set depths (array_push depths 0) set i (+ i 1) }
+    (array_set depths root 1)
+    let owned: bool = (facts.resource_flag (at f.flags root))
+    set i root
+    while (>= i 0) {
+        if (> (at depths i) 0) {
+            let row: places.Layout = (at f.rows i)
+            let flag: int = (at f.flags i)
+            if (or (not (facts.complete flag)) (or (!= (facts.resource_flag flag) owned)
+                (or (and (!= row.kind 0) (!= row.kind 2)) (> (array_length row.fields) 256)))) { return false }
+            let mut field: int = 0
+            while (< field (array_length row.fields)) {
+                let item: places.Field = (at row.fields field)
+                if (or (== item.tag 8) (== item.tag 10)) {
+                    if (or (or (< item.nested 0) (>= item.nested i)) (>= (at depths i) 32)) { return false }
+                    let child_depth: int = (+ (at depths i) 1)
+                    if (< (at depths item.nested) child_depth) { (array_set depths item.nested child_depth) }
+                } else if (or (not (or (== item.tag 1) (or (== item.tag 4) (or (== item.tag 2) (== item.tag 5))))) (!= item.nested 4294967295)) { return false }
+                set field (+ field 1)
+            }
+        }
+        set i (- i 1)
+    }
+    return true
+}
+shadow nested_result_tree { assert (nested_result_tree (sample).facts 0) }
+
+pub fn value_result(s: State) -> Query {
+    if (not s.valid) { return (no_value) }
+    let item: facts.Slot = s.facts.result
+    let expected: int = (cond ((== item.tag 0) 0) (else 1))
+    if (or (!= item.mode 0) (or (!= s.facts.result_tag item.tag) (!= s.facts.result_count expected))) { return (no_value) }
+    let mut count: int = 0
+    if (== item.tag 8) {
+        if (or (< item.layout 0) (>= item.layout (array_length s.facts.rows))) { return (no_value) }
+        if (not (facts.complete (at s.facts.flags item.layout))) { return (no_value) }
+        let row: places.Layout = (at s.facts.rows item.layout)
+        if (!= row.kind 0) { return (no_value) }
+        let mut nested: bool = false
+        let mut i: int = 0
+        while (< i (array_length row.fields)) {
+            let field: places.Field = (at row.fields i)
+            if (or (== field.tag 8) (== field.tag 10)) { set nested true }
+            else if (or (not (or (== field.tag 1) (or (== field.tag 4) (or (== field.tag 2) (== field.tag 5))))) (!= field.nested 4294967295)) { return (no_value) }
+            set i (+ i 1)
+        }
+        if (and nested (not (nested_result_tree s.facts item.layout))) { return (no_value) }
+        set count (array_length row.fields)
+    } else if (== item.tag 10) {
+        if (not (facts.union_value s.facts item)) { return (no_value) }
+    } else if (== item.tag 7) {
+        if (not (facts.supported s.facts item)) { return (no_value) }
+    } else if (or (not (or (== item.tag 0) (or (== item.tag 1) (or (== item.tag 4) (== item.tag 2))))) (!= item.layout 4294967295)) { return (no_value) }
+    return (value item count)
+}
+shadow value_result { assert (value_result (sample)).valid assert (== (value_result (sample)).value.tag 0) }
+
+pub fn value_parameters(s: State, capacity: int, output_present: bool, consuming: bool) -> Query {
+    if (or (not s.valid) (or (not output_present) (or (> s.facts.parameters 8)
+        (or (> s.facts.parameters capacity) (> s.facts.parameters (array_length s.facts.locals)))))) { return (no_value) }
+    let mut values: array<facts.Slot> = []
+    let mut owned: bool = false
+    let mut i: int = 0
+    while (< i s.facts.parameters) {
+        let item: facts.Slot = (at s.facts.locals i)
+        if (!= item.mode 0) { return (no_value) }
+        if (== item.tag 8) {
+            if (or (< item.layout 0) (>= item.layout (array_length s.facts.rows))) { return (no_value) }
+            if (or (!= (at s.facts.rows item.layout).kind 0) (not (facts.complete (at s.facts.flags item.layout)))) { return (no_value) }
+        } else if (== item.tag 5) {
+            if (!= item.layout 4294967295) { return (no_value) }
+        } else if (== item.tag 10) {
+            if (not (facts.union_value s.facts item)) { return (no_value) }
+        } else if (== item.tag 7) {
+            if (not (facts.supported s.facts item)) { return (no_value) }
+        } else if (not (or (== item.tag 1) (or (== item.tag 4) (== item.tag 2)))) { return (no_value) }
+        if (type_owned s item) { set owned true }
+        set values (array_push values item)
+        set i (+ i 1)
+    }
+    if (and consuming (not owned)) { return (no_value) }
+    return Query { valid: true, value: (facts.slot 0 0), number: s.facts.parameters, values: values }
+}
+shadow value_parameters { assert (value_parameters (sample) 0 true false).valid assert (not (value_parameters (sample) 0 true true).valid) }

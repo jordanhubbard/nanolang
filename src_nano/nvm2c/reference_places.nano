@@ -1,0 +1,182 @@
+module nvm2c_reference_places
+
+# I retain native-width identities as nonnegative words, including all64
+# invocation bits. These immutable descriptors grant no runtime authority.
+pub struct Field { tag: int, nested: int }
+pub struct Layout { kind: int, fields_present: bool, fields: array<Field> }
+pub struct Layouts { present: bool, items_present: bool, rows: array<Layout> }
+pub struct Place {
+    present: bool,
+    invocation_low: int,
+    invocation_high: int,
+    local: int,
+    root_layout: int,
+    fields_present: bool,
+    fields: array<int>,
+    referent_layout: int,
+    mode: int
+}
+
+fn sample() -> Place {
+    return Place { present: true, invocation_low: 1, invocation_high: 0,
+        local: 0, root_layout: 0, fields_present: true, fields: [],
+        referent_layout: 0, mode: 1 }
+}
+shadow sample { assert (== (sample).invocation_low 1) assert (== (sample).mode 1) }
+
+fn scalar(tag: int) -> bool {
+    return (or (or (== tag 1) (== tag 2)) (or (== tag 3) (== tag 4)))
+}
+shadow scalar {
+    assert (scalar 1) assert (scalar 2) assert (scalar 3) assert (scalar 4)
+    assert (not (scalar 0)) assert (not (scalar 5)) assert (not (scalar 8))
+}
+
+pub fn descriptor_valid(place: Place) -> bool {
+    return (and place.present
+        (and (or (!= place.invocation_low 0) (!= place.invocation_high 0))
+            (and (or (== (array_length place.fields) 0) place.fields_present)
+                (or (== place.mode 1) (== place.mode 2)))))
+}
+shadow descriptor_valid {
+    assert (descriptor_valid (sample))
+    let absent: Place = Place { present: false, invocation_low: 1, invocation_high: 0,
+        local: 0, root_layout: 0, fields_present: true, fields: [], referent_layout: 0, mode: 1 }
+    assert (not (descriptor_valid absent))
+    let high: Place = Place { present: true, invocation_low: 0, invocation_high: 4294967295,
+        local: 65535, root_layout: 4294967295, fields_present: false, fields: [], referent_layout: 0, mode: 2 }
+    assert (descriptor_valid high)
+}
+
+fn record_valid(layout: Layout) -> bool {
+    return (and (== layout.kind 0)
+        (or (== (array_length layout.fields) 0) layout.fields_present))
+}
+shadow record_valid {
+    assert (record_valid Layout { kind: 0, fields_present: false, fields: [] })
+    assert (not (record_valid Layout { kind: 2, fields_present: true, fields: [] }))
+    let fields: array<Field> = [Field { tag: 1, nested: 4294967295 }]
+    assert (not (record_valid Layout { kind: 0, fields_present: false, fields: fields }))
+}
+
+fn scalar_record(layout: Layout) -> bool {
+    if (not (record_valid layout)) { return false }
+    let mut i: int = 0
+    while (< i (array_length layout.fields)) {
+        let item: Field = (at layout.fields i)
+        if (or (not (scalar item.tag)) (!= item.nested 4294967295)) { return false }
+        set i (+ i 1)
+    }
+    return true
+}
+shadow scalar_record {
+    assert (scalar_record Layout { kind: 0, fields_present: false, fields: [] })
+    assert (scalar_record Layout { kind: 0, fields_present: true,
+        fields: [Field { tag: 4, nested: 4294967295 }] })
+    assert (not (scalar_record Layout { kind: 0, fields_present: true,
+        fields: [Field { tag: 1, nested: 0 }] }))
+}
+
+# I check every reachable sibling, visiting shared prior-index subgraphs once.
+fn scalar_root(rows: array<Layout>, root: int) -> bool {
+    let first: Layout = (at rows root)
+    if (not (record_valid first)) { return false }
+    if (scalar_record first) { return true }
+    let mut seen: array<bool> = []
+    let mut i: int = 0
+    while (<= i root) { set seen (array_push seen false) set i (+ i 1) }
+    (array_set seen root true)
+    set i root
+    while (>= i 0) {
+        if (at seen i) {
+            let row: Layout = (at rows i)
+            if (not (record_valid row)) { return false }
+            let mut f: int = 0
+            while (< f (array_length row.fields)) {
+                let item: Field = (at row.fields f)
+                if (not (and (scalar item.tag) (== item.nested 4294967295))) {
+                    if (or (!= item.tag 8) (or (< item.nested 0) (>= item.nested i))) { return false }
+                    (array_set seen item.nested true)
+                }
+                set f (+ f 1)
+            }
+        }
+        set i (- i 1)
+    }
+    return true
+}
+shadow scalar_root {
+    let leaf: Layout = Layout { kind: 0, fields_present: true,
+        fields: [Field { tag: 1, nested: 4294967295 }] }
+    let pair: Layout = Layout { kind: 0, fields_present: true,
+        fields: [Field { tag: 8, nested: 0 }, Field { tag: 8, nested: 0 }] }
+    assert (scalar_root [leaf, pair] 1)
+    let bad: Layout = Layout { kind: 0, fields_present: true,
+        fields: [Field { tag: 8, nested: 1 }] }
+    assert (not (scalar_root [leaf, bad] 1))
+}
+
+pub fn valid(layouts: Layouts, authoritative_root: int, place: Place) -> bool {
+    if (or (not (descriptor_valid place)) (or (not layouts.present) (not layouts.items_present))) { return false }
+    if (or (!= place.root_layout authoritative_root)
+        (or (< authoritative_root 0) (>= authoritative_root (array_length layouts.rows)))) { return false }
+    if (not (scalar_root layouts.rows authoritative_root)) { return false }
+    let mut current: int = authoritative_root
+    let mut i: int = 0
+    while (< i (array_length place.fields)) {
+        let row: Layout = (at layouts.rows current)
+        let index: int = (at place.fields i)
+        if (or (not (record_valid row)) (or (< index 0) (>= index (array_length row.fields)))) { return false }
+        let field: Field = (at row.fields index)
+        if (or (!= field.tag 8) (or (< field.nested 0) (>= field.nested current))) { return false }
+        set current field.nested
+        set i (+ i 1)
+    }
+    if (!= current place.referent_layout) { return false }
+    return (scalar_record (at layouts.rows current))
+}
+shadow valid {
+    let layouts: Layouts = Layouts { present: true, items_present: true,
+        rows: [Layout { kind: 0, fields_present: false, fields: [] }] }
+    assert (valid layouts 0 (sample))
+    assert (not (valid layouts 1 (sample)))
+    assert (not (valid Layouts { present: false, items_present: true, rows: [] } 0 (sample)))
+}
+
+pub fn overlap(left: Place, right: Place) -> bool {
+    if (or (not (descriptor_valid left)) (not (descriptor_valid right))) { return true }
+    if (or (!= left.invocation_low right.invocation_low)
+        (or (!= left.invocation_high right.invocation_high) (!= left.local right.local))) { return false }
+    let mut i: int = 0
+    while (and (< i (array_length left.fields)) (< i (array_length right.fields))) {
+        if (!= (at left.fields i) (at right.fields i)) { return false }
+        set i (+ i 1)
+    }
+    return true
+}
+shadow overlap {
+    assert (overlap (sample) (sample))
+    let other: Place = Place { present: true, invocation_low: 1, invocation_high: 1,
+        local: 0, root_layout: 0, fields_present: true, fields: [], referent_layout: 0, mode: 1 }
+    assert (not (overlap (sample) other))
+}
+
+pub fn holds_conflict(left: Place, right: Place) -> bool {
+    if (or (not (descriptor_valid left)) (not (descriptor_valid right))) { return true }
+    return (and (or (== left.mode 2) (== right.mode 2)) (overlap left right))
+}
+shadow holds_conflict {
+    assert (not (holds_conflict (sample) (sample)))
+    let exclusive: Place = Place { present: true, invocation_low: 1, invocation_high: 0,
+        local: 0, root_layout: 123, fields_present: false, fields: [], referent_layout: 456, mode: 2 }
+    assert (holds_conflict (sample) exclusive)
+}
+
+pub fn owner_access_conflicts(hold: Place, access: Place, write_or_move: bool) -> bool {
+    if (or (not (descriptor_valid hold)) (not (descriptor_valid access))) { return true }
+    return (and (or write_or_move (== hold.mode 2)) (overlap hold access))
+}
+shadow owner_access_conflicts {
+    assert (not (owner_access_conflicts (sample) (sample) false))
+    assert (owner_access_conflicts (sample) (sample) true)
+}

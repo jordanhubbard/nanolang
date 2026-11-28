@@ -1,0 +1,13 @@
+[
+  {
+    "archive": "docs/evidence/array-set-nominal-linux-20261122",
+    "implementation": "37865cdd7ff5de11ea50d0fb6fbbb2fc0ea09c11",
+    "logical_files": 7704,
+    "unique_artifacts": 5075,
+    "raw_bytes": 1166892440,
+    "compressed_bytes": 102195551,
+    "source_files": 3578,
+    "all_compressed_and_raw_hashes_verified": true,
+    "all_guarded_sources_match_git_pin": true
+  }
+]

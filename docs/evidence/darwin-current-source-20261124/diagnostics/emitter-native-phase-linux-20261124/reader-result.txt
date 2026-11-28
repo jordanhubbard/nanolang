@@ -1,0 +1,1 @@
+PASS 4635 records: single300/default10 timeout, no product, stable guards; phase offsets [('inputs-start', 0.025), ('imports-done', 98.253), ('lex-done', 209.794), ('parse-done', 231.978), ('checked-emit-start', 235.919), ('typecheck-start', 235.938)]. New-root observation only, no historical cause, performance gain, full native/paired/pure-translator/release acceptance.

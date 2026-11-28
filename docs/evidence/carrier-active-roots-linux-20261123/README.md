@@ -1,0 +1,29 @@
+# I retain active carrier roots and a separate native-byte failure
+
+I publish production source `71e1f22f9fcd0147deaa5d3a9e817c33b7cedc63` and the documentation correction at source pin `9e4f961f66abdc5f060dd58943e81617bcfecc0b`. My separately enabled private collector bounds registered carrier counts in the selected actual source workloads. **Live native allocated bytes still grow.** #1213, #1116, #1140, #1211 and complete default ownership remain open.
+
+I add nested expression/statement root scopes, explicit fresh-constructor roots, child-result preservation across sibling evaluation, lexical/iteration retirement and active host arguments. A checker-only result bit and live binding types identify typed record lists; ordinary INT bits grant no pointer or ownership fact. Checked named-record/union field definitions and explicit tuple-literal element facts supply list edges. Value/container/FFI layouts are unchanged. Both tracking and collection require explicit private enablement; ordinary creation and my CLI select neither.
+
+My final 48-command cohort uses fresh complete GCC13.3/as2.42 Linux ARM64 normal and ASan/UBSan providers. All expected positive commands pass. The actual ordinary Make target runs ten new source shadows, including sibling record calls, tuples, 256-iteration while and range-for bodies producing aggregates, and list returns through records/unions/tuples. Its peak registered-carrier count is7; two further64-call batches finish at7 each, with3755 destructions observed before teardown. These are carrier counters, not native-byte measurements.
+
+I preserve the complete original callback-record fixture and its six shadows, scalar fixture/seven shadows/static refusal, and typed-list source/two shadows. They pass with LSan enabled. An observer adds two64-call batches to the unchanged callback-record fixture: live carriers finish at1 after each batch, then teardown balances403 registrations as402 destructions and one transfer. Against the same providers, the unchanged tracking-only observer still grows18 ->210 ->402, destroyed=0 before teardown, and balances the same403 registrations only afterward. No original assertion or shadow is removed.
+
+Explicit caller-supplied host-list roots preserve actual push/get pointer identity through owning binding replacement and collection. The caller releases the list, clears its root declaration and collects before environment teardown. This qualifies that explicit protocol only. Automatic alias discovery, release after environment teardown, GC-shutdown ordering, async roots and complete generic/module/array typed-slot provenance remain unqualified. Low-level constructor/foreign mutation coverage also remains required before default activation.
+
+Original evaluator134/checker88 cases pass in both profiles; only those two broad sanitizer runs disable leak detection. Generated metadata, full engine67667/fault controls, storage24 injected failures, record-binding991/991 and borrowed-value neighbors pass. Focused source/ownership sanitizer controls enable LSan. I retain all four expected default failures: scalar1857bytes/78allocations, record3600/153 and both API/source typed-list use-after-free reports. The private collector does not repair the ordinary default source path.
+
+I preserve the private candidate's initial root guard on a checker-retained void list declaration, its typed-list-in-record-field ASan UAF, the bare-variable loop fixture's E034 refusal and the subsequent aggregate-valued while-result UAF. The corrected fixture keeps its checked source admission, all shadows and actual value-producing loop calls. All original source/tool images and Puck-owned inputs remain guarded.
+
+## I measure actual native allocation before accepting bounded heap
+
+A further external observer preserves the complete new fixture and all assertions, renaming only its C entry and wrapping source calls. Its positive2MiB allocation/release control succeeds. The ordinary `mallinfo2` observation adds36,864 live bytes over calls65..128; ASan's current-allocation query adds25,728. Both bounded-byte assertions fail with exit94. I retain the first observer's main-macro compile refusal and its corrected sources/products; I do not turn that refusal into execution evidence.
+
+GCStats independently grows from73,287bytes/1,437objects to92,871/1,821 in the second batch:19,584bytes/384objects. A separate retained linker-wrap/-no-pie diagnostic observes384 surviving STRING allocations from the final64 calls, totaling19,584managed bytes after source context teardown. Three128-object decoded stack groups identify two AST_STRING contexts and the owned projection in `eval_record_field_value`. Their384 sixteen-byte GC hash entries explain the other6,144bytes of the ASan delta. GC's global lists retain these objects, so clean process-end LSan does not establish their timely release. Full streams, actual allocation/release observation and addr2line results are retained.
+
+I claim neither bounded native heap nor historical timeout causation. The next source repair must retire explicitly owned STRING temporaries while preserving borrowed references, binding aliases, projections, aggregates and caller returns. I keep the original byte criterion and positive controls.
+
+I retain 1,689 records, 1,407 exact Git inputs and26 executable images; all56 development product and534 provider object/archive identities are recorded. Other development/provider bytes remain in their private roots. Hash-bound objects from the preceding source-tracking archive are reused. All native jobs here are terminal, with no Linux/Darwin reservation. Frozen roots/audits/stashes and NAS/TCC/migration pauses remain unchanged. I claim no current-source paired bootstrap, full platform or69-requirement release acceptance.
+
+```sh
+python3 docs/evidence/carrier-active-roots-linux-20261123/read_archive.py
+```

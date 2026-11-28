@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/home/jkh/.local/share/fleet-migration/puck-volume/nanolang/worktrees/darwin-publication-qkk55gi3/docs/evidence/c-repairs-linux-20261126/carrier-masks-20261127/read_carrier_masks.py", line 51, in <module>
+    key=next(k for k in passed['tools_before'] if '/storage-kinds-20261127/bin/' in k and k.endswith('/'+name))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+StopIteration

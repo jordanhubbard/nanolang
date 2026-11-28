@@ -55,7 +55,7 @@ shadow read_offset {
 }
 
 # I keep CRC arithmetic in nonnegative 32-bit values without host helpers.
-fn xor32(left: int, right: int) -> int {
+pub fn xor32(left: int, right: int) -> int {
     let mut a: int = left
     let mut b: int = right
     let mut place: int = 1

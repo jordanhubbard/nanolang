@@ -1,0 +1,860 @@
+{
+  "files": [
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/archive-allocation-policy.py",
+      "artifact": "inputs/000-archive-allocation-policy.py.gz",
+      "sha256": "aac1a935f8705a9bfd29229c895cc98490d3acd75310d0ec93bbd0bd31fd2275",
+      "bytes": 1492,
+      "compressed_sha256": "cab4d723f1eaf1774d4b67392f5327572266fdf4fa89ad78b8366e66876e78db",
+      "compressed_bytes": 713
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-candidate/baseline-expanded-vm-tests.stderr",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-candidate/baseline-expanded-vm-tests.stdout",
+      "artifact": "inputs/002-baseline-expanded-vm-tests.stdout.gz",
+      "sha256": "2feda6b24bc100e9f012920d9fea67de8d18646397d730876bd8b61dc671b42f",
+      "bytes": 6408,
+      "compressed_sha256": "6dbc3ea9c717077c3986d8fd8b6b2e16ab29f362bd2d1f48d4b241701b55c517",
+      "compressed_bytes": 2145
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-candidate/baseline-test-vm",
+      "artifact": "inputs/003-baseline-test-vm.gz",
+      "sha256": "478e90bbd7928066355a2b26311674a0a5582fd785a611d8e14f5a55d0c93026",
+      "bytes": 22745040,
+      "compressed_sha256": "edcfe356c920de5b74ad9e953d0436cb24d7b268f374b17a7636ca3f83ad1402",
+      "compressed_bytes": 6060139
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-candidate/bstring_intrinsics.inc",
+      "artifact": "inputs/004-bstring_intrinsics.inc.gz",
+      "sha256": "8a0a860716aa748b2818904aac39c61c2156a2fcfde628761eaa00e4412e9a72",
+      "bytes": 7324,
+      "compressed_sha256": "bd5fa685bdd6122304b00c8ecc6cedc350d7dcb431a7d69afa3524d9f674f61e",
+      "compressed_bytes": 2067
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-candidate/candidate-expanded-vm-tests.stderr",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-candidate/candidate-expanded-vm-tests.stdout",
+      "artifact": "inputs/002-baseline-expanded-vm-tests.stdout.gz",
+      "sha256": "2feda6b24bc100e9f012920d9fea67de8d18646397d730876bd8b61dc671b42f",
+      "bytes": 6408,
+      "compressed_sha256": "6dbc3ea9c717077c3986d8fd8b6b2e16ab29f362bd2d1f48d4b241701b55c517",
+      "compressed_bytes": 2145
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-candidate/compile-heap.stderr",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-candidate/compile-heap.stdout",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-candidate/compile-heap_cycles.stderr",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-candidate/compile-heap_cycles.stdout",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-candidate/compile-vm.stderr",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-candidate/compile-vm.stdout",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-candidate/heap.c",
+      "artifact": "inputs/013-heap.c.gz",
+      "sha256": "2519c5ae7bd0d587499fd58bf695595db9df3b679a066d7da540a66b85c96963",
+      "bytes": 41248,
+      "compressed_sha256": "51058e74e847791a013d105119f854f0487dac28cd2e628ac13c55a19c203862",
+      "compressed_bytes": 8866
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-candidate/heap.h",
+      "artifact": "inputs/014-heap.h.gz",
+      "sha256": "8f6fb5ec948fe7c587acc68e1d36b869320a06382901febf8d2191d2ae8d541b",
+      "bytes": 11483,
+      "compressed_sha256": "8b865c5b5fbe33865968430c9046cb921d5f22035f671794ef4ae573421cbb0a",
+      "compressed_bytes": 3869
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-candidate/heap.o",
+      "artifact": "inputs/015-heap.o.gz",
+      "sha256": "7518b0997a894e1f49d05660ebe596766ef8374c7fdaa90592396a41fdf22240",
+      "bytes": 162760,
+      "compressed_sha256": "1fc3d45c40e6761de1376296302535ac784bb3202eac945e77306cd3f00bb087",
+      "compressed_bytes": 55779
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-candidate/heap_cycles.c",
+      "artifact": "inputs/016-heap_cycles.c.gz",
+      "sha256": "cdfdbbe3d0edcaeec05253284fe09a7da39746929cab533ed63fdb037b6fecca",
+      "bytes": 19397,
+      "compressed_sha256": "446161f71aed58d0a9d29936788ca23a786b7c42199ab9f11614cdc5dd5a7100",
+      "compressed_bytes": 5588
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-candidate/heap_cycles.o",
+      "artifact": "inputs/017-heap_cycles.o.gz",
+      "sha256": "b2a9925474f418603d212a4f7ba490f0a2960254e455b429704422212b421d20",
+      "bytes": 82920,
+      "compressed_sha256": "5f289efc1466158dff8e8dd95d186f60dc3b853699a1a5af7ed68ec04b261d27",
+      "compressed_bytes": 25783
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-candidate/link-baseline-tests.stderr",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-candidate/link-baseline-tests.stdout",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-candidate/link-candidate-tests.stderr",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-candidate/link-candidate-tests.stdout",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-candidate/manifest.json",
+      "artifact": "inputs/022-manifest.json.gz",
+      "sha256": "354434568072da178a43f0c212267c70c85c60945799544add07dadc928d0222",
+      "bytes": 17998,
+      "compressed_sha256": "327b5fc6bb93bb1745c62033e74000a20e5ddf609f55a51f846939412ccd4a09",
+      "compressed_bytes": 2279
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-candidate/test_vm",
+      "artifact": "inputs/023-test_vm.gz",
+      "sha256": "1b58265900a74187689f122ae1cabd40fd5ed57ba6381848cb15be5526b4fdca",
+      "bytes": 22748688,
+      "compressed_sha256": "f86d00f264c667c94df93bb4deb7199570fd5711e964f8c4c08f89c2a881a39c",
+      "compressed_bytes": 6064853
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-candidate/test_vm.c",
+      "artifact": "inputs/024-test_vm.c.gz",
+      "sha256": "9e9d423e33718d3139cfb621221af129823c92a386971ba245408a4ad4491fff",
+      "bytes": 266283,
+      "compressed_sha256": "5e877358bb58b2fea526a08b5267c70e7325fe71d01a171e5767d273b36a3bb0",
+      "compressed_bytes": 47657
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-candidate/vm.c",
+      "artifact": "inputs/025-vm.c.gz",
+      "sha256": "58544458900f6d8bd8166453333a79322bc2dce8c72bea16171f7f6196183bb3",
+      "bytes": 272951,
+      "compressed_sha256": "a087f29a494caec0ad2c99f9c689834ccfcad838073f3e325cec478163bcd357",
+      "compressed_bytes": 49414
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-candidate/vm.o",
+      "artifact": "inputs/026-vm.o.gz",
+      "sha256": "444e1f4c61a5896475d1fa14d8690b0790ca2c0f1b8b3a600bbd93c7b4d444a8",
+      "bytes": 1238016,
+      "compressed_sha256": "20b87a475df7751a1998bb869eebf7eee78bf660627095a9d62297d790dbda41",
+      "compressed_bytes": 384927
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-controls/test_heap_allocation_failure_policy.c",
+      "artifact": "inputs/027-test_heap_allocation_failure_policy.c.gz",
+      "sha256": "75ede60e41d7ccb084f7d0d999a34986b6141f04183e36f9afde6cb9a144ccf6",
+      "bytes": 19854,
+      "compressed_sha256": "55391b3f52a4bdd3fcd38cbf84724c5853604a14836e4ca0d6e2661b9c5fcdfb",
+      "compressed_bytes": 3921
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-controls/test_vm.c",
+      "artifact": "inputs/028-test_vm.c.gz",
+      "sha256": "01a2ed6812d0717c9c3c50ffae0cd8250434a6e55a38bfc7b471520c3b918cf1",
+      "bytes": 268252,
+      "compressed_sha256": "7faae440cf02356be94db87c24311f86bb95081376c51d84962f1cd3aee0ad63",
+      "compressed_bytes": 48013
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-generation/actual-complete-generation.stderr",
+      "artifact": "inputs/029-actual-complete-generation.stderr.gz",
+      "sha256": "da46181971750d2c1643bc4334bd223003369d4593075e59caac8f2c533f5cd3",
+      "bytes": 2997,
+      "compressed_sha256": "07187ece2dcfdc2681e625dd2e7652028e711c166195814fcf93eff72d912238",
+      "compressed_bytes": 1188
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-generation/actual-complete-generation.stdout",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-generation/compile-strict-vm.stderr",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-generation/compile-strict-vm.stdout",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-generation/derived-stage2.nvm",
+      "artifact": "inputs/033-derived-stage2.nvm.gz",
+      "sha256": "6ca86505d18d807aeb97b371f6049e868d92865736d7036fcbc03be769199870",
+      "bytes": 1032696,
+      "compressed_sha256": "cecc69e027844c008d7b7027805adf5f27c01b7aeb5a4fc93d7440c01273c01b",
+      "compressed_bytes": 289288
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-generation/host-comparison-setup-refusal.txt",
+      "artifact": "inputs/034-host-comparison-setup-refusal.txt.gz",
+      "sha256": "904232278e282c33d2353f26ecf6a62fa207e75fac67d055be40732f93d2d7f1",
+      "bytes": 320,
+      "compressed_sha256": "4adda1eeed98d2d7fce54b0a73e2d55bae69df0d5559b49d7ee54c0238536d7c",
+      "compressed_bytes": 209
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-generation/host-comparison.json",
+      "artifact": "inputs/035-host-comparison.json.gz",
+      "sha256": "2f803dee41af055eea342be94ee12f7ec43a89ac308bcd7c7e7e44a4c755daad",
+      "bytes": 4013,
+      "compressed_sha256": "d2455c4a4d979ac1fbdd92de6b6399c4eba2364542f03ba77a7050d91679306b",
+      "compressed_bytes": 853
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-generation/host-path-analysis.json",
+      "artifact": "inputs/036-host-path-analysis.json.gz",
+      "sha256": "3c9dca9d182ad9ec480ce7e4ea0cd51f357b523b7cbbbdbdde7620efa7a71e75",
+      "bytes": 2016,
+      "compressed_sha256": "797b836181b3fb2574e5013234a55cf931199257e2050cc745b9a43a55c73857",
+      "compressed_bytes": 784
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-generation/link-candidate-vm.stderr",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-generation/link-candidate-vm.stdout",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-generation/link-strict-tests.stderr",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-generation/link-strict-tests.stdout",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-generation/manifest.json",
+      "artifact": "inputs/041-manifest.json.gz",
+      "sha256": "bba69ceb4eb221f911a7fb4413761fa77ada4a4e87f9e2509fac4b89765bc2f8",
+      "bytes": 17325,
+      "compressed_sha256": "af6c14aa4856a9bb3bfa81e0f48f0dd840fa35224c7a7d7406c5c8b3320cf2ec",
+      "compressed_bytes": 2737
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-generation/nano_vm",
+      "artifact": "inputs/042-nano_vm.gz",
+      "sha256": "b1b48a1536cfa9678c7984515de3427920c4e52ba9d3a5483cd45e9af4bf336c",
+      "bytes": 25343680,
+      "compressed_sha256": "f90805483d39ccbe7c7a8c55f0af8848845fd70b3a37619491c7be0a17643443",
+      "compressed_bytes": 7306269
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-generation/phases.jsonl",
+      "artifact": "inputs/043-phases.jsonl.gz",
+      "sha256": "fab158608348d2f48467b1e95d6689f2f629e137acc35eb38a7727f3041ef7ad",
+      "bytes": 5946,
+      "compressed_sha256": "e0abf2048e235b45a1de9569b111de1c097ab1ee6fcd03fedbf9d1262502b0c4",
+      "compressed_bytes": 1084
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-generation/raw-stage-difference.diff",
+      "artifact": "inputs/044-raw-stage-difference.diff.gz",
+      "sha256": "6e3004753d309fe2e3ef05641e78708d0ccb5fc0d5bcc3ad8c382578b441bf09",
+      "bytes": 12018,
+      "compressed_sha256": "340d8077e2c2dfb5486d223ebededbae33f0429b7bfa0719dc86154594557b2a",
+      "compressed_bytes": 1306
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-generation/stage1.nasm",
+      "artifact": "inputs/045-stage1.nasm.gz",
+      "sha256": "92d161de416e01bfef6ba9e9b5068aa3ffc65c3f4fffe5c3d1854ef02d11cf90",
+      "bytes": 3032236,
+      "compressed_sha256": "63f778328e5284d72d90576a1a226f195190116ed9c91fbcf99adea5e2f6131b",
+      "compressed_bytes": 380838
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-generation/stage2.nasm",
+      "artifact": "inputs/046-stage2.nasm.gz",
+      "sha256": "3841dc3388cb50d501632756375dfd3473bafb321f9bc1faa3e4be02a524224a",
+      "bytes": 3030583,
+      "compressed_sha256": "e0d5486db0f6c951c9f8da3694df480e5556629c2ca05e8518c18a2b8a7a36b9",
+      "compressed_bytes": 380165
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-generation/strict-expanded-vm-tests.stderr",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-generation/strict-expanded-vm-tests.stdout",
+      "artifact": "inputs/002-baseline-expanded-vm-tests.stdout.gz",
+      "sha256": "2feda6b24bc100e9f012920d9fea67de8d18646397d730876bd8b61dc671b42f",
+      "bytes": 6408,
+      "compressed_sha256": "6dbc3ea9c717077c3986d8fd8b6b2e16ab29f362bd2d1f48d4b241701b55c517",
+      "compressed_bytes": 2145
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-generation/test_vm",
+      "artifact": "inputs/049-test_vm.gz",
+      "sha256": "346a9b124e48afb67ce34c643413ec580e5a896117bb62bec9f634a5600abe43",
+      "bytes": 22748688,
+      "compressed_sha256": "3c94bc69e39a1fa62c56d3e318036006b6b9a7bdc2af1d3fc564af6bb6063254",
+      "compressed_bytes": 6064695
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-generation/verify-complete-generation.stderr",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-generation/verify-complete-generation.stdout",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-generation/vm-strict.o",
+      "artifact": "inputs/052-vm-strict.o.gz",
+      "sha256": "8238f608cbfd812c837e1152593d5b5b9a3bc63c912f81b2204442f9f18bcaee",
+      "bytes": 1238048,
+      "compressed_sha256": "446294613a79f8f602e764856022841516681f0721dbb8836d70ad832e81d870",
+      "compressed_bytes": 384964
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-sanitizers/compile-heap.stderr",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-sanitizers/compile-heap.stdout",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-sanitizers/compile-heap_cycles.stderr",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-sanitizers/compile-heap_cycles.stdout",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-sanitizers/compile-value.stderr",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-sanitizers/compile-value.stdout",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-sanitizers/compile-vm.stderr",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-sanitizers/compile-vm.stdout",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-sanitizers/expanded-vm-tests.stderr",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-sanitizers/expanded-vm-tests.stdout",
+      "artifact": "inputs/062-expanded-vm-tests.stdout.gz",
+      "sha256": "538db9f8f3d12a845b4edd6b849fa5ed7a03f0e86bbf3ee1807e7af421e273f9",
+      "bytes": 6460,
+      "compressed_sha256": "f4dd69ff26e5b77c6a328ff761dbd8a52ec542bf70998c9e39ac8232b554e69c",
+      "compressed_bytes": 2163
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-sanitizers/heap.o",
+      "artifact": "inputs/063-heap.o.gz",
+      "sha256": "f2dc9482034aec38bbcdb788008420b1e1a718199fd2ddc1c71b57d0a2a59f64",
+      "bytes": 563904,
+      "compressed_sha256": "20f01009288d902f0070566b0a6a93553b400d049b3a8de86b15043cfc30a5cc",
+      "compressed_bytes": 123907
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-sanitizers/heap_cycles.o",
+      "artifact": "inputs/064-heap_cycles.o.gz",
+      "sha256": "94ae0253c65608b0b7243bcad69adbf15bf367adce3dc30eb51a3eaebe7ecff7",
+      "bytes": 143064,
+      "compressed_sha256": "b143bb717750f0a2375e5e2f8c8ecd03ed486c6b0b3b2cdc08bcbd3b12eba3a5",
+      "compressed_bytes": 36453
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-sanitizers/link-expanded-vm-tests.stderr",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-sanitizers/link-expanded-vm-tests.stdout",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-sanitizers/link-original-allocation-failures.stderr",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-sanitizers/link-original-allocation-failures.stdout",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-sanitizers/link-policy-allocation-failures.stderr",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-sanitizers/link-policy-allocation-failures.stdout",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-sanitizers/manifest.json",
+      "artifact": "inputs/071-manifest.json.gz",
+      "sha256": "afa15bd397b14756452145f897c831a29a7019bcaab9a1ec7f87234591cdb5fe",
+      "bytes": 27495,
+      "compressed_sha256": "ff2e3570e35b67a659667d5804403a832198ddbbf59377559faafe1e1fe82367",
+      "compressed_bytes": 2293
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-sanitizers/original-allocation-failures",
+      "artifact": "inputs/072-original-allocation-failures.gz",
+      "sha256": "e4ec9e6c672608c0f656ef11be50d22c68ea02d80962818d4e7284e5258c7570",
+      "bytes": 23754680,
+      "compressed_sha256": "35d9beceddb95df2ffa31539fe02a13de10795c65a1f6f37a0cf1cdb3d99e9f9",
+      "compressed_bytes": 6112226
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-sanitizers/original-allocation-failures.stderr",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-sanitizers/original-allocation-failures.stdout",
+      "artifact": "inputs/074-original-allocation-failures.stdout.gz",
+      "sha256": "ab536ae9c762bec566d72a282f1fb06912bdfe629bdff4dffa73d4c87acdd080",
+      "bytes": 62,
+      "compressed_sha256": "6d2c7a2da7af3d9e94b63aeee07ef236059c7892800e02f7f916817acfa1ac47",
+      "compressed_bytes": 78
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-sanitizers/policy-allocation-failures",
+      "artifact": "inputs/075-policy-allocation-failures.gz",
+      "sha256": "fcc10ad385bca30509b50a653518f5e006af93b798800f4350faa7a50df26407",
+      "bytes": 23754048,
+      "compressed_sha256": "daee6d677d24ebdeeb8ab25f88afb8663f66fccd429ab982c6a249d6e4fedac6",
+      "compressed_bytes": 6112156
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-sanitizers/policy-allocation-failures.stderr",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-sanitizers/policy-allocation-failures.stdout",
+      "artifact": "inputs/074-original-allocation-failures.stdout.gz",
+      "sha256": "ab536ae9c762bec566d72a282f1fb06912bdfe629bdff4dffa73d4c87acdd080",
+      "bytes": 62,
+      "compressed_sha256": "6d2c7a2da7af3d9e94b63aeee07ef236059c7892800e02f7f916817acfa1ac47",
+      "compressed_bytes": 78
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-sanitizers/test_vm",
+      "artifact": "inputs/078-test_vm.gz",
+      "sha256": "db95479555f04d74a6209b199cbd93179b8ee93ac71c4c51ea887c5bef56c0da",
+      "bytes": 26061312,
+      "compressed_sha256": "46bd6f7680a1355b11afee487d8143d90a6e11c62cd10d62ba2964b7b4916e3f",
+      "compressed_bytes": 6648953
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-sanitizers/value.o",
+      "artifact": "inputs/079-value.o.gz",
+      "sha256": "40278573e41f9f0876326da0335fd083a236e021f530ea011dc7d7119f5ad672",
+      "bytes": 100952,
+      "compressed_sha256": "63afcb2c27abdfe4ea887e5ec5985a5ea4155c47eb09130fcbb2fb037c39b036",
+      "compressed_bytes": 24430
+    },
+    {
+      "path": ".test_output/cycle-allocation-policy-sanitizers/vm.o",
+      "artifact": "inputs/080-vm.o.gz",
+      "sha256": "4270193e8a8237bf78f404868bb928e14949dc22fff2bd1e2cdf068034b25281",
+      "bytes": 2977592,
+      "compressed_sha256": "1829fe78b0a8d066ad5bbe6fc782eb68a54df33818fe2620f78bfd3fd7f7dbf9",
+      "compressed_bytes": 641377
+    },
+    {
+      "path": ".test_output/cycle-inline-generation/actual-complete-generation.stderr",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-inline-generation/actual-complete-generation.stdout",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-inline-generation/candidate-collector.c",
+      "artifact": "inputs/083-candidate-collector.c.gz",
+      "sha256": "4a7c2a4796470f66a2390b928f744ebe36d64fb224dd317deb1cfd2df7d8925a",
+      "bytes": 17474,
+      "compressed_sha256": "2a6c548b9f5c0266965a1bf863dd363c12c8834792aab8326c39e9168f3f827c",
+      "compressed_bytes": 5131
+    },
+    {
+      "path": ".test_output/cycle-inline-generation/link-candidate-vm.stderr",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-inline-generation/link-candidate-vm.stdout",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-inline-generation/manifest.json",
+      "artifact": "inputs/086-manifest.json.gz",
+      "sha256": "85ab58601da758775933dcda7ca4bd2b36f2c4e8c9a0abad26cbcb07ecf89e36",
+      "bytes": 8063,
+      "compressed_sha256": "6f6340e5a5b0992da930b4a6152ce839237f90b9c1431388ed14b38ff64b35d2",
+      "compressed_bytes": 2049
+    },
+    {
+      "path": ".test_output/cycle-inline-generation/nano_vm",
+      "artifact": "inputs/087-nano_vm.gz",
+      "sha256": "113b35c59dc5d9d94406b6c644cbd985d56539d99c0443a3a5a4d1bb12d8743e",
+      "bytes": 25331888,
+      "compressed_sha256": "001350fb333f95287428b7980b5f14976a45768342de399a97694332aef612b9",
+      "compressed_bytes": 7301394
+    },
+    {
+      "path": ".test_output/cycle-inline-generation/phases.jsonl",
+      "artifact": "inputs/088-phases.jsonl.gz",
+      "sha256": "496687636117723f65a6d0bf5c578777a09864247171c0c9135152ce9bbe8d1e",
+      "bytes": 1191,
+      "compressed_sha256": "b738f94246bb8653c0b017a2dc74eb458653b622416721f6323424191b4813ee",
+      "compressed_bytes": 371
+    },
+    {
+      "path": ".test_output/cycle-leaf-graph-generation/actual-complete-generation.stderr",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-leaf-graph-generation/actual-complete-generation.stdout",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-leaf-graph-generation/candidate-collector.c",
+      "artifact": "inputs/091-candidate-collector.c.gz",
+      "sha256": "18d96889342f91fe9edee67e3feeb28813b3fd3d79dd0b90dc6b36d9793c9b1e",
+      "bytes": 17929,
+      "compressed_sha256": "0bd059a24abc0e2698e1c9fa73de6da353007128dd821263fc175bc58ea7e94b",
+      "compressed_bytes": 5242
+    },
+    {
+      "path": ".test_output/cycle-leaf-graph-generation/link-candidate-vm.stderr",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-leaf-graph-generation/link-candidate-vm.stdout",
+      "artifact": "inputs/001-baseline-expanded-vm-tests.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-leaf-graph-generation/manifest.json",
+      "artifact": "inputs/094-manifest.json.gz",
+      "sha256": "f1ca2333f0787584a741a52f54ba3e8d69874776aedd161a4cbf563a23c8ce5d",
+      "bytes": 8109,
+      "compressed_sha256": "4a7fe501a024d19f1b215772abb9211ab43d80e57fdc96c03f011da30fa209c2",
+      "compressed_bytes": 2065
+    },
+    {
+      "path": ".test_output/cycle-leaf-graph-generation/nano_vm",
+      "artifact": "inputs/095-nano_vm.gz",
+      "sha256": "c04e04b4492d6de85f1ebfc2f4916da7b0c63d62a51c361af42ee1349efee39a",
+      "bytes": 25326480,
+      "compressed_sha256": "a923d0d1bd845ffbfceec95d6b90a82d18e6f7b0c2813dfe7e46147d870745b9",
+      "compressed_bytes": 7301100
+    },
+    {
+      "path": ".test_output/cycle-leaf-graph-generation/phases.jsonl",
+      "artifact": "inputs/096-phases.jsonl.gz",
+      "sha256": "67c39150e9c8cdbb65805cea9b87a03fb7e92a503f6d7490b00b9e405f684c9d",
+      "bytes": 885,
+      "compressed_sha256": "4b833a363a20db9b741d4050303c82f76b74cb897ef6e6a5a7bed3a1f16b7931",
+      "compressed_bytes": 306
+    },
+    {
+      "path": ".test_output/cycle-test-inputs.log",
+      "artifact": "inputs/097-cycle-test-inputs.log.gz",
+      "sha256": "b063ba3f75ba57a1a424c0ea91220dea73c666fdf0b45f0b09801ebada8de8c5",
+      "bytes": 3957,
+      "compressed_sha256": "b3375a84982e7d00a71426b37bc14caf1f659c9053f4a7fef1d7ccec732ff90f",
+      "compressed_bytes": 1180
+    },
+    {
+      "path": ".test_output/prepare-cycle-allocation-policy.py",
+      "artifact": "inputs/098-prepare-cycle-allocation-policy.py.gz",
+      "sha256": "0b59ba239f944fe09534619a7dd255e0ff4ceb305f35c9a99b6c4449885b4cdf",
+      "bytes": 7066,
+      "compressed_sha256": "3726291d6647934b5e0a0cf8702b7329a2d51dce47954acfc53e7d644c36542d",
+      "compressed_bytes": 2015
+    },
+    {
+      "path": ".test_output/run-cycle-allocation-policy-generation.log",
+      "artifact": "inputs/099-run-cycle-allocation-policy-generation.log.gz",
+      "sha256": "9afc93fbc5963baac6396857b5f47f1bf94fba73c97ff8a9fc83b2acec6eb732",
+      "bytes": 899,
+      "compressed_sha256": "694eea47c42134b247664c7ecb9e3d37121d81547e9ac27d029b5993517b632c",
+      "compressed_bytes": 326
+    },
+    {
+      "path": ".test_output/run-cycle-allocation-policy-generation.py",
+      "artifact": "inputs/100-run-cycle-allocation-policy-generation.py.gz",
+      "sha256": "6c26bdd6402540f9bf9697cd173b838905d8059a6a230f2ae63713913c87b36f",
+      "bytes": 4434,
+      "compressed_sha256": "245b400c0b523d33780f92d61f023bf2a0acf5dea39ceb66c2d81fe946b591c4",
+      "compressed_bytes": 2010
+    },
+    {
+      "path": ".test_output/run-cycle-allocation-policy-regressions.log",
+      "artifact": "inputs/101-run-cycle-allocation-policy-regressions.log.gz",
+      "sha256": "ecc06e78c82ad62420f1ba1bdc8d4c78cb336a3cab420b0883ffd7202bcb85dd",
+      "bytes": 126,
+      "compressed_sha256": "029da47950d1f50e3b6561141e19ce748c245ee37a54ca8aa6830e74b07750c8",
+      "compressed_bytes": 118
+    },
+    {
+      "path": ".test_output/run-cycle-allocation-policy-regressions.py",
+      "artifact": "inputs/102-run-cycle-allocation-policy-regressions.py.gz",
+      "sha256": "93ef932ec1b47457da3930a2b1b695363ad90828b46ce81125823bde11cb4746",
+      "bytes": 2341,
+      "compressed_sha256": "e19e7060754b7e28620c369b3c4946d18e73220d38ac1ecd1c6a1ce4b852e55e",
+      "compressed_bytes": 1100
+    },
+    {
+      "path": ".test_output/run-cycle-policy-sanitizers.log",
+      "artifact": "inputs/103-run-cycle-policy-sanitizers.log.gz",
+      "sha256": "4141d75e9f99f3cd8e4468dc488d5257487a2a798e7ba4be70e51c380dd4264e",
+      "bytes": 159,
+      "compressed_sha256": "cfc8f104e210bf6cb5be57b8c755f6009a894a84eb2603bacab4355a170f3127",
+      "compressed_bytes": 143
+    },
+    {
+      "path": ".test_output/run-cycle-policy-sanitizers.py",
+      "artifact": "inputs/104-run-cycle-policy-sanitizers.py.gz",
+      "sha256": "018485b45f48c2608f3962ec5dadef2185fd570d552c21a1120d24cb6a978f51",
+      "bytes": 2708,
+      "compressed_sha256": "c07584618656fe88e7f737466fce2df8b168fd54dc5e13f730d18a8f252700ed",
+      "compressed_bytes": 1272
+    },
+    {
+      "path": ".test_output/vm-profile-inputs.log",
+      "artifact": "inputs/105-vm-profile-inputs.log.gz",
+      "sha256": "58b5213028f51825da963c6ddb22d1b55a969b14ee6ee6622caa2cab5e3fcddc",
+      "bytes": 4165,
+      "compressed_sha256": "1329e3de6b5161fc80f31b34711088d02dd54f5f33e99154a8266c9df8c92b7d",
+      "compressed_bytes": 1224
+    },
+    {
+      "path": "Makefile.gnu",
+      "artifact": "inputs/106-Makefile.gnu.gz",
+      "sha256": "1b76b75cb299ca00da737a02210da0dc3130ca676fccfe0d806aecefb0712fb6",
+      "bytes": 432287,
+      "compressed_sha256": "fa04e02ea01ee9e595b6ca736748f3370357045051adac5b06df942a27276dc4",
+      "compressed_bytes": 72982
+    }
+  ]
+}

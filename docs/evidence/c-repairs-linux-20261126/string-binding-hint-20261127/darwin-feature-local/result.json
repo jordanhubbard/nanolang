@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "make",
+    "-f",
+    "Makefile.gnu",
+    "test-env-string-binding-hint"
+  ],
+  "head": "7123cb885d7d792261973e1f64b38131312a38ec",
+  "exit": 0,
+  "seconds": 2.453006699011894,
+  "timeout": 120,
+  "darwin_execution": false
+}

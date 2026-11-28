@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "records": 228,
+  "regular_files": 689872,
+  "entries": 699686,
+  "runtime_operations": 17,
+  "post_reclaim_operations": 2,
+  "allocated_bytes_reclaimed": 37026091008,
+  "shared_large_records_checked": false,
+  "scope": "I verify this exact migration only; no current-source release acceptance follows."
+}

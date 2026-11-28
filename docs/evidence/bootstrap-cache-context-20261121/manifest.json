@@ -1,0 +1,124 @@
+{
+  "files": [
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/archive-cache-context.py",
+      "artifact": "inputs/000-archive-cache-context.py.gz",
+      "sha256": "a4cc2b49b494869a053fb85358b8cd2576bd444008ee35815f2a54de548e0bb7",
+      "bytes": 1330,
+      "compressed_sha256": "013dc96bdbd0f78014627d5fd850b205f350e7a54d50fca528890bd5c9abdef4",
+      "compressed_bytes": 686
+    },
+    {
+      "path": ".test_output/bootstrap-cache-context-baseline.log",
+      "artifact": "inputs/001-bootstrap-cache-context-baseline.log.gz",
+      "sha256": "94323edf58a6d45f1875d5c294feb2be1215469c1b011c18d365c10a2b4f8812",
+      "bytes": 3191,
+      "compressed_sha256": "64b842cf1b64054806e46edc18aa346fe5a53bee687a1ff083c00d7d3ce9a30e",
+      "compressed_bytes": 568
+    },
+    {
+      "path": ".test_output/bootstrap-cache-context-qualified.log",
+      "artifact": "inputs/002-bootstrap-cache-context-qualified.log.gz",
+      "sha256": "60878b5f45b6b84cba15d1417d24f51a510e0cf015e4c195f696d9e408d0784f",
+      "bytes": 2571,
+      "compressed_sha256": "22cb9fab48559c70a72b2534a15e3e85bc6579a9ade6aa83aebdbce16ea0984a",
+      "compressed_bytes": 572
+    },
+    {
+      "path": ".test_output/bootstrap-cache-context-regressions.log",
+      "artifact": "inputs/003-bootstrap-cache-context-regressions.log.gz",
+      "sha256": "bd56a64b4d3753e6e937a19734953d05bc09f5c79283b0530c9901ed7b138727",
+      "bytes": 7213,
+      "compressed_sha256": "77bde0867d5ec40ef1d1f5034d8aa6eebceab6ae0ea7819b8d29ffd0eb1c6cb7",
+      "compressed_bytes": 1337
+    },
+    {
+      "path": ".test_output/cycle-policy-configured-generation/cache-context.nano",
+      "artifact": "inputs/004-cache-context.nano.gz",
+      "sha256": "39605ac65556763edbd6cbc3a09b9b122c6603fd50b36a3f1cab93b8f2860013",
+      "bytes": 220,
+      "compressed_sha256": "e5476e0e21bcb2b8c4c17886b20c687c6ea725a5c7eadf4c68510565026de274",
+      "compressed_bytes": 165
+    },
+    {
+      "path": ".test_output/cycle-policy-configured-generation/configured-context-probe.stderr",
+      "artifact": "inputs/005-configured-context-probe.stderr.gz",
+      "sha256": "c5412ce649fd93b2fb5e55fad2c1abec2468e0a212d5411faa76596b633c1fc5",
+      "bytes": 65,
+      "compressed_sha256": "132a9d939b82cf0957d86f27a26feec41e9452d28e316d3edc75462054f296a6",
+      "compressed_bytes": 78
+    },
+    {
+      "path": ".test_output/cycle-policy-configured-generation/configured-context-probe.stdout",
+      "artifact": "inputs/006-configured-context-probe.stdout.gz",
+      "sha256": "1d159e2adc6a9aa76742fa4f32e95d066a9fc0114428c812922dc7bff1a68915",
+      "bytes": 249,
+      "compressed_sha256": "5175b120e6da9a5052bfef4efbf2d4c0ca70a26c81bd8e2fba6d6881509d9319",
+      "compressed_bytes": 174
+    },
+    {
+      "path": ".test_output/cycle-policy-configured-generation/manifest.json",
+      "artifact": "inputs/007-manifest.json.gz",
+      "sha256": "a103e5d28b6a959f82f524ae6c7dd51e84f8e627fc8156c9f06d9994b4595f36",
+      "bytes": 2190,
+      "compressed_sha256": "26009d27e12ca80d674a539c391f254d0f8b8c48015c662e1ccb752db9eb38a3",
+      "compressed_bytes": 1022
+    },
+    {
+      "path": ".test_output/cycle-policy-configured-generation/retained-host-cache-probes.log",
+      "artifact": "inputs/008-retained-host-cache-probes.log.gz",
+      "sha256": "88518f0c942183de721a1d3f1f23730a011cb6040b22c11eda1789266bddb62b",
+      "bytes": 98038,
+      "compressed_sha256": "40220b0c3c5a23b6f160bc5e1294e56e3332ff59f9f7e617a3bcf8d7ffb01c40",
+      "compressed_bytes": 649
+    },
+    {
+      "path": ".test_output/cycle-policy-configured-generation/retained-unexpected-native-compiler",
+      "artifact": "inputs/009-retained-unexpected-native-compiler.gz",
+      "sha256": "6b96093b3374a51e1f365b08a8233d385ebdd7238b13c29c3fd83d3dc8d5a3f6",
+      "bytes": 500,
+      "compressed_sha256": "6aa1362c03780fdefe7c256780959978b8e66b7c1ef960941ab2b3936f40624b",
+      "compressed_bytes": 296
+    },
+    {
+      "path": ".test_output/run-cycle-policy-configured-generation.py",
+      "artifact": "inputs/010-run-cycle-policy-configured-generation.py.gz",
+      "sha256": "c8856735c0409548d3e24efc5df9d66111fbfbd5d6efd85195876cd5d0129d1b",
+      "bytes": 3888,
+      "compressed_sha256": "38709d6f67754943e8bf9fd090bce31b5a01fca0b6060409f6dbb375fbc21c25",
+      "compressed_bytes": 1714
+    },
+    {
+      "path": "Makefile.gnu",
+      "artifact": "inputs/011-Makefile.gnu.gz",
+      "sha256": "12082701a1c429345b73d3cbf8adfd67a04077f487bac3e5bf67a018ee37148a",
+      "bytes": 431637,
+      "compressed_sha256": "1410a1676c127344d07aef0afd452675f2b61f4884978d5f7685d2fbd8bed7bb",
+      "compressed_bytes": 72946
+    },
+    {
+      "path": "scripts/bootstrap_nanoisa.py",
+      "artifact": "inputs/012-bootstrap_nanoisa.py.gz",
+      "sha256": "bc0e9d48d3bb5d18a966c6897a44f8d6050dc2b18cbc67ca58096c2bdc135eb8",
+      "bytes": 15442,
+      "compressed_sha256": "9a6be8a3ef8c8ee8b2fd3b6492fa1817930b806e692e0be2373dc3a70dca2342",
+      "compressed_bytes": 4565
+    },
+    {
+      "path": "tests/test_bootstrap_messages.py",
+      "artifact": "inputs/013-test_bootstrap_messages.py.gz",
+      "sha256": "c0374798c3d4182403b6aee61f10dea2957432de747182c2618bbea6d1234bff",
+      "bytes": 4653,
+      "compressed_sha256": "78c10a8aa263971fa9d83fd6ba80a09007804edc450cc8243cabed617c3ee312",
+      "compressed_bytes": 1666
+    },
+    {
+      "path": "tests/test_bootstrap_nanoisa.py",
+      "artifact": "inputs/014-test_bootstrap_nanoisa.py.gz",
+      "sha256": "0477c6b41f4f39649a3ebda7cb282528e4594796567abf72e01de5595d95fbda",
+      "bytes": 13635,
+      "compressed_sha256": "fa4625e403f2a200fa83bb2f06ad9cb2e8fbf6af83f942b681364ee74d6be830",
+      "compressed_bytes": 3312
+    }
+  ]
+}

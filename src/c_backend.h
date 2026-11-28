@@ -26,7 +26,10 @@
  *
  * Profile boundaries
  * ──────────────────
- *   I support direct declared calls. I refuse arrays, first-class callable values,
+ *   I support direct declared calls and complete checked import graphs through
+ *   c_backend_emit_graph. I sequence typed arguments before invocation and
+ *   preserve the original declaration owner for private helpers and globals.
+ *   I refuse arrays, first-class callable values,
  *   expression/local-bound callees, record spread, for loops, tuple values, effects, async/await
  *   and try propagation. Other list/map/binary-string/opaque/row/borrow/generic
  *   or unresolved value representations receive checked refusal. By-value record
@@ -57,6 +60,24 @@ typedef struct {
     bool static_strings; /* Compatibility alias: both values retain static literal storage. */
     bool verbose;
 } CBOptions;
+
+/* I borrow checked declarations and their original owner programs for one
+ * emission. My resolver must return an exact member, never a signature guess.
+ * The original root-only APIs below retain their layout and behavior. */
+typedef struct {
+    ASTNode *declaration;
+    ASTNode *owner;
+} CBSourceDeclaration;
+typedef struct {
+    ASTNode *entry_owner;
+    const CBSourceDeclaration *declarations;
+    size_t count;
+    void *context;
+    ASTNode *(*resolve_function)(void *context, ASTNode *owner, const char *name);
+} CBSourceGraph;
+int c_backend_emit_graph(ASTNode *root, const CBSourceGraph *graph,
+                          const char *output_path, const char *source_file,
+                          const CBOptions *opts);
 
 /* Emit C source to a file path.
  * Returns 0 on success, non-zero on error.

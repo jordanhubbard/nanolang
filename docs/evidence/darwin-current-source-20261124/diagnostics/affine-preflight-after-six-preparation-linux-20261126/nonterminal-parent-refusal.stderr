@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/var/tmp/nanolang-preflight-after-six-five-20261126-szx5u9d2/setup.py", line 17, in <module>
+    assert six_parent['terminal'] and six_parent.get('accepted_component') and six_parent.get('all_guards_match'), 'I require accepted terminal combined six-method evidence before source preparation'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: I require accepted terminal combined six-method evidence before source preparation

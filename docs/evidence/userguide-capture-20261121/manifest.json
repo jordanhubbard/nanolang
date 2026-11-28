@@ -1,0 +1,35 @@
+{
+  "head": "bdffa4cccff93ed5b6870aa2f74289f94f2643ee",
+  "run": 44968411501,
+  "job": 137042552363,
+  "files": [
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/pr1168-guide-build-failed.log",
+      "artifact": "inputs/00-pr1168-guide-build-failed.log.gz",
+      "sha256": "2f85653114317225a838258d3e89e23703f34d7a4963872ceae83996e7266668",
+      "compressed_sha256": "485ee09a66f84481b988523bd23ca968dadf54890daa87cbc17201ceabb02229",
+      "bytes": 60058
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/pr1168-guide-build-full.log",
+      "artifact": "inputs/01-pr1168-guide-build-full.log.gz",
+      "sha256": "386b46324ad8dc3585e711be9ee2ae887fc63d0fb6ffca70584ebf5085c5f5c8",
+      "compressed_sha256": "0542bf927049903e99cbe3f3b07fb9611b9f2277bd6698ba10ca3130cc5b47a8",
+      "bytes": 85599
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/pr1168-exact-head-checks.json",
+      "artifact": "inputs/02-pr1168-exact-head-checks.json.gz",
+      "sha256": "ced5cd930982cba70c9caffe7fc761865fb83b5fe69ea4e44e6513cb2f6994d4",
+      "compressed_sha256": "c7fbd5d9b7f1e667543ef3bf473435f94c773e03effc3ae8405cc408b75cf4d2",
+      "bytes": 1527
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.github/workflows/userguide_pages.yml",
+      "artifact": "inputs/03-userguide_pages.yml.gz",
+      "sha256": "e71b28f0b34a18649e3fea645251bb2ba1633cb767a08ee36fb9cd1e22fd29a8",
+      "compressed_sha256": "4afb09bb751681cd61efbb9a5f8fa85d589fd8f1564e11880784e12eb76d8d14",
+      "bytes": 2338
+    }
+  ]
+}

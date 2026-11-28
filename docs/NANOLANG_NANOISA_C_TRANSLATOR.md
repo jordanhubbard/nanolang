@@ -290,12 +290,11 @@ Core references, callback shapes and layout DAGs have already been checked.
 Ordinary import construction adds no result-count restriction beyond the
 existing wire contract; I preserve that distinction from function conversion.
 
-These conversion checks run for a present passive or ownership payload. A core
-module without extension payloads retains its existing nonconversion decisions.
-Service sections and private array/map profiles still return pending until
-their complete profile checks are implemented. I do not silently accept
-them through the passive path or reinterpret successful deserialization as
-instruction/host execution authority.
+These conversion checks run for a present passive, ownership or shared service
+payload. A core module without extension payloads retains its existing
+nonconversion decisions. Shared service decoding now follows the boundary
+below; private ARRAY/MAP profiles retain their quantified pending decisions.
+Successful deserialization does not establish instruction/host execution authority.
 
 My [paired passive-module evidence](evidence/nanolang-passive-modules-20261120/README.md)
 matches 2240 complete module decisions and exact claim bytes per route on
@@ -303,6 +302,77 @@ Linux/Darwin, including 472 explicit expectations and four unchanged producer
 modules. The updated 5489-case decoder gate and prior passive/call gates pass;
 four profiles remain pending. I retain the missing-PyYAML setup failure and
 the corrected system-Python schema result separately.
+
+## My reusable conversion facts
+
+`module.convert` accepts my decoded `ModuleView` and returns a `Conversion`.
+I reuse the existing constant identity, narrow-carrier, layout, routing,
+service, ownership-declaration and passive checks in their existing order.
+I expose the checked code bytes, exact string bytes, canonical retained
+layouts, layout-kind counts, function spans and parameter/result projections
+through its `owned.Module` model. A refusal retains its status and returns an
+empty model. My existing `decode_core` decision order stays unchanged.
+
+A caller may request conversion even when an ordinary module has no extension
+sections. This catches conversion-only refusals that descriptive core decoding
+intentionally does not perform. Conversion still accepts, for example, an empty
+result-bearing body or an unknown opcode when no declaration checks its body.
+I require separate complete structural and instruction verification before
+execution. I preserve `-1` for my unimplemented private profiles.
+
+`make test-nanolang-translator-conversion` compares every projected fact with
+my actual C reverse converter. I independently classify private ownership
+routes with the existing C routing oracle, retain their C refusals separately,
+and require identical explicit deferral across my selected product routes.
+My [paired ad2 checkpoint](evidence/conversion-projection-darwin-20261121/README.md)
+passes6258 complete reports,105 independent expectations and six actual source
+products through five routes per host. All3560 guarded inputs, manual carriers
+and complete reports match Linux/Darwin and their exact Git blobs. Targeted
+actual C projection/reverse-converter sanitizers and the original module methods
+pass; I retain the first observer/setup failures separately. This component
+grants no full-module, affine, private-profile or pure-emitter acceptance.
+
+## My ordinary whole-module verifier
+
+`src_nano/nvm2c/module_verifier.nano` composes my checked module view and
+conversion with the ordinary function-body verifier. `verify` preserves the
+loader's positive declared-depth checks before the complete ordinary unlinked
+module pass. I check every function's metadata before any function body,
+including the empty-result rule, local/signature consistency and overlapping
+nonempty spans. I preserve import limits and service-policy priority.
+
+`verify_declared` checks only the declared-depth obligation. With no positive
+declaration, I preserve the C API's absence of that obligation: success does
+not imply that malformed bodies or other structural errors were checked.
+Accordingly, its successful result has `complete=false`. A successful `verify`
+has `complete=true` only for the ordinary unlinked pipeline. I keep transport
+status, exact ordinary refusals, known malformed-body refusals and explicit
+affine/ownership/private-profile deferrals distinct. Refusals expose no partial
+depth proof. Inert ownership metadata with no functions and no required walk
+follows the C module's ordinary path.
+
+My C oracle calls the actual public declared-depth, full-module and maximum-depth
+APIs after actual v2 deserialization/conversion. I normalize malformed-body and
+affine refusals separately and retain their original public diagnostics. My
+fixtures include whole-module metadata/body priority, selected/unselected
+functions, zero-depth absence, exact bounds, overlapping/adjacent/empty spans,
+multiple-function bodies and materialized ordinary body contexts. Direct-helper
+contexts that cannot be represented by that module carrier, require a linked
+graph, or would require large artificial pools remain explicitly counted apart;
+I do not relabel the older helper corpus as whole-module coverage.
+
+My [Linux checkpoint](evidence/ordinary-module-verifier-linux-20261121/README.md)
+passes7132 modules in both modes through five routes,
+126/122 independent expectations and six actual source products per mode in
+1444.113s. The actual VM agrees on131 independent consumer controls. Targeted
+actual public C verifier/type/decoder/ISA/module/reverse-converter sanitizers
+match both7132-case modes. I preserve the initial four over-deferred inert
+ownership modules and their precise no-function/no-walk correction.
+
+Paired Darwin qualification remains pending during Puck's reserved capture run.
+No executable selector uses this component. Full linked-graph, affine,
+ownership/private-profile verification, pure C emission and final-source paired
+release acceptance remain required under #1142/#976.
 
 ## My shared ownership declarations
 
@@ -451,8 +521,9 @@ including their original products, prior-output refusals, widths and File scans.
 This shared conversion path mirrors the C decoder's declaration boundary; it
 does not run ordinary instruction verification. An explicit unknown-opcode case
 therefore deserializes successfully on both sides without gaining execution
-authority. Service14, private flow admission, ordinary executable verification
-and my NanoLang C emitter remain required before cutover.
+authority. Shared service14 decoding now follows the boundary below. Private
+flow admission, ordinary executable verification and my NanoLang C emitter
+remain required before cutover.
 
 ## My service wire codecs
 
@@ -518,9 +589,10 @@ valid storage; original C tests separately exercise pointer and allocation
 failure contracts. C allocation denial is not a claim about NanoLang's heap.
 
 My legacy File v1 narrow and rich-v2 metadata adapters are implemented below.
-Whole-module service selection remains required. The shared
-module decoder still marks service profiles pending;
-this library does not change installed products or translator selection.
+My shared module decoder now connects this metadata boundary to ordinary
+module framing and narrow conversion as described below. Private WebSocket
+codec selection remains separate. This library does not change installed
+products or translator selection.
 
 ## My shared service metadata boundary
 
@@ -550,8 +622,8 @@ does not remove it.
 My pure input arrays represent canonical normal storage: absent service bytes
 have no separate nonnull empty pointer. C-only malformed pointer/count graphs,
 allocation failures and destination preservation retain their original C test
-scope. Whole-module service conversion and full flow/host/execution admission
-remain required before product cutover.
+scope. Shared whole-module service conversion follows the boundary below;
+full flow/host/execution admission remains required before product cutover.
 
 ## My rich service metadata adapter
 
@@ -600,3 +672,1118 @@ translation after cutover.
 
 I keep every unfinished payload, verifier, analysis, emitter, service, driver,
 bootstrap and platform requirement open until its own acceptance passes.
+
+
+## My shared service module boundary
+
+`module.nano` retains raw service14 bytes in `ModuleView.services`. I preserve
+section-directory framing order: legacy56-byte, nominal File120-byte,
+nominal TCP128-byte and bounded version3 multi-instance service frames. The
+public decoder refuses a standalone WebSocket104-byte frame; its private codec
+requires its own future entry point and qualification.
+
+After structural table decoding I adapt typed constants, signatures, function
+spans, imports and canonical re-encoded layouts to `service_v2.nano`. Rich
+service preflight and exact service feature consistency run before ordinary
+cross-table references. Function names/ranges, callbacks and the remaining
+features keep their original order. Successful shared service presence also
+triggers the existing narrow conversion checks, including duplicate/string
+constants, narrow spans/results/debug fields and canonical retained layouts.
+
+I run narrow service validation before ownership/passive declarations. Valid
+nominal File/TCP/multi metadata preserves descriptive ownership bytes without
+passing it through the ordinary shared ownership validator; legacy File keeps
+that validator. This matches the C transport boundary and grants no instruction
+lifetime or host authority. I continue to quantify unimplemented private
+ARRAY/MAP decisions instead of accepting them through this path.
+
+My current Linux development gate matches704 synthetic complete decisions and
+exact service/ownership/passive bytes through five routes, including128 explicit
+C expectations and directory/error-priority controls. A separate retained eight
+actual C/NanoLang File/TCP/WebSocket/mixed producer-product gate passes the same
+five routes. The combined permanent fixture includes both groups. My later full Linux selection passes all five methods in1410.818s, including712 shared-service decisions. The [bdffa4ccc Darwin checkpoint](evidence/translator-components-bdffa4ccc-darwin-20261121/README.md) passes the original five-method module/claim gate in1090.333s, but the service test deletes one TemporaryDirectory containing its producer products. I retain that result and mark the missing products explicitly; the historical deleted products remain unavailable. My later exact-ad2
+[paired retained selection](evidence/conversion-projection-darwin-20261121/README.md)
+covers all five original methods and preserves every actual producer product.
+Linux passes all five in1393.071s. Darwin retains three passes from its first
+setup-failed observer and passes only the two missing methods in698.042s after
+supplying prerequisites, preserving the first failed manifest. Both hosts match
+all712 shared-service decisions through five routes. This new pair completes my
+descriptive shared-service retention requirement. Full executable/private-profile
+verification, pure C emission and final-source release gates remain open.
+I retain the initial rich-only UINT32_MAX span fixture refusal, isolated
+name-mutation correction, default-shadow deadline refusal, successful traced
+169-shadow observation and excluded stale-artifact diagnostic. A later success
+does not identify the historical timeout's cause or establish reliable source
+creation. Product selection, the pure C emitter and installed stages remain open.
+
+## My function decode boundary
+
+`functions.nano` decodes every primary instruction in a bounded function span,
+including unreachable bytes. I retain relative starts/next offsets, exact
+primary operands, terminal and instruction boundaries, one-based instruction
+indices and resolved targets. Branch targets are relative to the opcode byte;
+resolved branch addresses include the function's code offset. Direct and tail
+calls resolve to function indices. I refuse malformed or truncated instructions,
+interior/out-of-range branches and calls outside the declared function count.
+
+My terminal boundary is valid for ordinary branch decoding, but it names no
+instruction. A File-result branch requires both its target and fallthrough to
+name bytes before that terminal boundary. Handler decoding preserves its
+ordinary terminal-boundary behavior; executable handler-arm validation belongs
+to the verifier. I clear every partial view on refusal. This immutable decode
+boundary grants no stack, type, lifetime, effect or host authority. My Linux test matches1325 complete reports through five routes, with1197 explicit validity expectations, using the actual native Stage1 source compiler. My retained [bdffa4ccc Darwin checkpoint](evidence/translator-components-bdffa4ccc-darwin-20261121/README.md) passes the complete original gate in13.530s. I retain its available generated products and complete reports; exact source providers remain separately identified. Full verifier/profile integration and final-source release qualification remain required.
+
+## My copied record instruction recipes
+
+`record_instructions.nano` describes the existing ARRAY/MAP instruction copier
+before full profile analysis. I retain all94 ordinary record/array opcode recipes
+and the six additional MAP operations. My recipe kind and obligation bits copy
+the existing root, tag/bounds/nominal, safepoint, operand-staging, retain-before-
+release and first-error cleanup requirements. These are runtime obligations;
+I have not discharged them by copying their names.
+
+I use my pure function decoder, then resolve literal/aggregate field counts,
+call arities/results and current-function returns into exact stack counts.
+CALL retains its continuation and a separate callee; TAIL_CALL and RET have no
+successor. Conditional branches retain target before fallthrough. I copy every
+instruction, including dead code, with relative edges and lossless operand
+halves. My descriptive bounds are256 functions,65536 instructions,256 stack
+operands/results and256 derived global slots. I clear partial output on refusal.
+
+This low-level copier preserves its existing unsigned global-index increment,
+including UINT32 wrap. Full profile analysis separately rejects invalid globals
+before execution. A copied result does not establish valid globals, types,
+origins, lifetimes, stack-flow consistency, complete resource accounting or
+executable admission. Inferred MAP key/value/result tag sets also remain part of full profile analysis.
+I keep those gates open; this module is not selected by
+my product driver or whole-module decoder.
+
+My Linux differential gate matches2014 reports through direct C-seed native
+execution and both producers in NanoVM/sanitized C AOT, with994 explicit validity
+expectations. Reports contain the relative instruction descriptors and operand halves for functions
+up to1024 instructions; the65536/65537 boundary controls return the final
+validity/count summary after complete copying. Both producers execute useful
+shadows under their existing component deadline. My original identifier gate
+passes five controls and3308 static fragments. My separate [bdffa4ccc Darwin checkpoint](evidence/translator-components-bdffa4ccc-darwin-20261121/README.md) also passes the complete instruction-recipe gate. The exact source providers remain distinct; full checked-profile analysis and final-source qualification remain required.
+
+## My closed recipe stack-height walk
+
+`record_stack.nano` checks reachable stack heights over freshly decoded
+ARRAY/MAP recipe inputs. I start with an empty operand stack, reject underflow
+and unequal-height joins/backedges, and require exact declared result counts
+at explicit and implicit exits. I measure both sides of each reachable
+instruction and reject a locals-plus-operand frame above65535 slots. I include
+callee results in a tail exit's maximum, matching the shared height helper;
+my copied execution recipe itself records no pushed tail result.
+
+I preserve dead-code behavior: decoding and recipe framing still inspect it,
+but an unreachable valid POP does not cause reachable underflow. The shared C
+height helper accepts an empty body independently of its declared result;
+structural verification owns that separate refusal. This entry also does not
+establish matching tail-return signatures, value tags, origins, lifetimes or
+complete resource budgets. Handler/effect/explicit-retain flows require the
+broader verifier. I grant no module or executable admission from a height result.
+
+My [Linux height checkpoint](evidence/record-stack-linux-20261121) matches1475
+reports per route,963 explicit expectations and512 randomized CFGs through five
+routes in181.116 seconds. Targeted actual C copier/shared-verifier sanitizer
+controls and original identifiers pass. I retain the initial DELETE/LEN fixture
+opcode error and correct only its byte. My separate [bdffa4ccc Darwin checkpoint](evidence/translator-components-bdffa4ccc-darwin-20261121/README.md) also passes the complete height gate. The exact source providers remain distinct; full profile/verifier integration remains required.
+
+## My ordinary height and explicit-retain walk
+
+`stack_heights.nano` reuses `functions.nano` and matches the ordinary shared
+`verify_stack_heights` helper. My entry is
+`verify(code, start, length, signatures, imports, current, locals)`. A signature
+contains unsigned16-bit arity and unsigned8-bit result count; an import contains
+unsigned16-bit parameter count and unsigned8-bit return tag. I distinguish safe
+decode/precondition refusal (`Result.decoded = false`) from a completed helper
+call. Successful results report the reachable maximum; failures carry the exact
+shared diagnostic and publish no maximum (`maximum = 0`).
+
+I preserve dynamic direct/indirect/module/foreign calls, capture and aggregate
+literal counts, PERFORM, PICK and ROLL. I walk branch targets before fallthrough,
+visit each instruction once and require equal stack height and explicit retain
+balance at joins. GC_RELEASE must first have its operand, then a held reference.
+I preserve explicit and implicit return shape checks, handler installation with
+balanced ownership, empty handler-target entry, EFFECT_RESUME constraints and
+16-bit locals-plus-operand frame bounds. A handler targeting the terminal byte
+retains the original outgoing-height end check. HALT and TAIL_CALL retain the
+helper's existing termination behavior. FILE_RESULT_BRANCH has only the ordinary
+fallthrough height edge here; its execution profiles own additional checks.
+
+I decode dead instructions, but their unreachable stack/retain effects do not
+participate in the walk. An empty body passes this helper independently of its
+declared results; full structural verification owns that refusal. My preconditions
+validate representable signature fields, current-function/local bounds and every
+CALL_EXTERN index before the helper can dereference it. These prerequisite
+refusals are normalized to `D` in the differential carrier. They do not replace
+all module table, signature, effect, ownership or profile validation. The carrier
+limits function/import tables to65536 entries for bounded tests; my pure entry
+retains the unsigned32-bit count boundary.
+
+My [Linux checkpoint](evidence/stack-heights-linux-20261121/README.md) matches3154
+complete reports per route,546 explicit expectations, every primary byte,
+1024 randomized CFGs, nonzero spans, terminal/interior/dead branches and16-bit
+signature/depth/frame boundaries. I run five routes using the actual guarded
+bdffa4ccc native Stage1 as NanoLang producer; the full gate passes in68.869s.
+Both generated native routes retain ASan/UBSan. Targeted instrumentation of the
+actual C height helper, decoder and ISA reader matches the same3154 reports;
+all97 original C verifier tests and the original identifier controls pass.
+I retain my initial new shadow's mistaken GC_RELEASE error priority and correct
+its intended operand without changing either verifier algorithm.
+
+I compare successful-allocation, representable helper behavior. Allocation
+failure/publication policy, counted private resource limits, full ordinary
+verification and ARRAY/MAP ownership/origin/lifetime analysis remain separate.
+My [same-source Darwin checkpoint](evidence/ordinary-verifier-components-darwin-20261121/README.md) passes all3154 reports through five routes in26.199s, with identical Linux corpus bytes/reports and3558 guarded inputs. Targeted actual C helper sanitizers pass there; I claim no Darwin LeakSanitizer coverage, product selection or pure C-emitter completion from this component.
+
+## My shared shallow operand-type walk
+
+`stack_types.nano` reuses my ordinary `functions.nano` decoder and implements the
+shared C verifier's shallow tag analysis. I retain the primary instruction
+rules, exact mismatch diagnostics, branch-target-before-fallthrough FIFO order,
+queued-state deduplication and widening of unequal tags to unknown. My ISA
+schema generates the diagnostic opcode names; no runtime C verifier call is
+part of this NanoLang implementation.
+
+My entry is `verify(code, start, length, function_count, current, maximum)`.
+`Result.decoded` distinguishes an invalid input/function frame from a completed
+helper call. A decoded result with `valid = false` carries the original typed
+mismatch message, including function index, opcode, relative byte offset,
+expected tag and actual tag. My differential carrier normalizes decoder
+refusals to `D`; I compare typed mismatch messages exactly.
+
+I preserve this helper's limits of knowledge. A zero maximum, a maximum above256
+or an empty body skips type checking after decoding. Unknown values never cause
+mismatches. Locals and dynamic call effects do not supply declared type facts;
+dynamic stack effects clear the tracked state. DUP and SWAP do not acquire new
+rules in this pass. I accept u8 identity in CAST_U8 and retain both integer
+results of carry/borrow/wide multiplication. Generic ADD0x20 remains distinct
+from typed I64_ADD0xc0. My handler edges retain the shared helper's empty-entry
+behavior; FILE_RESULT_BRANCH keeps only the helper's ordinary fallthrough type
+edge after its decoder checks.
+
+I require the independently computed height and all structural/metadata checks
+when composing the full verifier. Successful shallow analysis alone grants no
+height, signature, ownership, origin, lifetime, host or execution admission.
+The legacy unbudgeted C entry may skip analysis on allocation failure; this
+component checkpoint compares successful-allocation decisions. Counted private
+ARRAY/MAP resource accounting and allocator-failure/publication behavior remain
+separate work.
+
+My Linux corpus covers10287 reports per route,323 explicit expectations, all256
+primary rule/name slots,512 randomized CFGs and directed decoder/handler/deep-
+stack cases. An observation through the unchanged C helper's existing work
+counter confirms four queue-wrap cases:8/11,23/41,71/137 and264/523 instruction/
+visit counts. The counted side entry preserves every ordinary decision and
+message, returns its reserved bytes and reaches no budget refusal in this
+corpus. These observations establish test coverage, not private budget admission.
+I retain targeted ASan/UBSan/leak checks of the actual C type helper, function
+decoder and ISA reader separately from full-provider qualification. My exact
+products, source-provider identities and terminal outcomes belong in the
+[Linux checkpoint](evidence/stack-types-linux-20261121/README.md). My [same-source Darwin checkpoint](evidence/ordinary-verifier-components-darwin-20261121/README.md) passes all10287 reports through five routes in42.217s, with identical Linux corpus bytes/reports and3558 source/test/spec/Make hashes. Targeted actual C helper sanitizers also pass on Darwin; I claim no Darwin LeakSanitizer coverage. Full verifier/profile integration and pure C-emitter cutover remain open under #1142.
+
+## My composed ordinary function-body checks
+
+`function_body.nano` composes my ordinary function decoder, operand checks,
+height/explicit-retain walk and shallow type pass in the same order as the shared
+C `verify_function_body`. I validate operands even in dead instructions before
+walking reachable stack/type states. I preserve tail-call result count/tag,
+linked module presence and declared arity/result counts, capture counts, string,
+import, global, local, upvalue, aggregate-layout and tag bounds. Handler names,
+parameter slots and executable target arms retain their original priorities.
+Direct/branch decode refusals still precede operand checks; complete operand
+checks precede height failures, which precede type contradictions.
+
+My entry is `verify(code, start, length, context, current)`. A context supplies
+function arity/result/tag/local/upvalue facts, import parameter/return facts,
+optional linked-module function signatures and string/record/enum/union counts.
+I first require representable fields and safe table/index/span inputs. These
+preconditions do not assert the full module's signature consistency, declared
+callee bodies, import ABI, retained layouts or execution policy. A missing
+linked table preserves the shared helper's structural-only module-call behavior.
+
+`Result.decoded = false` reports a precondition/decoder refusal. After decoding,
+`supported = false` and `valid = false` mark my explicit affine boundary at the
+instruction where the C helper invokes lifetime analysis. Earlier ordinary
+operand failures keep their priority. I do not implement or approve that
+lifetime analysis here. Supported ordinary failures retain exact C diagnostics;
+success reports the proven reachable maximum. Full module structure, profile
+selection and resource/lifetime admission remain required before execution.
+
+My [Linux checkpoint](evidence/function-body-linux-20261121/README.md) matches6935
+reports through five routes using the genuine guarded bdffa4ccc native Stage1
+producer in131.621s. I retain1184 independent expected reports, all256 primary
+bytes,2048 randomized bodies/height CFGs, linked/unresolved/signature boundaries,
+nonzero offsets, malformed/dead inputs and explicit diagnostic-priority cases.
+I distinguish1779 passes,4279 ordinary failures,691 decoder/precondition refusals
+and186 affine deferrals. My carrier normalizes only precondition/decode refusals
+to `D` and the deferred affine branch to `A`; it retains the actual C affine
+messages in stderr, and compares ordinary failures and maxima exactly.
+
+Targeted actual C body/height/type/decoder/ISA ASan/UBSan/leak checks match all6935
+reports; both generated native routes stay sanitized. All97 original verifier
+tests and the original identifier controls pass. I retain my initial new-source
+parenthesis refusal and the linked-shape coverage gap: a module-call stack
+prefill reached linked validation before the intended call. I correct that
+fixture with an indirect-call effect and add explicit shape/tag/handler
+expectations without changing the C verifier.
+
+I compare successful-allocation helper behavior with no private budget selected.
+This is not full affine/owned/profile verification, pure C emission or product
+cutover. My [same-source Darwin checkpoint](evidence/ordinary-verifier-components-darwin-20261121/README.md) passes all6935 reports through five routes in50.974s, with identical Linux corpus bytes/reports and3558 guarded source/test/spec/Make inputs. Targeted actual C helper sanitizers pass there, with no Darwin LeakSanitizer claim. I preserve the first observer-only missing Make-target setup refusal and all frozen roots/primary dirty work/stashes.
+
+## My empty-result structural boundary
+
+Under #1174 I repair a gap in ordinary module verification. Atbf5b438c442c,
+an empty main declaring one int result passes actual verify-only,
+then the actual VM refuses its implicit return with zero values instead of one.
+My earlier height-component statement that structural checks owned this refusal
+was an incomplete description of that source: the helper accepted the empty
+body, and the ordinary structural guard was missing. Private record/array
+structure already rejected this case.
+
+I now reject an empty result-bearing function in the shared module-range check,
+after existing range/name/tag/parameter/signature/local checks. I preserve the
+empty-height helper, valid empty void functions and zero declared-depth absence;
+a zero declaration is still not full verification. Non-entry functions receive
+the same structural check. The C translator already refuses the invalid required
+entry and preserves prior output. Public tools already refuse legacy NVM01 wire
+files; I keep that separate refusal rather than enabling an obsolete format.
+
+My [Linux checkpoint](evidence/empty-function-results-linux-20261121/README.md)
+passes101 verifier tests, the complete original569591-assertion VM target,
+four actual product tests and targeted actual C verifier/type/decoder/ISA
+ASan/UBSan/leak controls. A real empty-void source body passes through both
+producers/five routes using the guarded qualified bdffa4ccc native Stage1.
+I preserve the baseline tools/bytes/runtime failure, red gates, first legacy
+fixture expectation and sanitizer-command observer setup refusal. My [paired Darwin checkpoint](evidence/empty-function-results-darwin-20261121/README.md) at9fc32e45d passes the same101 verifier/569591 VM assertions, four product methods/five source routes and targeted actual C sanitizers, with no Darwin LeakSanitizer claim. All3559 guarded inputs and143 binary carriers match Linux. The retained older Darwin VM reproduces the identical pre-fix failure. A post-test observer omits its re import; I preserve that failure and complete only pairing/archival without rerunning tests. This closes the observed structural gap; full module/profile composition and final-source release qualification remain required.
+
+### My ordinary linked-module composition
+
+I expose `module_verifier.verify_linked(bytes, links)` and
+`module_verifier.verify_graph(bytes, links)` for ordinary checked V2 modules.
+Each `LinkedModule` contains `resolved` and `bytes`. I ignore the bytes of an
+unresolved slot. A resolved slot must load and satisfy its positive declared
+stack obligations even when the root never calls it. I load the root first,
+then resolved slots in source order, before graph policy or full body checks.
+
+`verify_linked` checks the root against the supplied flat table. Its successful
+`complete` result describes that ordinary root query. It does not certify every
+target body. `verify_graph` additionally checks each present target against the
+same table, in slot order. Its `GraphResult.module_index` is zero for the root,
+slot index plus one for a failed target, and minus one for success. A successful
+graph result retains the root's depths; every refusal discards partial depths.
+This wrapper does not discover imports, recursively load dependencies or grant
+host authority.
+
+I retain the public C order for ordinary service and ownership policy before
+root structure/body checks. I compare encoded cross-module call shapes against
+resolved target signatures; unused unresolved slots remain permitted. My
+ownership scanner stops at an undecodable instruction, as the C policy scanner
+does. The ordinary body decoder still rejects malformed target bodies when I
+query those bodies. Private layout profiles continue to defer at checked
+preparation; full owned/private admission remains required.
+
+My linked differential gate uses actual V2 inputs and public C deserialization,
+conversion, declaration and linked-verifier APIs. Its complete-graph oracle
+calls that same linked API on every present target. The binary test carrier's
+64-slot bound belongs to the harness, not to my production API. Two legacy
+in-memory controls with a callee arity above65535 or result count above255
+cannot survive V2 conversion and stay separate from the materialized corpus.
+My [Linux checkpoint](evidence/linked-module-verifier-linux-20261121/README.md)
+passes304 carriers in both modes through five routes and six fresh original
+producer targets. Five carriers exercise harness refusal and four exercise
+explicit private deferral;295 ordinary V2 decisions retain public C parity.
+The complete7132-module/two-mode/five-route unlinked regression also passes
+after the shared preparation/context change. No executable selector uses these
+APIs. My [same-source Darwin checkpoint](evidence/linked-module-verifier-darwin-20261122/README.md) passes both full gates in658.533/1099.153s, with every corpus byte and all48 normalized report files identical to Linux. Targeted actual C sanitizers, original identifiers and all3567 guarded source inputs match; the three original examples are separately guarded. I preserve all setup refusals and original roots. Private/affine verification, pure C emission and final-source release qualification remain required.
+
+
+### My affine reference-place dependency
+
+I implement `reference_places.nano` before the remaining local affine state and
+bytecode walk. My immutable place retains a nonzero invocation as two unsigned
+32-bit words, a local identity, claimed root/referent, a bounded field path and
+shared/exclusive mode. Explicit presence facts preserve the C descriptor's
+absent-pointer refusals; an empty path or empty record needs no field storage.
+The API expects native-width local/path/tag/layout words from checked facts.
+
+My validity query checks the separately authoritative root layout and every
+reachable scalar-only record sibling, not just the selected path. Layout edges
+must point strictly backward; the selected path must end at a record containing
+only numeric/bool scalars. A descending marked walk visits shared subgraphs
+once. I do not accept strings, arrays, unions, forward edges or merely claimed
+nominal authority through this reference contract.
+
+My overlap and conflict queries inspect descriptors independently of layout
+validity, as the C APIs do: invocation/local identify the owner, and a common
+path prefix overlaps even when a claimed layout is false. Invalid descriptors
+conservatively conflict. Shared holds coexist; exclusive holds block reads and
+writes, and direct owner writes/moves conflict with either hold mode.
+
+My actual C oracle calls the public reference-place APIs without duplicating
+their policy. My test carrier bounds layout rows at65536 as a fixture budget and fields/path
+entries at the native uint16 limit65535; its D refusal describes the harness, not a
+new product acceptance decision. My [paired exact-source qualification](evidence/reference-places-darwin-20261122/README.md)
+matches1629 ten-bit actual-C reports with487 independent expectations through
+five Linux/Darwin routes in26.588/10.692s. Every corpus byte and all six
+complete report files match, along with3571 guarded source Git blobs. All75
+original C checks, actual implementation/oracle/unit ASan/UBSan and identifiers
+pass on both hosts. I preserve all frozen providers and primary audit/stashes. I keep affine state/bytecode, private-profile composition and runtime
+admission open, and no executable selector calls this new component.
+
+### My shared affine local-state replacement
+
+I implement `affine_facts.nano` and `affine_state.nano` after the paired place
+checks. Facts preparation first runs the complete existing shared ownership
+validator, retains ordinary decoded layouts, function/result/local descriptors,
+layout flags, exact union variant slices, effect signatures and typed-array
+rows. Private checked-state constructors in the mixed/owned-array analyses are
+not admitted by this shared factory.
+
+My owning analysis allocates a distinct positive module identity for each
+module object and a distinct analysis identity for each preparation. Clones
+and lexical handler arms retain the latter; independent preparations do not
+become equal merely because their bytes match. These identifiers belong to
+my verifier context, never to producer-supplied ownership bytes. Facts and
+returned state records are internal immutable views; they are not authority
+certificates that arbitrary callers may forge or mutate.
+
+My transition API returns a new state on success and the original state on
+refusal. It preserves exact owned obligations, initialized copyable values,
+selected union arms, regions, parent references, invocation/caller origins and
+handler resume facts. Joins intersect copyable initialization and forget a
+selected union arm only after exact live resource/reference obligations match.
+Queries return explicit validity and expose no partial values after refusal;
+value-type arguments use mode-zero slots, while declaration slots retain
+reference modes. No operation performs bytecode or runtime execution.
+
+I retain the first690 native traces, whose full actual-C snapshots agree even
+though five handwritten expected booleans were wrong. The expanded3058-trace
+preflight passes all five C/NanoLang native/VM/sanitized routes in239.392s.
+The unchanged C state target passes563 ordinary and634 allocation-failure
+checks. These preflights are not a frozen final-source qualification.
+
+A separate input-path mutation witness then catches an alias in my first
+port: a borrowed place retains the caller's path array. The actual C witness
+passes16 checks, while my original source fails two ownership assertions. I
+copy paths at installation, cloning and caller binding, and extend the oracle
+and driver with restored path-perturbation isolation checks. I retain the
+failed witness and explicitly identified reverse-patch reconstruction of the
+uncommitted pre-copy draft; I do not call that reconstruction a frozen source.
+My [exact3df7ac29e paired qualification](evidence/affine-state-darwin-20261122/README.md) then passes3141 traces through five routes in224.344s Linux/79.364s Darwin, with383 independent expectations. All corpus bytes, six complete report files and3577 exact Git source inputs match. All563 ordinary/634 allocation-failure C checks, targeted actual C ASan/UBSan and identifiers pass. Independent readers verify12177 Linux/7213 Darwin archive records; every source/tool/frozen-provider/primary-audit/stash guard holds. Darwin ASan disables leak detection; I claim no Darwin LeakSanitizer coverage. No new raw bootstrap executes.
+
+My oracle includes the actual C state implementation and invokes its public
+transitions/queries. It snapshots retained state and checks failed operations
+against an actual C clone, preserves query output sentinels, and restores its
+private path perturbations. Its analysis/module identity adapter models C
+Facts/module object identity rather than replacing it with content equality.
+The test carrier bounds sixteen simultaneous state handles,65536 reference
+slots/commands and native operand widths. Harness D is distinct from a state
+transition refusal. Affine bytecode/CFG analysis, private profiles, pure C
+emission and complete release acceptance remain open; no executable selector
+uses these local transitions.
+
+
+### My CFG frame and scheduling foundation
+
+I implement internal frame joins in `affine_frame.nano`, a bounded FIFO in
+`affine_worklist.nano` and initialization/lexical-return relation algebra in
+`affine_global_flow.nano`. My frame stack retains exact owned/observation tags,
+nominal/array types, observation roots, selected union arms and all 256 excluded
+arms. Joins preserve handler key/site order, floor and activation, then intersect
+copyable local initialization and union the global relations. I copy nested
+mask/local/global storage before successful transitions; refusal retains the
+input. These internal records are not wire-format authority certificates.
+
+My Linux relation/FIFO gate passes all five C/NanoLang native/VM/sanitized routes
+against actual C: 168386 operations, every pair of 289 normalized flow states,
+and seven full/wrapping/deduplicating queue traces with capacities through4096.
+My frame corpus adds665 cases. All1001 combined carriers match actual C through
+C-native and both source-producer VM routes, including immutable-input and
+nested-clone checks. I retain my first driver cond-brace parse refusal and its
+ordinary-if correction.
+
+My initial complete frame five-route gate failed under #1202: C AOT refused
+an optional-to-exact-Boolean aggregate conversion. Both actual producer products
+retain that refusal, and a seven-line frame-library import reproduces it.
+Read-only GDB identifies a deferred Boolean array read whose result is equated
+with a scalar local. I preserve the exact-destination refusal tests and every
+original assertion and deadline. I retain that initial failure as provenance
+for the later repair.
+
+My localization reduces the barrier to a twelve-line source with a mutable
+Boolean read, array write and short-circuit and/or copy. Sixteen basic neighbors
+and all unary-not variants translate. DUP/PICK reuse the local's shape and then
+seed an exact scalar type; LOAD_LOCAL already retains inferred scalar storage.
+My original 64-source/PICK regression retains nine valid translation failures;
+strict invalid-depth and prior-output controls pass. The unchanged graph API
+passes 312 counterfactual, exact-target and mismatched-payload checks normally
+and under ASan/UBSan. My [localization receipt](evidence/scalar-copy-localization-linux-20261122/README.md)
+retains the then-unapplied one-line proposal.
+
+Under the [narrow #1202 handoff](https://github.com/jordanhubbard/nanolang/issues/1158#issuecomment-7093099516),
+I extend only the existing inferred-scalar `LOAD_LOCAL` condition in
+`sim_push_slot` to `DUP`/`PICK` at source
+`0962d3c9dbf4376b2fac82b8f04f0c24e0ccd8b3`. All 64 source
+copies and valid PICK0 translate. Invalid PICK1 retains assembler/verifier/C
+refusal and prior output; all 312 graph and 3890 original shape checks pass
+normally and under ASan/UBSan. I relax no merge function or shape API.
+
+My [Linux copy-admission receipt](evidence/scalar-copy-admission-linux-20261122/README.md)
+at `1b83cdabd3c8cd3103f24b5e6b0a5b639c41a68c` completes the original frame gate:
+all 1001 carriers match actual C through C-seed native and both source producers'
+VM and sanitized-native routes. Every complete report has SHA256
+`f5f4555c26ea20dbc13237f4a9843c42e98b16f7fc6f4e9f9ea3de7b3d3dcbd0`.
+Both original methods pass with zero failures, errors or skips in 422.750 seconds,
+retaining all 665 frame cases, 168386 relation operations, 289 normalized states
+and seven FIFO traces. The independent reader verifies 4711 records and 1384
+exact Git inputs, the one-line change, original/candidate consumers and strict
+negative controls. Generated C is instrumented and links the retained runtime
+object; I do not claim whole-runtime instrumentation or fresh compiler products.
+
+This closes the scoped Linux #1202 copy repair and qualifies internal primitives
+at the recorded source/tool pins. Later integrated revisions require separate
+qualification. Current-source Darwin, whole-function instruction transfer and
+convergence, handler/global/effect and private-profile composition, pure C
+emission and executable selection remain open, alongside the separate #1204
+ownership-query/return-merge barrier and full release.
+
+
+## My C-text component
+
+`src_nano/nvm2c/c_text.nano` spells tokens without admitting a module or
+calling a C translator/analysis API. `bytes_literal` returns `{valid, text,
+length}`. Its fixed-width three-digit octal escapes preserve every byte and
+cannot consume a following digit. Empty input has a valid quoted empty literal
+and length0; counts above16777216 return invalid with empty text/length0. A C
+string literal includes a trailing terminator; consumers retain the explicit
+input length instead of using `strlen`.
+
+`unsigned32` rejects values outside0..4294967295. `unsigned64(low, high)` checks
+both halves before spelling unsigned64 shifts/OR, without forming an overflowing
+signed NanoLang value. `signed64` treats the minimum endpoint before negation.
+`name(kind, ordinal)` accepts kinds0..5 for function/local/label/string/global/
+module and ordinals0..4294967295, using separate generated prefixes. Rejected
+integer/name queries return empty text, distinct from every valid spelling.
+
+My [Linux component receipt](evidence/darwin-current-source-20261124/diagnostics/c-text-boundary-linux-20261124/README.md)
+at sourcee5b20896b343 retains18702 independently verified records. Both methods
+pass through five existing routes in13.422s. I compile and execute every route's
+emitted C11 tokens with strict warnings and UBSan; the complete81554-byte result
+matches SHA256 e3eff8151eddff731c6825c70a866d33e91e86ef9e904c61fa7eda18f62baabe.
+All256 octets, embedded zero, UTF8/non-UTF8 bytes, block boundaries,65536-byte
+payloads, integer endpoints/range refusals and generated identifiers participate.
+All five routes refuse an actual oversized16777217-byte input. The exact maximum
+count is tested by a shadow, not a full maximum-size literal construction.
+Source-consumer generated C is instrumented; the retained runtime object is not
+whole-runtime instrumentation. The chosen NanoLang source producer is the actual
+qualified16b Stage2, never a new current-source compiler claim.
+
+I retain the original legal `signed` local's invalid C-native setup and the
+subsequent report parser's bitwise-OR delimiter failure. #1254 has actual
+local/parameter/nested-shadow generated-C refusals, successful NanoISA execution,
+a safe-name native control and preserved prior outputs. Renaming only the
+fixture to `signed_values` and fixing fixed-field parsing does not repair that
+backend defect. Its source and original expectations remain retained.
+
+This component grants no affine/profile/representation authority and emits no
+complete translator. Full C control flow/runtime/service emission, complete
+corpus/platform qualification, fresh products and actual cutover remain required.
+
+## My global-transfer implementation contract
+
+I next implement LOAD_GLOBAL and STORE_GLOBAL as an internal pure transfer,
+using checked `ownership_queries.Global` declarations and affine local-state
+type ownership. This consumes an already established value-call-graph decision;
+it does not establish that graph or validate a global declaration table.
+
+My result carries a fresh frame and a fresh vector of allowed function-entry
+states. I preserve all local, stack, handler, activation, exclusion and untouched
+global facts. Refusal returns isolated input snapshots and no successor. Before
+transferring, I require matching declaration, frame-relation and allowed-mask
+vectors of at most256 entries, four-bit relations and two-bit allowed masks.
+Unsupported opcodes remain explicitly unhandled.
+
+I preserve my C step's order: require the value graph and declared slot; refuse
+resource-bearing types; then either load the exact declared value or require a
+store value with exact tag/layout and no observation/owned escape. Loads
+intersect the function's allowed-entry mask with the preimage of initialized
+states. Immutable stores intersect it with the preimage of uninitialized
+states; mutable stores keep that mask. Stores compose the slot relation with10
+and pop exactly one value. With effect-global analysis selected, I leave these
+allowed masks unchanged: the separate activation/handler proof owns those
+preconditions. An empty allowed mask is a computed precondition, not a step
+error. Full stacks retain the original load failure.
+
+I compare the unchanged actual C `step` through a separate fixture, preserving
+its production source and every old protocol and assertion. The fixture
+normalizes failed transitions to isolated input snapshots, as my scalar/local
+fixtures do, and reports both complete frame facts and allowed-entry masks.
+Independent expectations cover every relation/allowed/mutability/effect mode,
+physical tag and exact owner/nominal/array boundaries, stack limits, missing
+slots, caller aliases and malformed carriers. All source routes, generated
+sanitisers, targeted actual-C sanitizers and paired qualification remain
+required. I retain any ownership-query dependency refusal under #1204 rather
+than replacing that shared declaration type with a narrower substitute.
+
+This is an implementation contract, not executable qualification. Global
+load/store transfer does not complete interprocedural summaries, effect
+activation/return semantics, CFG convergence, private admission, C body/runtime
+emission, product selection or the full 69-entry release.
+
+## My complete affine array-transfer contract
+
+I port all nine cases in `affine_array_flow.inc` as one internal pure transfer:
+ARR_NEW, ARR_LITERAL, ARR_PUSH, ARR_POP, ARR_GET, ARR_SET, ARR_LEN, ARR_SLICE
+and ARR_REMOVE. I consume decoded operands, checked local type facts, raw
+ownership bytes and their existing pure query context, plus the exact current
+function and instruction byte offset. These inputs do not constitute profile
+or executable authority. My current C array step does not consult the
+value-graph switch; I preserve that boundary rather than adding one.
+
+I first require retained array types. Empty constructors query their exact
+function/offset declaration through `ownership_queries.array_constructor`;
+absent explicit selection uses the existing unambiguous tag query. Nonempty
+literals derive the element descriptor from the first source-order operand,
+resolve its retained array type and check every element's complete ownership
+and structural nominal/array identity. I share that matcher with future
+call/effect transfers instead of changing global stores' stricter layout test.
+
+All other operations require the complete operand count before reading the
+array type. Length accepts an unowned value or an accessible owner observation,
+and refuses a staged owned array. Remaining operations refuse observation
+escapes; only PUSH accepts an owned array. Extraction/disposal contracts remain
+required for other operations on owned arrays. Index and slice-end operands
+are exact nonowned, unobserved INT values. PUSH/SET check their element value
+against the declared descriptor. GET/POP return the element type; other
+operations return the array type. I derive result ownership from checked type
+facts and retain the C step's error order, original256-slot limit and exact
+messages. No new resource-array operation is admitted.
+
+Success and refusal return independent complete frame snapshots, including
+nested exclusion/local/global storage. My separate diagnostic fixture calls
+the unchanged C step, keeps every old frame carrier/protocol and compares
+complete reports against named independent expectations. I cover explicit,
+absent, ambiguous and invalid constructor metadata; first/every literal
+element; structurally equal and mismatched array recipes; owner/observation
+flags; live/moved/held roots; index tags; stack bounds; malformed carriers; and
+original source-order/atomicity controls. Old8/600 and new32-or8KiB/60 batching,
+600-second builds and default10 shadows remain. Source routes, generated and
+targeted actual-C sanitizers, paired hosts and complete composition remain
+required before acceptance.
+
+## My complete owner/reference-transfer contract
+
+I port the fourteen current region, local/path borrow, reborrow, reference-field
+and explicit owner move/store/pack/unpack instructions after their paired
+local-state and frame primitives. I consume decoded operands and the existing
+pure ownership query context. I retain the C switch's error order and strings,
+including a failed path query before an exclusive observation guard, deeper
+region/parent authority, exact field access before REF_SET stack typing, and
+observation checks before moving or unpacking a local.
+
+OWN_STORE accepts the C step's owned token and exact available destination,
+then refines a known union arm before consuming it. A failed refinement returns
+the original state. OWN_PACK preserves its distinct field rule: exact tag and
+ownership, no observation, exact nominal record/union layout, with the C rule
+for other field layouts. I share that rule with future aggregate construction,
+without substituting the structurally checked array/effect matcher or global
+storage's stricter descriptor comparison. OWN_UNPACK validates every field and
+all output space before consuming the source and emits fields in declaration
+order. I preserve the original256-slot bound and every local/path bound.
+
+Every result owns mutable frame storage: local liveness/variants, reference
+paths and control, globals and stack exclusion masks. Facts remain the existing
+immutable shared metadata. I compare the unchanged C step using separate test
+translation units: the owner/reference oracle and a read-only view of the
+unchanged C state implementation. The view records mutable authority state
+instead of exposing nondeterministic pointers or immutable reference counts.
+It does not become product ABI. Original frame protocols and1001 reports stay
+unchanged; state implementation source replaces only its ordinary object in
+this diagnostic closure to avoid duplicate symbols.
+
+Bounded instruction sequences test borrow/reborrow lifetimes, shared versus
+exclusive parent access, region cleanup, live/moved/held roots, ownership
+round trips, field order, exact destination/variant refusals, full-stack and
+path boundaries, malformed carriers and direct caller isolation. Failed steps
+normalize to independent input snapshots and can be followed by later probes.
+Diagnostic-only empty-reference region setup covers the original UINT32_MAX
+bound without executing billions of empty regions. Actual-C expectations,
+complete source/generated-sanitizer routes, targeted C instrumentation and
+paired qualification remain required. This source grants no function, graph,
+effect, private-profile, executable or pure C-emission authority.
+
+My [C expectation audit](evidence/darwin-current-source-20261124/diagnostics/affine-owners-c-audit-linux-20261125/README.md)
+passes the unchanged1001 frame reports and14542 new complete owner/reference
+reports in1067 actual C commands. Its independent reader checks36340 records,
+mutable authority snapshots, exact source/tool/object guards and preserved
+setup/path-fixture refusals. Strict C99 syntax and typed-AST checks pass; my new
+NanoLang leaf has no executed-shadow or full-route acceptance yet. I keep this
+work behind the already admitted foundation and prepared global/array gates.
+
+## My aggregate-transfer contract
+
+I port STRUCT_GET97, MATCH_TAG107, AGG_PACK251, AGG_GET252 and AGG_TAG254
+as pure frame transfers. I retain the C step's distinct constructor contracts.
+A copyable record requires value-graph mode, zero variant, a complete copyable
+layout and exact declared field count, tags, physical layouts and absence of
+owner/observation authority. A union constructor queries its retained ordinal
+and variant before checking payload facts and the shared owned-field matcher.
+Its output preserves the selected variant and derived ownership; it does not
+acquire a new value-graph precondition.
+
+MATCH_TAG checks a union stack value without observing or consuming it, scans
+retained ordinals for the concrete layout/variant, and leaves exclusions and
+selected arm unchanged. Branch refinement and convergence remain separate.
+AGG_TAG accepts a plain union and returns a fresh INT. Ordinary record projection
+requires a complete copyable layout and nonowned field. Union projection needs
+a proven arm and permits only scalar/STRING fields; aggregate payloads still
+require destructive unpack. I preserve the established observation fallback,
+including its root/hold checks, scalar-first lookup and graph-gated STRING
+lookup. That fallback does not impose an extra physical stack-tag check.
+
+I compare complete frame and mutable authority snapshots with unchanged C,
+preserve the1001 original reports, and use physical-tag/flag, declaration/layout,
+variant, graph, full-stack, held-root and malformed-carrier controls. My new
+source has useful shadows and caller-isolation assertions. C expectation audits,
+executed NanoLang shadows, full source/generated-sanitizer/paired routes and
+whole-walk integration remain distinct requirements. No AGG_SET implementation,
+branch convergence, executable admission or pure emission follows from this
+five-instruction leaf.
+
+My [C expectation audit](evidence/darwin-current-source-20261124/diagnostics/affine-aggregates-c-audit-linux-20261125/README.md)
+passes all1158 commands, original1001 unchanged reports and15222 complete
+aggregate/authority reports. Its reader checks38061 records and preserves the
+first5305 metadata-fixture refusals with unchanged expected reports. Strict
+syntax, typed AST and shadow presence pass. I still require execution of my
+new NanoLang shadows and all source/generated-sanitizer/paired routes before
+whole-walk, profile or emission qualification.
+
+## My foundation qualification failure
+
+My [complete five-method terminal](evidence/darwin-current-source-20261124/diagnostics/affine-foundation-shadow-failure-linux-20261125/README.md)
+atb43042ec finishes with four passes and one failure. Flow/FIFO, frame,
+operand/profile and scalar retain189474 complete actual-C/five-route reports,
+with all guards and original limits. The local method's C-seed native driver
+build passes, but NanoVirt refuses its imported transfer shadow with BOOL_NOT
+requires a boolean before any local differential route completes. I retain
+all10409 local inputs and1001 original controls. I track localization in #1259,
+do not accept the full foundation and do not admit the queued global/array gate.
+
+## My effect-step and escape-identity contract
+
+I port the current HANDLER_PUSH165 step as an isolated no-op, HANDLER_POP166
+with inherited-floor bounds, and PERFORM167. The outer affine walk must still
+validate handler signatures and destinations, create both handler edges and
+bind activations; this leaf grants none of those obligations. I preserve the
+existing frame activation, floor and handler order when popping local handlers.
+
+I query the retained performed signature before checking exact positional
+argument ownership with the shared effect/array matcher. I reject staged
+owners/observations below the arguments, then unresolved local owners/borrows,
+then failed escape recording, in the C step's order. The result always replaces
+arguments with one fresh declared value, including VOID, with nominal or array
+ownership derived from checked facts. Failed full-stack publication preserves
+the original frame and escape table; no partial successor or summary is granted.
+
+I represent the current function's bounded escape vector separately from its
+frame. A matching handler catches an operation before the eight-function bound;
+otherwise an existing equal key is retained before the256-key capacity guard.
+New PERFORM entries use the signature's canonical key, including queries through
+byte-identical aliases. Identity preserves C's equal stored lengths and strcmp
+NUL-stop comparison; embedded-NUL suffixes matter only in private diagnostic
+key comparisons because valid declared operation keys exclude NUL.
+
+My key and escape C helpers require a nonnull checked module; I do not call
+nvm_get_string with a null module in a diagnostic. Out-of-range string indices
+are compared as absent keys, and defensive escape-table/function bounds remain
+separate from whole-module admission. Diagnostic-only vectors can probe those
+private defensive branches without authorizing them as a valid call graph.
+Null-module PERFORM signature refusal and handler step behavior retain their
+own defined C paths.
+
+I compare unchanged C steps/identity helpers with independent complete frame,
+mutable authority, handler context and escape-vector expectations, preserving
+all1001 old frame/flow/FIFO controls. I require useful shadows, isolated returned
+storage and the original full-source/generated-sanitizer/paired routes before
+acceptance. This source does not resolve call summaries, handler/resume CFG,
+private/executable admission or pure C-emission/cutover.
+
+My [C expectation audit](evidence/darwin-current-source-20261124/diagnostics/affine-effects-c-audit-linux-20261125/README.md)
+passes all878 commands, original1001 unchanged reports and8128 complete
+frame/authority/key/escape reports. Its independent reader verifies11848
+records, exact selected-source/production-C/tool/object guards, the proper
+driver AST and shadow-presence checks, and the retained library-only missing-main
+diagnostic. Executed NanoLang shadows and all source/generated-sanitizer/paired
+routes remain pending. I do not infer handler CFG, call, profile, emission or
+release acceptance from these C expectations.
+
+## My direct value-call preparation and summary application
+
+I split CALL59 at the existing recursive analysis boundary. Preparation checks
+my already established graph mode and nonentry target, creates its exact callee
+signature state, applies the existing eight-parameter/value-result rules, and
+checks positional tags, observations, ownership and structural aggregate/array
+identity. Unsupported signature shapes remain refusals. A Plan is internal data;
+it grants no function or executable proof.
+
+My pure walk must then analyze the callee and derive its converged Summary.
+Application requires successful resolution before effect suspension checks.
+For escaping callees I check local obligations before staged prefix owners,
+then merge caught/escaping operation identities in order. This preserves the
+C call step's order, which differs from PERFORM. I compose global allowed-entry
+preimages and return relations unless effect-global proof owns that work.
+An empty allowed mask remains a step result; the converged function/entry proof
+must reject it when required. A VOID call pushes no value, while other results
+receive fresh declared type/ownership and unknown variant facts.
+
+Every refused application restores the input frame, allowed vector and escape
+table, including partial escape growth or full-stack result refusal. Synthetic
+cached C summaries exercise these private application branches only. My
+uncached C controls independently check supplied expected summaries against
+actual callee analysis; they do not implement a NanoLang callee walk. Pure
+cache status/module/function identity, recursion/convergence, handler context
+and full source/generated-sanitizer/paired evidence remain required.
+
+CALL_REF15 remains separate. Its analyzer binds concrete caller-origin
+reference authority and deliberately bypasses the ordinary value-call cache.
+A signature-only or unbound cached success cannot replace that check. No
+callee, reference-call, complete graph/CFG/private/executable or pure-emission
+acceptance follows from this preparation/application interface.
+
+I publish my [C expectation audit](evidence/darwin-current-source-20261124/diagnostics/affine-value-calls-c-audit-linux-20261125/README.md) at source121d1b58b0:1255 original-limit commands,1001 unchanged baseline reports and15644 new complete reports pass. Twelve uncached controls assert supplied summaries against actual C callee analysis. My reader verifies39585 records and the retained fixture failures/corrections; ordinary C-producer imported shadows pass. I still require pure callee summary derivation/convergence and full source/generated-sanitizer/paired qualification.
+
+## My private call-analysis context initialization
+
+I query complete global declarations before admitting value-graph mode. I retain
+those rows even when an unrelated graph constraint refuses. Only a valid graph
+with at least one declared global triggers my second decoded-function scan.
+HANDLER_PUSH165, HANDLER_POP166, PERFORM167 and EFFECT_RESUME168 select effect-global
+analysis even in an unreachable function or instruction. Zero-global and invalid
+graphs do not receive that flag. The later decoded-function failure guard preserves
+the declarations and earlier scan flags while revoking globals-valid status.
+
+My input already contains a concrete function array; missing-module handling
+remains explicit. These flags initialize private data. They establish no callee
+summary, recursion/cache identity, convergence, CFG/lifetime, executable or
+emission authority. I retain the original1001 reports and compare full context
+flags/global rows with unchanged C initialization and independent expectations.
+Full source/generated-sanitizer/paired qualification remains required.
+
+I publish my [context C audit](evidence/darwin-current-source-20261124/diagnostics/affine-call-context-c-audit-linux-20261125/README.md) at sourced992d95bb3:165 original-limit commands,1001 unchanged baseline reports and834 complete new context reports pass. My reader verifies5337 records, all guards and the retained zero-extension fixture correction with unchanged expectations/algorithm. Ordinary imported shadows pass; pure callee and full-route acceptance remain required.
+
+## My private per-analysis cache lifecycle
+
+I initialize eight zeroed function slots and isolate status, result, allowed-entry,
+return-relation and escape-key rows. These slots belong to one analysis invocation;
+I do not reuse them across module identities or caller-origin bindings. My walk
+must derive every result and update its function vectors before finalization.
+
+Entry preserves declaration/global guard order before memo lookup. A finished
+value-call result reuses success or failure; an in-progress value call refuses
+recursion and memoizes that failure through the normal done path. A fresh value
+analysis marks its slot in progress and resets only its allowed-entry masks to3.
+Caller-bound reference analysis bypasses lookup, reset and result memoization.
+Ordinary no-global nongraph analysis also bypasses value memoization. Failed early
+guards still follow the existing value-graph/caller/function-bound done condition.
+
+My ordinary shadows check these transitions and mutable-vector/result isolation.
+They do not derive a callee proof or establish C differential, full source,
+generated-sanitizer/paired, CFG/lifetime, executable or emission acceptance.
+
+I publish [my ordinary cache-shadow receipt](evidence/darwin-current-source-20261124/diagnostics/affine-analysis-cache-shadows-linux-20261125/README.md): reader750 records verifies all imported shadows, actual additive Make target, unchanged assertions and two explicit Declaration-result bindings that avoid demonstrated #1259 field-projection failures. The compiler defect remains open. The private lifecycle does not replace pure callee derivation, convergence or C differential/full-route acceptance.
+
+My cache-path differential diagnostic calls the unchanged private C analyzer with
+bounded seeded status1/2 slots. It admits only completed-result hits, in-progress
+recursion refusals and earlier declaration/global guards. Both drivers refuse
+any carrier that would enter fresh body analysis or caller binding. I compare
+complete analysis results, context flags/global rows and all eight mutable cache
+slots, including failed-result memoization and caller-bound done-path bypass.
+Synthetic seeds prove these private transitions only; fresh allowed-mask reset,
+pure callee derivation, caller binding and whole-walk acceptance remain separate.
+
+I publish [my cache-path audit](evidence/darwin-current-source-20261124/diagnostics/affine-cache-paths-c-audit-linux-20261125/README.md), source8848877933:281 original-limit C commands,1001 unchanged baseline reports and3317 complete cache-path reports pass. Twelve selected VM runtime controls match those full C reports. My reader verifies5891 records and all guards; full3317-case VM/source/sanitizer/paired and fresh/whole-walk acceptance remain required.
+
+## My completed Linux foundation qualification
+
+I publish [my exact7b75651234 foundation](evidence/darwin-current-source-20261124/diagnostics/affine-typed-five-linux-20261125/README.md): all five original methods pass in8061.732 seconds,19802 commands and257934 complete actual-C/five-route reports. The reader verifies87435 records,35 builds/10 sanitizer builds,10 providers, exact source/original7b9 producer/tool/host/object/origin/observer guards and full terminal journal replay at every original limit, without failures/errors/skips. My typed local-shadow fixture clarifies the source without fixing #1259.
+
+This receipt covers flow/FIFO, frame, operand/profile, scalar and local transfer at that frozen Linux source. Later common-source/cache changes, global/array and other leaves, paired hosts, whole CFG/private/executable admission and actual pure C emission/cutover remain required. I do not infer complete5.1 acceptance or a new bootstrap from it.
+
+## My test-report formatter
+
+I preserve the complete256 exclusion bits and their order while building that
+fixed-width string before appending it to a growing frame report. I apply this
+only to my eight new leaf drivers. Product source, older foundation drivers,
+all case generators/references/expectations, every existing assertion and every
+build/execution limit remain unchanged.
+
+My [isolated old/new comparison](evidence/darwin-current-source-20261124/diagnostics/affine-report-benchmark-linux-20261125/README.md)
+retains72 byte-identical C reports across two counterbalanced VM/sanitized-native
+rounds, with exact published-foundation and idle/source/tool/host/provider/artifact
+guards. For one full-stack report, VM8.124/8.041 seconds become0.417/0.425;
+sanitized native19.287/19.577 become2.876/2.916. This measures test reporting on
+one Linux host. Full current-source/corpus/sanitizer/paired qualification remains
+required; I claim no compiler-wide gain or release acceptance.
+
+
+## My fresh-function and private-body checkpoints
+
+I now implement fresh-function preflight and the private affine body walk in
+pure NanoLang. Preflight preserves local/code/instruction bounds, caller-origin
+binding, profile/effect/global guard order and failed-result memoization. My
+private walk derives actual value-callee summaries, retains reference-caller
+authority, propagates joined frames through a FIFO worklist, follows handler and
+union-match edges and publishes converged instruction facts. Neither component
+calls the C translator or C ownership analyzer.
+
+My [preflight C/VM checkpoint](evidence/darwin-current-source-20261124/diagnostics/affine-preflight-c-vm-linux-20261125/README.md)
+at source `14fc376fb1` checks 228 boundary reports and 1,001 original C reports. The
+observer returns the original visit bound unchanged; 201 actual C terminals match
+its observer-disabled twin. The reader verifies 15,613 records and retains the
+failed drafts and command-separator correction.
+
+My [private-body C/VM checkpoint](evidence/darwin-current-source-20261124/diagnostics/affine-private-body-c-vm-linux-20261125/README.md)
+at source `c3018e1795` checks 308 complete result/cache/fact reports and 1,001 original
+C reports. Its 15,243-record reader retains derived/cached/failed calls, reference
+authority, handler aliases, union exhaustion, FIFO requeue, global summaries and
+late-failure cache metadata. All 256 primary encodings include checked refusals;
+that sweep does not establish every successful operand combination. I preserve
+all draft failures and the invalid array fixture beside its corrected control.
+
+## My public effect/global checkpoint
+
+I compose the private walk with a separate effect/global checker and both public
+analyzer wrappers at source `05b1dc70bb`. I preserve activation/handler/point
+identities, original control-storage bounds, lexical returns and resumption,
+global initialization relations and runtime depth traps. The instruction wrapper
+publishes derived facts only after both checks pass.
+
+My [public C/VM checkpoint](evidence/darwin-current-source-20261124/diagnostics/affine-public-effect-globals-c-vm-linux-20261125/README.md)
+checks 842 complete reports; the `d1687ded5c` supplement adds three immutable-store
+controls against identical production artifacts without changing earlier
+carriers. The reader verifies 13,429 records and 2,493 successful commands, 1,001
+original C reports, 845 complete C/VM reports and 675 public controls against an
+observer-disabled C twin. Canonical point input survives STORE/JMP requeue, and
+repeated resumed stores fail while retaining prior facts. Ordinary imported
+shadows and the actual additive Make target pass with original limits and guards.
+
+These later checkpoints execute their new carriers through the C-produced VM
+route. They do not establish their complete original-frame VM, genuine-source,
+sanitized-native or paired-platform qualification. My separate
+[ownership path-copy candidate](evidence/darwin-current-source-20261124/diagnostics/ownership-path-copy-readiness-linux-20261125/README.md)
+passes translation readiness for query/global/array consumers through both
+producers, but remains isolated pending complete runtime qualification. It does
+not repair #1204's product C defect. Public profile admission, runtime C emission,
+executable cutover and every remaining 5.1 release requirement remain open.
+
+My [complete Linux query receipt](evidence/darwin-current-source-20261124/diagnostics/ownership-path-copy-query-five-linux-20261125/README.md) now checks all 3,080 unchanged cases across seven products: ordinary/sanitized actual C, C-seed native and VM/sanitized-native routes through both producers. All 21,560 reports match; the reader verifies 13,506 records and 1,360 commands with exact guards and original limits. This qualifies the isolated candidate's Linux query behavior. My ownership-query library source remains unchanged; the newer receipt below records Linux global/array qualification. Paired-platform qualification remains required.
+
+
+My [complete isolated Linux global/array receipt](evidence/darwin-current-source-20261124/diagnostics/ownership-path-copy-global-array-five-linux-20261125/README.md) now verifies both unchanged permanent methods in 1703.305 seconds: 15,382 successful commands and 136,476 complete actual-C/five-route reports, including every original frame and all 3,688 global/17,056 array controls. The independent reader checks 57,460 records, original limits, exact journal replay and complete source/Git/image/tool/object/host/provider/observer guards. Its source and overlay match the published full query gate. This qualifies these Linux component contracts; it does not integrate the candidate, repair #1204 or qualify six leaves, paired platforms, later private/public components or runtime emission/cutover. All 69 release requirements remain in force.
+
+
+## My leaf failures and diagnostic fixture repairs
+
+My [complete failed six-method run](evidence/darwin-current-source-20261124/diagnostics/ownership-path-copy-six-leaves-failed-linux-20261125/README.md)
+retains source 67d99e5121 plus the isolated query-copy expression, 11,093 commands
+and all final guards. Owners and call-context pass their six products. Three
+other diagnostic drivers append authority text to the original frame report;
+the unchanged original-stream assertion rejects each. Genuine cache translation
+separately refuses an array write before reports. The archive preserves all four
+failures, all packets/products and 149,268 retained reports, including the 3,003
+mismatching native reports. I do not accept the six-method component.
+
+I restore only the original report text in those three fixtures at c886e6dc73.
+My [directed repair controls](evidence/darwin-current-source-20261124/diagnostics/affine-original-frame-report-fix-linux-20261125/README.md)
+verify 9,009 complete original reports through native and both VM producers,
+plus typed-AST and ordinary shadows. New feature reports and existing assertions
+remain required. Their complete corrected feature/sanitizer qualification remains
+separate under #1261.
+
+My [read-only cache localization](evidence/darwin-current-source-20261124/diagnostics/affine-cache-array-write-localization-linux-20261125/README.md)
+finds the first-pass unknown receiver at `describe_cache` offset 1645, the
+`input.keys` row write. My [small factory controls](evidence/darwin-current-source-20261124/diagnostics/affine-cache-forward-factory-controls-linux-20261125/README.md)
+retain a genuine-produced forward-factory module that runs correctly in NanoVM
+but refuses C translation; the inline-construction control translates. I keep
+the original refusal open under #1262.
+
+My test-source clarification at 901caef8e6 accumulates explicitly typed key rows
+before constructing the diagnostic input record. Other initial state still comes
+from the factory. Every preceding/following function and the complete
+post-seeding clone/mutation body remain unchanged. My [complete four-route cache controls](evidence/darwin-current-source-20261124/diagnostics/affine-cache-key-seed-controls-linux-20261125/README.md)
+verify all 1,001 original plus 3,317 new packets through actual C, C-seed native and
+both VM producers: 17,272 matching reports, 1,126 commands and matching recorded
+guards. Both C translations and ordinary native shadows pass, including the new
+202-byte positive report shadow.
+
+These controls do not execute sanitized generated C. My full permanent cache
+method, combined leaf qualification, paired platforms, public profile admission,
+pure runtime C emission and executable cutover remain required. The ownership-query
+copy expression remains isolated, and no fixture repair closes the original C
+translator defects or the full 69-entry release contract.
+
+
+My [later-fixture readiness failure](evidence/darwin-current-source-20261124/diagnostics/affine-later-fixture-readiness-failed-linux-20261126/README.md)
+retains 27 commands: preflight translates through both producers, while private
+body and public fixtures refuse translation through both. All nine positive
+probes reuse one original frame carrier; they do not test the feature corpora.
+Four read-only traces identify the same `affine_analysis.put` write at byte 42,
+with its nested-array receiver still unknown during the first inference pass.
+The exact helper and shadow pass all eight standalone controls, including both
+translations. I retain this contextual distinction under #1262. Readiness
+remains false, the C owner retains the product repair, and complete later
+native/sanitizer and release qualification remain open.
+
+
+My [full Linux three-driver repair qualification](evidence/darwin-current-source-20261124/diagnostics/affine-original-frame-three-five-linux-20261125/README.md)
+now passes all three corrected permanent methods: 251,982 complete reports and
+19,752 commands, including every original frame, all new aggregate/effect/value-call
+criteria and both producers' sanitized products. The independent reader verifies
+85,492 records, original limits, exact source/image/tool/object/host/provider/observer
+guards and journal replay. This verifies the formatter repairs; complete cache,
+combined leaf, paired-platform and later profile/runtime emission requirements
+remain separate. It does not repair #1262 or admit the release.
+
+
+My [complete Linux typed cache qualification](evidence/darwin-current-source-20261124/diagnostics/affine-cache-key-seed-five-linux-20261126/README.md)
+now passes all 4,318 unchanged packets across six products: 25,908 complete
+reports and 1,688 commands, including both sanitized products. The independent
+reader checks 11,642 records, original limits, published dependencies and full
+source/image/tool/object/host/provider/observer guards and journal. I retain the
+original failed combined six-method run and require a fresh combined gate on the
+corrected source before later qualification. #1262, paired platforms, runtime
+emission and release cutover remain open.
+
+
+My [corrected combined Linux six-leaf receipt](evidence/darwin-current-source-20261124/diagnostics/ownership-path-copy-six-leaves-corrected-five-linux-20261126/README.md) now passes all six unchanged permanent methods in5,460.293 seconds:28,836 successful commands and382,158 complete reports across actual C and five generated products, retaining1001 old frames per method and all57,687 new packets. The independent reader verifies125,445 records, every criterion/input/stream, original limits, exact journal and full source/Git/overlay/image/tool/object/host/provider/observer guards and published dependencies. Its selected source exactly matches the full cache gate:67d base, isolated query copy, three c886 formatter repairs and901 typed-cache fixture clarification. I preserve the failed original combined run and every original countercase. This accepts that isolated Linux combined component gate; paired platforms, query integration, complete preflight/private/public qualification, public profile/admission composition, actual pure runtime C emission, native cutover and all69 release requirements remain. Private/public translation still requires the C owner's #1262 repair.
+
+
+My [full Linux fresh-function preflight receipt](evidence/darwin-current-source-20261124/diagnostics/affine-preflight-five-linux-20261126/README.md) now passes the unchanged permanent method after the published six-leaf gate:286.419 seconds,818 successful commands and7374 complete reports over all1001 old plus228 new packets across six products. The reader independently verifies6829 records, every criterion/stream, original limits, exact journal and full source/Git/overlay/image/tool/object/host/provider/observer guards, including the six-parent manifest/reader at pushed97e17d505a. I retain both actual setup refusals and both collector refusals. This qualifies fresh-function preparation only; my C body retains its original visit bound. Private-body/public translation still requires the C owner's #1262 repair, followed by complete permanent qualification. Paired platforms, query integration, profile/admission composition, actual pure runtime C emission, native cutover and all69 release requirements remain.
+
+
+## My first typed scalar C expressions
+
+My [private scalar-expression primitive](NANOLANG_SCALAR_C_EMISSION.md) now emits fifteen typed signed-integer, comparison and boolean operations over bounded generated register names. I preserve wrapping arithmetic, guarded zero/overflow division and remainder, strict-C aliases and exact refusal fields. My caller must already own checked types, bound values and evaluation order; this primitive grants no module or executable authority.
+
+My [Linux receipt](evidence/darwin-current-source-20261124/diagnostics/scalar-c-expressions-five-linux-20261126/README.md) verifies five permanent methods/72 commands across all five routes, including the unchanged C-text regression, actual emitted C under GCC sanitizers/O3, a byte-identical Clang18 control and actual VM/C-reference observations. The reader checks all24,822 archived records, full source/tool/image/producer/six-host guards and original limits, and replays every original criterion against retained products. I preserve the failed setup, oracle and alias runs and the earlier incomplete-guard functional pass. This component depends only on C-text and ISA metadata; private/public body qualification still needs the C owner's #1262 repair. Complete representation, profile/admission composition, runtime and host emission, paired qualification, installation, cutover and all69 release requirements remain open.
+
+
+## My binary64 C expressions
+
+My [binary64 expression primitive](NANOLANG_BINARY64_C_EMISSION.md) emits the eleven existing typed arithmetic/comparison/negation operations and exact two-way bit transport. I preserve canonical arithmetic NaNs, signed-zero division precedence, noncontracted rounding, transported NaN payloads and same-register NaN comparisons. NanoLang selects expressions; the existing fixed target C arithmetic runtime remains explicit. My caller retains checked-type, bound-register and evaluation-order authority.
+
+My [Linux receipt](evidence/darwin-current-source-20261124/diagnostics/binary64-c-expressions-five-linux-20261126/README.md) verifies all nine permanent methods/117 commands, including unchanged scalar/C-text regressions, five actual report routes, strict emitted-C GCC SAN/O3 and Clang controls and actual VM/C-reference carriers against an exact integer/rational oracle. The reader checks 4,543 records, complete selected guards and the live collector refusal, then replays every original method/argument/budget/input/assertion without executing products. This qualifies private expression spelling and observed bits only. #1262-dependent private/public admission, representation/body/aggregate/ownership/host emission, paired qualification, installed native cutover and all 69 release requirements remain required.
+
+
+## My simultaneous scalar C transfers
+
+My [private transfer emitter](NANOLANG_PARALLEL_C_EMISSION.md) validates checked integer/boolean/binary64 register columns and captures every source before writing any destination in a fresh C block. I preserve cycles, fan-out, identity and empty sets; malformed columns, duplicate destinations, conflicting tags and late failures return no partial C. I change no C-text name kind or executable authority.
+
+My [Linux receipt](evidence/darwin-current-source-20261124/diagnostics/parallel-c-transfers-five-linux-20261126/README.md) verifies all twelve permanent methods/162 commands, including unchanged binary64/scalar/C-text regressions. All 523 reports match across five actual routes; actual strict GCC SAN/O3 and Clang O3 products match independent register snapshots, and VM/C-reference carriers match the same scalar-transfer semantics. The independent reader checks 4,561 records, every capture-before-write block, full selected guards, live collector refusal and exact replay of every original method and recorded command. Tagged/aggregate/ownership transfers, complete representation/CFG/body/profile composition, host emission, paired qualification, installed native cutover and all 69 release criteria remain required. #1262 still blocks the original private/public full native gates.
+
+
+My first scalar-transfer receipt above used2 as boolean although canonical bool is4. I withdraw its canonical-tag claim while retaining the immutable private-mapping observations. My [corrected #1264 receipt](evidence/darwin-current-source-20261124/diagnostics/parallel-c-transfers-canonical-five-linux-20261126/README.md) preserves every old raw input, adds canonical bool topology and all value-tag boundaries, and verifies actual VM/C-reference TYPE_CHECK identities. All13 permanent methods/162 commands pass at original limits, with947 complete reports through five routes and full selected source/producer/library guards. The snapshot-before-write algorithm is byte-identical; only the type guard and its canonical tests change. The reader independently verifies4579 records, the exact repair and every original assertion against captured products. This restores only private Linux canonical scalar-transfer acceptance; all later representation/body/profile/ownership/host/paired/cutover and69-entry release requirements remain open.
+
+### My graph, directed solver and bounded reachability
+
+My [representation graph](NANOLANG_REPRESENTATION_GRAPH.md) implements the pinned exact graph and all directed storage operations in pure NanoLang. Its [Linux solver receipt](evidence/darwin-current-source-20261124/diagnostics/shape-solver-five-linux-20261126/README.md) retains22 methods/384 commands, the unchanged original C suite’s3890 assertions/232 recorded programs/132840 API expectations, and9960 independently checked records. This remains component acceptance rather than module representation admission.
+
+My [bounded constant-reachability helper](NANOLANG_CONSTANT_REACHABILITY.md) now matches the whole pinned nvm2c_reachability.h decision. Its [Linux receipt](evidence/darwin-current-source-20261124/diagnostics/constant-reachability-five-linux-20261126/README.md) passes4 methods/706 commands over1254 matrix packets,13 exact resource controls, imported shadows and the three original classifier inputs/patches. All19420 archive records and final/failed original-method journals verify independently. I retain the mistaken draft visit count and DUP/PICK source refusal; corrected independent counters and exact source repair precede acceptance. All original limits and selected source/image/tool/genuine-producer/six-host/receipt guards remain.
+
+My [shared effect-arm collector](NANOLANG_EFFECT_FLOW.md) now retains the complete pinned handler-entry/byte-flow contract in pure NanoLang. Its [Linux receipt](evidence/darwin-current-source-20261124/diagnostics/effect-flow-five-linux-20261126/README.md) passes2 methods/66 commands over818 matrix packets,436 explicit expectations and imported shadows through unchanged ordinary/sanitized C and five routes. The reader verifies13977 records, the exact fixture-oracle correction, the separate pre-product storage refusal and both original-method journal replays without executing products. This helper is not yet composed into the callable linker.
+
+My [callable collector/linker draft](NANOLANG_CALLABLE_CONSTRAINTS.md) now implements direct/indirect/capture/global/effect flows, variant-arm projection provenance and mutable array/map alias identity with the full fixed point. Its [three-route diagnostic](evidence/darwin-current-source-20261124/diagnostics/callables-three-route-diagnostic-linux-20261126/README.md) passes3 methods/100 commands,978 matrix packets, all505 unchanged original C assertions and26 captured original inputs. All22538 records and five original-method journals verify independently without products. I retain the full five-route native failure: both producer modules reach #1262's unknown-receiver/array-valued write path at unchanged nvm2c.c:2891. Three routes do not establish five-route or native acceptance; the whole callable gate stays open.
+
+I still qualify the complete callable collector/linker through all five routes and compose full representation, reachable bodies, runtime/profile/ownership emission and executable admission. Paired platforms, actual installed pure-translator cutover, #1262’s original private/public qualification and all69 release requirements remain. These private helpers supply no executable authority. No C product source or compiler/bootstrap/CI selection changes.
+
+
+My [callable observer-bound follow-up](evidence/darwin-current-source-20261124/diagnostics/callables-three-route-bounds-linux-20261126/README.md) moves the test observer's operation-name count check before pointer-table allocation and preserves all978 old packets as an exact prefix. Eleven malformed count/length/width neighbors extend the diagnostic to989 packets/435 explicit expectations; all3 methods/100 commands pass76.300037s with the same505 original C assertions and26 captured original inputs. Its reader verifies5258 new records plus the preceding22538 records and six journals without products. No pure NanoLang/C product/driver/bootstrap source changes; the full five-route native gate remains open under #1262.
+
+
+## My C-repair handoff and current qualification boundary
+
+The explicit handoff supersedes my earlier C-owner barrier under #1262 and
+#1265. I repair the contextual array writes and checked storage views in my C
+reference translator, and retain independent assembly-validation work with every
+compiler invocation. These changes repair the reference and bootstrap path;
+they do not implement my missing pure NanoLang translator.
+
+My [guarded Linux repair receipt](evidence/c-repairs-linux-20261126/README.md)
+accepts eleven original private/public/cache, solver and five-route callable
+methods on the repaired candidate. I retain the enclosing fourteen-method
+observer failure:31 supplemental text-stream observations fail in the logger,
+with no product assertion failure. The three uncompleted companion methods pass
+separately after that observer correction, with identical source/tool/image
+guards. I retain1001 original frames per affine consumer,308 private,845 public
+and3317 cache additions. I do not erase the original whole-run failure.
+
+My later [current Linux native receipt](evidence/c-repairs-linux-20261126/native-current-linux-20261127/README.md)
+qualifies product source6e09c07a9f through bootstrap17, native36 and emitter12.
+It retains my compact legacy pointer carriers and platform-specific generated
+math flags, all original assertions and1800/30/default10/300 limits. This is a
+separate current native component receipt, not a re-execution of the earlier
+private/public/callable matrix with that Stage2 image.
+
+I require that current-producer component check next, then full representation,
+profile/admission, body/runtime/ownership and host-emission composition, paired
+platform qualification and installed pure-translator cutover. The old C-owner
+barrier no longer describes that work. My two frozen structured-C CAST_STRING
+assertions remain a separate explicit reconciliation decision; I do not count
+that broad target as passing. All69 release requirements remain in force.
+
+
+## My current-qualified-Stage2 Linux components
+
+My [current component receipt](evidence/c-repairs-linux-20261126/current-components-20261127/README.md)
+now accepts all eleven original private/public/cache, solver and callable core
+methods on source6e09c07a9f with the actual qualified current Stage2 producer.
+I preserve the enclosing1911.659s fourteen-method failure:29 cast subcases lack
+my omitted assembler prerequisite. Original nanoisa_dump builds without changing
+any prior guarded byte, then all three unchanged cast companions pass5.835s.
+Source/tool/existing-image guards match across both runs; the whole original
+observer remains failed.
+
+The independent reader verifies30680 records/7722 chunks,3925 Git source files,
+selected products and the qualified producer's immutable native receipt/host
+closure. It replays44838 full affine reports from the original packet builders
+and report oracles with process execution forbidden. This supersedes my earlier
+uncompleted current-producer checkpoint and C-owner barrier. Historical failure
+receipts above retain their original boundaries.
+
+I still implement complete module representation, profile/admission, body/runtime,
+aggregate/ownership and host emission, then qualify paired platforms and the
+installed pure-translator cutover. Current Darwin emitter12 fails at C-seed
+setup's ordinary10 deadline; my separate lifecycle diagnostic grants no release
+acceptance. Frozen structured-C CAST_STRING reconciliation, required exact
+candidate CI and all69 release requirements remain open.
+
+## My private storage and carrier facts
+
+My [storage-kind helper](NANOLANG_STORAGE_KINDS.md) passes its exhaustive
+131584-input actual-C/five-route Linux component gate. My adjacent
+[scalar-carrier helper](NANOLANG_CARRIER_MASKS.md) now passes its65792-input
+gate, including exact unknown/mask/optional boundaries, malformed inputs and
+imported shadows. Their independent readers retain exact bytes and all
+selected guards, with product execution forbidden during replay. Neither
+helper grants payload or executable admission. I still compose complete
+module representation and body/runtime/profile/ownership/host emission,
+qualify paired platforms and installed cutover, reconcile frozen assertions
+and pass exact-candidate CI and all69 release requirements.
+
+My [C ABI type selectors](NANOLANG_C_ABI_TYPES.md) now pass their131328-input
+branch-domain matrix plus6144 context controls through actual C and five
+NanoLang routes. The four-method receipt retains exact spellings/fallbacks,
+imported shadows, the missing-header setup failure, unchanged product bytes
+and all selected guards. Its reader replays every original method without
+products. These facts grant no module/payload/admission authority; checked
+table indexing and full module/declaration/body/runtime/profile/ownership/
+host composition and all later qualification/release gates remain.
+
+My [complete classifier fact joins](NANOLANG_REPRESENTATION_FACTS.md) now pass
+a six-method, seven-route component gate with actual unchanged C. This value
+and owned-vector API grants no module/table/payload admission; full composition
+and release qualification remain required.

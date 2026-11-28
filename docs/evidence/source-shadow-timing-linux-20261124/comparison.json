@@ -1,0 +1,58 @@
+{
+  "result": "PASS",
+  "meaning": "Existing trace comparison, not renewed qualification",
+  "native_attempts": 0,
+  "comparisons": [
+    {
+      "mode": "ordinary",
+      "kind": "unbound-failure",
+      "matching_completed_prefix": 1294,
+      "nano_inputs": 233,
+      "prior_prefix_seconds": 5.173909,
+      "observed_prefix_seconds": 9.912262,
+      "prefix_elapsed_ratio": 1.9158168417728259,
+      "median_ratio_prior_at_least_5ms": 2.043170757326424,
+      "observed_dispatch_to_status_seconds": 10.513914098,
+      "completed_shadow_fraction": 0.9427756311881558
+    },
+    {
+      "mode": "ordinary",
+      "kind": "cpu7-failure",
+      "matching_completed_prefix": 1078,
+      "nano_inputs": 233,
+      "prior_prefix_seconds": 4.758013,
+      "observed_prefix_seconds": 9.929719,
+      "prefix_elapsed_ratio": 2.0869465888386602,
+      "median_ratio_prior_at_least_5ms": 2.222258116620901,
+      "observed_dispatch_to_status_seconds": 10.281856136,
+      "completed_shadow_fraction": 0.9657515986080512
+    },
+    {
+      "mode": "private",
+      "kind": "unbound-failure",
+      "matching_completed_prefix": 1076,
+      "nano_inputs": 233,
+      "prior_prefix_seconds": 7.625425,
+      "observed_prefix_seconds": 9.297518,
+      "prefix_elapsed_ratio": 1.2192786631564798,
+      "median_ratio_prior_at_least_5ms": 1.224604966139955,
+      "observed_dispatch_to_status_seconds": 10.011592039,
+      "completed_shadow_fraction": 0.9286752759982293
+    },
+    {
+      "mode": "private",
+      "kind": "cpu7-failure",
+      "matching_completed_prefix": 1048,
+      "nano_inputs": 233,
+      "prior_prefix_seconds": 7.09467,
+      "observed_prefix_seconds": 9.903834,
+      "prefix_elapsed_ratio": 1.3959541458587925,
+      "median_ratio_prior_at_least_5ms": 1.4319094946077395,
+      "observed_dispatch_to_status_seconds": 10.009396809,
+      "completed_shadow_fraction": 0.9894536293230893
+    }
+  ],
+  "historical_cause_established": false,
+  "current_source_acceptance": false,
+  "whole_release": false
+}

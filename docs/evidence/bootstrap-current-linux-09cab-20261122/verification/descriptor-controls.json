@@ -1,0 +1,17 @@
+{
+  "status": "PASS",
+  "controls": [
+    {
+      "control": "duplicate-bytes",
+      "refused": true
+    },
+    {
+      "control": "duplicate-compressed_sha256",
+      "refused": true
+    },
+    {
+      "control": "duplicate-artifact",
+      "refused": true
+    }
+  ]
+}

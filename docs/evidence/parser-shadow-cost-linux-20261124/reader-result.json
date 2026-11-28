@@ -1,0 +1,77 @@
+{
+  "result": "PASS",
+  "source": "3331bdfaaf66176e7b1dc704285768a4692bf873",
+  "records": 3857,
+  "git_inputs": 3518,
+  "retained_native_images": 43,
+  "observations": [
+    {
+      "mode": "ordinary",
+      "observer": "sampler",
+      "samples": 690,
+      "methods": 277
+    },
+    {
+      "mode": "private",
+      "observer": "sampler",
+      "samples": 1047,
+      "methods": 277
+    },
+    {
+      "mode": "ordinary",
+      "observer": "counter",
+      "samples": 664,
+      "methods": 277,
+      "resources": {
+        "pid": 3727824,
+        "status": 0,
+        "malloc_calls": 1386245,
+        "calloc_calls": 1850,
+        "realloc_calls": 477,
+        "free_calls": 1155357,
+        "malloc_requested_bytes": 475246027,
+        "calloc_requested_bytes": 1786,
+        "realloc_requested_bytes": 184384,
+        "counter_overflows": 0,
+        "user_seconds": 0.353397,
+        "system_seconds": 0.310633,
+        "minor_faults": 108788,
+        "major_faults": 0,
+        "gc_objects_before": 99,
+        "gc_objects_after": 223306,
+        "gc_usage_before": 4059,
+        "gc_usage_after": 11118995
+      }
+    },
+    {
+      "mode": "private",
+      "observer": "counter",
+      "samples": 1048,
+      "methods": 277,
+      "resources": {
+        "pid": 3733240,
+        "status": 0,
+        "malloc_calls": 1572507,
+        "calloc_calls": 183890,
+        "realloc_calls": 501,
+        "free_calls": 2706541,
+        "malloc_requested_bytes": 513936379,
+        "calloc_requested_bytes": 12056186,
+        "realloc_requested_bytes": 457280,
+        "counter_overflows": 0,
+        "user_seconds": 1.005581,
+        "system_seconds": 0.043671,
+        "minor_faults": 2671,
+        "major_faults": 0,
+        "gc_objects_before": 99,
+        "gc_objects_after": 99,
+        "gc_usage_before": 4059,
+        "gc_usage_after": 4059
+      }
+    }
+  ],
+  "full_source_acceptance": false,
+  "historical_cause_established": false,
+  "default_ownership_enabled": false,
+  "whole_release": false
+}

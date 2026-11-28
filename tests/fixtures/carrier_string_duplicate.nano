@@ -1,0 +1,7 @@
+fn duplicate_loop_return() -> string {
+    for text in ["left", "right"] { return (to_string text) }
+    return "missing"
+}
+shadow duplicate_loop_return { assert (== (duplicate_loop_return) "left") }
+fn main() -> int { return 0 }
+shadow main { assert (== (main) 0) }

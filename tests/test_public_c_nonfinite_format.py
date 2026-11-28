@@ -2,10 +2,10 @@
 import json
 import os
 from pathlib import Path
-import re
 import subprocess
 import tempfile
 import unittest
+from tests.support.public_c_fixture import command_with_public_c_providers, private_c_helper_prefix
 
 ROOT=Path(__file__).resolve().parents[1]
 CASES=[(0x7ff8000000000001,'nan'),(0xfff8000000000001,'-nan'),
@@ -21,6 +21,7 @@ class PublicCFormat(unittest.TestCase):
         self.work=Path(tempfile.mkdtemp(prefix='nano-public-c-format-'))
         print('I retain public C formatting evidence at',self.work,flush=True)
     def run_cmd(self,args,expected=0):
+        args = command_with_public_c_providers(args)
         result=subprocess.run(list(map(str,args)),cwd=ROOT,capture_output=True,text=True,timeout=240)
         self.assertEqual(result.returncode,expected,f'command={args!r}\n{result.stdout}\n{result.stderr}')
         self.assertNotIn('Sanitizer',result.stderr)
@@ -56,7 +57,7 @@ class PublicCFormat(unittest.TestCase):
             self.assertEqual(self.run_cmd([exe]).stdout,'1\n2\n'+'3\n'*300+'-nan\n-nan\n1\n')
     def test_generated_cleanup_and_allocation_registration_refusals(self):
         output,code=self.emit('fn main()->int{return 0} shadow main{assert (== (main) 0)}')
-        prefix=re.search(r'static const char \*(nano_cb_\d+_)float_text_new',code).group(1)
+        prefix=private_c_helper_prefix(code, 'float_text_new')
         harness=self.work/'ownership.c'
         harness.write_text(FAILURE_HARNESS.replace('GENERATED',str(output)).replace('PREFIX',prefix))
         exe=self.work/'ownership';self.compile(harness,exe)

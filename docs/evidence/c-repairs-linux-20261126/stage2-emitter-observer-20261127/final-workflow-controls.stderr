@@ -1,0 +1,21 @@
+test_all_plans_validate_before_first_cache_change (test_cseed_shadow_lifecycle_restore.CacheNamespaceRestore.test_all_plans_validate_before_first_cache_change) ... ok
+test_ambiguous_generations_refuse_without_cache_mutation (test_cseed_shadow_lifecycle_restore.CacheNamespaceRestore.test_ambiguous_generations_refuse_without_cache_mutation) ... ok
+test_atomic_publisher_and_unique_restoration (test_cseed_shadow_lifecycle_restore.CacheNamespaceRestore.test_atomic_publisher_and_unique_restoration) ... ok
+test_both_cache_layouts_and_unrelated_directory (test_cseed_shadow_lifecycle_restore.CacheNamespaceRestore.test_both_cache_layouts_and_unrelated_directory) ... ok
+test_current_regular_file_refuses (test_cseed_shadow_lifecycle_restore.CacheNamespaceRestore.test_current_regular_file_refuses) ... ok
+test_empty_and_nested_current_trees_refuse (test_cseed_shadow_lifecycle_restore.CacheNamespaceRestore.test_empty_and_nested_current_trees_refuse) ... ok
+test_escaped_and_dangling_current_links_refuse (test_cseed_shadow_lifecycle_restore.CacheNamespaceRestore.test_escaped_and_dangling_current_links_refuse) ... ok
+test_evidence_and_cache_roots_cannot_escape (test_cseed_shadow_lifecycle_restore.CacheNamespaceRestore.test_evidence_and_cache_roots_cannot_escape) ... ok
+test_failed_link_creation_restores_flattened_directory (test_cseed_shadow_lifecycle_restore.CacheNamespaceRestore.test_failed_link_creation_restores_flattened_directory) ... ok
+test_missing_changed_and_extra_generation_contents_refuse (test_cseed_shadow_lifecycle_restore.CacheNamespaceRestore.test_missing_changed_and_extra_generation_contents_refuse) ... ok
+test_nonregular_generation_entry_refuses (test_cseed_shadow_lifecycle_restore.CacheNamespaceRestore.test_nonregular_generation_entry_refuses) ... ok
+test_second_pass_keeps_pointers_generations_and_flattened_evidence (test_cseed_shadow_lifecycle_restore.CacheNamespaceRestore.test_second_pass_keeps_pointers_generations_and_flattened_evidence) ... ok
+test_native_process_controls (test_stage2_emitter_diagnostic.Stage2EmitterDiagnostic.test_native_process_controls) ... ok
+test_observer_retains_timeout_stderr_and_exact_status (test_stage2_emitter_diagnostic.Stage2EmitterDiagnostic.test_observer_retains_timeout_stderr_and_exact_status) ... ok
+test_original_command_requires_exact_product_and_private_destination (test_stage2_emitter_diagnostic.Stage2EmitterDiagnostic.test_original_command_requires_exact_product_and_private_destination) ... ok
+test_partial_compiler_files_survive_without_following_links (test_stage2_emitter_diagnostic.Stage2EmitterDiagnostic.test_partial_compiler_files_survive_without_following_links) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 0.462s
+
+OK

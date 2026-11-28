@@ -1,0 +1,132 @@
+module nvm2c_binary64_c
+module "src_nano/nvm2c/c_text.nano" as tokens
+module "src_nano/nvm2c/scalar_c.nano" as scalar
+module "src_nano/nvm2c/isa_metadata.nano" as isa
+
+# I select target C expressions over already checked, evaluated registers.
+pub struct Expression { valid: bool, arity: int, boolean: bool, text: string }
+
+fn refused() -> Expression {
+    return Expression { valid: false, arity: 0, boolean: false, text: "" }
+}
+shadow refused {
+    let result: Expression = (refused)
+    assert (== result.valid false)
+    assert (== result.arity 0)
+    assert (== result.boolean false)
+    assert (== result.text "")
+}
+
+fn arity(opcode: int) -> int {
+    let transport: bool = (or (== opcode 141) (== opcode 142))
+    let arithmetic: bool = (and (>= opcode 200) (<= opcode 204))
+    let comparison: bool = (and (>= opcode 216) (<= opcode 221))
+    if (not (or transport (or arithmetic comparison))) { return 0 }
+    let mut count: int = 2
+    if (or transport (== opcode 204)) { set count 1 }
+    if (!= (isa.primary_pops opcode) count) { return 0 }
+    if (!= (isa.primary_pushes opcode) 1) { return 0 }
+    return count
+}
+shadow arity {
+    assert (== (arity 141) 1)
+    assert (== (arity 142) 1)
+    assert (== (arity 200) 2)
+    assert (== (arity 204) 1)
+    assert (== (arity 216) 2)
+    assert (== (arity 221) 2)
+    assert (== (arity 140) 0)
+    assert (== (arity 205) 0)
+    assert (== (arity 222) 0)
+    assert (== (arity -1) 0)
+    assert (== (arity 256) 0)
+}
+
+fn helper(opcode: int) -> string {
+    if (== opcode 141) { return "nano_aot_f64_from_bits" }
+    if (== opcode 142) { return "nano_aot_f64_to_bits" }
+    if (== opcode 200) { return "nano_rt_f64_add" }
+    if (== opcode 201) { return "nano_rt_f64_sub" }
+    if (== opcode 202) { return "nano_rt_f64_mul" }
+    if (== opcode 203) { return "nano_rt_f64_div" }
+    if (== opcode 204) { return "nano_aot_f64_neg" }
+    if (== opcode 216) { return "nano_aot_f64_eq" }
+    if (== opcode 217) { return "nano_aot_f64_ne" }
+    if (== opcode 218) { return "nano_aot_f64_lt" }
+    if (== opcode 219) { return "nano_aot_f64_le" }
+    if (== opcode 220) { return "nano_aot_f64_gt" }
+    if (== opcode 221) { return "nano_aot_f64_ge" }
+    return ""
+}
+shadow helper {
+    assert (== (helper 141) "nano_aot_f64_from_bits")
+    assert (== (helper 142) "nano_aot_f64_to_bits")
+    assert (== (helper 200) "nano_rt_f64_add")
+    assert (== (helper 203) "nano_rt_f64_div")
+    assert (== (helper 204) "nano_aot_f64_neg")
+    assert (== (helper 216) "nano_aot_f64_eq")
+    assert (== (helper 221) "nano_aot_f64_ge")
+    assert (== (helper 199) "")
+    assert (== (helper 222) "")
+}
+
+pub fn prelude() -> string {
+    return (+ (scalar.prelude) "#include <stdint.h>\n#include <string.h>\n#include \"binary64_arithmetic.h\"\nstatic inline double nano_aot_f64_from_bits(int64_t value) {\n    uint64_t bits = (uint64_t)value; double result;\n    memcpy(&result, &bits, sizeof result); return result;\n}\nstatic inline int64_t nano_aot_f64_to_bits(double value) {\n    uint64_t bits; memcpy(&bits, &value, sizeof bits);\n    return nano_aot_i64_from_bits(bits);\n}\nstatic inline double nano_aot_f64_neg(double value) {\n    uint64_t bits; memcpy(&bits, &value, sizeof bits);\n    bits ^= UINT64_C(0x8000000000000000);\n    memcpy(&value, &bits, sizeof value); return value;\n}\nstatic inline int64_t nano_aot_f64_eq(double left, double right) { return left == right; }\nstatic inline int64_t nano_aot_f64_ne(double left, double right) { return left != right; }\nstatic inline int64_t nano_aot_f64_lt(double left, double right) { return left < right; }\nstatic inline int64_t nano_aot_f64_le(double left, double right) { return left <= right; }\nstatic inline int64_t nano_aot_f64_gt(double left, double right) { return left > right; }\nstatic inline int64_t nano_aot_f64_ge(double left, double right) { return left >= right; }\n")
+}
+shadow prelude {
+    let text: string = (prelude)
+    assert (str_starts_with text "#include <stdint.h>")
+    assert (> (str_length text) 1000)
+}
+
+pub fn emit(opcode: int, inputs: array<int>) -> Expression {
+    let count: int = (arity opcode)
+    if (or (== count 0) (!= (array_length inputs) count)) { return (refused) }
+    let left: string = (tokens.name 1 (at inputs 0))
+    if (== left "") { return (refused) }
+    let mut arguments: string = left
+    if (== count 2) {
+        let right: string = (tokens.name 1 (at inputs 1))
+        if (== right "") { return (refused) }
+        set arguments (+ left (+ ", " right))
+    }
+    let name: string = (helper opcode)
+    if (== name "") { return (refused) }
+    return Expression { valid: true, arity: count,
+        boolean: (and (>= opcode 216) (<= opcode 221)),
+        text: (+ name (+ "(" (+ arguments ")"))) }
+}
+shadow emit {
+    let sum: Expression = (emit 200 [0,1])
+    assert sum.valid
+    assert (== sum.arity 2)
+    assert (== sum.boolean false)
+    assert (== sum.text "nano_rt_f64_add(nano_aot_local_0, nano_aot_local_1)")
+    let alias: Expression = (emit 216 [5,5])
+    assert alias.valid
+    assert alias.boolean
+    assert (== alias.text "nano_aot_f64_eq(nano_aot_local_5, nano_aot_local_5)")
+    let bits: Expression = (emit 142 [4294967295])
+    assert bits.valid
+    assert (== bits.arity 1)
+    assert (== bits.text "nano_aot_f64_to_bits(nano_aot_local_4294967295)")
+    let invalid: Expression = (emit 200 [-1,0])
+    assert (== invalid.valid false)
+    assert (== invalid.arity 0)
+    assert (== invalid.boolean false)
+    assert (== invalid.text "")
+    assert (== (emit 141 []).valid false)
+    assert (== (emit 204 [0,1]).valid false)
+    assert (== (emit 216 [-1,-1]).valid false)
+    assert (== (emit 221 [4294967296,4294967296]).valid false)
+    assert (== (emit 192 [0,1]).valid false)
+    assert (== (emit 256 [0]).valid false)
+    assert (emit 141 [4294967295]).valid
+    let mut accepted: int = 0
+    for opcode in (range 0 256) {
+        let mut inputs: array<int> = [0,1]
+        if (or (== opcode 141) (or (== opcode 142) (== opcode 204))) { set inputs [0] }
+        if (emit opcode inputs).valid { set accepted (+ accepted 1) }
+    }
+    assert (== accepted 13)
+}

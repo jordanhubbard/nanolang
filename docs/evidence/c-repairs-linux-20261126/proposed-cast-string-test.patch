@@ -1,0 +1,17 @@
+--- a/tests/nanoisa/test_nvm2c.c
++++ b/tests/nanoisa/test_nvm2c.c
+@@ -2672 +2672 @@
+-static void test_cast_string_array_is_refused(void) {
++static void test_cast_string_array_matches_vm(void) {
+@@ -2688,2 +2688,6 @@
+-    CHECK(c == NULL, "CAST_STRING of an array stays outside the closed subset");
+-    CHECK(strstr(err, "CAST_STRING") != NULL, "error names CAST_STRING");
++    CHECK(c != NULL, "I admit the VM empty-text CAST_STRING array contract");
++    if (c) {
++        int status = -1;
++        CHECK(compile_and_run(c, &status) == 0 && status == 0,
++              "I return empty text for array CAST_STRING, matching VM STR_LEN zero");
++    }
+@@ -6811 +6815 @@
+-    test_cast_string_array_is_refused();
++    test_cast_string_array_matches_vm();

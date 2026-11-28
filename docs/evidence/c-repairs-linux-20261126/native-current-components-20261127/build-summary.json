@@ -1,0 +1,27 @@
+{
+  "terminal": true,
+  "exit_code": 0,
+  "seconds": 42.02109511999879,
+  "guards_match": true,
+  "source_head": "6e09c07a9f1651294e4669282cdc17ee14126775",
+  "argv": [
+    "make",
+    "-f",
+    "Makefile.gnu",
+    "-j2",
+    "CC=/usr/bin/cc",
+    "bin/nanoc_c",
+    "nano_virt",
+    "nano_vm",
+    "nvm2c",
+    "nvm2c-runtime",
+    "obj/nvm2c_affine_analysis_reference",
+    "obj/nvm2c_affine_public_reference",
+    "obj/nvm2c_affine_analysis_cache_reference"
+  ],
+  "original_build_result_sha256": "ee6474e4b6a8606384b1063e722ca47abff7852716b8d64848173d66b6d0ed63",
+  "guarded_sources": 4676,
+  "guarded_tools": 5,
+  "component_qualification_pending": true,
+  "whole_release": false
+}

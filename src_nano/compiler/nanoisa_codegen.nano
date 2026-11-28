@@ -30,6 +30,7 @@ import "src_nano/compiler/lexer.nano"
 import "src_nano/compiler/module_bindings.nano"
 import "src_nano/compiler/module_introspection.nano"
 module "modules/compiler_support/compiler_support.nano" as CompilerSupport
+module "modules/std/fs.nano" as RegexFiles
 module "modules/nanoisa/nanoisa.nano" as OrdinaryProof
 from "src_nano/compiler/diagnostics.nano" import diag_list_new
 
@@ -257,10 +258,21 @@ let mut nisa_loop_end: string = ""
 let mut nisa_loop_index: string = ""
 let mut nisa_import_names: array<string> = []
 let mut nisa_import_text: string = ""
+let mut nisa_native_owner: int = -1
+let mut nisa_native_artifact: string = ""
+let mut nisa_native_pending: bool = false
+let mut nisa_native_source: string = ""
+
 let mut nisa_artifact_owners: array<int> = []
 let mut nisa_artifact_paths: array<string> = []
 let mut nisa_program_mode: bool = false
 let mut nisa_function_queue: array<int> = []
+
+# I retain name ordinals only during one sequential classic emission.
+let mut nisa_function_index_heads: HashMap<string, int> = (map_new)
+let mut nisa_function_index_next: array<int> = []
+let mut nisa_function_index_count: int = 0
+let mut nisa_function_index_active: bool = false
 let mut nisa_global_names: array<string> = []
 let mut nisa_global_types: array<string> = []
 let mut nisa_global_owners: array<int> = []
@@ -786,6 +798,12 @@ shadow nisa_ordinary_publication {
 }
 
 fn nisa_reset() -> int {
+    (nisa_function_index_clear)
+    set nisa_native_owner -1
+    set nisa_native_artifact ""
+    set nisa_native_pending false
+    set nisa_native_source ""
+
     set nisa_generics []
     set nisa_generic_type_bytes 0
     set nisa_generic_active -1
@@ -1706,11 +1724,11 @@ shadow nisa_is_inline_call {
 }
 
 fn nisa_struct_index(parser: Parser, name: string) -> int {
-    let n: int = (parser_get_struct_def_count parser)
+    let records: List<ASTStruct> = parser.structs
+    let n: int = (list_ASTStruct_length records)
     let mut i: int = 0
     while (< i n) {
-        let s: ASTStruct = (parser_get_struct_def parser i)
-        if (== s.name name) {
+        if (== (list_ASTStruct_get records i).name name) {
             return i
         } else {
             (print "")
@@ -1718,6 +1736,43 @@ fn nisa_struct_index(parser: Parser, name: string) -> int {
         set i (+ i 1)
     }
     return (- 0 1)
+}
+
+shadow nisa_struct_index {
+    let empty_tokens: List<LexerToken> = (tokenize_string "" "empty-lookup.nano" (diag_list_new))
+    let empty: Parser = (parse_program empty_tokens (list_LexerToken_length empty_tokens) "empty-lookup.nano")
+    assert (== (nisa_struct_index empty "Missing") -1)
+    assert (== (nisa_struct_index empty "") -1)
+    let tokens: List<LexerToken> = (tokenize_string "struct First { value: int } resource struct Chosen { value: int } struct Chosen { value: bool } struct Last { value: string }" "record-lookup.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "record-lookup.nano")
+    assert (not (parser_has_error parser))
+    assert (== (nisa_struct_index parser "First") 0)
+    assert (== (nisa_struct_index parser "Chosen") 1)
+    assert (== (nisa_struct_index parser "Last") 3)
+    assert (== (nisa_struct_index parser "chosen") -1)
+    assert (== (nisa_struct_index parser "Chose") -1)
+    assert (== (nisa_struct_index parser "Missing") -1)
+    let changed_tokens: List<LexerToken> = (tokenize_string "struct Changed { value: float } struct Tail { value: bool }" "changed-lookup.nano" (diag_list_new))
+    let changed: Parser = (parse_program changed_tokens (list_LexerToken_length changed_tokens) "changed-lookup.nano")
+    assert (not (parser_has_error changed))
+    let alias: Parser = parser
+    let records: List<ASTStruct> = parser.structs
+    (list_ASTStruct_set records 1 (parser_get_struct_def changed 0))
+    assert (== (parser_get_struct_def_count parser) 4)
+    assert (== (nisa_struct_index alias "Changed") 1)
+    assert (== (nisa_struct_index parser "Chosen") 2)
+    (list_ASTStruct_push records (parser_get_struct_def changed 0))
+    assert (== (parser_get_struct_def_count alias) 5)
+    assert (== (nisa_struct_index alias "Changed") 1)
+    assert (== (nisa_struct_index alias "Last") 3)
+    while (< (list_ASTStruct_length records) 132) {
+        (list_ASTStruct_push records (parser_get_struct_def changed 0))
+    }
+    (list_ASTStruct_push records (parser_get_struct_def changed 1))
+    assert (== (parser_get_struct_def_count alias) 133)
+    assert (== (nisa_struct_index alias "Tail") 132)
+    assert (== (nisa_struct_index alias "Changed") 1)
+    assert (== (nisa_struct_index alias "Missing") -1)
 }
 
 shadow nisa_struct_index {
@@ -1777,11 +1832,12 @@ shadow nisa_opaque_index {
 }
 
 fn nisa_enum_index(parser: Parser, name: string) -> int {
+    let enums: List<ASTEnum> = parser.enums
+    let count: int = (list_ASTEnum_length enums)
     let mut found: int = -1
     let mut i: int = 0
-    while (< i (parser_get_enum_count parser)) {
-        let declaration: ASTEnum = (parser_get_enum parser i)
-        if (== declaration.name name) {
+    while (< i count) {
+        if (== (list_ASTEnum_get enums i).name name) {
             if (>= found 0) { return -1 }
             set found i
         }
@@ -1794,6 +1850,17 @@ shadow nisa_enum_index {
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "enum.nano")
     assert (== (nisa_enum_index parser "Mode") 0)
     assert (== (nisa_enum_index parser "Missing") -1)
+    let empty_tokens: List<LexerToken> = (tokenize_string "" "empty-enum.nano" (diag_list_new))
+    let empty: Parser = (parse_program empty_tokens (list_LexerToken_length empty_tokens) "empty-enum.nano")
+    assert (== (nisa_enum_index empty "Mode") -1)
+    let last_tokens: List<LexerToken> = (tokenize_string "enum First { A } enum Mode { B } enum Last { C }" "many-enums.nano" (diag_list_new))
+    let last: Parser = (parse_program last_tokens (list_LexerToken_length last_tokens) "many-enums.nano")
+    assert (== (nisa_enum_index last "Mode") 1)
+    assert (== (nisa_enum_index last "Last") 2)
+    assert (== (nisa_enum_index last "mode") -1)
+    let duplicate_tokens: List<LexerToken> = (tokenize_string "enum First { A } enum Mode { B } enum Last { C } enum Mode { D }" "duplicate-enum.nano" (diag_list_new))
+    let duplicate: Parser = (parse_program duplicate_tokens (list_LexerToken_length duplicate_tokens) "duplicate-enum.nano")
+    assert (== (nisa_enum_index duplicate "Mode") -1)
 }
 
 fn nisa_enum_receiver(parser: Parser, access: ASTFieldAccess) -> int {
@@ -1884,12 +1951,13 @@ shadow nisa_union_arguments {
 }
 
 fn nisa_union_index(parser: Parser, name: string) -> int {
-    if (== (parser_get_union_count parser) 0) { return -1 }
+    let count: int = (list_ASTUnion_length parser.unions)
+    if (== count 0) { return -1 }
     let base: string = (nisa_union_base name)
     let mut found: int = -1
     let mut i: int = 0
-    while (< i (parser_get_union_count parser)) {
-        if (== (parser_get_union parser i).name base) {
+    while (< i count) {
+        if (== (list_ASTUnion_get parser.unions i).name base) {
             if (>= found 0) { return -1 }
             set found i
         }
@@ -1908,6 +1976,11 @@ shadow nisa_union_index {
     let collision_tokens: List<LexerToken> = (tokenize_string "struct Choice { value: int } union Choice { Empty {} }" "union.nano" (diag_list_new))
     let collision: Parser = (parse_program collision_tokens (list_LexerToken_length collision_tokens) "union.nano")
     assert (== (nisa_union_index collision "Choice") -1)
+    assert (== (nisa_union_index p "Choice<int>") 0)
+    let repeated_tokens: List<LexerToken> = (tokenize_string "union First { A {} } union Choice { B {} } union Choice { C {} }" "duplicate.nano" (diag_list_new))
+    let repeated: Parser = (parse_program repeated_tokens (list_LexerToken_length repeated_tokens) "duplicate.nano")
+    assert (== (nisa_union_index repeated "Choice") -1)
+    assert (== (nisa_union_index repeated "First") 0)
 }
 
 fn nisa_union_variant(definition: ASTUnion, name: string) -> int {
@@ -2432,7 +2505,8 @@ fn nisa_match_result_type(parser: Parser, node_id: int) -> string {
         set nisa_types saved_types
         let scalar: bool = (or (== arm_type "int") (or (== arm_type "bool") (or (== arm_type "float") (== arm_type "string"))))
         let record: bool = (and (nisa_is_pin_record parser arm_type) (nisa_union_value_type_seen parser arm_type []))
-        if (not (or scalar record)) { return "" }
+        let array_result: bool = (and (str_starts_with arm_type "array<") (nisa_type_ok parser arm_type))
+        if (not (or array_result (or scalar record))) { return "" }
         if (== result "") { set result arm_type }
         if (!= arm_type result) { return "" }
         set i (+ i 1)
@@ -2440,6 +2514,12 @@ fn nisa_match_result_type(parser: Parser, node_id: int) -> string {
     return result
 }
 shadow nisa_match_result_type {
+    let array_reset: int = (nisa_reset)
+    let array_tokens: List<LexerToken> = (tokenize_string "fn pick()->array<int>{return match 1{1=>{[1]} _=>{[2]}}}" "array-match.nano" (diag_list_new))
+    let array_parser: Parser = (parse_program array_tokens (list_LexerToken_length array_tokens) "array-match.nano")
+    assert (== (nisa_match_result_type array_parser 0) "array<int>")
+    assert (== (nisa_reset) 0)
+
     let record_reset: int = (nisa_reset)
     let records: List<LexerToken> = (tokenize_string "struct Item{n:int} union Choice{Yes{} No{}} fn make(value:Choice)->Item{return match value{Yes(v)=>Item{n:1} No(v)=>Item{n:2}}}" "record-match.nano" (diag_list_new))
     let record_parser: Parser = (parse_program records (list_LexerToken_length records) "record-match.nano")
@@ -2690,7 +2770,48 @@ shadow nisa_emit_match {
     assert (== (nisa_reset) 0)
 }
 
+# I identify the reviewed native handle declaration by its owning standard source.
+fn nisa_collection_owner(parser: Parser, name: string) -> int {
+    let mut relative: string = ""
+    if (== name "NLHashMap") { set relative "/modules/std/collections/hashmap.nano" }
+    if (== name "NLStringSet") { set relative "/modules/std/collections/set.nano" }
+    if (== name "NLStringBuilder") { set relative "/modules/std/collections/stringbuilder.nano" }
+    if (or (== relative "") (== (mb_tool_root) "")) { return -1 }
+    let index: int = (nisa_opaque_index parser name)
+    if (< index 0) { return -1 }
+    let declaration: ASTOpaqueType = (list_ASTOpaqueType_get parser.opaque_types index)
+    let owner: int = (mb_owner declaration.line)
+    let source: string = (mb_source owner)
+    if (== source "") { return -1 }
+    let expected: string = (RegexFiles.canonical (+ (mb_tool_root) relative))
+    if (or (== expected "") (!= (RegexFiles.canonical source) expected)) { return -1 }
+    return owner
+}
+shadow nisa_collection_owner {
+    let tokens: List<LexerToken> = (tokenize_string "opaque type NLHashMap" "collection.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "collection.nano")
+    (mb_reset [1])
+    assert (== (nisa_collection_owner parser "NLHashMap") -1)
+    (mb_set_tool_root (RegexFiles.canonical "."))
+    (mb_set_sources ["modules/std/collections/hashmap.nano"])
+    assert (== (nisa_collection_owner parser "NLHashMap") 0)
+    assert (== (nisa_collection_owner parser "NLStringSet") -1)
+    assert (== (nisa_collection_owner parser "Arbitrary") -1)
+    (mb_set_sources ["modules/std/collections/set.nano"])
+    assert (== (nisa_collection_owner parser "NLHashMap") -1)
+    let builder_tokens: List<LexerToken> = (tokenize_string "opaque type NLStringBuilder" "builder.nano" (diag_list_new))
+    let builder: Parser = (parse_program builder_tokens (list_LexerToken_length builder_tokens) "builder.nano")
+    assert (== (nisa_collection_owner builder "NLStringBuilder") -1)
+    (mb_set_sources ["modules/std/collections/stringbuilder.nano"])
+    assert (== (nisa_collection_owner builder "NLStringBuilder") 0)
+    assert (== (nisa_collection_owner parser "NLHashMap") -1)
+    (mb_set_sources ["modules/std/collections/hashmap.nano"])
+    assert (== (nisa_collection_owner builder "NLStringBuilder") -1)
+    (mb_reset [])
+}
+
 fn nisa_field_shape_supported_seen(parser: Parser, field: string, ancestors: array<string>, signatures: array<string>) -> bool {
+    if (>= (nisa_opaque_index parser field) 0) { return (>= (nisa_collection_owner parser field) 0) }
     if (>= (nisa_union_index parser field) 0) { return (nisa_union_supported_seen parser field signatures) }
     if (str_starts_with field "fn(") { return (nisa_function_type_ok_seen parser field signatures) }
     if (>= (nisa_enum_index parser field) 0) { return true }
@@ -3034,11 +3155,19 @@ shadow nisa_label_line {
 }
 
 fn nisa_fn_index(parser: Parser, name: string) -> int {
-    let n: int = (parser_get_function_count parser)
+    if (and nisa_function_index_active (== (list_ASTFunction_length parser.functions) nisa_function_index_count)) {
+        let target: int = (nisa_function_index_first name)
+        let mut skipped: int = nisa_function_index_count
+        if (>= target 0) { set skipped target }
+        let mut printed: int = 0
+        while (< printed skipped) { (print "") set printed (+ printed 1) }
+        return target
+    }
+    let functions: List<ASTFunction> = parser.functions
+    let n: int = (list_ASTFunction_length functions)
     let mut i: int = 0
     while (< i n) {
-        let f: ASTFunction = (parser_get_function parser i)
-        if (== f.name name) {
+        if (== (list_ASTFunction_get functions i).name name) {
             return i
         } else {
             (print "")
@@ -3056,6 +3185,14 @@ shadow nisa_fn_index {
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (== (nisa_fn_index p "add") 0)
     assert (== (nisa_fn_index p "nope") (- 0 1))
+    let empty_tokens: List<LexerToken> = (tokenize_string "" "empty.nano" (diag_list_new))
+    let empty: Parser = (parse_program empty_tokens 0 "empty.nano")
+    assert (== (nisa_fn_index empty "add") -1)
+    let many_tokens: List<LexerToken> = (tokenize_string "extern fn first()->int extern fn chosen()->int extern fn chosen()->int extern fn last()->int" "many.nano" (diag_list_new))
+    let many: Parser = (parse_program many_tokens (list_LexerToken_length many_tokens) "many.nano")
+    assert (== (nisa_fn_index many "chosen") 1)
+    assert (== (nisa_fn_index many "last") 3)
+    assert (== (nisa_fn_index many "Chosen") -1)
 }
 
 # I visit each directly required function once, including recursive cycles.
@@ -3758,9 +3895,8 @@ fn nisa_import_add(symbol: string) -> int {
     }
     let mut wire_result: string = result
     if (== result "array<u8>") { set wire_result "array" }
-    let mut path: string = ""
+    let path: string = ""
     if (>= (nisa_regex_arity symbol) 0) {
-        set path "./std/regex/regex.nano"
         set wire_result (nisa_regex_wire result)
     }
     set nisa_import_names (array_push nisa_import_names symbol)
@@ -3795,6 +3931,14 @@ shadow nisa_import_add {
     assert (== (nisa_import_add "vm_file_read_bytes") 0)
     assert (== nisa_import_text ".import \"\" \"vm_file_read_bytes\" array string\n")
     let _3: int = (nisa_reset)
+    let symbols: array<string> = ["nl_regex_compile", "nl_regex_match", "nl_regex_find", "nl_regex_find_all", "nl_regex_groups", "nl_regex_replace", "nl_regex_replace_all", "nl_regex_split", "nl_regex_free"]
+    let mut i: int = 0
+    while (< i (array_length symbols)) {
+        assert (== (nisa_import_add (at symbols i)) i)
+        set i (+ i 1)
+    }
+    assert (== nisa_import_text ".import \"\" \"nl_regex_compile\" opaque string\n.import \"\" \"nl_regex_match\" int opaque string\n.import \"\" \"nl_regex_find\" int opaque string\n.import \"\" \"nl_regex_find_all\" array opaque string\n.import \"\" \"nl_regex_groups\" array opaque string\n.import \"\" \"nl_regex_replace\" string opaque string string\n.import \"\" \"nl_regex_replace_all\" string opaque string string\n.import \"\" \"nl_regex_split\" array opaque string\n.import \"\" \"nl_regex_free\" void opaque\n")
+    let _4: int = (nisa_reset)
 }
 
 # I retain the exact Json artifact ABI; the module owns its opaque handles.
@@ -3920,7 +4064,77 @@ shadow nisa_websocket_signature {
     assert (== (array_length (nisa_websocket_signature "nl_ws_unknown")) 0)
 }
 
+fn nisa_collection_signature(name: string) -> array<string> {
+    if (== name "nl_sb_new") { return ["NLStringBuilder"] }
+    if (== name "nl_sb_with_capacity") { return ["NLStringBuilder", "int"] }
+    if (== name "nl_sb_append") { return ["void", "NLStringBuilder", "string"] }
+    if (== name "nl_sb_append_char") { return ["void", "NLStringBuilder", "int"] }
+    if (== name "nl_sb_clear") { return ["void", "NLStringBuilder"] }
+    if (== name "nl_sb_length") { return ["int", "NLStringBuilder"] }
+    if (== name "nl_sb_capacity") { return ["int", "NLStringBuilder"] }
+    if (== name "nl_sb_to_string") { return ["string", "NLStringBuilder"] }
+    if (== name "nl_sb_free") { return ["void", "NLStringBuilder"] }
+    if (== name "nl_hm_new") { return ["NLHashMap"] }
+    if (== name "nl_hm_put") { return ["void", "NLHashMap", "string", "string"] }
+    if (== name "nl_hm_has") { return ["bool", "NLHashMap", "string"] }
+    if (== name "nl_hm_get") { return ["string", "NLHashMap", "string"] }
+    if (== name "nl_hm_size") { return ["int", "NLHashMap"] }
+    if (== name "nl_hm_keys") { return ["array<string>", "NLHashMap"] }
+    if (== name "nl_hm_values") { return ["array<string>", "NLHashMap"] }
+    if (== name "nl_hm_remove") { return ["void", "NLHashMap", "string"] }
+    if (== name "nl_hm_clear") { return ["void", "NLHashMap"] }
+    if (== name "nl_hm_free") { return ["void", "NLHashMap"] }
+    if (== name "nl_set_new") { return ["NLStringSet"] }
+    if (== name "nl_set_add") { return ["void", "NLStringSet", "string"] }
+    if (== name "nl_set_has") { return ["bool", "NLStringSet", "string"] }
+    if (== name "nl_set_size") { return ["int", "NLStringSet"] }
+    if (== name "nl_set_values") { return ["array<string>", "NLStringSet"] }
+    if (== name "nl_set_remove") { return ["void", "NLStringSet", "string"] }
+    if (== name "nl_set_clear") { return ["void", "NLStringSet"] }
+    if (== name "nl_set_free") { return ["void", "NLStringSet"] }
+    return []
+}
+shadow nisa_collection_signature {
+    assert (== (at (nisa_collection_signature "nl_hm_put") 3) "string")
+    assert (== (at (nisa_collection_signature "nl_hm_has") 0) "bool")
+    assert (== (at (nisa_collection_signature "nl_hm_keys") 0) "array<string>")
+    assert (== (at (nisa_collection_signature "nl_set_new") 0) "NLStringSet")
+    assert (== (at (nisa_collection_signature "nl_set_has") 0) "bool")
+    assert (== (at (nisa_collection_signature "nl_set_values") 0) "array<string>")
+    assert (== (array_length (nisa_collection_signature "nl_hm_unknown")) 0)
+    assert (== (at (nisa_collection_signature "nl_sb_new") 0) "NLStringBuilder")
+    assert (== (at (nisa_collection_signature "nl_sb_with_capacity") 1) "int")
+    assert (== (at (nisa_collection_signature "nl_sb_append") 2) "string")
+    assert (== (at (nisa_collection_signature "nl_sb_append_char") 2) "int")
+    assert (== (at (nisa_collection_signature "nl_sb_clear") 0) "void")
+    assert (== (at (nisa_collection_signature "nl_sb_length") 0) "int")
+    assert (== (at (nisa_collection_signature "nl_sb_capacity") 0) "int")
+    assert (== (at (nisa_collection_signature "nl_sb_to_string") 0) "string")
+    assert (== (at (nisa_collection_signature "nl_sb_free") 0) "void")
+    assert (== (array_length (nisa_collection_signature "nl_sb_unknown")) 0)
+}
+
+fn nisa_collection_handle(name: string) -> string {
+    let signature: array<string> = (nisa_collection_signature name)
+    for index in (range 0 (array_length signature)) {
+        let t: string = (at signature index)
+        if (or (== t "NLHashMap") (or (== t "NLStringSet") (== t "NLStringBuilder"))) { return t }
+    }
+    return ""
+}
+shadow nisa_collection_handle {
+    let names: array<string> = ["nl_hm_new", "nl_hm_put", "nl_hm_has", "nl_hm_get", "nl_hm_size", "nl_hm_keys", "nl_hm_values", "nl_hm_remove", "nl_hm_clear", "nl_hm_free", "nl_set_new", "nl_set_add", "nl_set_has", "nl_set_size", "nl_set_values", "nl_set_remove", "nl_set_clear", "nl_set_free", "nl_sb_new", "nl_sb_with_capacity", "nl_sb_append", "nl_sb_append_char", "nl_sb_clear", "nl_sb_length", "nl_sb_capacity", "nl_sb_to_string", "nl_sb_free"]
+    for index in (range 0 (array_length names)) {
+        let expected: string = (cond ((< index 10) "NLHashMap") ((< index 18) "NLStringSet") (else "NLStringBuilder"))
+        assert (== (nisa_collection_handle (at names index)) expected)
+    }
+    assert (== (nisa_collection_handle "nl_sb_unknown") "")
+    assert (== (nisa_collection_handle "unknown") "")
+}
+
 fn nisa_typed_artifact_signature(name: string) -> array<string> {
+    let collection: array<string> = (nisa_collection_signature name)
+    if (> (array_length collection) 0) { return collection }
     if (== name "nl_file_source_catalog_string") { return ["string", "int", "int", "int", "int"] }
     if (== name "nl_file_source_catalog_number") { return ["int", "int", "int", "int", "int"] }
     if (== name "nl_service_source_catalog_id") { return ["int", "string"] }
@@ -4076,6 +4290,14 @@ fn nisa_register_artifact(parser: Parser, function: ASTFunction) -> int {
     if (or (< arity 0) (or (!= function.return_type result) (!= function.param_count arity))) {
         let rejected: string = (nisa_fail "I require the exact artifact result and arity")
         return -1
+    }
+    let collection: string = (nisa_collection_handle function.name)
+    if (!= collection "") {
+        let owner: int = (nisa_collection_owner parser collection)
+        if (or (< owner 0) (!= owner (mb_owner function.line))) {
+            let rejected: string = (nisa_fail "I require the canonical collection declaration and provider owner")
+            return -1
+        }
     }
     if (and (> (array_length (nisa_json_signature function.name)) 0) (< (nisa_opaque_index parser "Json") 0)) {
         let rejected: string = (nisa_fail "I require the declared Json opaque type for its artifact ABI")
@@ -4237,10 +4459,192 @@ shadow nisa_module_declarations_valid {
     let _: int = (nisa_reset)
 }
 
+# I preserve an explicit provider before selecting the closed runtime ABI.
+fn nisa_register_regex_provider(function: ASTFunction) -> int {
+    let owner: int = (mb_owner function.line)
+    let source: string = (mb_source owner)
+    let slash: int = (str_last_index_of source "/")
+    let mut manifest: string = "module.json"
+    if (>= slash 0) { set manifest (+ (str_substring source 0 (+ slash 1)) "module.json") }
+    if (or (== source "") (not (RegexFiles.exists manifest))) {
+        let existing: int = (nisa_import_find function.name)
+        if (>= existing 0) { return existing }
+        return (nisa_import_add function.name)
+    }
+    let key: string = (+ "#artifact:" (+ (int_to_string owner) (+ ":" function.name)))
+    let existing: int = (nisa_import_find key)
+    if (>= existing 0) { return existing }
+    let path: string = (nisa_artifact_path owner)
+    if (== path "") { return -1 }
+    let index: int = (array_length nisa_import_names)
+    set nisa_import_names (array_push nisa_import_names key)
+    set nisa_import_text (+ nisa_import_text (+ ".import \"" (+ (nisa_escape_string path) (+ "\" \"" (+ function.name (+ "\" " (nisa_regex_wire (nisa_regex_result function.name))))))))
+    let mut i: int = 0
+    while (< i (nisa_regex_arity function.name)) {
+        set nisa_import_text (+ nisa_import_text (+ " " (nisa_regex_wire (nisa_regex_parameter function.name i))))
+        set i (+ i 1)
+    }
+    set nisa_import_text (+ nisa_import_text (+ "\n.import_kind " (+ (int_to_string index) " artifact\n")))
+    return index
+}
+shadow nisa_register_regex_provider {
+    let reset: int = (nisa_reset)
+    let tokens: List<LexerToken> = (tokenize_string "extern fn nl_regex_compile(pattern: string) -> Regex" "regex.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "regex.nano")
+    (mb_reset [1])
+    (mb_set_sources ["std/regex/regex.nano"])
+    assert (== (nisa_register_regex_provider (parser_get_function parser 0)) 0)
+    assert (== nisa_import_text ".import \"\" \"nl_regex_compile\" opaque string\n")
+    assert (== (nisa_register_regex_provider (parser_get_function parser 0)) 0)
+    assert (== (array_length nisa_import_names) 1)
+    let reset_artifact: int = (nisa_reset)
+    (mb_set_sources ["modules/compiler_support/compiler_support.nano"])
+    set nisa_artifact_owners [0]
+    set nisa_artifact_paths ["/retained/regex.so"]
+    assert (== (nisa_register_regex_provider (parser_get_function parser 0)) 0)
+    assert (== nisa_import_text ".import \"/retained/regex.so\" \"nl_regex_compile\" opaque string\n.import_kind 0 artifact\n")
+    assert (== (nisa_register_regex_provider (parser_get_function parser 0)) 0)
+    assert (== (array_length nisa_import_names) 1)
+    (mb_reset [])
+    let reset_again: int = (nisa_reset)
+}
+
+# I bind only explicit root-shadow primitives; my builtin ABI stays closed.
+fn nisa_native_ctype(name: string) -> string {
+    if (== name "void") { return "void" }
+    if (== name "int") { return "int64_t" }
+    if (== name "u8") { return "uint8_t" }
+    if (== name "bool") { return "bool" }
+    if (== name "float") { return "double" }
+    return ""
+}
+shadow nisa_native_ctype {
+    assert (== (nisa_native_ctype "int") "int64_t")
+    assert (== (nisa_native_ctype "void") "void")
+    assert (== (nisa_native_ctype "bool") "bool")
+    assert (== (nisa_native_ctype "float") "double")
+    assert (== (nisa_native_ctype "u8") "uint8_t")
+    assert (== (nisa_native_ctype "string") "")
+    assert (== (nisa_native_ctype "array<int>") "")
+}
+
+fn nisa_native_identifier(name: string) -> bool {
+    if (== name "") { return false }
+    let letters: string = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_"
+    if (not (str_contains letters (str_substring name 0 1))) { return false }
+    for index in (range 1 (str_length name)) {
+        if (not (str_contains (+ letters "0123456789") (str_substring name index 1))) { return false }
+    }
+    return true
+}
+shadow nisa_native_identifier {
+    assert (nisa_native_identifier "native_action_2")
+    assert (not (nisa_native_identifier ""))
+    assert (not (nisa_native_identifier "2action"))
+    assert (not (nisa_native_identifier "action;exit"))
+    assert (not (nisa_native_identifier "module.action"))
+}
+
+fn nisa_native_eligible(parser: Parser, function: ASTFunction) -> bool {
+    if (or (< nisa_native_owner 0) (!= (mb_owner function.line) nisa_native_owner)) { return false }
+    if (or (!= (nisa_module_result function.name) "")
+        (or (>= (nisa_artifact_arity function.name) 0) (!= (nisa_host_result function.name) ""))) { return false }
+    if (or (not (nisa_native_identifier function.name))
+        (or (> function.param_count 8) (== (nisa_native_ctype function.return_type) ""))) { return false }
+    for index in (range 0 function.param_count) {
+        let parameter: ASTLet = (parser_get_let parser (+ function.param_start index))
+        if (or (== parameter.var_type "void") (== (nisa_native_ctype parameter.var_type) "")) { return false }
+    }
+    return true
+}
+shadow nisa_native_eligible {
+    (mb_reset [1])
+    let tokens: List<LexerToken> = (tokenize_string "extern fn native_action() -> void extern fn get_argc() -> int extern fn pointer_action() -> string" "native.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "native.nano")
+    let _: int = (nisa_reset)
+    assert (not (nisa_native_eligible parser (parser_get_function parser 0)))
+    set nisa_native_owner 0
+    assert (nisa_native_eligible parser (parser_get_function parser 0))
+    assert (not (nisa_native_eligible parser (parser_get_function parser 1)))
+    assert (not (nisa_native_eligible parser (parser_get_function parser 2)))
+    set nisa_native_owner 1
+    assert (not (nisa_native_eligible parser (parser_get_function parser 0)))
+    let reset: int = (nisa_reset)
+    (mb_reset [])
+}
+
+fn nisa_register_native(parser: Parser, function: ASTFunction) -> int {
+    if (not (nisa_native_eligible parser function)) { return -1 }
+    if (== nisa_native_artifact "") {
+        set nisa_native_pending true
+        let rejected: string = (nisa_fail (+ "I require an explicit native shadow artifact for " function.name))
+        return -1
+    }
+    if (not (str_starts_with nisa_native_artifact "/")) {
+        let rejected: string = (nisa_fail "I require an absolute native shadow artifact")
+        return -1
+    }
+    for index in (range 0 (str_length nisa_native_artifact)) {
+        if (== (char_at nisa_native_artifact index) 0) {
+            let rejected: string = (nisa_fail "I require a native shadow artifact without NUL bytes")
+            return -1
+        }
+    }
+    let key: string = (+ "#native-shadow:" function.name)
+    let existing: int = (nisa_import_find key)
+    if (>= existing 0) { return existing }
+    let index: int = (array_length nisa_import_names)
+    set nisa_import_names (array_push nisa_import_names key)
+    let result: string = (nisa_native_ctype function.return_type)
+    let mut parameters: string = "void"
+    if (> function.param_count 0) { set parameters "" }
+    set nisa_import_text (+ nisa_import_text (+ ".import \"" (+ (nisa_escape_string nisa_native_artifact) (+ "\" \"" (+ function.name (+ "\" " (nisa_result_tag parser function.return_type)))))))
+    for argument in (range 0 function.param_count) {
+        let parameter: ASTLet = (parser_get_let parser (+ function.param_start argument))
+        if (> argument 0) { set parameters (+ parameters ", ") }
+        set parameters (+ parameters (nisa_native_ctype parameter.var_type))
+        set nisa_import_text (+ nisa_import_text (+ " " (nisa_result_tag parser parameter.var_type)))
+    }
+    set nisa_import_text (+ nisa_import_text (+ "\n.import_kind " (+ (int_to_string index) " artifact\n")))
+    let anchor: string = (+ "__nano_shadow_keep_" (int_to_string index))
+    let pointer: string = (+ "NanoShadowPointer" (int_to_string index))
+    set nisa_native_source (+ nisa_native_source (+ "extern " (+ result (+ " " (+ function.name (+ "(" (+ parameters ");\n")))))))
+    set nisa_native_source (+ nisa_native_source (+ "typedef " (+ result (+ " (*" (+ pointer (+ ")(" (+ parameters ");\n")))))))
+    set nisa_native_source (+ nisa_native_source (+ pointer (+ " " (+ anchor "(void);\n"))))
+    set nisa_native_source (+ nisa_native_source (+ pointer (+ " " (+ anchor (+ "(void) { return " (+ function.name "; }\n"))))))
+    return index
+}
+shadow nisa_register_native {
+    (mb_reset [1])
+    let tokens: List<LexerToken> = (tokenize_string "extern fn native_action() -> void" "native.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "native.nano")
+    let _: int = (nisa_reset)
+    set nisa_native_owner 0
+    assert (== (nisa_register_native parser (parser_get_function parser 0)) -1)
+    assert nisa_native_pending
+    let reset: int = (nisa_reset)
+    set nisa_native_owner 0
+    set nisa_native_artifact "/retained/helpers.so"
+    assert (== (nisa_register_native parser (parser_get_function parser 0)) 0)
+    assert (str_contains nisa_import_text ".import_kind 0 artifact")
+    assert (str_contains nisa_import_text "\"native_action\" void")
+    assert (str_contains nisa_native_source "extern void native_action(void);")
+    let declaration: string = nisa_native_source
+    assert (== (nisa_register_native parser (parser_get_function parser 0)) 0)
+    assert (== declaration nisa_native_source)
+    let again: int = (nisa_reset)
+    (mb_reset [])
+}
+
 fn nisa_register_extern(parser: Parser, function: ASTFunction) -> int {
     if (!= (nisa_module_result function.name) "") { return 0 }
     if (>= (nisa_artifact_arity function.name) 0) { return (nisa_register_artifact parser function) }
+    if (and (>= (nisa_regex_arity function.name) 0) (< (nisa_opaque_index parser "Regex") 0)) {
+        let rejected: string = (nisa_fail "I require the declared Regex opaque type for its runtime ABI")
+        return -1
+    }
     let result: string = (nisa_host_result function.name)
+    if (and (== result "") (nisa_native_eligible parser function)) { return (nisa_register_native parser function) }
     if (or (== result "") (!= result function.return_type)) {
         let rejected: string = (nisa_fail (+ "unsupported extern result or symbol " function.name))
         return -1
@@ -4258,9 +4662,16 @@ fn nisa_register_extern(parser: Parser, function: ASTFunction) -> int {
         }
         set i (+ i 1)
     }
+    if (>= (nisa_regex_arity function.name) 0) { return (nisa_register_regex_provider function) }
     return (nisa_import_add function.name)
 }
 shadow nisa_register_extern {
+    let reset_wrong: int = (nisa_reset)
+    let wrong_tokens: List<LexerToken> = (tokenize_string "struct Regex {code:int} extern fn nl_regex_compile(pattern:string)->Regex" "wrong.nano" (diag_list_new))
+    let wrong_parser: Parser = (parse_program wrong_tokens (list_LexerToken_length wrong_tokens) "wrong.nano")
+    assert (== (nisa_register_extern wrong_parser (parser_get_function wrong_parser 0)) -1)
+    assert (== nisa_import_text "")
+    assert (str_contains nisa_err "Regex opaque type")
     let _: int = (nisa_reset)
     let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
     let source: string = (+ "extern f" "n get_argv(index: int) -> string")
@@ -4351,6 +4762,12 @@ fn nisa_emit_host_call(parser: Parser, call: ASTCall, symbol: string) -> string 
         set i (+ i 1)
     }
     let mut index: int = (nisa_import_find symbol)
+    if (>= (nisa_regex_arity symbol) 0) {
+        let declaration: int = (nisa_call_index parser call)
+        if (< declaration 0) { return (nisa_fail "I require a bound declaration for this regex call") }
+        set index (nisa_register_extern parser (parser_get_function parser declaration))
+        if (< index 0) { return "" }
+    }
     if (< index 0) { set index (nisa_import_add symbol) }
     if (== symbol "vm_string_from_bytes") {
         let receiver: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
@@ -4494,10 +4911,10 @@ shadow nisa_indirect_call {
 fn nisa_identifier_function(parser: Parser, identifier: ASTIdentifier) -> int {
     let name: string = (mb_resolve identifier.name identifier.line nisa_names)
     let owner: int = (mb_target_owner (mb_owner identifier.line) identifier.name)
+    let count: int = (list_ASTFunction_length parser.functions)
     let mut i: int = 0
-    while (< i (parser_get_function_count parser)) {
-        let function: ASTFunction = (parser_get_function parser i)
-        if (and (== function.name name) (or (< owner 0) (== (mb_owner function.line) owner))) { return i }
+    while (< i count) {
+        if (and (== (list_ASTFunction_get parser.functions i).name name) (or (< owner 0) (== (mb_owner (list_ASTFunction_get parser.functions i).line) owner))) { return i }
         set i (+ i 1)
     }
     return -1
@@ -4508,6 +4925,13 @@ shadow nisa_identifier_function {
     let tokens: List<LexerToken> = (tokenize_string "fn answer()->int{return 42} fn main()->fn()->int{return answer}" "reference.nano" (diag_list_new))
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "reference.nano")
     assert (== (nisa_identifier_function parser (parser_get_identifier parser 0)) 0)
+    let references: List<LexerToken> = (tokenize_string "extern fn target()->int\nextern fn target()->int\nfn main()->fn()->int{return selected}" "owners.nano" (diag_list_new))
+    let owners: Parser = (parse_program references (list_LexerToken_length references) "owners.nano")
+    (mb_reset [1, 2, 3])
+    (mb_add_target 2 "selected" "target" 1)
+    assert (== (nisa_identifier_function owners (parser_get_identifier owners 0)) 1)
+    (mb_reset [])
+    assert (== (nisa_identifier_function owners (parser_get_identifier owners 0)) -1)
 }
 
 # I resolve qualified function values with the same owner map as calls.
@@ -4587,16 +5011,25 @@ fn nisa_call_index(parser: Parser, call: ASTCall) -> int {
     }
     let owner: int = (mb_target_owner (mb_owner call.line) original)
     if (>= owner 0) {
-        let mut i: int = 0
-        while (< i (parser_get_function_count parser)) {
-            let function: ASTFunction = (parser_get_function parser i)
-            if (and (== function.name name) (== (mb_owner function.line) owner)) { return i }
-            set i (+ i 1)
+        if (and nisa_function_index_active (== (list_ASTFunction_length parser.functions) nisa_function_index_count)) {
+            let mut index: int = (nisa_function_index_first name)
+            while (>= index 0) {
+                if (== (mb_owner (list_ASTFunction_get parser.functions index).line) owner) { return index }
+                set index (at nisa_function_index_next index)
+            }
+        } else {
+            let functions: List<ASTFunction> = parser.functions
+            let count: int = (list_ASTFunction_length functions)
+            let mut i: int = 0
+            while (< i count) {
+                if (and (== (list_ASTFunction_get functions i).name name) (== (mb_owner (list_ASTFunction_get functions i).line) owner)) { return i }
+                set i (+ i 1)
+            }
         }
     }
     let fallback: int = (nisa_fn_index parser name)
     if (or (< owner 0) (< fallback 0)) { return fallback }
-    if (>= (parser_get_function parser fallback).body 0) { return fallback }
+    if (>= (list_ASTFunction_get parser.functions fallback).body 0) { return fallback }
     return -1
 }
 shadow nisa_call_index {
@@ -4606,6 +5039,9 @@ shadow nisa_call_index {
     (mb_reset [1, 2, 3])
     (mb_add_target 2 "second" "path_basename" 1)
     assert (== (nisa_call_index parser (parser_get_call parser 0)) 1)
+    (mb_reset [1, 2, 3])
+    (mb_add_target 2 "second" "path_basename" 9)
+    assert (== (nisa_call_index parser (parser_get_call parser 0)) -1)
     (mb_reset [])
     let reset_again: int = (nisa_reset)
 }
@@ -4773,16 +5209,15 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
     if (== node_type ParseNodeType.PNODE_MATCH) { return (nisa_match_result_type parser node_id) }
     if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) { return (parser_get_union_construct parser node_id).union_name }
     if (== node_type ParseNodeType.PNODE_BLOCK) {
-        let block: ASTBlock = (parser_get_block parser node_id)
-        if (!= (list_ASTStmtRef_length block.statements) 1) { return "" }
-        let value: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
-        return (nisa_expr_type parser value.node_id value.node_type)
+        return (nisa_match_arm_type parser node_id node_type)
     }
     if (== node_type ParseNodeType.PNODE_IF) {
         let choice: ASTIf = (parser_get_if parser node_id)
         if (< choice.else_body 0) { return "" }
         let left: string = (nisa_expr_type parser choice.then_body ParseNodeType.PNODE_BLOCK)
         let right: string = (nisa_expr_type parser choice.else_body ParseNodeType.PNODE_BLOCK)
+        if (parser_always_returns parser choice.then_body ParseNodeType.PNODE_BLOCK) { return right }
+        if (parser_always_returns parser choice.else_body ParseNodeType.PNODE_BLOCK) { return left }
         if (and (!= left "") (== left right)) { return left }
         return ""
     }
@@ -4816,6 +5251,11 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
     }
     if (== node_type ParseNodeType.PNODE_ARRAY_LITERAL) {
         let literal: ASTArrayLiteral = (parser_get_array_literal parser node_id)
+        if (and (== literal.element_count 0) (!= literal.element_type "")) {
+            let contextual: string = (nisa_generic_type (+ "array<" (+ literal.element_type ">")))
+            if (nisa_type_ok parser contextual) { return contextual }
+            return ""
+        }
         let mut element: string = "int"
         let mut i: int = 0
         while (< i literal.element_count) {
@@ -5024,6 +5464,29 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
 }
 
 shadow nisa_expr_type {
+    let empty_reset: int = (nisa_reset)
+    let empty_tokens: List<LexerToken> = (tokenize_string "struct Item{n:int} fn f()->array<Item>{return []}" "empty.nano" (diag_list_new))
+    let empty_parser: Parser = (parse_program empty_tokens (list_LexerToken_length empty_tokens) "empty.nano")
+    (parser_set_array_literal_element_type empty_parser 0 "Item")
+    assert (== (nisa_expr_type empty_parser 0 ParseNodeType.PNODE_ARRAY_LITERAL) "array<Item>")
+    assert (str_contains (nisa_emit_array_literal empty_parser 0) "ARR_LITERAL 8 0")
+    (parser_set_array_literal_element_type empty_parser 0 "T")
+    set nisa_generic_variables ["T"]
+    set nisa_generic_types ["Item"]
+    assert (== (nisa_expr_type empty_parser 0 ParseNodeType.PNODE_ARRAY_LITERAL) "array<Item>")
+    assert (str_contains (nisa_emit_array_literal empty_parser 0) "ARR_LITERAL 8 0")
+    set nisa_generic_types ["float"]
+    assert (== (nisa_expr_type empty_parser 0 ParseNodeType.PNODE_ARRAY_LITERAL) "array<float>")
+    assert (str_contains (nisa_emit_array_literal empty_parser 0) "ARR_LITERAL 3 0")
+    assert (== (nisa_reset) 0)
+
+    let branch_reset: int = (nisa_reset)
+    let branch_tokens: List<LexerToken> = (tokenize_string "fn pick()->int{(if true{let local:array<int> = [1] local}else{[2]}) return 0}" "branch.nano" (diag_list_new))
+    let branch_parser: Parser = (parse_program branch_tokens (list_LexerToken_length branch_tokens) "branch.nano")
+    assert (== (nisa_expr_type branch_parser 0 ParseNodeType.PNODE_IF) "array<int>")
+    assert (== (array_length nisa_names) 0)
+    assert (== (nisa_reset) 0)
+
     let byte_literal_reset: int = (nisa_reset)
     let byte_literal_tokens: List<LexerToken> = (tokenize_string "fn values(value:u8)->array<u8>{return [value]}" "byte-literal.nano" (diag_list_new))
     let byte_literal_parser: Parser = (parse_program byte_literal_tokens (list_LexerToken_length byte_literal_tokens) "byte-literal.nano")
@@ -5221,11 +5684,13 @@ shadow nisa_array_value_matches {
 
 fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expected: string) -> string {
     if (!= (nisa_map_value_type expected) "") {
+        if (== node_type ParseNodeType.PNODE_MATCH) {
+            return (nisa_emit_match_body parser node_id expected)
+        }
         if (== node_type ParseNodeType.PNODE_BLOCK) {
-            let block: ASTBlock = (parser_get_block parser node_id)
-            if (!= (list_ASTStmtRef_length block.statements) 1) { return (nisa_fail "I require one map value in each conditional branch") }
-            let value: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
-            return (nisa_emit_expected_expr parser value.node_id value.node_type expected)
+            let first: int = (array_length nisa_names)
+            let output: string = (nisa_emit_match_arm parser node_id node_type expected)
+            return (+ output (nisa_effect_scope_end first))
         }
         if (== node_type ParseNodeType.PNODE_IF) {
             let choice: ASTIf = (parser_get_if parser node_id)
@@ -5400,6 +5865,14 @@ fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expecte
     return (nisa_emit_expr parser node_id node_type)
 }
 shadow nisa_emit_expected_expr {
+    let contextual_match: string = (nanoisa_emit_nasm "fn choose(flag:int)->HashMap<string,int>{return (match flag{1=>{(map_new)} _=>{(map_new)}})} fn main()->int{let values:HashMap<string,int> = (choose 1) return (map_size values)}")
+    assert nisa_ok
+    assert (str_contains contextual_match "HM_NEW 5 1")
+    let contextual_block: string = (nanoisa_emit_nasm "fn choose(flag:bool)->HashMap<int,string>{return (if flag{let selected:HashMap<int,string> = (map_new) selected}else{(map_new)})} fn main()->int{let values:HashMap<int,string> = (choose true) return (map_size values)}")
+    assert nisa_ok
+    assert (str_contains contextual_block "HM_NEW 1 5")
+    assert (str_contains contextual_block ".local_end ")
+
     for key in ["int", "string"] {
         for value in ["int", "string"] {
             let pair: string = (+ "HashMap<" (+ key (+ "," (+ value ">"))))
@@ -6439,6 +6912,14 @@ fn nisa_emit_set_call(parser: Parser, call: ASTCall, name: string) -> string {
     return (+ receiver (+ position (+ replacement (+ (nisa_line "ARR_SET") (nisa_line "POP")))))
 }
 shadow nisa_emit_set_call {
+    for receiver in ["(if true {let ys:array<Item> = xs ys} else {xs})", "(cond (false xs) (true xs) (else xs))", "(match 1{1=>{xs} _=>{xs}})"] {
+        let source: string = (+ "struct Item{n:int} fn main()->int{let xs:array<Item> = [Item{n:1}] (array_set " (+ receiver " 0 Item{n:2}) return 0}"))
+        let code: string = (nanoisa_emit_nasm source)
+        assert nisa_ok
+        assert (str_contains code "ARR_SET")
+        assert (== (nisa_reset) 0)
+    }
+
     let _: int = (nisa_reset)
     let tokens: List<LexerToken> = (tokenize_string "fn main() -> int { (array_set values 0 7) return 0 }" "set.nano" (diag_list_new))
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "set.nano")
@@ -7177,6 +7658,21 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
             let index: int = (nisa_register_artifact parser declaration)
             if (< index 0) { return "" }
             return (+ (nisa_emit_call_args parser call) (nisa_line_imm "CALL_EXTERN" (int_to_string index)))
+        }
+    }
+    if (>= declared_index 0) {
+        let declaration: ASTFunction = (parser_get_function parser declared_index)
+        if (and (< declaration.body 0) (nisa_native_eligible parser declaration)) {
+            if (!= call.arg_count declaration.param_count) { return (nisa_fail "I require the exact native shadow call arity") }
+            let index: int = (nisa_register_native parser declaration)
+            if (< index 0) { return "" }
+            let mut arguments: string = ""
+            for argument_index in (range 0 call.arg_count) {
+                let argument: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start argument_index))
+                let parameter: ASTLet = (parser_get_let parser (+ declaration.param_start argument_index))
+                set arguments (+ arguments (nisa_emit_expected_expr parser argument.node_id argument.node_type parameter.var_type))
+            }
+            return (+ arguments (nisa_line_imm "CALL_EXTERN" (int_to_string index)))
         }
     }
     if (and nisa_program_mode (>= declared_index 0)) {
@@ -8525,7 +9021,7 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
             return (+ (nisa_emit_expected_expr parser r.value r.value_type "u8") (nisa_line "RET"))
         }
         if (and (!= (nisa_map_value_type nisa_return_type) "")
-                (or (== r.value_type ParseNodeType.PNODE_IF) (== r.value_type ParseNodeType.PNODE_BLOCK))) {
+                (or (== r.value_type ParseNodeType.PNODE_IF) (or (== r.value_type ParseNodeType.PNODE_BLOCK) (== r.value_type ParseNodeType.PNODE_MATCH)))) {
             return (+ (nisa_emit_expected_expr parser r.value r.value_type nisa_return_type) (nisa_line "RET"))
         }
         if (and (!= (nisa_map_value_type nisa_return_type) "")
@@ -8682,6 +9178,10 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
 }
 
 shadow nisa_emit_stmt {
+    let map_return: string = (nanoisa_emit_nasm "fn choose(flag:int)->HashMap<int,int>{return (match flag{1=>{(map_new)} _=>{(map_new)}})} fn main()->int{let values:HashMap<int,int> = (choose 1) return (map_size values)}")
+    assert nisa_ok
+    assert (str_contains map_return "HM_NEW 1 1")
+
     let legacy_print: string = (nanoisa_emit_nasm "fn main()->int{par-let x=3 y=12 in (println x) return (+ x y)}")
     assert nisa_ok
     assert (str_contains legacy_print "PRINTLN")
@@ -9297,7 +9797,9 @@ struct NanoisaCheckedText {
     program: string,
     shadows: string,
     lowering_error: string,
-    lowering_stage: int
+    lowering_stage: int,
+    native_pending: bool,
+    native_c: string
 }
 
 fn nisa_checked_borrow_context(context: array<CheckedAdvisoryOutput>) -> array<BorrowFactContext> {
@@ -9415,29 +9917,54 @@ fn nisa_immediate_effect(parser: Parser, function: ASTFunction, index: int, cont
 
 # I own checking and consume its facts synchronously; callers cannot supply facts.
 pub fn nanoisa_check_and_emit(parser: Parser, file_name: string, first_shadow: int, emit_shadows: bool) -> NanoisaCheckedText {
+    return (nanoisa_check_and_emit_native parser file_name first_shadow emit_shadows -1 "")
+}
+pub fn nanoisa_check_and_emit_native(parser: Parser, file_name: string, first_shadow: int, emit_shadows: bool, native_owner: int, native_artifact: string) -> NanoisaCheckedText {
     (native_phase_marker "typecheck-start")
     let checked: CheckedAdvisoryOutput = (typecheck_for_immediate_emission parser file_name first_shadow)
     (native_phase_marker "typecheck-done")
     if checked.phase.had_error {
-        return NanoisaCheckedText { phase: checked.phase, program: "", shadows: "", lowering_error: "", lowering_stage: 0 }
+        return NanoisaCheckedText { phase: checked.phase, program: "", shadows: "", lowering_error: "", lowering_stage: 0, native_pending: false, native_c: "" }
     }
     let context: array<CheckedAdvisoryOutput> = [checked]
     (native_phase_marker "program-lowering-start")
     let program: string = (nisa_emit_module_context parser true true context)
     (native_phase_marker "program-lowering-done")
     if (== program "") {
-        return NanoisaCheckedText { phase: checked.phase, program: "", shadows: "", lowering_error: (nanoisa_last_lowering_error), lowering_stage: 1 }
+        return NanoisaCheckedText { phase: checked.phase, program: "", shadows: "", lowering_error: (nanoisa_last_lowering_error), lowering_stage: 1, native_pending: false, native_c: "" }
     }
     let mut shadows: string = ""
     (native_phase_marker "shadow-lowering-start")
     if emit_shadows {
-        set shadows (nisa_emit_shadows_context parser first_shadow true context)
+        set shadows (nisa_emit_shadows_native parser first_shadow true context native_owner native_artifact)
         if (== shadows "") {
-            return NanoisaCheckedText { phase: checked.phase, program: "", shadows: "", lowering_error: (nanoisa_last_lowering_error), lowering_stage: 2 }
+            return NanoisaCheckedText { phase: checked.phase, program: "", shadows: "", lowering_error: (nanoisa_last_lowering_error), lowering_stage: 2, native_pending: nisa_native_pending, native_c: "" }
         }
     }
     (native_phase_marker "shadow-lowering-done")
-    return NanoisaCheckedText { phase: checked.phase, program: program, shadows: shadows, lowering_error: "", lowering_stage: 0 }
+    return NanoisaCheckedText { phase: checked.phase, program: program, shadows: shadows, lowering_error: "", lowering_stage: 0, native_pending: false, native_c: nisa_native_source }
+}
+
+shadow nanoisa_check_and_emit_native {
+    (mb_reset [1])
+    let source: string = "extern fn native_action()->void fn f()->int{return 0} shadow f {unsafe {(native_action)}}"
+    let tokens: List<LexerToken> = (tokenize_string source "native.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "native.nano")
+    let strict: NanoisaCheckedText = (nanoisa_check_and_emit parser "native.nano" 0 true)
+    assert (not strict.native_pending)
+    let probe: NanoisaCheckedText = (nanoisa_check_and_emit_native parser "native.nano" 0 true 0 "")
+    assert probe.native_pending
+    let bound: NanoisaCheckedText = (nanoisa_check_and_emit_native parser "native.nano" 0 true 0 "/retained/helpers.so")
+    assert (== bound.lowering_stage 0)
+    assert (str_contains bound.shadows "/retained/helpers.so")
+    assert (str_contains bound.shadows "CALL_EXTERN 0")
+    assert (not (str_contains bound.shadows "CALL native_action"))
+    assert (str_contains bound.native_c "native_action")
+    assert (not (str_contains bound.program "native_action"))
+    assert (== nisa_native_owner -1)
+    assert (== nisa_native_artifact "")
+    let _: int = (nisa_reset)
+    (mb_reset [])
 }
 
 shadow nanoisa_check_and_emit {
@@ -9554,89 +10081,39 @@ fn nisa_emit_shadows_nasm(parser: Parser, first_shadow: int, bound: bool) -> str
     return (nisa_emit_shadows_context parser first_shadow bound [])
 }
 fn nisa_emit_shadows_context(parser: Parser, first_shadow: int, bound: bool, context: array<CheckedAdvisoryOutput>) -> string {
-    if (> parser.services_count 0) { return (nisa_fail "I have not resolved File service declarations for this consumer.") }
-    let _: int = (nisa_reset)
-    if (not (nisa_module_declarations_valid parser)) { return "" }
-    set nisa_program_mode true
-    let count: int = parser.shadows_count
-    if (or (< first_shadow 0) (> first_shadow count)) {
-        return (nisa_fail "I require a valid first-shadow index")
-    }
-    if (parser_has_error parser) { return (nisa_fail "parse failed") }
-    let mut selected_owned: bool = (nanoisa_has_borrows parser)
-    if selected_owned { if (== (nanoisa_selected_ownership parser true first_shadow) 1) { set selected_owned false } }
-    if selected_owned {
-        let emitted: string = (nisa_checked_borrow_lower parser true first_shadow context)
-        if (== emitted "") { return (nisa_fail (nanoisa_borrow_error)) }
-        return emitted
-    }
-    let initializers: string = (nisa_emit_globals parser)
-    if (not nisa_ok) { return "" }
-    # I retain the first selected shadow that enqueues each dependency.
-    # Initializer dependencies have no shadow owner.
-    let mut queue_shadows: array<int> = (array_new (array_length nisa_function_queue) -1)
-    let entry_name: string = (nisa_shadow_name parser "__nanoisa_shadow_entry")
-    let mut entry_body: string = ""
-    let mut out: string = ""
-    let mut i: int = first_shadow
-    while (< i count) {
-        let selected: ASTShadow = (list_ASTShadow_get parser.shadows i)
-        let name: string = (nisa_shadow_name parser (+ "__nanoisa_shadow_" (int_to_string i)))
-        let function: ASTFunction = ASTFunction {
-            node_type: ParseNodeType.PNODE_FUNCTION, line: selected.line, column: selected.column,
-            name: name, param_start: 0, param_count: 0, return_type: "void",
-            body: selected.body, is_pure: false, self_name: "", checked_affine: 0, affine_owner: [0], affine_completed_epoch: 0 }
-        set out (+ out (nisa_emit_function parser function))
-        if (not nisa_ok) {
-            set nisa_err (+ (+ "I cannot lower shadow " selected.target_name)
-                (+ (+ " at merged line " (int_to_string selected.line)) (+ ": " nisa_err)))
-            return ""
-        }
-        while (< (array_length queue_shadows) (array_length nisa_function_queue)) {
-            set queue_shadows (array_push queue_shadows i)
-        }
-        set entry_body (+ entry_body (+ "  .shadow \"" (+ (nisa_escape_string selected.target_name) "\"\n")))
-        set entry_body (+ entry_body (nisa_line_imm "CALL" name))
-        set i (+ i 1)
-    }
-    let entry_index: int = (- count first_shadow)
-    set out (+ out (+ ".function " (+ entry_name " 0 0 0 int 1\n")))
-    set out (+ out (+ entry_body "  PUSH_I64 0\n  RET\n.end\n"))
-    set nisa_ordinary_functions (+ nisa_ordinary_functions (nisa_ordinary_contract parser "int" 0 []))
-    set nisa_ordinary_count (+ nisa_ordinary_count 1)
-    set i 0
-    while (and nisa_ok (< i (array_length nisa_function_queue))) {
-        let queued: int = (at nisa_function_queue i)
-        let function: ASTFunction = (nisa_queued_function parser queued)
-        if (and (>= queued 0) (nisa_generic_function parser function)) { set i (+ i 1) continue }
-        if (== function.node_type ParseNodeType.PNODE_LAMBDA) { set i (+ i 1) continue }
-        let origin: int = (at queue_shadows i)
-        if (and (< function.body 0) (!= (nisa_module_result function.name) "")) { set out (+ out (nisa_emit_module_function parser function)) }
-        else if (< function.body 0) { let _: int = (nisa_register_extern parser function) }
-        else { set out (+ out (nisa_emit_function_effects parser function (nisa_immediate_effect parser function queued context))) }
-        while (< (array_length queue_shadows) (array_length nisa_function_queue)) {
-            set queue_shadows (array_push queue_shadows origin)
-        }
-        if (not nisa_ok) {
-            if (>= origin 0) {
-                let selected: ASTShadow = (list_ASTShadow_get parser.shadows origin)
-                set nisa_err (+ (+ "I cannot lower shadow " selected.target_name)
-                    (+ (+ " at merged line " (int_to_string selected.line)) (+ ": " nisa_err)))
-            }
-            return ""
-        }
-        set i (+ i 1)
-    }
-    set out (+ out (+ initializers nisa_lambda_text))
-    if (not nisa_ok) { return "" }
-    let mut prelude: string = (+ ".types " (int_to_string (parser_get_struct_def_count parser)))
-    set prelude (+ prelude (+ " " (int_to_string (parser_get_enum_count parser))))
-    set prelude (+ prelude (+ " " (int_to_string (parser_get_union_count parser))))
-    set prelude (+ prelude (+ "\n.entry " (int_to_string entry_index)))
-    set prelude (+ prelude (+ "\n\n" nisa_import_text))
-    set prelude (+ prelude (nisa_str_prelude))
-    return (nisa_finish_ordinary parser bound (+ prelude out))
+    return (nisa_emit_shadows_native parser first_shadow bound context -1 "")
 }
+shadow nisa_emit_shadows_context {
+    let tokens: List<LexerToken> = (tokenize_string "fn f()->int{return 7} shadow f {assert (== (f) 7)}" "strict.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "strict.nano")
+    assert (str_contains (nisa_emit_shadows_context parser 0 false []) "__nanoisa_shadow_0")
+}
+fn nisa_emit_shadows_native(parser: Parser, first_shadow: int, bound: bool, context: array<CheckedAdvisoryOutput>, native_owner: int, native_artifact: string) -> string {
+    let output: string = (nisa_emit_shadows_native_inner parser first_shadow bound context native_owner native_artifact)
+    set nisa_native_owner -1
+    set nisa_native_artifact ""
+    return output
+}
+shadow nisa_emit_shadows_native {
+    let tokens: List<LexerToken> = (tokenize_string "fn f()->int{return 7} shadow f {assert true}" "native.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "native.nano")
+    assert (!= (nisa_emit_shadows_native parser 0 false [] -1 "") "")
+    assert (== nisa_native_owner -1)
+}
+fn nisa_emit_shadows_native_inner(parser: Parser, first_shadow: int, bound: bool, context: array<CheckedAdvisoryOutput>, native_owner: int, native_artifact: string) -> string {
+    (nisa_function_index_clear)
+    let output: string = (nisa_emit_shadows_indexed_body parser first_shadow bound context native_owner native_artifact)
+    (nisa_function_index_clear)
+    return output
+}
+
+shadow nisa_emit_shadows_native_inner {
+    let tokens: List<LexerToken> = (tokenize_string "fn f()->int{return 7}" "native.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "native.nano")
+    assert (== (nisa_emit_shadows_native_inner parser -1 false [] -1 "") "")
+    let _: int = (nisa_reset)
+}
+
 shadow nanoisa_emit_shadows_nasm {
     let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
     let source: string = (+ "f" "n main() -> int { return 7 } shadow main { assert (== (main) 7) } shadow main { assert false }")
@@ -9658,92 +10135,37 @@ fn nisa_emit_module_nasm(parser: Parser, program: bool, bound: bool) -> string {
     return (nisa_emit_module_context parser program bound [])
 }
 fn nisa_emit_module_context(parser: Parser, program: bool, bound: bool, context: array<CheckedAdvisoryOutput>) -> string {
-    if (> parser.services_count 0) { return (nisa_fail "I have not resolved File service declarations for this consumer.") }
-    let _: int = (nisa_reset)
-    if (not (nisa_module_declarations_valid parser)) { return "" }
-    set nisa_program_mode program
-    let mut selected_owned: bool = (nanoisa_has_borrows parser)
-    if program { if selected_owned { if (== (nanoisa_selected_ownership parser false 0) 1) { set selected_owned false } } }
-    if selected_owned {
-        let emitted: string = (nisa_checked_borrow_lower parser false 0 context)
-        if (== emitted "") { return (nisa_fail (nanoisa_borrow_error)) }
-        return emitted
-    }
-    if program {
-        let entry: int = (nisa_fn_index parser "main")
-        if (< entry 0) { return (nisa_fail "no main") }
-        (nisa_require_function entry)
-    }
-    if (parser_has_error parser) {
-        let bad: string = (nisa_fail "parse failed")
-        return bad
-    } else {
-        let n: int = (parser_get_function_count parser)
-        let mut declaration_index: int = 0
-        while (and nisa_ok (and (not program) (< declaration_index n))) {
-            let declaration: ASTFunction = (parser_get_function parser declaration_index)
-            if (< declaration.body 0) {
-                let imported: int = (nisa_register_extern parser declaration)
-            }
-            set declaration_index (+ declaration_index 1)
-        }
-        if (not nisa_ok) { return "" }
-        let initializers: string = (nisa_emit_globals parser)
-        if (not nisa_ok) { return "" }
-        let mut out: string = ""
-        let mut main_idx: int = (- 0 1)
-        let mut emitted: int = 0
-        let mut i: int = 0
-        while (and nisa_ok (or (and (not program) (< i (+ n (array_length nisa_generics)))) (and program (< i (array_length nisa_function_queue))))) {
-            let mut function_index: int = i
-            if program { set function_index (at nisa_function_queue i) }
-            else if (>= i n) { set function_index (- -1 (- i n)) }
-            let func: ASTFunction = (nisa_queued_function parser function_index)
-            if (and (>= function_index 0) (nisa_generic_function parser func)) { set i (+ i 1) continue }
-            if (== func.node_type ParseNodeType.PNODE_LAMBDA) { set i (+ i 1) continue }
-            if (and (< func.body 0) (!= (nisa_module_result func.name) "")) {
-                set out (+ out (nisa_emit_module_function parser func))
-                set emitted (+ emitted 1)
-            } else if (< func.body 0) {
-                if program { let _: int = (nisa_register_extern parser func) }
-            } else {
-                if (== func.name "main") {
-                    set main_idx emitted
-                } else {
-                    (print "")
-                }
-                set out (+ out (nisa_emit_function_effects parser func (nisa_immediate_effect parser func function_index context)))
-                if (not nisa_ok) { return "" }
-                set out (+ out "\n")
-                set emitted (+ emitted 1)
-            }
-            set i (+ i 1)
-        }
-        set out (+ out (+ initializers nisa_lambda_text))
-        if (< main_idx 0) {
-            let missing: string = (nisa_fail "no main")
-            return missing
-        } else {
-            if (not nisa_ok) {
-                return ""
-            } else {
-                let mut prelude: string = (+ ".types " (int_to_string (parser_get_struct_def_count parser)))
-                set prelude (+ prelude (+ " " (int_to_string (parser_get_enum_count parser))))
-                set prelude (+ prelude (+ " " (int_to_string (parser_get_union_count parser))))
-                set prelude (+ prelude "\n.entry ")
-                set prelude (+ prelude (int_to_string main_idx))
-                set prelude (+ prelude "\n\n")
-                set prelude (+ prelude nisa_import_text)
-                set prelude (+ prelude (nisa_str_prelude))
-                if (> (array_length nisa_str_names) 0) {
-                    set prelude (+ prelude "\n")
-                } else {
-                    (print "")
-                }
-                return (nisa_finish_ordinary parser bound (+ prelude out))
-            }
-        }
-    }
+    (nisa_function_index_clear)
+    let output: string = (nisa_emit_module_indexed_body parser program bound context)
+    (nisa_function_index_clear)
+    return output
+}
+
+shadow nisa_emit_module_context {
+    (mb_reset [])
+    let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
+    let source: string = "fn answer() -> int { return 7 } shadow answer { assert (== (answer) 7) }"
+    let tokens: List<LexerToken> = (tokenize_string source "shadow-only.nano" diagnostics)
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "shadow-only.nano")
+    let program: string = (nisa_emit_module_context parser true false [])
+    assert (str_contains program ".entry 0")
+    assert (str_contains program ".function main 0 0 0 int 1")
+    assert (not (str_contains program ".function answer "))
+    assert (not (str_contains program "__nanoisa_shadow_"))
+    assert (== (nisa_emit_module_context parser false false []) "")
+    let plain_tokens: List<LexerToken> = (tokenize_string "fn answer() -> int { return 7 }" "library.nano" diagnostics)
+    let plain: Parser = (parse_program plain_tokens (list_LexerToken_length plain_tokens) "library.nano")
+    assert (== (nisa_emit_module_context plain true false []) "")
+    assert (== (nanoisa_last_lowering_error) "no main")
+    let global_source: string = "let startup: int = 7 fn answer() -> int { return startup } shadow answer { assert (== (answer) 7) }"
+    let global_tokens: List<LexerToken> = (tokenize_string global_source "global-shadow.nano" diagnostics)
+    let global_parser: Parser = (parse_program global_tokens (list_LexerToken_length global_tokens) "global-shadow.nano")
+    let global_program: string = (nisa_emit_module_context global_parser true false [])
+    assert (str_contains global_program ".entry 0")
+    assert (str_contains global_program ".function main 0 0 0 int 1")
+    assert (str_contains global_program ".function __init__")
+    assert (str_contains global_program "STORE_GLOBAL 0")
+    (mb_reset [])
 }
 
 shadow nanoisa_emit_nasm {
@@ -9864,7 +10286,9 @@ fn nisa_effect_value_type(parser: Parser, id: int, kind: int) -> string {
     let count: int = (list_ASTStmtRef_length block.statements)
     if (== count 0) { return "void" }
     let tail: ASTStmtRef = (list_ASTStmtRef_get block.statements (- count 1))
-    if (not (parser_is_value_expression tail.node_type)) { return "void" }
+    let mut value_tail: bool = (parser_is_value_expression tail.node_type)
+    if (== tail.node_type ParseNodeType.PNODE_IF) { set value_tail (>= (parser_get_if parser tail.node_id).else_body 0) }
+    if (not value_tail) { return "void" }
     return (nisa_match_arm_type parser id kind)
 }
 shadow nisa_effect_value_type {
@@ -9891,7 +10315,9 @@ fn nisa_effect_value(parser: Parser, id: int, kind: int) -> string {
     let mut index: int = 0
     while (and nisa_ok (< index count)) {
         let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements index)
-        set value (and (== index (- count 1)) (parser_is_value_expression stmt.node_type))
+        let mut value_tail: bool = (parser_is_value_expression stmt.node_type)
+        if (== stmt.node_type ParseNodeType.PNODE_IF) { set value_tail (>= (parser_get_if parser stmt.node_id).else_body 0) }
+        set value (and (== index (- count 1)) value_tail)
         if value { set out (+ out (nisa_effect_value parser stmt.node_id stmt.node_type)) }
         else { set out (+ out (nisa_emit_stmt parser stmt)) }
         if (nisa_stmt_terminates parser stmt) { break }
@@ -10023,4 +10449,385 @@ shadow nisa_checked_borrow_lower {
     assert (not (str_contains (nisa_checked_borrow_lower parser false 0 []) ".borrow_place"))
     assert (str_contains (nisa_checked_borrow_lower parser false 0 [checked]) ".field_read")
     assert (not (str_contains (nisa_checked_borrow_lower parser false 0 []) ".field_read"))
+}
+
+fn nisa_function_index_clear() -> void {
+    set nisa_function_index_active false
+    set nisa_function_index_count 0
+    set nisa_function_index_next []
+    set nisa_function_index_heads (map_new)
+}
+
+fn nisa_function_index_begin(functions: List<ASTFunction>) -> void {
+    (nisa_function_index_clear)
+    let count: int = (list_ASTFunction_length functions)
+    if (or (< count 0) (> count 4294967295)) { return }
+    set nisa_function_index_next (array_new count -1)
+    let mut index: int = (- count 1)
+    while (>= index 0) {
+        let name: string = (list_ASTFunction_get functions index).name
+        if (map_has nisa_function_index_heads name) {
+            (array_set nisa_function_index_next index (map_get nisa_function_index_heads name))
+        }
+        (map_set nisa_function_index_heads name index)
+        set index (- index 1)
+    }
+    set nisa_function_index_count count
+    set nisa_function_index_active true
+}
+
+fn nisa_function_index_first(name: string) -> int {
+    if (not nisa_function_index_active) { return -1 }
+    if (map_has nisa_function_index_heads name) { return (map_get nisa_function_index_heads name) }
+    return -1
+}
+
+fn nisa_emit_module_indexed_body(parser: Parser, program: bool, bound: bool, context: array<CheckedAdvisoryOutput>) -> string {
+    if (> parser.services_count 0) { return (nisa_fail "I have not resolved File service declarations for this consumer.") }
+    let _: int = (nisa_reset)
+    if (not (nisa_module_declarations_valid parser)) { return "" }
+    set nisa_program_mode program
+    let synthetic_main: bool = (and program (and (< (nisa_fn_index parser "main") 0) (> parser.shadows_count 0)))
+    let mut selected_owned: bool = (nanoisa_has_borrows parser)
+    if program { if selected_owned { if (== (nanoisa_selected_ownership parser false 0) 1) { set selected_owned false } } }
+    if selected_owned {
+        let emitted: string = (nisa_checked_borrow_lower parser false 0 context)
+        if (== emitted "") { return (nisa_fail (nanoisa_borrow_error)) }
+        return emitted
+    }
+    if program {
+        let entry: int = (nisa_fn_index parser "main")
+        if (< entry 0) {
+            if (not synthetic_main) { return (nisa_fail "no main") }
+        } else { (nisa_require_function entry) }
+    }
+    if (parser_has_error parser) {
+        let bad: string = (nisa_fail "parse failed")
+        return bad
+    } else {
+        (nisa_function_index_begin parser.functions)
+        let n: int = (parser_get_function_count parser)
+        let mut declaration_index: int = 0
+        while (and nisa_ok (and (not program) (< declaration_index n))) {
+            let declaration: ASTFunction = (parser_get_function parser declaration_index)
+            if (< declaration.body 0) {
+                let imported: int = (nisa_register_extern parser declaration)
+            }
+            set declaration_index (+ declaration_index 1)
+        }
+        if (not nisa_ok) { return "" }
+        let initializers: string = (nisa_emit_globals parser)
+        if (not nisa_ok) { return "" }
+        let mut out: string = ""
+        let mut main_idx: int = (- 0 1)
+        let mut emitted: int = 0
+        let mut i: int = 0
+        while (and nisa_ok (or (and (not program) (< i (+ n (array_length nisa_generics)))) (and program (< i (array_length nisa_function_queue))))) {
+            let mut function_index: int = i
+            if program { set function_index (at nisa_function_queue i) }
+            else if (>= i n) { set function_index (- -1 (- i n)) }
+            let func: ASTFunction = (nisa_queued_function parser function_index)
+            if (and (>= function_index 0) (nisa_generic_function parser func)) { set i (+ i 1) continue }
+            if (== func.node_type ParseNodeType.PNODE_LAMBDA) { set i (+ i 1) continue }
+            if (and (< func.body 0) (!= (nisa_module_result func.name) "")) {
+                set out (+ out (nisa_emit_module_function parser func))
+                set emitted (+ emitted 1)
+            } else if (< func.body 0) {
+                if program { let _: int = (nisa_register_extern parser func) }
+            } else {
+                if (== func.name "main") {
+                    set main_idx emitted
+                } else {
+                    (print "")
+                }
+                set out (+ out (nisa_emit_function_effects parser func (nisa_immediate_effect parser func function_index context)))
+                if (not nisa_ok) { return "" }
+                set out (+ out "\n")
+                set emitted (+ emitted 1)
+            }
+            set i (+ i 1)
+        }
+        if (and synthetic_main (< main_idx 0)) {
+            # I give a checked shadow-only program an inert product entry.
+            # Global initialization keeps its own function and startup policy.
+            set main_idx emitted
+            set out (+ out ".function main 0 0 0 int 1\n  PUSH_I64 0\n  RET\n.end\n\n")
+            set nisa_ordinary_functions (+ nisa_ordinary_functions (nisa_ordinary_contract parser "int" 0 []))
+            set nisa_ordinary_count (+ nisa_ordinary_count 1)
+        }
+        set out (+ out (+ initializers nisa_lambda_text))
+        if (< main_idx 0) {
+            let missing: string = (nisa_fail "no main")
+            return missing
+        } else {
+            if (not nisa_ok) {
+                return ""
+            } else {
+                let mut prelude: string = (+ ".types " (int_to_string (parser_get_struct_def_count parser)))
+                set prelude (+ prelude (+ " " (int_to_string (parser_get_enum_count parser))))
+                set prelude (+ prelude (+ " " (int_to_string (parser_get_union_count parser))))
+                set prelude (+ prelude "\n.entry ")
+                set prelude (+ prelude (int_to_string main_idx))
+                set prelude (+ prelude "\n\n")
+                set prelude (+ prelude nisa_import_text)
+                set prelude (+ prelude (nisa_str_prelude))
+                if (> (array_length nisa_str_names) 0) {
+                    set prelude (+ prelude "\n")
+                } else {
+                    (print "")
+                }
+                return (nisa_finish_ordinary parser bound (+ prelude out))
+            }
+        }
+    }
+}
+
+fn nisa_emit_shadows_indexed_body(parser: Parser, first_shadow: int, bound: bool, context: array<CheckedAdvisoryOutput>, native_owner: int, native_artifact: string) -> string {
+    if (> parser.services_count 0) { return (nisa_fail "I have not resolved File service declarations for this consumer.") }
+    let _: int = (nisa_reset)
+    set nisa_native_owner native_owner
+    set nisa_native_artifact native_artifact
+    if (not (nisa_module_declarations_valid parser)) { return "" }
+    set nisa_program_mode true
+    let count: int = parser.shadows_count
+    if (or (< first_shadow 0) (> first_shadow count)) {
+        return (nisa_fail "I require a valid first-shadow index")
+    }
+    if (parser_has_error parser) { return (nisa_fail "parse failed") }
+    let mut selected_owned: bool = (nanoisa_has_borrows parser)
+    if selected_owned { if (== (nanoisa_selected_ownership parser true first_shadow) 1) { set selected_owned false } }
+    if selected_owned {
+        let emitted: string = (nisa_checked_borrow_lower parser true first_shadow context)
+        if (== emitted "") { return (nisa_fail (nanoisa_borrow_error)) }
+        return emitted
+    }
+    (nisa_function_index_begin parser.functions)
+    let initializers: string = (nisa_emit_globals parser)
+    if (not nisa_ok) { return "" }
+    # I retain the first selected shadow that enqueues each dependency.
+    # Initializer dependencies have no shadow owner.
+    let mut queue_shadows: array<int> = (array_new (array_length nisa_function_queue) -1)
+    let entry_name: string = (nisa_shadow_name parser "__nanoisa_shadow_entry")
+    let mut entry_body: string = ""
+    let mut out: string = ""
+    let mut i: int = first_shadow
+    while (< i count) {
+        let selected: ASTShadow = (list_ASTShadow_get parser.shadows i)
+        let name: string = (nisa_shadow_name parser (+ "__nanoisa_shadow_" (int_to_string i)))
+        let function: ASTFunction = ASTFunction {
+            node_type: ParseNodeType.PNODE_FUNCTION, line: selected.line, column: selected.column,
+            name: name, param_start: 0, param_count: 0, return_type: "void",
+            body: selected.body, is_pure: false, self_name: "", checked_affine: 0, affine_owner: [0], affine_completed_epoch: 0 }
+        set out (+ out (nisa_emit_function parser function))
+        if (not nisa_ok) {
+            set nisa_err (+ (+ "I cannot lower shadow " selected.target_name)
+                (+ (+ " at merged line " (int_to_string selected.line)) (+ ": " nisa_err)))
+            return ""
+        }
+        while (< (array_length queue_shadows) (array_length nisa_function_queue)) {
+            set queue_shadows (array_push queue_shadows i)
+        }
+        set entry_body (+ entry_body (+ "  .shadow \"" (+ (nisa_escape_string selected.target_name) "\"\n")))
+        set entry_body (+ entry_body (nisa_line_imm "CALL" name))
+        set i (+ i 1)
+    }
+    let entry_index: int = (- count first_shadow)
+    set out (+ out (+ ".function " (+ entry_name " 0 0 0 int 1\n")))
+    set out (+ out (+ entry_body "  PUSH_I64 0\n  RET\n.end\n"))
+    set nisa_ordinary_functions (+ nisa_ordinary_functions (nisa_ordinary_contract parser "int" 0 []))
+    set nisa_ordinary_count (+ nisa_ordinary_count 1)
+    set i 0
+    while (and nisa_ok (< i (array_length nisa_function_queue))) {
+        let queued: int = (at nisa_function_queue i)
+        let function: ASTFunction = (nisa_queued_function parser queued)
+        if (and (>= queued 0) (nisa_generic_function parser function)) { set i (+ i 1) continue }
+        if (== function.node_type ParseNodeType.PNODE_LAMBDA) { set i (+ i 1) continue }
+        let origin: int = (at queue_shadows i)
+        if (and (< function.body 0) (!= (nisa_module_result function.name) "")) { set out (+ out (nisa_emit_module_function parser function)) }
+        else if (< function.body 0) { let _: int = (nisa_register_extern parser function) }
+        else { set out (+ out (nisa_emit_function_effects parser function (nisa_immediate_effect parser function queued context))) }
+        while (< (array_length queue_shadows) (array_length nisa_function_queue)) {
+            set queue_shadows (array_push queue_shadows origin)
+        }
+        if (not nisa_ok) {
+            if (>= origin 0) {
+                let selected: ASTShadow = (list_ASTShadow_get parser.shadows origin)
+                set nisa_err (+ (+ "I cannot lower shadow " selected.target_name)
+                    (+ (+ " at merged line " (int_to_string selected.line)) (+ ": " nisa_err)))
+            }
+            return ""
+        }
+        set i (+ i 1)
+    }
+    set out (+ out (+ initializers nisa_lambda_text))
+    if (not nisa_ok) { return "" }
+    let mut prelude: string = (+ ".types " (int_to_string (parser_get_struct_def_count parser)))
+    set prelude (+ prelude (+ " " (int_to_string (parser_get_enum_count parser))))
+    set prelude (+ prelude (+ " " (int_to_string (parser_get_union_count parser))))
+    set prelude (+ prelude (+ "\n.entry " (int_to_string entry_index)))
+    set prelude (+ prelude (+ "\n\n" nisa_import_text))
+    set prelude (+ prelude (nisa_str_prelude))
+    return (nisa_finish_ordinary parser bound (+ prelude out))
+}
+
+shadow nisa_function_index_clear {
+    let reset: int = (nisa_reset)
+    let tokens: List<LexerToken> = (tokenize_string "fn chosen()->int{return 7}" "clear.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "clear.nano")
+    (nisa_function_index_begin parser.functions)
+    assert nisa_function_index_active
+    assert (== (nisa_function_index_first "chosen") 0)
+    (nisa_function_index_clear)
+    assert (not nisa_function_index_active)
+    assert (== nisa_function_index_count 0)
+    assert (== (array_length nisa_function_index_next) 0)
+    assert (== (nisa_function_index_first "chosen") -1)
+}
+
+shadow nisa_function_index_begin {
+    let reset: int = (nisa_reset)
+    let tokens: List<LexerToken> = (tokenize_string "extern fn chosen()->int extern fn middle()->int extern fn chosen()->int extern fn last()->int" "index.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "index.nano")
+    (nisa_function_index_begin parser.functions)
+    assert nisa_function_index_active
+    assert (== nisa_function_index_count 4)
+    assert (== (nisa_function_index_first "chosen") 0)
+    assert (== (at nisa_function_index_next 0) 2)
+    assert (== (at nisa_function_index_next 2) -1)
+    assert (== (nisa_function_index_first "last") 3)
+    assert (== (nisa_function_index_first "Chosen") -1)
+    assert (== (nisa_function_index_first "chose") -1)
+    (nisa_function_index_clear)
+}
+
+shadow nisa_function_index_first {
+    let reset: int = (nisa_reset)
+    let tokens: List<LexerToken> = (tokenize_string "" "empty.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens 0 "empty.nano")
+    (nisa_function_index_begin parser.functions)
+    assert nisa_function_index_active
+    assert (== (nisa_function_index_first "") -1)
+    assert (== (nisa_function_index_first "missing") -1)
+    (nisa_function_index_clear)
+}
+
+shadow nisa_fn_index {
+    let reset: int = (nisa_reset)
+    let tokens: List<LexerToken> = (tokenize_string "fn first()->int{return 7} fn main()->int{return (first)}" "alias.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "alias.nano")
+    let alias: Parser = parser
+    let first: ASTFunction = (list_ASTFunction_get parser.functions 0)
+    (nisa_function_index_begin parser.functions)
+    assert (== (nisa_fn_index parser "first") 0)
+    assert (== (nisa_fn_index parser "main") 1)
+    assert (== (nisa_fn_index parser "missing") -1)
+    (list_ASTFunction_push alias.functions ASTFunction {node_type: first.node_type, line: first.line, column: first.column,
+        name: "tail", param_start: first.param_start, param_count: first.param_count,
+        return_type: first.return_type, body: first.body, is_pure: first.is_pure,
+        self_name: first.self_name, checked_affine: first.checked_affine,
+        affine_owner: first.affine_owner, affine_completed_epoch: first.affine_completed_epoch})
+    assert (== (nisa_fn_index parser "tail") 2)
+    (nisa_function_index_clear)
+    (list_ASTFunction_set alias.functions 0 (ASTFunction {node_type: first.node_type, line: first.line, column: first.column,
+        name: "renamed", param_start: first.param_start, param_count: first.param_count,
+        return_type: first.return_type, body: first.body, is_pure: first.is_pure,
+        self_name: first.self_name, checked_affine: first.checked_affine,
+        affine_owner: first.affine_owner, affine_completed_epoch: first.affine_completed_epoch}))
+    assert (== (nisa_fn_index parser "first") -1)
+    assert (== (nisa_fn_index parser "renamed") 0)
+    (nisa_function_index_begin parser.functions)
+    assert (== (nisa_fn_index parser "tail") 2)
+    assert (== (nisa_fn_index parser "renamed") 0)
+    (nisa_function_index_clear)
+}
+
+shadow nisa_call_index {
+    let reset: int = (nisa_reset)
+    let tokens: List<LexerToken> = (tokenize_string "extern fn path_basename(p:string)->string\nextern fn path_basename(p:string)->string\nfn main()->string{return (second \"x\")}" "owners.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "owners.nano")
+    let call: ASTCall = (parser_get_call parser 0)
+    (nisa_function_index_begin parser.functions)
+    (mb_reset [1, 2, 3])
+    (mb_add_target 2 "second" "path_basename" 1)
+    assert (== (nisa_call_index parser call) 1)
+    (mb_reset [1, 2, 3])
+    (mb_add_target 2 "second" "path_basename" 0)
+    assert (== (nisa_call_index parser call) 0)
+    (mb_reset [1, 2, 3])
+    (mb_add_target 2 "second" "path_basename" 9)
+    assert (== (nisa_call_index parser call) -1)
+    set nisa_names ["second"]
+    assert (== (nisa_call_index parser call) -1)
+    let next_reset: int = (nisa_reset)
+    let defined_tokens: List<LexerToken> = (tokenize_string "fn target()->int{return 7}\nfn main()->int{return (selected)}" "defined.nano" (diag_list_new))
+    let defined: Parser = (parse_program defined_tokens (list_LexerToken_length defined_tokens) "defined.nano")
+    (mb_reset [1, 2])
+    (mb_add_target 1 "selected" "target" 9)
+    (nisa_function_index_begin defined.functions)
+    assert (== (nisa_call_index defined (parser_get_call defined 0)) 0)
+    let last_reset: int = (nisa_reset)
+    let external_tokens: List<LexerToken> = (tokenize_string "extern fn target()->int\nfn target()->int{return 7}\nfn main()->int{return (selected)}" "external.nano" (diag_list_new))
+    let external: Parser = (parse_program external_tokens (list_LexerToken_length external_tokens) "external.nano")
+    (mb_reset [1, 2, 3])
+    (mb_add_target 2 "selected" "target" 9)
+    (nisa_function_index_begin external.functions)
+    assert (== (nisa_call_index external (parser_get_call external 0)) -1)
+    (nisa_function_index_clear)
+    (mb_reset [])
+}
+
+shadow nisa_emit_module_context {
+    let reset: int = (nisa_reset)
+    (mb_reset [])
+    let a_tokens: List<LexerToken> = (tokenize_string "fn alpha()->int{return 7} fn main()->int{return (alpha)} shadow main{assert (== (alpha) 7)}" "a.nano" (diag_list_new))
+    let a: Parser = (parse_program a_tokens (list_LexerToken_length a_tokens) "a.nano")
+    let b_tokens: List<LexerToken> = (tokenize_string "fn beta()->int{return 9} fn main()->int{return (beta)}" "b.nano" (diag_list_new))
+    let b: Parser = (parse_program b_tokens (list_LexerToken_length b_tokens) "b.nano")
+    let first: string = (nisa_emit_module_context a true false [])
+    assert (str_contains first "TAIL_CALL alpha")
+    assert (not nisa_function_index_active)
+    assert (== (nisa_fn_index b "alpha") -1)
+    assert (str_contains (nisa_emit_module_context b true false []) "TAIL_CALL beta")
+    assert (not nisa_function_index_active)
+    assert (== (nisa_fn_index a "beta") -1)
+    assert (== (nisa_emit_module_context a true false []) first)
+    assert (== (nisa_emit_shadows_native a 2 false [] -1 "") "")
+    assert (not nisa_function_index_active)
+    assert (str_contains (nisa_emit_shadows_native a 0 false [] -1 "") "CALL alpha")
+    assert (not nisa_function_index_active)
+    let missing_tokens: List<LexerToken> = (tokenize_string "fn other()->int{return 0}" "missing.nano" (diag_list_new))
+    let missing: Parser = (parse_program missing_tokens (list_LexerToken_length missing_tokens) "missing.nano")
+    assert (== (nisa_emit_module_context missing true false []) "")
+    assert (not nisa_function_index_active)
+    assert (== (nisa_emit_module_context a true false []) first)
+    let final_reset: int = (nisa_reset)
+    (mb_reset [])
+}
+
+shadow nisa_reset {
+    let tokens: List<LexerToken> = (tokenize_string "fn chosen()->int{return 7}" "reset-index.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "reset-index.nano")
+    (nisa_function_index_begin parser.functions)
+    assert nisa_function_index_active
+    let reset: int = (nisa_reset)
+    assert (not nisa_function_index_active)
+    assert (== (nisa_function_index_first "chosen") -1)
+}
+
+shadow nisa_emit_module_indexed_body {
+    (mb_reset [])
+    let tokens: List<LexerToken> = (tokenize_string "fn other()->int{return 0}" "body-index.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "body-index.nano")
+    assert (== (nisa_emit_module_indexed_body parser true false []) "")
+    assert (== nisa_err "no main")
+    (nisa_function_index_clear)
+}
+
+shadow nisa_emit_shadows_indexed_body {
+    (mb_reset [])
+    let tokens: List<LexerToken> = (tokenize_string "fn main()->int{return 0}" "shadow-index.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "shadow-index.nano")
+    assert (== (nisa_emit_shadows_indexed_body parser -1 false [] -1 "") "")
+    assert (str_contains nisa_err "valid first-shadow")
+    (nisa_function_index_clear)
 }

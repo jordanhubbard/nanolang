@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <limits.h>
 #include <stdbool.h>
 #include <unistd.h>
 
@@ -44,10 +45,19 @@ typedef struct CBLiftTemp {
     ASTNode *owner;
 } CBLiftTemp;
 
+typedef struct CBCallSlot {
+    struct CBCallSlot *next;
+    char name[96];
+    Type type;
+    const char *nominal; /* I borrow the checked parameter's declaration name. */
+} CBCallSlot;
+
 /* ── Emit context ────────────────────────────────────────────────────────── */
 typedef struct {
     FILE       *out;
     ASTNode    *root;
+    ASTNode    *owner;
+    const CBSourceGraph *graph;
     bool        planning;
     char        prefix[64];
     size_t      operand_slots;
@@ -56,6 +66,8 @@ typedef struct {
     Type        return_type;
     ASTNode    *return_union;
     CBLiftTemp *lift_temps;
+    CBCallSlot *call_slots;
+    size_t call_counter;
     size_t      lift_counter;
     bool        has_globals;
     bool        no_main;
@@ -341,9 +353,35 @@ static const char *c_type(CBCtx *c, Type t) {
     }
 }
 
+static const CBSourceDeclaration *ctx_declaration(CBCtx *c, const ASTNode *node) {
+    if (c->graph) for (size_t i = 0; i < c->graph->count; i++)
+        if (c->graph->declarations[i].declaration == node) return &c->graph->declarations[i];
+    return NULL;
+}
+
+static void ctx_select_owner(CBCtx *c, const ASTNode *node) {
+    const CBSourceDeclaration *declaration = ctx_declaration(c, node);
+    if (declaration) c->owner = declaration->owner;
+}
+
+static bool ctx_entry_function(CBCtx *c, ASTNode *node) {
+    const CBSourceDeclaration *declaration = ctx_declaration(c, node);
+    return node && node->type == AST_FUNCTION && !strcmp(node->as.function.name, "main") &&
+        (!c->graph || (declaration && declaration->owner == c->graph->entry_owner));
+}
+
 /* I resolve declarations before builtin spellings, never from a name fragment. */
 static ASTNode *ctx_function(CBCtx *c, const char *name) {
     if (!c->root || !name) return NULL;
+    if (c->graph) {
+        ASTNode *node = c->graph->resolve_function(c->graph->context, c->owner, name);
+        if (!node) return NULL;
+        if (node->type != AST_FUNCTION || !ctx_declaration(c, node)) {
+            ctx_error(c, "I require an exact checked function in my C source graph.");
+            return NULL;
+        }
+        return node;
+    }
     ASTNode **items = c->root->type == AST_PROGRAM ? c->root->as.program.items : &c->root;
     int count = c->root->type == AST_PROGRAM ? c->root->as.program.count : 1;
     for (int i = 0; i < count; ++i) {
@@ -517,10 +555,77 @@ static int emit_result_type(CBCtx *c, ASTNode *function) {
 }
 
 /* I separate the language's int64 entry from the hosted C int wrapper. */
+static void emit_declaration_name(CBCtx *c, ASTNode *node) {
+    const CBSourceDeclaration *declaration = ctx_declaration(c, node);
+    if (ctx_entry_function(c, node)) fprintf(c->out, "%sentry", c->prefix);
+    else if (declaration && declaration->owner != c->graph->entry_owner &&
+             !node->as.function.is_extern)
+        fprintf(c->out, "%sfunction_%zu", c->prefix, (size_t)(declaration - c->graph->declarations));
+    else fputs(node->as.function.name, c->out);
+}
+
 static void emit_function_name(CBCtx *c, const char *name, bool lexical) {
-    if (name && strcmp(name, "main") == 0 && ctx_function(c, name) &&
-        (!lexical || !ctx_has_binding(c, name))) fprintf(c->out, "%sentry", c->prefix);
+    ASTNode *declaration = name && (!lexical || !ctx_has_binding(c, name)) ? ctx_function(c, name) : NULL;
+    if (declaration) emit_declaration_name(c, declaration);
     else if (name) fputs(name, c->out);
+}
+
+static void emit_global_name(CBCtx *c, ASTNode *node) {
+    const CBSourceDeclaration *declaration = ctx_declaration(c, node);
+    if (c->graph && (!declaration || node->type != AST_LET)) {
+        ctx_error(c, "I require an exact checked global in my C source graph.");
+        return;
+    }
+    if (declaration && declaration->owner != c->graph->entry_owner)
+        fprintf(c->out, "%sglobal_%zu", c->prefix, (size_t)(declaration - c->graph->declarations));
+    else fputs(node->as.let.name, c->out);
+}
+
+static ASTNode *ctx_qualified_function(CBCtx *c, ASTNode *node) {
+    const char *alias = node->as.module_qualified_call.module_alias;
+    const char *name = node->as.module_qualified_call.function_name;
+    char target[512];
+    int length = alias && name ? snprintf(target, sizeof target, "%s%s%s", alias, c->graph ? "." : "_", name) :
+                 name ? snprintf(target, sizeof target, "%s", name) : -1;
+    if (length < 0 || (size_t)length >= sizeof target) {
+        ctx_error(c, "I require a bounded exact qualified C callee name.");
+        return NULL;
+    }
+    if (ctx_has_binding(c, target)) { cb_callable_refusal(c); return NULL; }
+    return ctx_function(c, target);
+}
+
+/* I resolve enum namespaces only when no lexical value owns the spelling. */
+static ASTNode *cb_enum_member(CBCtx *c, const ASTNode *node) {
+    if (!node || node->type != AST_FIELD_ACCESS || !c->root) return NULL;
+    ASTNode *object = node->as.field_access.object;
+    if (!object || object->type != AST_IDENTIFIER || ctx_has_binding(c, object->as.identifier)) return NULL;
+    ASTNode **items = c->root->type == AST_PROGRAM ? c->root->as.program.items : &c->root;
+    int count = c->root->type == AST_PROGRAM ? c->root->as.program.count : 1;
+    ASTNode *owner = NULL;
+    for (int i = 0; i < count; ++i) {
+        ASTNode *item = items[i];
+        if (!item || item->type != AST_ENUM_DEF) continue;
+        const char *name = object->as.identifier;
+        if (strcmp(name, item->as.enum_def.name) &&
+            (!item->as.enum_def.original_name || strcmp(name, item->as.enum_def.original_name))) continue;
+        const CBSourceDeclaration *declaration = ctx_declaration(c, item);
+        if (c->graph && item->as.enum_def.original_name &&
+            !strcmp(name, item->as.enum_def.original_name) &&
+            (!declaration || declaration->owner != c->owner)) continue;
+        if (owner || item->as.enum_def.is_extern) {
+            ctx_error(c, "I require one local enum declaration for this C member."); return NULL;
+        }
+        owner = item;
+    }
+    if (!owner) return NULL;
+    int matches = 0;
+    for (int i = 0; i < owner->as.enum_def.variant_count; ++i)
+        if (!strcmp(owner->as.enum_def.variant_names[i], node->as.field_access.field_name)) matches++;
+    if (matches != 1) {
+        ctx_error(c, "I require one declared enum variant for this C member."); return NULL;
+    }
+    return owner;
 }
 
 /* I resolve absent annotations only from exact scoped declaration identities. */
@@ -545,7 +650,13 @@ static Type declared_field_type(CBCtx *c, ASTNode *node, const char **nominal,
             *nominal = function->as.function.return_struct_type_name;
             return function->as.function.return_type;
         }
+    } else if (node->type == AST_MODULE_QUALIFIED_CALL && node->as.module_qualified_call.checked_signature) {
+        FunctionSignature *signature = node->as.module_qualified_call.checked_signature;
+        *nominal = signature->return_struct_name;
+        return signature->return_type;
     } else if (node->type == AST_FIELD_ACCESS) {
+        ASTNode *enumeration = cb_enum_member(c, node);
+        if (enumeration) { *nominal = enumeration->as.enum_def.name; return TYPE_ENUM; }
         TypeInfo *checked = node->as.field_access.resolved_type_info;
         if (checked) { *nominal = checked->generic_name; return checked->base_type; }
         const char *owner, *selected;
@@ -590,6 +701,7 @@ static Type declared_field_type(CBCtx *c, ASTNode *node, const char **nominal,
 /* I retain only resolved scalar types; UNKNOWN is not an integer promise. */
 static Type infer_expr_type(CBCtx *c, ASTNode *node) {
     if (!node) return TYPE_UNKNOWN;
+    if (c->graph && node->checked_global) return node->checked_global->as.let.var_type;
     switch (node->type) {
         case AST_NUMBER:     return TYPE_INT;
         case AST_FLOAT:      return TYPE_FLOAT;
@@ -602,6 +714,9 @@ static Type infer_expr_type(CBCtx *c, ASTNode *node) {
         }
         case AST_LET:        return node->as.let.var_type;
         case AST_RETURN:     return infer_expr_type(c, node->as.return_stmt.value);
+        case AST_MODULE_QUALIFIED_CALL:
+            return node->as.module_qualified_call.checked_signature ?
+                node->as.module_qualified_call.checked_signature->return_type : TYPE_UNKNOWN;
         case AST_CALL: {
             const char *name = node->as.call.name;
             if (node->as.call.checked_signature)
@@ -701,12 +816,8 @@ static int cb_array_use(CBCtx *c, ASTNode *node) {
     if(node->type==AST_MODULE_QUALIFIED_CALL) {
         for(int i=0;i<node->as.module_qualified_call.arg_count;i++)
             if(infer_expr_type(c,node->as.module_qualified_call.args[i])==TYPE_ARRAY)return cb_array_refusal(c);
-        const char *alias=node->as.module_qualified_call.module_alias;
+        ASTNode *decl=ctx_qualified_function(c,node);
         const char *name=node->as.module_qualified_call.function_name;
-        char target[512];
-        int length=alias && name ? snprintf(target,sizeof target,"%s_%s",alias,name) :
-                   name ? snprintf(target,sizeof target,"%s",name) : -1;
-        ASTNode *decl=length>=0 && (size_t)length<sizeof target ? ctx_function(c,target) : NULL;
         if(decl && cb_node_has_array(decl))return cb_array_refusal(c);
         /* I preserve the exact emitted declaration identity. This AST form
          * otherwise retains no checked signature for an array-family call. */
@@ -720,21 +831,12 @@ static int cb_array_use(CBCtx *c, ASTNode *node) {
 /* A declaration signature describes a direct call, not a function value. */
 static int cb_callable_use(CBCtx *c, ASTNode *node) {
     if(infer_expr_type(c,node)==TYPE_FUNCTION)return cb_callable_refusal(c);
-    if(node->type==AST_IDENTIFIER && !ctx_has_binding(c,node->as.identifier) &&
-       ctx_function(c,node->as.identifier))return cb_callable_refusal(c);
+    if(node->type==AST_IDENTIFIER && !(c->graph && node->checked_global) &&
+       !ctx_has_binding(c,node->as.identifier) && ctx_function(c,node->as.identifier))return cb_callable_refusal(c);
     if(node->type==AST_CALL && (node->as.call.func_expr ||
        (node->as.call.name && ctx_has_binding(c,node->as.call.name))))return cb_callable_refusal(c);
     if(node->type==AST_MODULE_QUALIFIED_CALL) {
-        const char *alias=node->as.module_qualified_call.module_alias;
-        const char *name=node->as.module_qualified_call.function_name;
-        char target[512];
-        int length=alias && name ? snprintf(target,sizeof target,"%s_%s",alias,name) :
-                   name ? snprintf(target,sizeof target,"%s",name) : -1;
-        if(length<0 || (size_t)length>=sizeof target) {
-            ctx_error(c,"I require a bounded exact qualified C callee name.");return -1;
-        }
-        if(ctx_has_binding(c,target))return cb_callable_refusal(c);
-        ASTNode *decl=ctx_function(c,target);
+        ASTNode *decl=ctx_qualified_function(c,node);
         if(!decl) {
             ctx_error(c,"I require the exact emitted declaration for this qualified C call.");return -1;
         }
@@ -779,6 +881,8 @@ static ASTNode *ctx_union_value(CBCtx *c, ASTNode *value) {
         if (value->as.call.name && !value->as.call.func_expr &&
             !ctx_has_binding(c, value->as.call.name))
             return ctx_function_union(c, ctx_function(c, value->as.call.name));
+    } else if (value->type == AST_MODULE_QUALIFIED_CALL) {
+        return ctx_function_union(c, ctx_qualified_function(c, value));
     } else if (value->type == AST_UNION_CONSTRUCT) {
         ASTNode *owner = ctx_result_union(c, value->as.union_construct.union_name);
         if (!owner) return NULL;
@@ -837,6 +941,11 @@ static int emit_block_body(CBCtx *c, ASTNode *node);
 /* I map only my private helper identifiers, leaving operation bodies unchanged. */
 static void emit_private_source(CBCtx *c, const char *source) {
     while (*source) {
+        if (!strncmp(source, "static inline ", 14)) {
+            fprintf(c->out, "static inline %sunused ", c->prefix);
+            source += 14;
+            continue;
+        }
         const char *replacement = NULL;
         size_t consumed = 0;
         if (strncmp(source, "nano_rt_", 8) == 0) {
@@ -873,13 +982,16 @@ static void emit_preamble(CBCtx *c, const char *source_file) {
     fprintf(c->out, "#include <stdint.h>\n");
     fprintf(c->out, "#include <string.h>\n");
     fputc('\n', c->out);
+    fprintf(c->out, "#if defined(__GNUC__) || defined(__clang__)\n"
+            "#define %sunused __attribute__((__unused__))\n#else\n#define %sunused\n#endif\n\n",
+            c->prefix, c->prefix);
 
     if (!c->planning) {
         emit_private_source(c, nl_binary64_arithmetic_source);
         emit_private_source(c, NL_BINARY64_BITS_SOURCE);
         emit_private_source(c, NL_BINARY64_FORMAT_SOURCE);
         emit_private_source(c,
-            "static int nano_rt_string_equal(const char *left, const char *right) {\n"
+            "static inline int nano_rt_string_equal(const char *left, const char *right) {\n"
             "  return left == right || (left && right && strcmp(left, right) == 0);\n"
             "}\n");
         emit_private_source(c,
@@ -918,7 +1030,7 @@ static void emit_preamble(CBCtx *c, const char *source_file) {
             "  }\n"
             "  return left + right;\n"
             "}\n"
-            "static const char *nano_rt_string_concat(const char *left, const char *right) {\n"
+            "static inline const char *nano_rt_string_concat(const char *left, const char *right) {\n"
             "  if (!left || !right) {\n"
             "    fputs(\"I require nonnull C concatenation operands.\\n\", stderr); exit(EXIT_FAILURE);\n"
             "  }\n"
@@ -926,21 +1038,21 @@ static void emit_preamble(CBCtx *c, const char *source_file) {
             "  char *result = nano_rt_text_allocate(nano_rt_string_length_sum(a, b));\n"
             "  memcpy(result, left, a); memcpy(result + a, right, b); return result;\n"
             "}\n"
-            "static const char *nano_rt_float_text_new(double value) {\n"
+            "static inline const char *nano_rt_float_text_new(double value) {\n"
             "  char text[64]; int length = nano_rt_f64_format(text, sizeof text, value);\n"
             "  if (length < 0 || (size_t)length >= sizeof text) {\n"
             "    fputs(\"I could not format my C float result.\\n\", stderr); exit(EXIT_FAILURE);\n"
             "  }\n"
             "  return nano_rt_scalar_text_copy(text, (size_t)length);\n"
             "}\n"
-            "static const char *nano_rt_int_text_new(int64_t value) {\n"
+            "static inline const char *nano_rt_int_text_new(int64_t value) {\n"
             "  char text[32]; int length = snprintf(text, sizeof text, \"%lld\", (long long)value);\n"
             "  if (length < 0 || (size_t)length >= sizeof text) {\n"
             "    fputs(\"I could not format my C integer result.\\n\", stderr); exit(EXIT_FAILURE);\n"
             "  }\n"
             "  return nano_rt_scalar_text_copy(text, (size_t)length);\n"
             "}\n"
-            "static int nano_rt_public_float_print(double value, int newline) {\n"
+            "static inline int nano_rt_public_float_print(double value, int newline) {\n"
             "  const char *special = nano_rt_f64_nonfinite(value);\n"
             "  return special ? printf(newline ? \"%s\\n\" : \"%s\", special)\n"
             "                 : printf(newline ? \"%g\\n\" : \"%g\", value);\n"
@@ -949,7 +1061,7 @@ static void emit_preamble(CBCtx *c, const char *source_file) {
 
     /* I keep boolean literals stable under my collision-free private namespace. */
     emit_private_source(c,
-        "static const char* nano_rt_bool_text(int b) {\n"
+        "static inline const char* nano_rt_bool_text(int b) {\n"
         "    return b ? \"true\" : \"false\";\n"
         "}\n\n");
 
@@ -974,6 +1086,54 @@ static int emit_string_concat(CBCtx *c, ASTNode *left, ASTNode *right) {
     fprintf(c->out, "), %sstring_concat(%ssl[%zu], %ssr[%zu]))",
             c->prefix, c->prefix, slot, c->prefix, slot);
     return 0;
+}
+
+static void free_call_slots(CBCtx *c) {
+    while (c->call_slots) {
+        CBCallSlot *next = c->call_slots->next;
+        free(c->call_slots);
+        c->call_slots = next;
+    }
+}
+
+/* I use ordinary C assignments and comma sequence points for every argument.
+ * Slot declarations live in the staged function, including exact value types. */
+static int emit_ordered_call(CBCtx *c, ASTNode *declaration, const char *name,
+                             const FunctionSignature *signature, ASTNode **args, int count) {
+    int parameters = declaration ? declaration->as.function.param_count : signature ? signature->param_count : -1;
+    if (count != parameters || count < 0 || (size_t)count > SIZE_MAX / sizeof(CBCallSlot *)) {
+        ctx_error(c, "I require exact declared parameter slots for ordered C calls."); return -1;
+    }
+    CBCallSlot **slots = calloc(count ? (size_t)count : 1, sizeof *slots);
+    if (!slots) { ctx_error(c, "I could not allocate ordered C argument slots."); return -1; }
+    int result = -1;
+    fputc('(', c->out);
+    for (int i = 0; i < count; i++) {
+        if (c->call_counter == SIZE_MAX) { ctx_error(c, "I exceeded my C argument slot capacity."); goto done; }
+        CBCallSlot *slot = calloc(1, sizeof *slot);
+        if (!slot) { ctx_error(c, "I could not retain an ordered C argument slot."); goto done; }
+        slot->next = c->call_slots; c->call_slots = slot; slots[i] = slot;
+        snprintf(slot->name, sizeof slot->name, "%sargument_%zu", c->prefix, c->call_counter++);
+        slot->type = declaration ? declaration->as.function.params[i].type : signature->param_types[i];
+        slot->nominal = declaration ? declaration->as.function.params[i].struct_type_name :
+                          signature->param_struct_names ? signature->param_struct_names[i] : NULL;
+        if (cb_storage_type(c, slot->type, slot->nominal, false, true, NULL)) goto done;
+        fprintf(c->out, "%s = (", slot->name);
+        if (emit_expr(c, args[i])) goto done;
+        fputs("), ", c->out);
+    }
+    if (declaration) emit_declaration_name(c, declaration);
+    else fputs(name, c->out);
+    fputc('(', c->out);
+    for (int i = 0; i < count; i++) {
+        if (i) fputs(", ", c->out);
+        fputs(slots[i]->name, c->out);
+    }
+    fputs("))", c->out);
+    result = 0;
+done:
+    free(slots);
+    return result;
 }
 
 /* ── Expression emitter ───────────────────────────────────────────────────── */
@@ -1036,7 +1196,8 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
     }
 
     case AST_IDENTIFIER:
-        emit_function_name(c, node->as.identifier, true);
+        if (c->graph && node->checked_global) emit_global_name(c, node->checked_global);
+        else emit_function_name(c, node->as.identifier, true);
         return 0;
 
     case AST_PREFIX_OP: {
@@ -1256,6 +1417,9 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
         if(!direct && !node->as.call.checked_signature) {
             ctx_error(c,"I require a retained exact declaration or signature for this C call."); return -1;
         }
+        if (node->as.call.arg_count > 1)
+            return emit_ordered_call(c, direct, name, node->as.call.checked_signature,
+                                     node->as.call.args, node->as.call.arg_count);
         /* Regular function call */
         if (node->as.call.func_expr) {
             fputc('(', c->out);
@@ -1277,15 +1441,12 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
     }
 
     case AST_MODULE_QUALIFIED_CALL: {
-        /* Emit as alias_function(args) */
-        if (node->as.module_qualified_call.module_alias &&
-            node->as.module_qualified_call.function_name) {
-            fprintf(c->out, "%s_%s",
-                    node->as.module_qualified_call.module_alias,
-                    node->as.module_qualified_call.function_name);
-        } else if (node->as.module_qualified_call.function_name) {
-            fputs(node->as.module_qualified_call.function_name, c->out);
-        }
+        ASTNode *declaration = ctx_qualified_function(c, node);
+        if (!declaration) { ctx_error(c, "I require the exact emitted declaration for this qualified C call."); return -1; }
+        if (node->as.module_qualified_call.arg_count > 1)
+            return emit_ordered_call(c, declaration, NULL, node->as.module_qualified_call.checked_signature,
+                                     node->as.module_qualified_call.args, node->as.module_qualified_call.arg_count);
+        emit_declaration_name(c, declaration);
         fputc('(', c->out);
         for (int i = 0; i < node->as.module_qualified_call.arg_count; i++) {
             if (i > 0) fputs(", ", c->out);
@@ -1366,6 +1527,15 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
     }
 
     case AST_FIELD_ACCESS: {
+        if (c->graph && node->checked_global) { emit_global_name(c, node->checked_global); return 0; }
+
+        ASTNode *enumeration = cb_enum_member(c, node);
+        if (c->error) return -1;
+        if (enumeration) {
+            fprintf(c->out, "((int64_t)NanoEnum_%s_%s)", enumeration->as.enum_def.name,
+                    node->as.field_access.field_name);
+            return 0;
+        }
         if (emit_expr(c, node->as.field_access.object)) return -1;
         fprintf(c->out, ".%s", node->as.field_access.field_name);
         return 0;
@@ -1439,6 +1609,7 @@ static int emit_guarded_union_match(CBCtx *c, ASTNode *node) {
             emit_indent(c);
             fprintf(c->out, "%spayload_%d_%d %s = %smatch_value.as.%s;\n",
                     c->prefix, declaration_index, variant_index, binding, c->prefix, variant);
+            emit_indent(c); fprintf(c->out, "(void)%s;\n", binding);
             ctx_add_nominal(c, binding, TYPE_STRUCT, name, variant);
             if (c->error) goto failed;
         }
@@ -1508,13 +1679,15 @@ static int emit_stmt(CBCtx *c, ASTNode *node) {
     }
 
     case AST_SET: {
-        if (ctx_lookup_type(c, node->as.set.name) == TYPE_FLOAT) {
+        if ((c->graph && node->checked_global ? node->checked_global->as.let.var_type :
+             ctx_lookup_type(c, node->as.set.name)) == TYPE_FLOAT) {
             Type actual = infer_expr_type(c, node->as.set.value);
             if (actual != TYPE_FLOAT && actual != TYPE_INT) {
                 ctx_error(c, "I require a resolved numeric C float assignment."); return -1;
             }
         }
-        fputs(node->as.set.name, c->out);
+        if (c->graph && node->checked_global) emit_global_name(c, node->checked_global);
+        else fputs(node->as.set.name, c->out);
         fputs(" = ", c->out);
         if (emit_expr(c, node->as.set.value)) return -1;
         fputs(";\n", c->out);
@@ -1726,6 +1899,7 @@ static int emit_stmt(CBCtx *c, ASTNode *node) {
                         c->prefix, declaration_index, variant_index,
                         node->as.match_expr.pattern_bindings[i], c->prefix,
                         node->as.match_expr.pattern_variants[i]);
+                emit_indent(c); fprintf(c->out, "(void)%s;\n", node->as.match_expr.pattern_bindings[i]);
                 ctx_add_nominal(c, node->as.match_expr.pattern_bindings[i], TYPE_STRUCT,
                                 utype, node->as.match_expr.pattern_variants[i]);
             }
@@ -1899,13 +2073,33 @@ static void emit_struct_def(CBCtx *c, ASTNode *node) {
 
 static void emit_enum_def(CBCtx *c, ASTNode *node) {
     if (node->as.enum_def.is_extern) return;
+    /* I retain my signed64 carrier without requiring C23 wide enumerators. */
+    bool wide = false;
+    for (int i = 0; node->as.enum_def.variant_values && i < node->as.enum_def.variant_count; ++i)
+        if (node->as.enum_def.variant_values[i] < INT_MIN ||
+            node->as.enum_def.variant_values[i] > INT_MAX) wide = true;
+    if (wide) {
+        fprintf(c->out, "typedef int64_t NanoEnum_%s;\n", node->as.enum_def.name);
+        for (int i = 0; i < node->as.enum_def.variant_count; ++i) {
+            fprintf(c->out, "#define NanoEnum_%s_%s (",
+                    node->as.enum_def.name, node->as.enum_def.variant_names[i]);
+            if (node->as.enum_def.variant_values[i] == LLONG_MIN)
+                fputs("-9223372036854775807LL - 1LL", c->out);
+            else fprintf(c->out, "%lldLL", node->as.enum_def.variant_values[i]);
+            fputs(")\n", c->out);
+        }
+        fputc('\n', c->out);
+        return;
+    }
     fprintf(c->out, "typedef enum {\n");
     for (int i = 0; i < node->as.enum_def.variant_count; i++) {
         fputs("  ", c->out);
         fprintf(c->out, "NanoEnum_%s_%s",
                 node->as.enum_def.name, node->as.enum_def.variant_names[i]);
         if (node->as.enum_def.variant_values) {
-            fprintf(c->out, " = %d", node->as.enum_def.variant_values[i]);
+            if (node->as.enum_def.variant_values[i] == LLONG_MIN)
+                fputs(" = (-9223372036854775807LL - 1LL)", c->out);
+            else fprintf(c->out, " = %lldLL", node->as.enum_def.variant_values[i]);
         }
         if (i < node->as.enum_def.variant_count - 1) fputc(',', c->out);
         fputc('\n', c->out);
@@ -1963,6 +2157,15 @@ static void emit_union_def(CBCtx *c, ASTNode *node) {
 
 /* ── Function emitter ─────────────────────────────────────────────────────── */
 static int emit_staged_body(CBCtx *c, FILE *body, FILE *destination) {
+    for (CBCallSlot *slot = c->call_slots; slot; slot = slot->next) {
+        fputs("  ", c->out);
+        if (slot->type == TYPE_STRUCT || slot->type == TYPE_UNION)
+            fprintf(c->out, "%s_%s", slot->type == TYPE_STRUCT ? "NanoStruct" : "NanoUnion", slot->nominal);
+        else fputs(c_type(c, slot->type), c->out);
+        fprintf(c->out, " %s;\n", slot->name);
+    }
+    free_call_slots(c);
+    c->call_counter = 0;
     if (c->operand_slots) fprintf(c->out, "  double %sl[%zu], %sr[%zu];\n",
                                   c->prefix, c->operand_slots, c->prefix, c->operand_slots);
     if (c->string_slots) fprintf(c->out, "  const char *%ssl[%zu], *%ssr[%zu];\n",
@@ -1991,7 +2194,7 @@ static int emit_function(CBCtx *c, ASTNode *node) {
     c->return_union = ret == TYPE_UNION ? ctx_function_union(c, node) : NULL;
     if (emit_result_type(c, node)) return -1;
     fputc(' ', c->out);
-    emit_function_name(c, node->as.function.name, false);
+    emit_declaration_name(c, node);
     fputc('(', c->out);
     for (int i = 0; i < node->as.function.param_count; i++) {
         if (i > 0) fputs(", ", c->out);
@@ -2022,7 +2225,7 @@ static int emit_function(CBCtx *c, ASTNode *node) {
     }
 
     c->indent = 1;
-    if (c->has_globals && strcmp(node->as.function.name, "main") == 0)
+    if (c->has_globals && ctx_entry_function(c, node))
         fprintf(c->out, "  %sinit();\n", c->prefix);
     if (node->as.function.body) {
         if (node->as.function.body->type == AST_BLOCK) {
@@ -2069,6 +2272,7 @@ static void emit_forward_decls(CBCtx *c, ASTNode *root) {
     for (int i = 0; i < count; i++) {
         ASTNode *n = items[i];
         if (!n || n->type != AST_FUNCTION) continue;
+        ctx_select_owner(c, n);
         /* Emit prototypes for both regular and extern functions.
          * Without this, extern fn declarations (e.g. fs_mkdir_p, path_relpath,
          * file_copy, dir_copy) have no C prototype visible to the compiler,
@@ -2076,7 +2280,7 @@ static void emit_forward_decls(CBCtx *c, ASTNode *root) {
          * -Wint-conversion errors that follow from the defaulted int return. */
         if (emit_result_type(c, n)) return;
         fputc(' ', c->out);
-        emit_function_name(c, n->as.function.name, false);
+        emit_declaration_name(c, n);
         fputc('(', c->out);
         for (int j = 0; j < n->as.function.param_count; j++) {
             if (j > 0) fputs(", ", c->out);
@@ -2110,13 +2314,16 @@ static int emit_global_initializer(CBCtx *c, ASTNode **items, int count) {
     for (int i = 0; i < count; ++i) {
         ASTNode *item = items[i];
         if (!item || item->type != AST_LET || !item->as.let.value) continue;
+        ctx_select_owner(c, item);
         Type expected = item->as.let.var_type;
         Type actual = infer_expr_type(c, item->as.let.value);
         if (actual == TYPE_UNKNOWN || (actual != expected && !(expected == TYPE_FLOAT && actual == TYPE_INT))) {
             ctx_error(c, "I require a resolved compatible scalar global initializer.");
             break;
         }
-        fprintf(c->out, "  %s = ", item->as.let.name);
+        fputs("  ", c->out);
+        emit_global_name(c, item);
+        fputs(" = ", c->out);
         if (emit_expr(c, item->as.let.value)) break;
         fputs(";\n", c->out);
     }
@@ -2145,6 +2352,7 @@ static int emit_program(CBCtx *c, ASTNode *root) {
     for (int i = 0; i < count; i++) {
         ASTNode *n = items[i];
         if (!n) continue;
+        ctx_select_owner(c, n);
         if (ctx_profile_node(c, n)) return -1;
         switch (n->type) {
             case AST_STRUCT_DEF: emit_struct_def(c, n); break;
@@ -2163,10 +2371,13 @@ static int emit_program(CBCtx *c, ASTNode *root) {
         if (type != TYPE_INT && type != TYPE_FLOAT && type != TYPE_BOOL && type != TYPE_STRING) {
             ctx_error(c, "I require a supported exact scalar C global binding."); return -1;
         }
-        ctx_add_sym(c, item->as.let.name, type);
-        fprintf(c->out, "static %s %s;\n", c_type(c, type), item->as.let.name);
+        if (!c->graph) ctx_add_sym(c, item->as.let.name, type);
+        fprintf(c->out, "static %s ", c_type(c, type));
+        emit_global_name(c, item);
+        fputs(";\n", c->out);
         c->has_globals = true;
     }
+    if (c->graph) c->owner = c->graph->entry_owner;
     if (c->has_globals && !ctx_function(c, "main")) {
         ctx_error(c, "I require a hosted main for ordered C global initialization."); return -1;
     }
@@ -2185,6 +2396,7 @@ static int emit_program(CBCtx *c, ASTNode *root) {
         if (!n) continue;
         switch (n->type) {
             case AST_FUNCTION:
+                ctx_select_owner(c, n);
                 if (emit_function(c, n)) return -1;
                 break;
             default:
@@ -2198,11 +2410,13 @@ static int emit_program(CBCtx *c, ASTNode *root) {
 
 /* ── Public API ──────────────────────────────────────────────────────────── */
 static int render_source(ASTNode *root, FILE *out, const char *source_file,
-                         const CBOptions *opts) {
+                         const CBOptions *opts, const CBSourceGraph *graph) {
     CBCtx c;
     memset(&c, 0, sizeof(c));
     c.out = out;
     c.root = root;
+    c.graph = graph;
+    c.owner = graph ? graph->entry_owner : root;
     c.verbose = opts ? opts->verbose : false;
     c.no_main = opts && opts->no_main;
     if (opts && opts->no_stdlib)
@@ -2266,6 +2480,7 @@ static int render_source(ASTNode *root, FILE *out, const char *source_file,
             ctx_error(&c, "I could not emit this C program.");
     }
     if (ferror(out)) ctx_error(&c, "I could not write staged C source.");
+    free_call_slots(&c);
     if (c.error) {
         fprintf(stderr, "[c_backend] %s\n", c.error);
         return 1;
@@ -2281,7 +2496,7 @@ int c_backend_emit_fp(ASTNode *root, FILE *out, const char *source_file,
         fprintf(stderr, "[c_backend] I could not stage C source.\n");
         return 1;
     }
-    int rc = render_source(root, staged, source_file, opts);
+    int rc = render_source(root, staged, source_file, opts, NULL);
     if (!rc && (fflush(staged) != 0 || fseek(staged, 0, SEEK_SET) != 0)) {
         fprintf(stderr, "[c_backend] I could not rewind staged source.\n"); rc = 1;
     }
@@ -2307,8 +2522,8 @@ int c_backend_emit_fp(ASTNode *root, FILE *out, const char *source_file,
     return rc;
 }
 
-int c_backend_emit(ASTNode *root, const char *output_path,
-                   const char *source_file, const CBOptions *opts) {
+static int emit_source_path(ASTNode *root, const char *output_path,
+                   const char *source_file, const CBOptions *opts, const CBSourceGraph *graph) {
     if (!output_path) { fprintf(stderr, "[c_backend] I require an output path.\n"); return 1; }
     size_t length = strlen(output_path);
     static const char suffix[] = ".tmp.XXXXXX";
@@ -2333,7 +2548,7 @@ int c_backend_emit(ASTNode *root, const char *output_path,
         free(temporary);
         return 1;
     }
-    int rc = render_source(root, staged, source_file, opts);
+    int rc = render_source(root, staged, source_file, opts, graph);
     if (fclose(staged) != 0 && !rc) {
         fprintf(stderr, "[c_backend] I could not close staged output.\n"); rc = 1;
     }
@@ -2343,4 +2558,53 @@ int c_backend_emit(ASTNode *root, const char *output_path,
     if (rc) unlink(temporary);
     free(temporary);
     return rc;
+}
+
+int c_backend_emit(ASTNode *root, const char *output_path,
+                   const char *source_file, const CBOptions *opts) {
+    return emit_source_path(root, output_path, source_file, opts, NULL);
+}
+
+int c_backend_emit_graph(ASTNode *root, const CBSourceGraph *graph,
+                          const char *output_path, const char *source_file,
+                          const CBOptions *opts) {
+    if (!root || root->type != AST_PROGRAM || !graph || !graph->entry_owner ||
+        graph->entry_owner->type != AST_PROGRAM || !graph->resolve_function || graph->count != (size_t)root->as.program.count ||
+        (graph->count && !graph->declarations)) {
+        fputs("[c_backend] I require a complete checked source graph.\n", stderr); return 1;
+    }
+    for (size_t i = 0; i < graph->count; i++) {
+        if (graph->declarations[i].declaration != root->as.program.items[i] ||
+            !graph->declarations[i].owner || graph->declarations[i].owner->type != AST_PROGRAM) {
+            fputs("[c_backend] I require exact declaration owners in my C source graph.\n", stderr); return 1;
+        }
+    }
+    for (size_t i = 0; i < graph->count; i++) {
+        ASTNode *owner = graph->declarations[i].owner;
+        bool found = false;
+        for (int j = 0; j < owner->as.program.count; j++)
+            if (owner->as.program.items[j] == graph->declarations[i].declaration) found = true;
+        if (!found) {
+            fputs("[c_backend] I require each declaration in its original C source owner.\n", stderr); return 1;
+        }
+    }
+    /* I require one occurrence of every runtime declaration in each owner;
+     * an omitted unsupported declaration must not evade my profile checks. */
+    for (size_t i = 0; i <= graph->count; i++) {
+        ASTNode *owner = i == graph->count ? graph->entry_owner : graph->declarations[i].owner;
+        bool visited = false;
+        for (size_t j = 0; j < i; j++) if (graph->declarations[j].owner == owner) visited = true;
+        if (visited) continue;
+        for (int j = 0; j < owner->as.program.count; j++) {
+            ASTNode *node = owner->as.program.items[j];
+            if (node->type == AST_IMPORT || node->type == AST_MODULE_DECL || node->type == AST_SHADOW) continue;
+            size_t occurrences = 0;
+            for (size_t k = 0; k < graph->count; k++)
+                if (graph->declarations[k].declaration == node && graph->declarations[k].owner == owner) occurrences++;
+            if (occurrences != 1) {
+                fputs("[c_backend] I require each checked C declaration exactly once.\n", stderr); return 1;
+            }
+        }
+    }
+    return emit_source_path(root, output_path, source_file, opts, graph);
 }

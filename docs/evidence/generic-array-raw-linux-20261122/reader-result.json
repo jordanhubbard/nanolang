@@ -1,0 +1,17 @@
+{
+  "status": "passed",
+  "logical_records": 3979,
+  "files": 399,
+  "git_sources": 3580,
+  "raw_bytes": 481560301,
+  "unique_objects": 128,
+  "compressed_bytes": 76828574,
+  "bootstrap_input_count": 1340,
+  "raw_module_bytes": 1039116,
+  "raw_module_sha256": "d63819e232b88781a703c68c10bff9ac79758b64d9ddda2bacb2da51c7421a91",
+  "original_context_methods_per_compiler": 4,
+  "source_providers": 4,
+  "paired_darwin_claimed": false,
+  "later_source_claimed": false,
+  "full_route_audit_claimed": false
+}

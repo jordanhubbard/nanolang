@@ -1,0 +1,25 @@
+{
+  "archive": {
+    "archive": "/private/tmp/nanolang-darwin-evidence-093sl1kx",
+    "records": 17144,
+    "chunks": 6590,
+    "seconds": 107.09678875,
+    "manifest_sha256": "cb62a5b7591bcf2b1ba091e997304db6b6cad2237491bd7228b1632087fd5776"
+  },
+  "download": {
+    "remote": {
+      "archive": "/private/tmp/nanolang-darwin-evidence-093sl1kx",
+      "records": 17144,
+      "chunks": 6590,
+      "seconds": 107.09678875,
+      "manifest_sha256": "cb62a5b7591bcf2b1ba091e997304db6b6cad2237491bd7228b1632087fd5776"
+    },
+    "local": "/var/tmp/nanolang-darwin-archive-c_f8a3yx",
+    "terminal": true,
+    "exit": 0,
+    "seconds": 10.236691444006283,
+    "manifest_sha256": "cb62a5b7591bcf2b1ba091e997304db6b6cad2237491bd7228b1632087fd5776"
+  },
+  "native_reservation_released": true,
+  "nas_archive_copy": false
+}

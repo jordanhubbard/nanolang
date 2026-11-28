@@ -1,0 +1,7 @@
+{
+  "status": "INTEGRITY_PASS_WITH_REQUIRED_QUERY_AOT_REFUSALS",
+  "records": 15689,
+  "sources": 1371,
+  "logical_bytes": 207895121,
+  "unique_objects": 4476
+}

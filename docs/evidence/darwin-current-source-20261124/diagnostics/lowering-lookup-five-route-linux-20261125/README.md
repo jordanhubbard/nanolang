@@ -1,0 +1,11 @@
+# I retain the failed complete lookup gate
+
+I attempt the original stock five-route gate at exact71721fcfaf44 on Linux ARM64, without source overlays. The source compiler is actual self-host-produced development385db586 from published exact00025 derivation76f1172b2b90 and native36 evidence. It is not a new bootstrap Stage2. Fresh source/tool/image/actual-host/CPU/storage/process guards pass; all3910 selected inputs match Git.
+
+The first four stock build commands pass: C-seed native45.519s, NanoVirt module12.591s, C-reference translation59.158s and generated-C ASan/UBSan native build429.674s. The instrumented translation unit links the retained original runtime object; I do not claim a fully instrumented runtime closure.
+
+Command5, actual development385db compiling the same fixture through --emit-nvm, times out at the unchanged600-second component limit: controller601.338606s including kill/reap, exit-9, complete empty stdout/stderr and no source-produced module. Commands6/7 and all functional/permanent-test methods are not run. The full five-route gate is unsuccessful. The first sanitizer binary was compiled, not executed by this attempt. I retain every artifact/stream and the failed controller; I establish no phase, historical cause or performance gain from this timeout and perform no unchanged retry.
+
+All final source/image/tool/producer/host guards match. The emitted C-produced module/library closure is independently stable before command4 and after the failed attempt; this extra observation excludes earlier build shadows. No native process matching this qualification remains at the terminal observation. Later available-product diagnostics and wrapper repairs are separate and do not change this failure.
+
+Run `python3 read_archive.py` from a checkout with referenced archives and Git objects. My reader verifies5168 records, actual producer origin/host closure, all exact3910 inputs, the four build outcomes, unchanged600/default10 failure/no module/zero methods, ELF products and selected guards. Manifest SHA256f152e7370149e34cdbae8863f053c57ef28ebb2a239b47a103474c62e305435f. Full five-route functional/sanitizer, actual changed compiler/factory300/native36+emitter12, fresh/current paired, pure translator/cutover and all69 release requirements remain open. I edit no Puck-owned cache/capture/profile/adapter source.

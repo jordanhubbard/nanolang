@@ -1,0 +1,110 @@
+# My bounded Darwin shadow lifecycle observation
+
+I track this diagnostic under #1253/#1065. My current
+[original emitter refusal](evidence/c-repairs-linux-20261126/darwin-current-native-failure-45970514720/README.md)
+completes all1,139 selected shadow assertions in its bounded trace, then records
+a parent deadline failure. The existing markers do not establish when the
+process became waitable. I preserve that failed qualification.
+
+My separate branch-scoped `C seed shadow lifecycle diagnostic` workflow runs on
+a hosted Xcode27 worker. It restores the exact saved6e09 artifact ZIP only after
+checking its digest. All original non-document product Git entries must match;
+I verify the actual compiler/runtime images, source inputs, generated index,
+six host libraries and selected external tools before using the saved compiler.
+I copy the exact diagnostic source and toolchain records into its output.
+Restoring a saved image does not create a new bootstrap qualification.
+
+My small native observer first passes three real child-process controls:
+successful exit, a marker followed by a deliberately late clean exit, and a
+marker followed by blocking until the control parent kills and reaps its child.
+I require a live-process sample, stable birth identity, an independently checked
+wait status and the expected process-event/timeout distinction. A failed
+control stops before the compiler observation.
+
+For the compiler observation, I register a process event for the actual shadow
+child after its existing dispatch marker and remain idle through shadow bodies.
+The existing flush marker triggers a bounded three-second observation of
+`proc_pid_rusage`, BSD process state and `EVFILT_PROC/NOTE_EXIT`. The observer
+neither signals nor reaps that child. I retain raw absolute/monotonic clock
+brackets, birth identity, syscall errors and process-event dequeue times.
+The compiler retains its ordinary ten-second child/parent supervisor and its
+separate300-second command bound. Only one compiler observation runs.
+
+I interpret those records within these limits:
+
+- My resource and BSD-state calls are separate bracketed reads.
+- My process-event dequeue time bounds when I observed the event; scheduling
+  gaps are still uncertainty.
+- A cached `ri_proc_exit_abstime` alone does not prove completed teardown or
+  waitable exit. The inspected Apple source assigns it before later termination
+  and zombie transitions. I must qualify the actual target behavior.
+- Sampling and trace output can perturb timing. A diagnostic is not a passing
+  original emitter gate or an exclusive wall-time attribution.
+
+My API references are Apple's
+[libproc declarations](https://github.com/apple-oss-distributions/xnu/blob/main/libsyscall/wrappers/libproc/libproc.h),
+[resource query](https://github.com/apple-oss-distributions/xnu/blob/main/bsd/kern/kern_resource.c)
+and [exit path](https://github.com/apple-oss-distributions/xnu/blob/main/bsd/kern/kern_exit.c).
+Those reference sources are not an identity claim for the hosted kernel.
+
+My workflow uploads the exact source/compiler ZIP, controls, native observer,
+full compiler trace, lifecycle records and before/after identities. Missing
+flush/event observations fail the diagnostic boundary. No source compiler,
+supervisor decision, original test assertion, qualification workflow or release
+selection changes. My original emitter12 and all69 release requirements remain
+open until their actual gates pass.
+
+## My first calibration refusal
+
+I retain run45982190971: the native successful control exits cleanly and its
+NOTE_EXIT receipt follows its marker0.192ms later. Its marker occurs178.168ms
+after the pre-fork origin, outside my mistaken pre-marker100ms assertion.
+No compiler observation runs. I measure success/late exit tails from the
+actual marker: success remains below100ms, late remains at least150ms.
+The marker retains its20ms minimum, controls retain their5s command bound,
+and all product300/10 boundaries remain unchanged. This diagnostic is not
+qualification.
+
+I retain [both native control refusals](evidence/c-repairs-linux-20261126/lifecycle-control-refusals-20261127/README.md).
+The second control starts its blocked window before the child marker and kills
+the child without a marker after102.881ms. No compiler observation runs.
+I correct this in isolated diagnostic branch
+`work/5.1-cseed-lifecycle-controls-20261127`, source5ca56494a9dc8eb84c66da61402343a2a34994f2.
+I arm before releasing the owned child and trigger after its marker, preserving
+all control and product bounds and strengthening ordering/duration checks.
+Native control qualification is pending in run45991837855. The diagnostic
+branch retains the exact restored original C product tree; I do not relax its
+guard for newer pure-helper source additions on my release branch.
+
+## My bounded native control check
+
+My [Puck control receipt](evidence/c-repairs-linux-20261126/puck-lifecycle-controls-20261127/README.md)
+checks the exact5ca observer with one1.522s C compile and three controls,
+3.098s total. Success1.662ms/late153.051ms and blocked100.971ms satisfy the
+original predicates and stronger ordering. No NanoLang compiler is invoked;
+no repository checkout or unattended loop runs on Puck, and its private
+temporary directory is removed after verified transfer. The independent
+reader checks24 files and replays original control assertions without products.
+This accepts native-control compatibility in that observed Puck SDK context.
+Hosted45991837855 remains required for real shadow-PID observation and the
+restored original source/tool/host closure; original emitter12 and all later
+qualification/release gates remain open where unverified.
+
+## My restored cache pointers
+
+Hosted45991837855 passes synchronized native controls but C seed exits1
+after1.017428s with std C-library publication refusal, before shadows.
+I retain [the exact selected evidence and correction](evidence/c-repairs-linux-20261126/hosted-lifecycle-restore-refusal-45991837855/README.md).
+The ZIP flattens9 current symlinks into directories. Unique complete
+byte-equal generation matches reconstruct those pointers while preserving
+flattened evidence. My12 refusal/rollback/idempotence tests and actual-archive
+replay pass:1846 original lookup hashes and six host hashes stay unchanged,
+with kernel symlink publication errno21 before and success afterward.
+Original failed syscall/link inode metadata are not recovered.
+
+Source51c82debb858145371cd9f28005d683e0e79184f in the isolated diagnostic
+branch preserves all original control/observation/identity/extraction/
+subprocess functions and product Git entries. Its exact new restore test
+is the fourth diagnostic-only source allowed by the guard. Hosted
+run45998897143/job140505211888 is the single next observation; original
+300/10/120/5, emitter12 and all later qualification/release gates remain.

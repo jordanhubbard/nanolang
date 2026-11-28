@@ -1,0 +1,43 @@
+{
+  "files": [
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/scripts/ci_userguide_capture_diagnostics.py",
+      "artifact": "diagnostic-inputs/00-ci_userguide_capture_diagnostics.py.gz",
+      "sha256": "d941ce10bc6aeb7a0be5c8e68a3d945efc591c2b3bac68adf04e9daf7a35bda9",
+      "compressed_sha256": "c69fe56191384bf006302e986d8b26cd5b369ec9ae58a905e3ea123bf64ba4ce"
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.github/workflows/userguide_pages.yml",
+      "artifact": "diagnostic-inputs/01-userguide_pages.yml.gz",
+      "sha256": "c74c7874189059be0b6eb00bfaba5117b555f2caf6c501a4f641ef43d286b384",
+      "compressed_sha256": "2922d40e7b9a36f312a1a0fa9c3f1b7409a9a17bc16076e570078992f6acd589"
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/tests/native_process.py",
+      "artifact": "diagnostic-inputs/02-native_process.py.gz",
+      "sha256": "49bedb9078bf06f67cbc53eb77793d9917f58ccb70e742ff393d14d0145c626e",
+      "compressed_sha256": "18758bcf7b204b5573720abde235c4baf4a54e081db4dfa98b276d36d11921bd"
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/userguide-ci/local-default.json",
+      "artifact": "diagnostic-inputs/03-local-default.json.gz",
+      "sha256": "0e6ae2a2b43e359288cceb912a833991d9be6c64cb8ea2b2323280e228ca0431",
+      "compressed_sha256": "49683a14b5ca4cd72458b60fd90ab4181e9ee9841f9b4920b0cba6505eba522d"
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/userguide-ci/local-missing-compiler.json",
+      "artifact": "diagnostic-inputs/04-local-missing-compiler.json.gz",
+      "sha256": "503f94fc949aea18256eb4550dc27ecb2057126d26f1bdda13078a8cff0182ee",
+      "compressed_sha256": "65cb10b604db715cf8802106314c1540ec4e5c74ebf0161bd66dc8c6c953a6cc"
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/userguide-ci/local-empty-compiler.json",
+      "artifact": "diagnostic-inputs/05-local-empty-compiler.json.gz",
+      "sha256": "bf365ef9afbd024f044dfff9d9f1818d6dac3e95ee0659ac503bd47b7aa1d0ef",
+      "compressed_sha256": "eab96f9a2cd48f358a302e3bd733335d78aa050d790481413dec3eec56eeadeb"
+    }
+  ],
+  "limits": [
+    "I preserve these local metadata controls separately from the original hosted failure. They do not establish hosted tool versions or qualify product capture."
+  ]
+}

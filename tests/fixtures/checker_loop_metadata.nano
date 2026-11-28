@@ -1,0 +1,32 @@
+# I preserve inferred and borrowed annotations through nested loop checking.
+fn checker_loop_inferred() -> int {
+    let mut sum: int = 0
+    for row in [[1, 2], [3, 4]] {
+        for item in row { set sum (+ sum item) }
+    }
+    return sum
+}
+shadow checker_loop_inferred { assert (== (checker_loop_inferred) 10) }
+
+fn checker_loop_borrowed(input: array<string>) -> int {
+    let mut total: int = 0
+    for text in input { set total (+ total (str_length text)) }
+    return total
+}
+shadow checker_loop_borrowed { assert (== (checker_loop_borrowed ["left", "right"]) 9) }
+
+fn checker_loop_control() -> int {
+    let mut total: int = 0
+    for row in [[1, 2], [3, 4]] {
+        for item in row {
+            if (== item 2) { continue }
+            if (== item 4) { break }
+            set total (+ total item)
+        }
+    }
+    return total
+}
+shadow checker_loop_control { assert (== (checker_loop_control) 4) }
+
+fn main() -> int { return (checker_loop_inferred) }
+shadow main { assert (== (main) 10) }

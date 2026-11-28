@@ -1,0 +1,1 @@
+PASS integrity/localization: 5137 records; five unchanged original methods FAIL with stable inputs/tools. Four actual exit1 no-main refusals precede shadow execution; source-only exit0 lacks its notice. No repair, deadline change or current native/release acceptance claimed.

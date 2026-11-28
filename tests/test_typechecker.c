@@ -1117,6 +1117,45 @@ void test_tc_reduce_exact_refusals(void) {
     }
 }
 
+void test_tc_named_opaque_record_fields(void) {
+    const char *prefix =
+        "opaque type LeftHandle\nopaque type RightHandle\n"
+        "struct Wrapped {raw:LeftHandle}\n"
+        "extern fn left_new()->LeftHandle\n"
+        "extern fn right_new()->RightHandle\n"
+        "fn main()->int{unsafe{let left:LeftHandle=(left_new) "
+        "let right:RightHandle=(right_new) ";
+    const char *valid[] = {
+        "let wrapped:Wrapped=Wrapped{raw:left}",
+        "let wrapped:Wrapped=Wrapped{raw:if true {left} else {left}}",
+        "let wrapped:Wrapped=Wrapped{raw:(cond (true left) (else left))}",
+        "let wrapped:Wrapped=Wrapped{raw:match 0 {0 -> left, _ -> left}}",
+        "let wrapped:Wrapped=Wrapped{raw:if true {let alias:LeftHandle=left alias} else {left}}"
+    };
+    const char *invalid[] = {
+        "let wrapped:Wrapped=Wrapped{raw:right}",
+        "let wrapped:Wrapped=Wrapped{raw:if true {left} else {right}}",
+        "let wrapped:Wrapped=Wrapped{raw:if false {right} else {left}}",
+        "let wrapped:Wrapped=Wrapped{raw:(cond (true left) (else right))}",
+        "let wrapped:Wrapped=Wrapped{raw:(cond (false right) (else left))}",
+        "let wrapped:Wrapped=Wrapped{raw:match 0 {0 -> left, _ -> right}}",
+        "let wrapped:Wrapped=Wrapped{raw:if true {let alias:RightHandle=right alias} else {left}}"
+    };
+    char program[2048];
+    for (size_t i = 0; i < sizeof valid / sizeof valid[0]; ++i) {
+        snprintf(program, sizeof program, "%s%s}return 0}", prefix, valid[i]);
+        ASSERT(tc_passes(program));
+    }
+    for (size_t i = 0; i < sizeof invalid / sizeof invalid[0]; ++i) {
+        snprintf(program, sizeof program, "%s%s}return 0}", prefix, invalid[i]);
+        ASSERT(!tc_passes(program));
+    }
+    ASSERT(tc_passes("opaque type LeftHandle\nextern fn release(p:LeftHandle)->void\n"
+                     "fn main()->int{unsafe{(release 0)}return 0}"));
+    ASSERT(!tc_passes("opaque type LeftHandle\nextern fn release(p:LeftHandle)->void\n"
+                      "fn main()->int{unsafe{(release 1)}return 0}"));
+}
+
 int main(void) {
     TEST(tc_handler_parameter_metadata);
     TEST(tc_perform_signatures);
@@ -1185,6 +1224,7 @@ int main(void) {
     TEST(tc_module_with_constants);
 
     printf("\n--- Edge cases ---\n");
+    TEST(tc_named_opaque_record_fields);
     TEST(tc_empty_program);
     TEST(tc_multiple_returns);
     TEST(tc_nested_if);

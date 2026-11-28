@@ -1,0 +1,73 @@
+{
+  "interpretation_only": true,
+  "new_compiler_commands": 0,
+  "source_commit": "67d99e5121521428740d385d10071b9679e66013",
+  "source_path": "src/nanoisa/nvm2c.c",
+  "source_sha256": "994d83e225343cfee19f5674cc30259fcea6bc3db44d65911764fd63489f31c0",
+  "source_associations": [
+    {
+      "path": "/var/tmp/nanolang-path-copy-six-corrected-five-20261126-ghighxh3/source/src/nanoisa/nvm2c.c",
+      "sha256": "994d83e225343cfee19f5674cc30259fcea6bc3db44d65911764fd63489f31c0"
+    },
+    {
+      "path": "/var/tmp/nanolang-hoisted-lists-cold-bootstrap-20261125-ia5_k8qp/source/src/nanoisa/nvm2c.c",
+      "sha256": "994d83e225343cfee19f5674cc30259fcea6bc3db44d65911764fd63489f31c0"
+    }
+  ],
+  "reproducer_manifest_sha256": "af05221123efd8afe0e3aa237cf0aed5a16e26ed2b2139ca1099d9d57bfcbc9c",
+  "spans": [
+    {
+      "label": "kinds",
+      "start": 75,
+      "end": 93,
+      "sha256": "28d62e981ceb8b14ebccf48dc3b7c974c6a6b60d0e1d198df02e8c75609f62e5",
+      "text": "#define NVM2C_VK_INT 0\n#define NVM2C_VK_STR 1\n#define NVM2C_VK_UNK 2\n#define NVM2C_VK_ARR 3\n#define NVM2C_VK_REC 4\n#define NVM2C_VK_SARR 5\n#define NVM2C_VK_RARR 6\n#define NVM2C_VK_MAP 7\n#define NVM2C_VK_VALUE 8\n#define NVM2C_VK_BOOL 9\n#define NVM2C_VK_BARR 10\n#define NVM2C_VK_FLOAT 11\n#define NVM2C_VK_FARR 12\n#define NVM2C_VK_FUNC 13\n#define NVM2C_VK_FNARR 14\n#define NVM2C_VK_U8ARR 15\n#define NVM2C_VK_NARR 16\n#define NVM2C_VK_BSARR 17\n\n"
+    },
+    {
+      "label": "word-storage",
+      "start": 131,
+      "end": 133,
+      "sha256": "e5a5ea3617961c509b4020b82f75b1b2a84fa8939cb205841f4787dd18c6943b",
+      "text": "static int word_array_storage(uint8_t kind) {\n    return kind == NVM2C_VK_ARR || kind == NVM2C_VK_BARR || kind == NVM2C_VK_FARR || kind == NVM2C_VK_FNARR || kind == NVM2C_VK_U8ARR || kind == NVM2C_VK_NARR || kind == NVM2C_VK_BSARR;\n}\n"
+    },
+    {
+      "label": "known-receiver",
+      "start": 2736,
+      "end": 2782,
+      "sha256": "145cd450e780f8504af606a5ee2bc3a680a3363f500e199734a3eadb2f578fcd",
+      "text": "            if (!sim_pop(b, idx, stk, &sp, &arr)) return 0;\n            if (arr.kind == NVM2C_VK_VALUE) {\n                if (val.kind == NVM2C_VK_REC) {\n                    /* I constrain the array payload, not its tagged carrier.\n                     * Alias writes retain the existing record conversion proof. */\n                    NvmShapeId payload = checked_array_payload(b, &arr);\n                    if (!shape_type(b, payload, NVM_SHAPE_ARRAY) ||\n                        (b->track_shapes && !nvm_shape_array_write(&b->shapes, payload, val.shape)) ||\n                        !shape_equal(b, shape_variable(b, b->shape_current), arr.shape)) return 0;\n                    arr.origin = -1;\n                    if (!sim_push_slot(b, idx, stk, &sp, arr)) return 0;\n                } else {\n                    if (!sim_push(b, idx, stk, &sp, NVM2C_VK_VALUE, -1)) return 0;\n                    stk[sp - 1].array_payload_kind = arr.array_payload_kind;\n                }\n                break;\n            }\n            if (arr.kind == NVM2C_VK_NARR) {\n                if (val.kind == NVM2C_VK_VALUE) val.shape = shape_child(b, val.shape, 0);\n                if (!shape_type(b, val.shape, NVM_SHAPE_ARRAY) ||\n                    !shape_equal(b, shape_child(b, arr.shape, 0), val.shape)) return 0;\n                arr.origin = -1;\n                if (!sim_push_slot(b, idx, stk, &sp, arr)) return 0;\n                break;\n            }\n            if (arr.kind == NVM2C_VK_U8ARR) {\n                if (val.kind != NVM2C_VK_INT && val.kind != NVM2C_VK_VALUE && val.kind != NVM2C_VK_UNK) {\n                    nvm2c_fail(b, \"I require an integer or byte at a byte-array write\"); return 0;\n                }\n                arr.origin = -1;\n                if (!sim_push_slot(b, idx, stk, &sp, arr)) return 0;\n                break;\n            }\n            if (ins.opcode == OP_ARR_PUSH && arr.kind == NVM2C_VK_RARR && val.kind == NVM2C_VK_REC) {\n                for (size_t f = 0; f < b->record_width; ++f) {\n                    if (arr.rec_k[f] != NVM2C_VK_UNK && val.rec_k[f] != NVM2C_VK_UNK &&\n                        arr.rec_k[f] != val.rec_k[f] &&\n                        !record_field_converts(arr.rec_k[f], val.rec_k[f])) {\n                        nvm2c_fail(b, \"ARR_PUSH record field representation mismatch \"\n                                      \"(function %u, offset %zu, field %zu: %s versus %s)\",\n                                   idx, start, f, c_local_type(arr.rec_k[f]), c_local_type(val.rec_k[f]));\n                        return 0;\n                    }\n                }\n            }\n            if (ins.opcode == OP_ARR_SET && arr.kind != NVM2C_VK_UNK &&\n                val.kind != NVM2C_VK_UNK) {\n"
+    },
+    {
+      "label": "array-deferral",
+      "start": 2807,
+      "end": 2838,
+      "sha256": "4f423587f0a4e7e7e1d469cdc231c2920181ba505d503cf283ed7e4eacc84ea4",
+      "text": "            if (b->canonical_records && arr.kind == NVM2C_VK_UNK &&\n                (val.kind == NVM2C_VK_ARR || val.kind == NVM2C_VK_SARR ||\n                 val.kind == NVM2C_VK_U8ARR || val.kind == NVM2C_VK_FARR ||\n                 val.kind == NVM2C_VK_BARR || val.kind == NVM2C_VK_NARR)) {\n                /* A closed nested primitive proof permits this array-valued write,\n                 * but a forward callee may not yet have a result carrier.\n                 * Preserve unknown storage until facts converge; never seed\n                 * an integer-array carrier from the child's carrier. */\n                Nvm2cSimSlot pushed = arr;\n                pushed.origin = -1;\n                if (!sim_push_slot(b, idx, stk, &sp, pushed) ||\n                    !shape_type(b, arr.shape, NVM_SHAPE_ARRAY) ||\n                    !shape_type(b, val.shape, NVM_SHAPE_ARRAY) ||\n                    !shape_equal(b, shape_child(b, arr.shape, 0), val.shape) ||\n                    !shape_equal(b, stk[sp - 1].shape, arr.shape)) return 0;\n                break;\n            }\n            if (arr.kind == NVM2C_VK_UNK &&\n                (val.kind == NVM2C_VK_VALUE ||\n                 (!facts->final && val.kind == NVM2C_VK_INT))) {\n                /* A tagged element does not determine the array's storage.\n                 * A computed integer also fits both integer and byte arrays;\n                 * I wait for caller facts before choosing either storage.\n                 * Defaulting here poisons a returned byte-array contract. */\n                Nvm2cSimSlot pushed = arr;\n                pushed.origin = -1;\n                if (!sim_push_slot(b, idx, stk, &sp, pushed) ||\n                    !shape_type(b, arr.shape, NVM_SHAPE_ARRAY) ||\n                    !shape_equal(b, stk[sp - 1].shape, arr.shape)) return 0;\n                break;\n            }\n            if (b->track_shapes && arr.kind == NVM2C_VK_RARR && val.kind == NVM2C_VK_REC &&\n"
+    },
+    {
+      "label": "fallback",
+      "start": 2845,
+      "end": 2893,
+      "sha256": "6493dfdc72114322e29161f07622985402f9a363b90a2cb385defd6393b5fc29",
+      "text": "                /* Missing element facts cannot erase a constructor's known\n                 * array kind or invent an integer-array representation. */\n                Nvm2cSimSlot pushed = arr;\n                pushed.origin = -1;\n                if (!sim_push_slot(b, idx, stk, &sp, pushed)) return 0;\n            } else if (val.kind == NVM2C_VK_REC) {\n                Nvm2cSimSlot pushed = arr;\n                mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_RARR);\n                const uint8_t *fields = checked_record_fields ? arr.rec_k : val.rec_k;\n                if (checked_record_fields) {\n                    uint8_t *merged = sim_fields(b, fields, NVM2C_VK_UNK);\n                    if (!merged) return 0;\n                    for (size_t f = 0; f < b->record_width; ++f)\n                        if (variant_field(merged[f]) && variant_field(val.rec_k[f]))\n                            merged[f] |= val.rec_k[f];\n                    fields = merged;\n                }\n                if (arr.origin >= 0 && (uint16_t)arr.origin < nloc) {\n                    memcpy(rec_fields + (size_t)arr.origin * b->record_width,\n                           fields, b->record_width);\n                }\n                pushed.kind = NVM2C_VK_RARR;\n                pushed.origin = -1;\n                pushed.rec_k = (uint8_t *)fields;\n                if (!sim_push_slot(b, idx, stk, &sp, pushed)) return 0;\n            } else if (val.kind == NVM2C_VK_STR || arr.kind == NVM2C_VK_SARR) {\n                mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_SARR);\n                if (!sim_push(b, idx, stk, &sp, NVM2C_VK_SARR, -1)) return 0;\n            } else {\n                uint8_t kind = arr.kind == NVM2C_VK_BSARR ? NVM2C_VK_BSARR :\n                    val.kind == NVM2C_VK_FUNC || arr.kind == NVM2C_VK_FNARR ? NVM2C_VK_FNARR :\n                    val.kind == NVM2C_VK_FLOAT || arr.kind == NVM2C_VK_FARR ? NVM2C_VK_FARR :\n                    val.kind == NVM2C_VK_BOOL || arr.kind == NVM2C_VK_BARR ? NVM2C_VK_BARR : NVM2C_VK_ARR;\n                mark_origin(local_kind, nloc, arr.origin, kind);\n                if (!sim_push(b, idx, stk, &sp, kind, -1)) return 0;\n            }\n            /* A scalar write checks and unboxes its source at emission.\n             * I keep the array payload exact without constraining a projected\n             * source which can resolve to optional storage later. */\n            uint8_t written_array = stk[sp - 1].kind;\n            if (written_array == NVM2C_VK_SARR || word_array_storage(written_array)) {\n                uint8_t expected = written_array == NVM2C_VK_BSARR ? NVM2C_VK_VALUE :\n                    written_array == NVM2C_VK_SARR ? NVM2C_VK_STR :\n                    written_array == NVM2C_VK_FNARR ? NVM2C_VK_FUNC :\n                    written_array == NVM2C_VK_FARR ? NVM2C_VK_FLOAT : written_array == NVM2C_VK_BARR ? NVM2C_VK_BOOL : NVM2C_VK_INT;\n                if (val.kind != NVM2C_VK_UNK && val.kind != NVM2C_VK_VALUE && val.kind != expected) {\n                    nvm2c_fail(b, \"I require the matching scalar shape at this array write\");\n                    return 0;\n                }\n"
+    },
+    {
+      "label": "inference-loop",
+      "start": 8924,
+      "end": 8963,
+      "sha256": "6b8daaae26f943a5a53271ff5752ce2674a72f4966fb8843ca650ea832065352",
+      "text": "    /* I add known facts and widen string parameters to optional storage when\n     * needed. Payload and aggregate compatibility remain graph constraints. */\n    for (size_t pass = 0; ; pass++) {\n        if (pass / 2 > fact_size && pass / 2 - fact_size > mod->code_size) {\n            nvm2c_fail(&b, \"I could not converge function type facts\");\n            goto fail;\n        }\n        facts.changed = 0;\n        for (uint32_t i = 0; i < mod->function_count; i++) {\n            if (!classify_function(&b, mod, i, kinds + (size_t)i * b.local_width,\n                                   rec_fields + (size_t)i * b.local_width * b.record_width,\n                                   &facts, map_value_tag)) {\n                goto fail;\n            }\n        }\n        if (facts.final) break;\n        if (!facts.changed) {\n            /* I use declarations only after caller facts converge. An\n             * observed tagged argument keeps its checked representation;\n             * an unused parameter still has its declared scalar/record type.\n             * An array tag alone does not determine its element storage. */\n            for (uint32_t f = 0; f < mod->function_count; ++f) {\n                const uint8_t *tags = mod->function_param_types ? mod->function_param_types[f] : NULL;\n                if (!tags) continue;\n                for (uint16_t p = 0; p < mod->functions[f].arity; ++p) {\n                    uint8_t *kind = &facts.parameters[(size_t)f * b.local_width + p];\n                    if (*kind != NVM2C_VK_UNK) continue;\n                    uint8_t declared = tags[p] == TAG_INT ? NVM2C_VK_INT :\n                        (tags[p] == TAG_U8 || tags[p] == TAG_ENUM || (tags[p] == TAG_OPAQUE || tags[p] == TAG_BSTRING)) ? NVM2C_VK_VALUE :\n                        tags[p] == TAG_BOOL ? NVM2C_VK_BOOL :\n                        tags[p] == TAG_FLOAT ? NVM2C_VK_FLOAT :\n                        tags[p] == TAG_STRING ? NVM2C_VK_STR :\n                        (tags[p] == TAG_FUNCTION || tags[p] == TAG_CLOSURE) ? NVM2C_VK_FUNC :\n                        aggregate_value_tag(tags[p]) ? NVM2C_VK_REC : NVM2C_VK_UNK;\n                    if (declared != NVM2C_VK_UNK) { *kind = declared; facts.changed = 1; }\n                }\n            }\n            if (!facts.changed) facts.final = 1;\n        }\n    }\n"
+    }
+  ],
+  "expected_trace": {
+    "receiver": 2,
+    "value": 3,
+    "written_array": 3,
+    "offset": 42,
+    "final": false,
+    "canonical_records": false
+  },
+  "accepted_repair": false,
+  "accepted_component": false,
+  "whole_release": false
+}

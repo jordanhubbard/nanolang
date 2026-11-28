@@ -1,0 +1,362 @@
+module nvm2c_affine_effect_global_proof
+module "src_nano/nvm2c/container.nano" as wire
+module "src_nano/nvm2c/ownership.nano" as owner
+module "src_nano/nvm2c/ownership_queries.nano" as queries
+module "src_nano/nvm2c/affine_analysis_cache.nano" as results
+module "src_nano/nvm2c/affine_global_flow.nano" as relations
+module "src_nano/nvm2c/affine_effects.nano" as effects
+module "src_nano/nvm2c/functions.nano" as bodies
+module "src_nano/nvm2c/instructions.nano" as instructions
+module "src_nano/nvm2c/passive_calls.nano" as declarations
+
+# I check initialization over exact activation/handler identities. My caller
+# separately checks values and ownership before selecting this private proof.
+struct Activation {
+    activation_parent: int, activation_function: int, activation_continuation: int,
+    activation_handlers: int, activation_lexical: int, activation_depth: int,
+    activation_chain: int, is_effect_activation: bool
+}
+struct Handler {
+    handler_parent: int, handler_owner: int, handler_key: int, handler_target: int,
+    handler_depth: int, handler_chain: int
+}
+struct Point {
+    point_frame: int, point_pc: int, point_handlers: int, point_chain: int,
+    point_next: int, point_queued: bool, point_globals: array<int>
+}
+struct Proof {
+    proof_model: owner.Module, proof_globals: array<queries.Global>, proof_decoded: array<bodies.Function>,
+    proof_frames: array<Activation>, proof_handlers: array<Handler>, proof_points: array<Point>,
+    frame_buckets: array<int>, handler_buckets: array<int>, point_buckets: array<int>,
+    proof_control: array<int>, proof_error: array<string>
+}
+struct Interned { intern_proof: Proof, intern_id: int }
+
+pub fn intern_hash(a: int, b: int, c: int, d: int, e: int) -> int {
+    let mut value: int = 2166136261
+    let words: array<int> = [a,b,c,d,e]
+    for index in (range 0 5) { set value (% (* (wire.xor32 value (at words index)) 16777619) 4294967296) }
+    return (% value 65536)
+}
+shadow intern_hash {
+    assert (== (intern_hash 0 0 0 0 0) 53263)
+    assert (== (intern_hash 4294967295 0 4294967295 4294967295 4294967295) 56669)
+    assert (== (intern_hash 1 2 3 4 5) 13544)
+}
+
+fn create(model: owner.Module, globals: array<queries.Global>, limit: int) -> Proof {
+    let mut bound: int = limit
+    if (or (< bound 0) (> bound 262144)) { set bound 262144 }
+    # My control stores head, tail, three allocation capacities and the limit.
+    return Proof { proof_model: model, proof_globals: globals, proof_decoded: [], proof_frames: [], proof_handlers: [], proof_points: [],
+        frame_buckets: (array_new 65536 0), handler_buckets: (array_new 65536 0), point_buckets: (array_new 65536 0),
+        proof_control: [4294967295,4294967295,0,0,0,bound], proof_error: [""] }
+}
+shadow create {
+    let input: Proof = (create (sample []) [] 262145)
+    assert (== (array_length input.frame_buckets) 65536) assert (== (at input.proof_control 5) 262144)
+    (array_set input.frame_buckets 0 7) assert (== (at input.handler_buckets 0) 0)
+}
+
+fn rows(input: Proof, frames: array<Activation>, handlers: array<Handler>, points: array<Point>, decoded: array<bodies.Function>) -> Proof {
+    return Proof { proof_model: input.proof_model, proof_globals: input.proof_globals, proof_decoded: decoded,
+        proof_frames: frames, proof_handlers: handlers, proof_points: points, frame_buckets: input.frame_buckets,
+        handler_buckets: input.handler_buckets, point_buckets: input.point_buckets, proof_control: input.proof_control, proof_error: input.proof_error }
+}
+shadow rows {
+    let input: Proof = (create (sample []) [] 0)
+    let copied: Proof = (rows input [] [] [] [(bodies.decode [61] 0 1 1)])
+    assert (== (array_length copied.proof_decoded) 1) assert (== (array_length input.proof_decoded) 0)
+}
+
+fn fail(input: Proof, message: string) -> Proof { (array_set input.proof_error 0 message) return input }
+shadow fail { assert (== (at (fail (create (sample []) [] 0) "refused").proof_error 0) "refused") }
+
+fn grow(input: Proof, kind: int, count: int) -> bool {
+    let slot: int = (+ 2 kind)
+    let capacity: int = (at input.proof_control slot)
+    if (< count capacity) { return true }
+    let limit: int = (at input.proof_control 5)
+    if (>= count limit) { return false }
+    let mut next: int = 32
+    if (!= capacity 0) { set next (* capacity 2) }
+    if (> next limit) { set next limit }
+    (array_set input.proof_control slot next)
+    return true
+}
+shadow grow {
+    let input: Proof = (create (sample []) [] 33)
+    assert (grow input 0 0) assert (== (at input.proof_control 2) 32)
+    assert (grow input 0 32) assert (== (at input.proof_control 2) 33) assert (not (grow input 0 33))
+}
+
+fn activation(input: Proof, parent: int, function: int, continuation: int, handlers: int, lexical: int) -> Interned {
+    let bucket: int = (intern_hash parent function continuation handlers lexical)
+    let mut node: int = (at input.frame_buckets bucket)
+    while (!= node 0) {
+        let item: Activation = (at input.proof_frames (- node 1))
+        let mut owner: int = lexical
+        if (== lexical 4294967295) { set owner (- node 1) }
+        if (and (== item.activation_parent parent) (and (== item.activation_function function)
+            (and (== item.activation_continuation continuation) (and (== item.activation_handlers handlers)
+            (and (== item.is_effect_activation (!= lexical 4294967295)) (== item.activation_lexical owner)))))) {
+            return Interned { intern_proof: input, intern_id: (- node 1) }
+        }
+        set node item.activation_chain
+    }
+    let index: int = (array_length input.proof_frames)
+    if (not (grow input 0 index)) { return Interned { intern_proof: (fail input "I cannot retain bounded effect/global activation states"), intern_id: 4294967295 } }
+    let mut owner: int = lexical let mut depth: int = 1
+    if (== lexical 4294967295) { set owner index }
+    if (!= parent 4294967295) { set depth (+ (at input.proof_frames parent).activation_depth 1) }
+    let item: Activation = Activation { activation_parent: parent, activation_function: function, activation_continuation: continuation,
+        activation_handlers: handlers, activation_lexical: owner, activation_depth: depth,
+        activation_chain: (at input.frame_buckets bucket), is_effect_activation: (!= lexical 4294967295) }
+    let output: Proof = (rows input (array_push input.proof_frames item) input.proof_handlers input.proof_points input.proof_decoded)
+    (array_set output.frame_buckets bucket (+ index 1))
+    return Interned { intern_proof: output, intern_id: index }
+}
+shadow activation {
+    let root: Interned = (activation (create (sample []) [] 2) 4294967295 0 4294967295 4294967295 4294967295)
+    let same: Interned = (activation root.intern_proof 4294967295 0 4294967295 4294967295 4294967295)
+    assert (== root.intern_id same.intern_id) assert (== (array_length same.intern_proof.proof_frames) 1)
+    assert (== (at same.intern_proof.proof_frames 0).activation_lexical 0)
+}
+
+fn handler(input: Proof, parent: int, owner: int, key: int, target: int) -> Interned {
+    let bucket: int = (intern_hash parent owner key target 0)
+    let mut node: int = (at input.handler_buckets bucket)
+    while (!= node 0) {
+        let item: Handler = (at input.proof_handlers (- node 1))
+        if (and (== item.handler_parent parent) (and (== item.handler_owner owner) (and (== item.handler_key key) (== item.handler_target target)))) {
+            return Interned { intern_proof: input, intern_id: (- node 1) }
+        }
+        set node item.handler_chain
+    }
+    let index: int = (array_length input.proof_handlers)
+    if (not (grow input 1 index)) { return Interned { intern_proof: (fail input "I cannot retain bounded effect/global handler states"), intern_id: 4294967295 } }
+    let mut depth: int = 1
+    if (!= parent 4294967295) { set depth (+ (at input.proof_handlers parent).handler_depth 1) }
+    let item: Handler = Handler { handler_parent: parent, handler_owner: owner, handler_key: key, handler_target: target,
+        handler_depth: depth, handler_chain: (at input.handler_buckets bucket) }
+    let output: Proof = (rows input input.proof_frames (array_push input.proof_handlers item) input.proof_points input.proof_decoded)
+    (array_set output.handler_buckets bucket (+ index 1))
+    return Interned { intern_proof: output, intern_id: index }
+}
+shadow handler {
+    let root: Interned = (handler (create (sample []) [] 1) 4294967295 0 7 3)
+    let same: Interned = (handler root.intern_proof 4294967295 0 7 3)
+    assert (== same.intern_id 0) assert (== (array_length same.intern_proof.proof_handlers) 1)
+    let refused: Interned = (handler same.intern_proof 4294967295 1 7 3)
+    assert (== refused.intern_id 4294967295)
+}
+
+fn point(item: Point, globals: array<int>, queued: bool, next: int) -> Point {
+    return Point { point_frame: item.point_frame, point_pc: item.point_pc, point_handlers: item.point_handlers,
+        point_chain: item.point_chain, point_next: next, point_queued: queued, point_globals: globals }
+}
+shadow point {
+    let item: Point = Point { point_frame: 1, point_pc: 2, point_handlers: 3, point_chain: 4, point_next: 5, point_queued: false, point_globals: [1] }
+    let output: Point = (point item [2] true 7)
+    assert output.point_queued assert (== output.point_next 7) assert (== (at item.point_globals 0) 1)
+}
+
+fn queue(input: Proof, frame: int, pc: int, handlers: int, globals: array<int>) -> Proof {
+    if (or (>= frame (array_length input.proof_frames)) (>= pc (array_length (at input.proof_decoded (at input.proof_frames frame).activation_function).instructions))) {
+        return (fail input "I require an exact effect/global continuation")
+    }
+    let bucket: int = (intern_hash frame pc handlers 0 0)
+    let mut node: int = (at input.point_buckets bucket) let mut index: int = 4294967295
+    while (and (!= node 0) (== index 4294967295)) {
+        let item: Point = (at input.proof_points (- node 1))
+        if (and (== item.point_frame frame) (and (== item.point_pc pc) (== item.point_handlers handlers))) { set index (- node 1) }
+        else { set node item.point_chain }
+    }
+    let mut output: Proof = input let mut changed: bool = false
+    if (== index 4294967295) {
+        set index (array_length output.proof_points)
+        if (not (grow output 2 index)) { return (fail output "I exceeded my effect/global control-state storage budget") }
+        let item: Point = Point { point_frame: frame, point_pc: pc, point_handlers: handlers,
+            point_chain: (at output.point_buckets bucket), point_next: 4294967295, point_queued: false,
+            point_globals: (array_new (array_length output.proof_globals) 0) }
+        set output (rows output output.proof_frames output.proof_handlers (array_push output.proof_points item) output.proof_decoded)
+        (array_set output.point_buckets bucket (+ index 1)) set changed true
+    }
+    let item: Point = (at output.proof_points index)
+    for global in (range 0 (array_length output.proof_globals)) {
+        let joined: int = (relations.unite (at item.point_globals global) (at globals global))
+        if (!= joined (at item.point_globals global)) { (array_set item.point_globals global joined) set changed true }
+    }
+    if (and changed (not item.point_queued)) {
+        (array_set output.proof_points index (point item item.point_globals true 4294967295))
+        let tail: int = (at output.proof_control 1)
+        if (== tail 4294967295) { (array_set output.proof_control 0 index) }
+        else {
+            let last: Point = (at output.proof_points tail)
+            (array_set output.proof_points tail (point last last.point_globals last.point_queued index))
+        }
+        (array_set output.proof_control 1 index)
+    }
+    return output
+}
+shadow queue {
+    let initial: Proof = (create (sample [61]) [] 2)
+    let decoded: Proof = (rows initial [] [] [] [(bodies.decode [61] 0 1 1)])
+    let root: Interned = (activation decoded 4294967295 0 4294967295 4294967295 4294967295)
+    let first: Proof = (queue root.intern_proof 0 0 4294967295 [])
+    let same: Proof = (queue first 0 0 4294967295 [])
+    assert (== (array_length same.proof_points) 1) assert (== (at same.proof_control 0) 0)
+    assert (at same.proof_points 0).point_queued
+}
+
+fn return_to(input: Proof, frame: int, globals: array<int>) -> Proof {
+    let item: Activation = (at input.proof_frames frame)
+    if (== item.activation_parent 4294967295) { return input }
+    return (queue input item.activation_parent item.activation_continuation item.activation_handlers globals)
+}
+shadow return_to {
+    let root: Interned = (activation (create (sample []) [] 1) 4294967295 0 4294967295 4294967295 4294967295)
+    assert (== (array_length (return_to root.intern_proof 0 []).proof_points) 0)
+}
+
+fn target(input: Proof, function: int, offset: int) -> int {
+    let declaration: declarations.Function = (at input.proof_model.functions function)
+    let mut selected: int = -1
+    if (>= offset declaration.start) { set selected (bodies.index_at (at input.proof_decoded function) (- offset declaration.start)) }
+    if (< selected 0) { let refused: Proof = (fail input "I require an exact effect/global branch target") return 4294967295 }
+    return selected
+}
+shadow target {
+    let initial: Proof = (create (sample [61]) [] 1)
+    let decoded: Proof = (rows initial [] [] [] [(bodies.decode [61] 0 1 1)])
+    assert (== (target decoded 0 0) 0) assert (== (target decoded 0 1) 4294967295)
+}
+
+fn step(input: Proof, state: Point) -> Proof {
+    let frame: Activation = (at input.proof_frames state.point_frame)
+    let decoded: bodies.Function = (at input.proof_decoded frame.activation_function)
+    let item: instructions.Instruction = (at decoded.instructions state.point_pc)
+    let next: int = (+ state.point_pc 1)
+    let a: int = (instructions.integer item 0)
+    let opcode: int = item.opcode
+    if (== opcode 163) { return input }
+    if (== opcode 61) { return (return_to input frame.activation_lexical state.point_globals) }
+    if (== opcode 168) {
+        if (not frame.is_effect_activation) { return (fail input "I require an active effect/global resumption") }
+        return (return_to input state.point_frame state.point_globals)
+    }
+    if (or (== opcode 18) (== opcode 19)) {
+        if (>= a (array_length input.proof_globals)) { return (fail input "I require a declared effect/global slot") }
+        let mut permitted: int = 2
+        if (== opcode 19) {
+            set permitted 1
+            if (at input.proof_globals a).mutable { set permitted 3 }
+        }
+        if (== (% (relations.require (at state.point_globals a) permitted) 2) 0) {
+            return (fail input "I require global initialization before reads and no repeated immutable store across effects")
+        }
+        if (== opcode 19) { (array_set state.point_globals a (relations.compose (at state.point_globals a) 10)) }
+    }
+    if (== opcode 59) {
+        if (or (== a 0) (>= a (array_length input.proof_model.functions))) { return (fail input "I require a declared effect/global callee") }
+        if (== frame.activation_depth 1024) { return input }
+        let child: Interned = (activation input state.point_frame a next state.point_handlers 4294967295)
+        if (== child.intern_id 4294967295) { return child.intern_proof }
+        return (queue child.intern_proof child.intern_id 0 state.point_handlers state.point_globals)
+    }
+    let mut output: Proof = input let mut handlers: int = state.point_handlers
+    if (== opcode 165) {
+        if (!= handlers 4294967295) {
+            if (== (at output.proof_handlers handlers).handler_depth 1024) { return output }
+        }
+        let selected: int = (target output frame.activation_function (at decoded.targets state.point_pc))
+        if (== selected 4294967295) { return output }
+        let retained: Interned = (handler output handlers state.point_frame a selected)
+        set output retained.intern_proof set handlers retained.intern_id
+        if (== handlers 4294967295) { return output }
+    }
+    if (== opcode 166) {
+        for index in (range 0 a) {
+            if (== handlers 4294967295) { return (fail output "I cannot pop an absent or inherited effect/global handler") }
+            let item: Handler = (at output.proof_handlers handlers)
+            if (!= item.handler_owner state.point_frame) { return (fail output "I cannot pop an absent or inherited effect/global handler") }
+            set handlers item.handler_parent
+        }
+    }
+    if (== opcode 167) {
+        let context: queries.Context = queries.Context { present: true, ownership_present: false, layouts_present: false, model: output.proof_model }
+        let mut selected: int = handlers let mut matched: bool = false
+        while (and (!= selected 4294967295) (not matched)) {
+            let item: Handler = (at output.proof_handlers selected)
+            if (effects.key_equal context a item.handler_key) { set matched true }
+            else { set selected item.handler_parent }
+        }
+        if (or (== selected 4294967295) (== frame.activation_depth 1024)) { return output }
+        let handler: Handler = (at output.proof_handlers selected)
+        let owner: Activation = (at output.proof_frames handler.handler_owner)
+        let child: Interned = (activation output state.point_frame owner.activation_function next handlers owner.activation_lexical)
+        if (== child.intern_id 4294967295) { return child.intern_proof }
+        return (queue child.intern_proof child.intern_id handler.handler_target handlers state.point_globals)
+    }
+    if (or (== opcode 56) (or (== opcode 57) (or (== opcode 58) (== opcode 107)))) {
+        let selected: int = (target output frame.activation_function (at decoded.targets state.point_pc))
+        if (== selected 4294967295) { return output }
+        set output (queue output state.point_frame selected handlers state.point_globals)
+        if (or (!= (at output.proof_error 0) "") (== opcode 56)) { return output }
+    }
+    return (queue output state.point_frame next handlers state.point_globals)
+}
+shadow step {
+    let initial: Proof = (create (sample [163]) [] 2)
+    let decoded: Proof = (rows initial [] [] [] [(bodies.decode [163] 0 1 1)])
+    let root: Interned = (activation decoded 4294967295 0 4294967295 4294967295 4294967295)
+    let state: Point = Point { point_frame: 0, point_pc: 0, point_handlers: 4294967295, point_chain: 0, point_next: 4294967295, point_queued: true, point_globals: [] }
+    assert (== (array_length (step root.intern_proof state).proof_points) 0)
+}
+
+# My reduced bound is a diagnostic control. Public callers use check below.
+pub fn check_with_limit(model: owner.Module, globals: array<queries.Global>, limit: int) -> results.Result {
+    let mut proof: Proof = (create model globals limit)
+    let mut decoded: array<bodies.Function> = []
+    for function in (range 0 (array_length model.functions)) {
+        let entry: declarations.Function = (at model.functions function)
+        let body: bodies.Function = (bodies.decode model.code entry.start entry.length (array_length model.functions))
+        if (not body.valid) { return results.Result { ok: false, byte_offset: 0, reachable: 0, visits: 0, message: "I require decodable effect/global control flow" } }
+        set decoded (array_push decoded body)
+    }
+    set proof (rows proof [] [] [] decoded)
+    let root: Interned = (activation proof 4294967295 0 4294967295 4294967295 4294967295)
+    set proof root.intern_proof
+    if (!= root.intern_id 4294967295) { set proof (queue proof root.intern_id 0 4294967295 (array_new (array_length globals) 1)) }
+    let mut offset: int = 0 let mut visits: int = 0
+    while (and (!= (at proof.proof_control 0) 4294967295) (== (at proof.proof_error 0) "")) {
+        let index: int = (at proof.proof_control 0)
+        let selected: Point = (at proof.proof_points index)
+        let state: Point = (point selected (array_slice selected.point_globals 0 (array_length selected.point_globals)) selected.point_queued selected.point_next)
+        (array_set proof.proof_control 0 state.point_next)
+        if (== state.point_next 4294967295) { (array_set proof.proof_control 1 4294967295) }
+        (array_set proof.proof_points index (point selected selected.point_globals false selected.point_next))
+        let body: bodies.Function = (at proof.proof_decoded (at proof.proof_frames state.point_frame).activation_function)
+        set offset (at body.starts state.point_pc) set visits (+ visits 1)
+        set proof (step proof state)
+    }
+    let message: string = (at proof.proof_error 0)
+    if (!= message "") { return results.Result { ok: false, byte_offset: offset, reachable: 0, visits: visits, message: message } }
+    return results.Result { ok: true, byte_offset: 0, reachable: (array_length proof.proof_points), visits: visits, message: "" }
+}
+shadow check_with_limit {
+    let result: results.Result = (check_with_limit (sample [163]) [] 1)
+    assert result.ok assert (== result.visits 1) assert (== result.reachable 1)
+    let limited: results.Result = (check_with_limit (sample [163]) [] 0)
+    assert (not limited.ok) assert (== limited.message "I cannot retain bounded effect/global activation states")
+}
+
+pub fn check(model: owner.Module, globals: array<queries.Global>) -> results.Result { return (check_with_limit model globals 262144) }
+shadow check { assert (check (sample [163]) []).ok }
+
+fn sample(code: array<u8>) -> owner.Module {
+    return owner.Module { layouts: [0,0,0,0], code: code, strings: [],
+        functions: [declarations.Function { start: 0, length: (array_length code), arity: 0, locals: 0, upvalues: 0, results: 1 }],
+        params: [[]], results: [1], records: 0, enums: 0, unions: 0 }
+}
+shadow sample { assert (== (at (sample [163]).functions 0).length 1) }

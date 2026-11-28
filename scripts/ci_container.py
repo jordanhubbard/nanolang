@@ -64,6 +64,7 @@ def verify_archive(archive, expected_sha, image, platform):
         require(config.isfile() and config.size <= 1024 * 1024, 'a bounded image config')
         data = source.extractfile(config).read()
         config_digest = 'sha256:' + hashlib.sha256(data).hexdigest()
+        selected_digest = None
         if config_digest != image:
             # Docker's containerd store addresses the OCI manifest rather than
             # the config. I verify that extra hash edge, not an asserted alias.
@@ -78,10 +79,48 @@ def verify_archive(archive, expected_sha, image, platform):
             require('sha256:' + hashlib.sha256(manifest_bytes).hexdigest() == image,
                     'unchanged OCI manifest bytes')
             descriptor = json.loads(manifest_bytes)
+            if 'manifests' in descriptor:
+                # I follow one runnable platform edge, never an attestation image.
+                require(descriptor.get('schemaVersion') == 2 and descriptor.get('mediaType') in (
+                    'application/vnd.oci.image.index.v1+json',
+                    'application/vnd.docker.distribution.manifest.list.v2+json'),
+                    'a supported OCI image index')
+                children = descriptor['manifests']
+                require(isinstance(children, list) and 0 < len(children) <= 32,
+                        'a bounded OCI image index descriptor list')
+                selected = [child for child in children if isinstance(child, dict) and
+                    child.get('platform', {}).get('os') == platform.split('/')[0] and
+                    child.get('platform', {}).get('architecture') == platform.split('/')[1]]
+                require(len(selected) == 1, 'one unambiguous runnable platform manifest')
+                selected = selected[0]
+                require(selected.get('mediaType') in (
+                    'application/vnd.oci.image.manifest.v1+json',
+                    'application/vnd.docker.distribution.manifest.v2+json') and
+                    selected.get('annotations', {}).get('vnd.docker.reference.type') != 'attestation-manifest',
+                    'a runnable image manifest rather than an attestation or nested index')
+                selected_digest = selected.get('digest', '')
+                require(isinstance(selected_digest, str) and
+                        re.fullmatch(r'sha256:[0-9a-f]{64}', selected_digest),
+                        'a content-addressed platform manifest')
+                selected_member = source.getmember('blobs/sha256/' + selected_digest.split(':')[1])
+                require(selected_member.isfile() and selected_member.size <= 1024 * 1024,
+                        'a bounded regular platform manifest')
+                selected_bytes = source.extractfile(selected_member).read()
+                require(selected.get('size') == len(selected_bytes) and
+                        'sha256:' + hashlib.sha256(selected_bytes).hexdigest() == selected_digest,
+                        'unchanged platform manifest bytes and descriptor size')
+                descriptor = json.loads(selected_bytes)
+                require(descriptor.get('schemaVersion') == 2 and
+                        descriptor.get('mediaType') == selected['mediaType'],
+                        'the declared platform image manifest format')
             require(descriptor['config']['digest'] == config_digest and
                     descriptor['config']['size'] == len(data), 'the OCI manifest binding the exact image config')
         info = json.loads(data)
         require(info['os'] + '/' + info['architecture'] == platform, 'the recorded archive platform')
+        if selected_digest is not None:
+            print(json.dumps({'scope': 'I verify my OCI index-to-manifest-to-config hash edges.',
+                'image': image, 'platform': platform, 'manifest': selected_digest,
+                'config': config_digest}, sort_keys=True))
         return config_digest
 
 

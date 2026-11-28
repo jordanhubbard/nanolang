@@ -1,0 +1,267 @@
+{
+  "implementation": "76cd20f2a4c68f858389fcbd6995a6f6d3694819",
+  "source_files": 3567,
+  "sets": {
+    "linked-products": {
+      "cases": 304,
+      "original_products": 6,
+      "reports": [
+        {
+          "report": "graph-c-producer-nanoisa-vm.txt",
+          "bytes": 20173,
+          "sha256": "a6c17c74e50121f2cae76e479e77c08df475515bb30d5911ca1dc25e542101bb"
+        },
+        {
+          "report": "graph-c-producer-sanitized-native.txt",
+          "bytes": 20173,
+          "sha256": "a6c17c74e50121f2cae76e479e77c08df475515bb30d5911ca1dc25e542101bb"
+        },
+        {
+          "report": "graph-c-seed-native.txt",
+          "bytes": 20173,
+          "sha256": "a6c17c74e50121f2cae76e479e77c08df475515bb30d5911ca1dc25e542101bb"
+        },
+        {
+          "report": "graph-nanolang-producer-nanoisa-vm.txt",
+          "bytes": 20173,
+          "sha256": "a6c17c74e50121f2cae76e479e77c08df475515bb30d5911ca1dc25e542101bb"
+        },
+        {
+          "report": "graph-nanolang-producer-sanitized-native.txt",
+          "bytes": 20173,
+          "sha256": "a6c17c74e50121f2cae76e479e77c08df475515bb30d5911ca1dc25e542101bb"
+        },
+        {
+          "report": "graph-reference.txt",
+          "bytes": 20185,
+          "sha256": "8cb866af18182ed0952326c951e0bc73aab4413b7374e30e874c510a16a62be0"
+        },
+        {
+          "report": "linked-c-producer-nanoisa-vm.txt",
+          "bytes": 19433,
+          "sha256": "2b18fe9d236f20abbcd99481cd9afe892e25dd9350ac269c29c7e95e8cc2deba"
+        },
+        {
+          "report": "linked-c-producer-sanitized-native.txt",
+          "bytes": 19433,
+          "sha256": "2b18fe9d236f20abbcd99481cd9afe892e25dd9350ac269c29c7e95e8cc2deba"
+        },
+        {
+          "report": "linked-c-seed-native.txt",
+          "bytes": 19433,
+          "sha256": "2b18fe9d236f20abbcd99481cd9afe892e25dd9350ac269c29c7e95e8cc2deba"
+        },
+        {
+          "report": "linked-nanolang-producer-nanoisa-vm.txt",
+          "bytes": 19433,
+          "sha256": "2b18fe9d236f20abbcd99481cd9afe892e25dd9350ac269c29c7e95e8cc2deba"
+        },
+        {
+          "report": "linked-nanolang-producer-sanitized-native.txt",
+          "bytes": 19433,
+          "sha256": "2b18fe9d236f20abbcd99481cd9afe892e25dd9350ac269c29c7e95e8cc2deba"
+        },
+        {
+          "report": "linked-reference.txt",
+          "bytes": 19445,
+          "sha256": "2b98171a901e6ae4067b0ce672e640b811eb1dc83fe9ff820bcea56b6181b2af"
+        },
+        {
+          "report": "original-graph-c-producer-nanoisa-vm.txt",
+          "bytes": 54,
+          "sha256": "3a90a2f00e8cf2d8e5d4169da8380d73c983deb6dd2900ee90b79c229f82bb79"
+        },
+        {
+          "report": "original-graph-c-producer-sanitized-native.txt",
+          "bytes": 54,
+          "sha256": "3a90a2f00e8cf2d8e5d4169da8380d73c983deb6dd2900ee90b79c229f82bb79"
+        },
+        {
+          "report": "original-graph-c-seed-native.txt",
+          "bytes": 54,
+          "sha256": "3a90a2f00e8cf2d8e5d4169da8380d73c983deb6dd2900ee90b79c229f82bb79"
+        },
+        {
+          "report": "original-graph-nanolang-producer-nanoisa-vm.txt",
+          "bytes": 54,
+          "sha256": "3a90a2f00e8cf2d8e5d4169da8380d73c983deb6dd2900ee90b79c229f82bb79"
+        },
+        {
+          "report": "original-graph-nanolang-producer-sanitized-native.txt",
+          "bytes": 54,
+          "sha256": "3a90a2f00e8cf2d8e5d4169da8380d73c983deb6dd2900ee90b79c229f82bb79"
+        },
+        {
+          "report": "original-graph-reference.txt",
+          "bytes": 54,
+          "sha256": "3a90a2f00e8cf2d8e5d4169da8380d73c983deb6dd2900ee90b79c229f82bb79"
+        },
+        {
+          "report": "original-linked-c-producer-nanoisa-vm.txt",
+          "bytes": 36,
+          "sha256": "e049865e284db3160b22655be4a66a6f69074a7296355e052c5605e04538f0c7"
+        },
+        {
+          "report": "original-linked-c-producer-sanitized-native.txt",
+          "bytes": 36,
+          "sha256": "e049865e284db3160b22655be4a66a6f69074a7296355e052c5605e04538f0c7"
+        },
+        {
+          "report": "original-linked-c-seed-native.txt",
+          "bytes": 36,
+          "sha256": "e049865e284db3160b22655be4a66a6f69074a7296355e052c5605e04538f0c7"
+        },
+        {
+          "report": "original-linked-nanolang-producer-nanoisa-vm.txt",
+          "bytes": 36,
+          "sha256": "e049865e284db3160b22655be4a66a6f69074a7296355e052c5605e04538f0c7"
+        },
+        {
+          "report": "original-linked-nanolang-producer-sanitized-native.txt",
+          "bytes": 36,
+          "sha256": "e049865e284db3160b22655be4a66a6f69074a7296355e052c5605e04538f0c7"
+        },
+        {
+          "report": "original-linked-reference.txt",
+          "bytes": 36,
+          "sha256": "e049865e284db3160b22655be4a66a6f69074a7296355e052c5605e04538f0c7"
+        }
+      ],
+      "all_input_bytes_identical": true,
+      "all_normalized_reports_identical": true
+    },
+    "unlinked-products": {
+      "cases": 7132,
+      "original_products": 6,
+      "reports": [
+        {
+          "report": "declared-c-producer-nanoisa-vm.txt",
+          "bytes": 56530,
+          "sha256": "eecdf705975253a6d0a10c55b22646608001db02951b6146beb44d0d78c64f5b"
+        },
+        {
+          "report": "declared-c-producer-sanitized-native.txt",
+          "bytes": 56530,
+          "sha256": "eecdf705975253a6d0a10c55b22646608001db02951b6146beb44d0d78c64f5b"
+        },
+        {
+          "report": "declared-c-seed-native.txt",
+          "bytes": 56530,
+          "sha256": "eecdf705975253a6d0a10c55b22646608001db02951b6146beb44d0d78c64f5b"
+        },
+        {
+          "report": "declared-nanolang-producer-nanoisa-vm.txt",
+          "bytes": 56530,
+          "sha256": "eecdf705975253a6d0a10c55b22646608001db02951b6146beb44d0d78c64f5b"
+        },
+        {
+          "report": "declared-nanolang-producer-sanitized-native.txt",
+          "bytes": 56530,
+          "sha256": "eecdf705975253a6d0a10c55b22646608001db02951b6146beb44d0d78c64f5b"
+        },
+        {
+          "report": "declared-reference.txt",
+          "bytes": 56540,
+          "sha256": "3c391ed95aca8586e34937fe3b679459787a755030291164f1f16017936cf15d"
+        },
+        {
+          "report": "full-c-producer-nanoisa-vm.txt",
+          "bytes": 299456,
+          "sha256": "53087b4bc780764d4a2c6fca7ecfe26d6c3409736f03cedacf8a74a51bba9d4e"
+        },
+        {
+          "report": "full-c-producer-sanitized-native.txt",
+          "bytes": 299456,
+          "sha256": "53087b4bc780764d4a2c6fca7ecfe26d6c3409736f03cedacf8a74a51bba9d4e"
+        },
+        {
+          "report": "full-c-seed-native.txt",
+          "bytes": 299456,
+          "sha256": "53087b4bc780764d4a2c6fca7ecfe26d6c3409736f03cedacf8a74a51bba9d4e"
+        },
+        {
+          "report": "full-nanolang-producer-nanoisa-vm.txt",
+          "bytes": 299456,
+          "sha256": "53087b4bc780764d4a2c6fca7ecfe26d6c3409736f03cedacf8a74a51bba9d4e"
+        },
+        {
+          "report": "full-nanolang-producer-sanitized-native.txt",
+          "bytes": 299456,
+          "sha256": "53087b4bc780764d4a2c6fca7ecfe26d6c3409736f03cedacf8a74a51bba9d4e"
+        },
+        {
+          "report": "full-reference.txt",
+          "bytes": 299470,
+          "sha256": "32d086fd2054a9688a3e5a16d1ef37961560dabe5ac2eef7e7e2ace6085a19f2"
+        },
+        {
+          "report": "original-False-c-producer-nanoisa-vm.txt",
+          "bytes": 118,
+          "sha256": "80e84ab7e98773aa0049f449624146a4dfbd9e01bf331386aacb4b02dc909b41"
+        },
+        {
+          "report": "original-False-c-producer-sanitized-native.txt",
+          "bytes": 118,
+          "sha256": "80e84ab7e98773aa0049f449624146a4dfbd9e01bf331386aacb4b02dc909b41"
+        },
+        {
+          "report": "original-False-c-seed-native.txt",
+          "bytes": 118,
+          "sha256": "80e84ab7e98773aa0049f449624146a4dfbd9e01bf331386aacb4b02dc909b41"
+        },
+        {
+          "report": "original-False-nanolang-producer-nanoisa-vm.txt",
+          "bytes": 118,
+          "sha256": "80e84ab7e98773aa0049f449624146a4dfbd9e01bf331386aacb4b02dc909b41"
+        },
+        {
+          "report": "original-False-nanolang-producer-sanitized-native.txt",
+          "bytes": 118,
+          "sha256": "80e84ab7e98773aa0049f449624146a4dfbd9e01bf331386aacb4b02dc909b41"
+        },
+        {
+          "report": "original-False-reference.txt",
+          "bytes": 118,
+          "sha256": "80e84ab7e98773aa0049f449624146a4dfbd9e01bf331386aacb4b02dc909b41"
+        },
+        {
+          "report": "original-True-c-producer-nanoisa-vm.txt",
+          "bytes": 118,
+          "sha256": "d42e32f3a4e1181a8c5ce3004610eefbb82e8f1112ee2619910689d7813de672"
+        },
+        {
+          "report": "original-True-c-producer-sanitized-native.txt",
+          "bytes": 118,
+          "sha256": "d42e32f3a4e1181a8c5ce3004610eefbb82e8f1112ee2619910689d7813de672"
+        },
+        {
+          "report": "original-True-c-seed-native.txt",
+          "bytes": 118,
+          "sha256": "d42e32f3a4e1181a8c5ce3004610eefbb82e8f1112ee2619910689d7813de672"
+        },
+        {
+          "report": "original-True-nanolang-producer-nanoisa-vm.txt",
+          "bytes": 118,
+          "sha256": "d42e32f3a4e1181a8c5ce3004610eefbb82e8f1112ee2619910689d7813de672"
+        },
+        {
+          "report": "original-True-nanolang-producer-sanitized-native.txt",
+          "bytes": 118,
+          "sha256": "d42e32f3a4e1181a8c5ce3004610eefbb82e8f1112ee2619910689d7813de672"
+        },
+        {
+          "report": "original-True-reference.txt",
+          "bytes": 118,
+          "sha256": "d42e32f3a4e1181a8c5ce3004610eefbb82e8f1112ee2619910689d7813de672"
+        }
+      ],
+      "all_input_bytes_identical": true,
+      "all_normalized_reports_identical": true
+    }
+  },
+  "original_example_inputs": {
+    "examples/language/nl_functions_basic.nano": "f463a1e5690870a1329b1fc9d9c94c53bf690e8f9e915a4201527bb7554d831b",
+    "examples/language/nl_control_if_while.nano": "33d964a75de05c0ff2c5d8f68106559590103bd250cedd6afc75fbeafefdc496",
+    "examples/cross_backend/hello_cross_backend.nano": "97a655dca856334b5c5c598fcd99d8154a37fcb813e8eddec9e942297071f877"
+  }
+}

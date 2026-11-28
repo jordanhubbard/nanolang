@@ -1,0 +1,112 @@
+module nvm2c_affine_globals
+module "src_nano/nvm2c/affine_frame.nano" as frame
+module "src_nano/nvm2c/affine_state.nano" as state
+module "src_nano/nvm2c/affine_facts.nano" as facts
+module "src_nano/nvm2c/affine_global_flow.nano" as flow
+module "src_nano/nvm2c/ownership_queries.nano" as declarations
+
+# I carry the current function's entry preconditions, not call-graph authority.
+pub struct Transition { handled: bool, valid: bool, frame: frame.Frame, allowed: array<int>, message: string }
+
+pub fn handles(opcode: int) -> bool { return (or (== opcode 18) (== opcode 19)) }
+shadow handles {
+    assert (handles 18) assert (handles 19)
+    assert (not (handles 17)) assert (not (handles 20))
+}
+
+fn snapshot(input: frame.Frame, allowed: array<int>, handled: bool, message: string) -> Transition {
+    return Transition { handled: handled, valid: false, frame: (frame.clone input),
+        allowed: (array_slice allowed 0 (array_length allowed)), message: message }
+}
+shadow snapshot {
+    let input: frame.Frame = (frame.create (state.empty) 1)
+    let allowed: array<int> = [3]
+    let refused: Transition = (snapshot input allowed true "refused")
+    (array_set refused.allowed 0 0)
+    (array_set refused.frame.globals 0 15)
+    assert (== (at allowed 0) 3) assert (== (at input.globals 0) 9)
+    assert refused.handled assert (not refused.valid) assert (== refused.message "refused")
+}
+
+fn checked_vectors(input: frame.Frame, allowed: array<int>, globals: array<declarations.Global>) -> bool {
+    let count: int = (array_length globals)
+    if (or (> count 256) (or (!= (array_length input.globals) count) (!= (array_length allowed) count))) { return false }
+    for index in (range 0 count) {
+        if (or (< (at input.globals index) 0) (> (at input.globals index) 15)) { return false }
+        if (or (< (at allowed index) 0) (> (at allowed index) 3)) { return false }
+    }
+    return true
+}
+shadow checked_vectors {
+    let input: frame.Frame = (frame.create (state.empty) 1)
+    let globals: array<declarations.Global> = [declarations.Global { tag: 1, mutable: false, layout: 4294967295 }]
+    assert (checked_vectors input [3] globals)
+    assert (not (checked_vectors input [] globals))
+    assert (not (checked_vectors input [4] globals))
+    (array_set input.globals 0 16)
+    assert (not (checked_vectors input [3] globals))
+}
+
+pub fn transfer(input: frame.Frame, allowed: array<int>, globals: array<declarations.Global>,
+    opcode: int, index: int, value_graph: bool, effect_globals: bool) -> Transition {
+    if (not (handles opcode)) { return (snapshot input allowed false "") }
+    if (not (checked_vectors input allowed globals)) {
+        return (snapshot input allowed true "I require matching checked global declarations and relations")
+    }
+    if (or (not value_graph) (or (< index 0) (>= index (array_length globals)))) {
+        return (snapshot input allowed true "I require an exact declared global slot")
+    }
+    let declaration: declarations.Global = (at globals index)
+    if (state.type_owned input.locals (facts.slot declaration.tag declaration.layout)) {
+        return (snapshot input allowed true "I require explicit global owner transfers and lifetime before resource storage")
+    }
+    let after_allowed: array<int> = (array_slice allowed 0 (array_length allowed))
+    if (== opcode 18) {
+        let pushed: frame.Join = (frame.push input (frame.value declaration.tag false 65535 false declaration.layout 65535))
+        if (not pushed.valid) { return (snapshot input allowed true "I cannot retain a checked global load") }
+        if (not effect_globals) {
+            (array_set after_allowed index (flow.intersect (at allowed index) (flow.require (at input.globals index) 2)))
+        }
+        return Transition { handled: true, valid: true, frame: pushed.frame, allowed: after_allowed, message: "" }
+    }
+    let count: int = (array_length input.stack)
+    if (== count 0) { return (snapshot input allowed true "I require a value for a global store") }
+    let item: frame.Value = (at input.stack (- count 1))
+    if (or item.observation (or item.owned (or (!= item.tag declaration.tag) (!= item.layout declaration.layout)))) {
+        return (snapshot input allowed true "I require the exact global type without an owner or observation escape")
+    }
+    let output: frame.Frame = (frame.clone input)
+    if (and (not declaration.mutable) (not effect_globals)) {
+        (array_set after_allowed index (flow.intersect (at allowed index) (flow.require (at input.globals index) 1)))
+    }
+    (array_set output.globals index (flow.compose (at input.globals index) 10))
+    return Transition { handled: true, valid: true, allowed: after_allowed, message: "", frame: frame.Frame {
+        locals: output.locals, stack: (array_slice output.stack 0 (- count 1)), globals: output.globals,
+        handlers: output.handlers, floor: output.floor, activation: output.activation } }
+}
+shadow transfer {
+    let input: frame.Frame = (frame.create (state.empty) 1)
+    let globals: array<declarations.Global> = [declarations.Global { tag: 1, mutable: false, layout: 4294967295 }]
+    let allowed: array<int> = [3]
+    let loaded: Transition = (transfer input allowed globals 18 0 true false)
+    assert loaded.valid assert loaded.handled
+    assert (== (at loaded.allowed 0) 2) assert (== (at loaded.frame.globals 0) 9)
+    assert (== (at loaded.frame.stack 0).tag 1)
+    let stored: Transition = (transfer loaded.frame allowed globals 19 0 true false)
+    assert stored.valid assert (== (at stored.allowed 0) 1)
+    assert (== (at stored.frame.globals 0) 10) assert (== (array_length stored.frame.stack) 0)
+    assert (== (at input.globals 0) 9) assert (== (at allowed 0) 3)
+    assert (== (array_length loaded.frame.stack) 1)
+    let effect_mode: Transition = (transfer input allowed globals 18 0 true true)
+    assert effect_mode.valid assert (== (at effect_mode.allowed 0) 3)
+    let impossible: Transition = (transfer input [0] globals 18 0 true false)
+    assert impossible.valid assert (== (at impossible.allowed 0) 0)
+    let missing: Transition = (transfer input allowed globals 19 0 true false)
+    assert (not missing.valid) assert (== missing.message "I require a value for a global store")
+    assert (not (transfer input allowed globals 18 1 true false).valid)
+    assert (not (transfer input allowed globals 18 0 false false).valid)
+    assert (not (transfer input allowed globals 17 0 true false).handled)
+    (array_set missing.allowed 0 0)
+    (array_set missing.frame.globals 0 15)
+    assert (== (at allowed 0) 3) assert (== (at input.globals 0) 9)
+}

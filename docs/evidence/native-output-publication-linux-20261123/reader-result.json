@@ -1,0 +1,11 @@
+{
+  "result": "PASS",
+  "source": "af4583722bf2876297c7fe645579d002b80ddece",
+  "records": 4351,
+  "git_inputs": 1469,
+  "native_images": 108,
+  "focused_native_publication": true,
+  "original_neighbor_suite": false,
+  "full_source_acceptance": false,
+  "whole_release": false
+}

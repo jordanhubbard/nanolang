@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 import re
 import unittest
+from tests.support.public_c_fixture import private_c_helper_prefix
 from tests import test_public_c_nonfinite_format as formatting
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -34,7 +35,7 @@ class PublicCInt(unittest.TestCase):
 
     def test_shared_cleanup_and_controlled_refusals(self):
         output,code=self.emit('fn main()->int{return 0} shadow main{assert (== (main) 0)}')
-        prefix=re.search(r'static const char \*(nano_cb_\d+_)int_text_new',code).group(1)
+        prefix=private_c_helper_prefix(code, 'int_text_new')
         harness=self.work/'ownership.c'
         harness.write_text(FAILURES.replace('GENERATED',str(output)).replace('PREFIX',prefix))
         exe=self.work/'ownership';self.compile(harness,exe)

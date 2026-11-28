@@ -199,17 +199,79 @@ shadow mi_path_name {
     assert (== (mi_path_name "/a.b/probe") "probe")
 }
 
-pub fn mi_capture(source: string, path: string) -> bool {
-    let info: ModuleIntrospection = (mi_scan source path (mi_path_name path))
+# I retain one immutable inventory per canonical source path.
+fn mi_retain(info: ModuleIntrospection) -> bool {
     let mut i: int = 0
     while (< i (array_length mi_facts)) {
         let previous: ModuleIntrospection = (at mi_facts i)
-        if (== previous.path path) { return true }
+        if (== previous.path info.path) { return true }
         set i (+ i 1)
     }
     set mi_facts (array_push mi_facts info)
     return true
 }
+shadow mi_retain {
+    (mi_reset)
+    assert (mi_retain (mi_scan "module probe pub fn answer()->int{return 42}" "/probe.nano" "probe"))
+    assert (mi_retain (mi_scan "module changed" "/probe.nano" "changed"))
+    assert (== (array_length mi_facts) 1)
+    assert (== (array_length (mi_fact "probe").functions) 1)
+    (mi_reset)
+}
+
+# I consult the retained declaring path, independently of module-name aliases.
+pub fn mi_public_function(path: string, name: string) -> bool {
+    if (or (== path "") (== name "")) { return false }
+    for i in (range 0 (array_length mi_facts)) {
+        let info: ModuleIntrospection = (at mi_facts i)
+        if (== info.path path) {
+            for j in (range 0 (array_length info.functions)) {
+                if (== (at info.functions j) name) { return true }
+            }
+            return false
+        }
+    }
+    return false
+}
+shadow mi_public_function {
+    (mi_reset)
+    assert (mi_capture "module first pub fn shown()->int{return 1} fn hidden()->int{return 2}" "/one.nano")
+    assert (mi_capture "module second pub fn hidden()->int{return 3}" "/two.nano")
+    assert (mi_public_function "/one.nano" "shown")
+    assert (not (mi_public_function "/one.nano" "hidden"))
+    assert (mi_public_function "/two.nano" "hidden")
+    assert (not (mi_public_function "/missing.nano" "shown"))
+    assert (not (mi_public_function "" "shown"))
+    (mi_reset)
+    assert (not (mi_public_function "/one.nano" "shown"))
+}
+
+pub fn mi_capture(source: string, path: string) -> bool {
+    return (mi_retain (mi_scan source path (mi_path_name path)))
+}
+
+# I give a root an inventory only when it declares its module identity.
+pub fn mi_capture_root(source: string, path: string) -> bool {
+    let info: ModuleIntrospection = (mi_scan source path "")
+    if (== info.name "") { return true }
+    return (mi_retain info)
+}
+shadow mi_capture_root {
+    (mi_reset)
+    assert (mi_capture_root "pub fn visible()->int{return 1}" "/main.nano")
+    assert (== (array_length mi_facts) 0)
+    assert (mi_capture_root "unsafe module probe extern fn host()->int pub fn visible()->int{return 1} fn hidden()->int{return 2} pub struct Visible{n:int} struct Hidden{n:int}" "/main.nano")
+    let info: ModuleIntrospection = (mi_fact "probe")
+    assert info.ok assert info.is_unsafe assert info.has_ffi
+    assert (== info.path "/main.nano")
+    assert (== (array_length info.functions) 1)
+    assert (== (at info.functions 0) "visible")
+    assert (== (array_length info.structs) 1)
+    assert (mi_capture "module probe" "/dependency.nano")
+    assert (== (mi_ambiguous_identity) "probe")
+    (mi_reset)
+}
+
 shadow mi_capture {
     set mi_facts []
     assert (mi_capture "module probe pub fn visible() -> int { return 1 }" "/probe.nano")

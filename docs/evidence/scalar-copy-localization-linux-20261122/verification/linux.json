@@ -1,0 +1,17 @@
+{
+  "status": "LOCALIZATION_INTEGRITY_PASS_PRODUCTION_REGRESSION_STILL_RED",
+  "source_pin": "0b81a823608e923d7c989be064a40d8e54d24a63",
+  "records": 2790,
+  "sources": 1366,
+  "graph_checks": 312,
+  "diagnostic_sources": 64,
+  "regression_sources": 64,
+  "valid_source_refusals": 8,
+  "valid_pick_refusals": 1,
+  "invalid_pick_refused": true,
+  "caller_patch_applied": false,
+  "caller_candidate_compiled": false,
+  "frame_five_route_acceptance": false,
+  "whole_function_cfg": false,
+  "release_acceptance": false
+}

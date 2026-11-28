@@ -1,0 +1,7 @@
+# My private native-link admission
+
+After preserving the original local assembler-input failure, I link the exact retained Stage1 C/runtime inputs with the same compiler, flags and1800-second command bound. I change only the output path and TMPDIR, placing temporary storage in a new private directory on my mounted workspace volume. The command exits0 in195.993 seconds with empty stdout/stderr. Input, actual compiler/assembler and namespace-witness hashes match before and after. I retain the actual ELF and SHA256 e1274efe6e2a2d9fdd517629cb39575afa20649d5da90459fe3243dbf2f28243. This controlled success does not establish the original disappearance cause or a performance change.
+
+I then admit one fresh complete qualification from a new detached6bae061d14f2559856aedb422f552c861e57ae95 source root. Its production/source/test/Make bytes match018f2e350074bd19cc9aab39bc26a69029706aa1. It uses another new private TMPDIR, records source/tool/witness guards, and retains every original17 bootstrap command,1800/30 limits, raw equality and host closure, followed by36 native and12 emitter cases at original default10/300 limits. I bind its admission to the successful diagnostic receipt. That full process is separate and nonterminal when this capsule is sealed; I assert no terminal result here.
+
+Run `python3 verify.py --workspace /path/on/large/volume` to verify retained bytes and admission without executing a compiler. Full original Linux/Darwin, lifetime repair, pure translator and all69 release requirements remain open.

@@ -39,7 +39,8 @@
 
 bool module_builder_verbose = false;
 static bool module_builder_can_prompt_sudo = false;
-static char *module_capture_response_fragment(const char *fragment);
+static char *module_capture_response_fragment(const char *fragment, const ModuleBuildMetadata *meta);
+static unsigned module_response_grammar(const ModuleBuildMetadata *meta);
 static bool module_response_metadata(const ModuleBuildMetadata *meta, ModuleBuildMetadata *copy);
 static void module_response_metadata_free(const ModuleBuildMetadata *meta, ModuleBuildMetadata *copy);
 static bool module_response_driver(const ModuleBuildMetadata *meta);
@@ -1697,7 +1698,7 @@ static bool module_pkg_flags_capture(ModuleBuildMetadata *meta, ModulePkgFlags *
         char **source = group ? flags->libs : flags->cflags;
         for (size_t i = 0; i < flags->count && success; i++) {
             if (!source[i]) continue;
-            expanded[group][i] = module_capture_response_fragment(source[i]);
+            expanded[group][i] = module_capture_response_fragment(source[i], meta);
             if (!expanded[group][i]) success = false;
             else if (module_response_pending(expanded[group][i])) complete = false;
         }
@@ -2534,9 +2535,10 @@ static int module_flag_word(const char **cursor, char *word, size_t capacity) {
     return started ? 1 : 0;
 }
 
-/* GNU response words are not shell words: dollar signs and operators are
- * literal, and a backslash quotes the next byte even inside single quotes. */
-static int module_response_word(const char **cursor, char *word, size_t capacity) {
+/* I keep response words separate from shell words. Quoted backslashes use
+ * the actual selected driver grammar; an unmeasured grammar stays pending. */
+static int module_response_word(const char **cursor, char *word, size_t capacity,
+                                const ModuleBuildMetadata *meta, unsigned *grammar) {
     const unsigned char *p = (const unsigned char *)*cursor;
     while (*p && strchr(" \t\r\n\v\f", *p)) p++;
     if (!*p) { *cursor = (const char *)p; return 0; }
@@ -2546,7 +2548,15 @@ static int module_response_word(const char **cursor, char *word, size_t capacity
         unsigned char c = *p++;
         if (c == '\\') {
             if (!*p) { errno = EINVAL; return -1; }
-            c = *p++;
+            if ((quote || *p == '\n') && !*grammar) {
+                *grammar = module_response_grammar(meta);
+                if (!*grammar) { errno = EINVAL; return -1; }
+            }
+            if (*grammar == 2 && quote != '\'' && *p == '\n') { p++; continue; }
+            /* My measured quoted-literal grammar preserves every backslash
+             * inside single quotes. Double quotes also escape dollar/backtick. */
+            if (!(*grammar == 2 && (quote == '\'' ||
+                    (quote == '"' && !strchr("\\$`\"", *p))))) c = *p++;
         } else if (quote) {
             if (c == quote) { quote = 0; continue; }
         } else if (c == '\'' || c == '"') { quote = c; continue; }
@@ -2561,7 +2571,8 @@ static int module_response_word(const char **cursor, char *word, size_t capacity
 }
 
 static bool module_expand_response_word(const char *word, char *output, size_t capacity,
-                                       unsigned depth, size_t *bytes) {
+                                       unsigned depth, size_t *bytes,
+                                       const ModuleBuildMetadata *meta, unsigned *grammar) {
     if (word[0] != '@') {
         if (!module_append_path_flag(output, capacity, "", word)) { errno = E2BIG; return false; }
         return true;
@@ -2599,8 +2610,8 @@ static bool module_expand_response_word(const char *word, char *output, size_t c
         const char *cursor = data;
         char argument[4096];
         int status = 0;
-        while (ok && (status = module_response_word(&cursor, argument, sizeof(argument))) > 0)
-            ok = module_expand_response_word(argument, output, capacity, depth + 1, bytes);
+        while (ok && (status = module_response_word(&cursor, argument, sizeof(argument), meta, grammar)) > 0)
+            ok = module_expand_response_word(argument, output, capacity, depth + 1, bytes, meta, grammar);
         if (status < 0) ok = false;
     }
     int failure = errno;
@@ -2609,7 +2620,7 @@ static bool module_expand_response_word(const char *word, char *output, size_t c
     return ok;
 }
 
-static char *module_capture_response_fragment(const char *fragment) {
+static char *module_capture_response_fragment(const char *fragment, const ModuleBuildMetadata *meta) {
     if (!fragment) return NULL;
     if (!strchr(fragment, '@') || strstr(fragment, "--driver-mode")) return strdup(fragment);
     const char *cursor = fragment;
@@ -2622,8 +2633,9 @@ static char *module_capture_response_fragment(const char *fragment) {
     if (!output) return NULL;
     cursor = fragment;
     size_t bytes = 0;
+    unsigned grammar = 0;
     while ((status = module_flag_word(&cursor, word, sizeof(word))) > 0) {
-        if (!module_expand_response_word(word, output, 65536, 0, &bytes)) {
+        if (!module_expand_response_word(word, output, 65536, 0, &bytes, meta, &grammar)) {
             int failure = errno;
             free(output);
             /* Large command fragments and noncanonical response quoting keep
@@ -2940,7 +2952,7 @@ static bool module_response_metadata(const ModuleBuildMetadata *meta, ModuleBuil
         *slot = count ? calloc(count, sizeof(char *)) : NULL;
         if (count && !*slot) goto failed;
         for (size_t i = 0; i < count; i++)
-            if (!((*slot)[i] = module_capture_response_fragment(flags[i]))) goto failed;
+            if (!((*slot)[i] = module_capture_response_fragment(flags[i], meta))) goto failed;
     }
     if (module_response_metadata_pending(copy)) {
         module_response_metadata_free(meta, copy);
@@ -3372,7 +3384,9 @@ static bool module_process_output_options(char **args, char *output, size_t capa
         now = module_link_query_clock();
         if (now < 0 || now >= deadline) { ok = false; break; }
         struct pollfd descriptor = {.fd = eof ? -1 : descriptors[0], .events = POLLIN};
-        int ready = poll(&descriptor, 1, (int)(deadline - now < 25 ? deadline - now : 25));
+        /* I observe exit promptly once the closed output pipe cannot wake poll. */
+        int interval = eof ? 1 : 25;
+        int ready = poll(&descriptor, 1, (int)(deadline - now < interval ? deadline - now : interval));
         if (ready < 0 && errno != EINTR) { ok = false; break; }
         if (ready > 0) {
             char buffer[1024];
@@ -3440,6 +3454,59 @@ static bool module_process_output(char **args, char *output, size_t capacity, in
 
 static bool module_link_query_output(char **args, char *output, size_t capacity, int64_t deadline) {
     return module_process_output(args, output, capacity, deadline, false, true);
+}
+
+
+/* I observe four literal macro arguments through the actual selected driver.
+ * This is a bounded preprocessing request, never a version-major inference or
+ * execution of compiler output. Unknown output leaves the original response
+ * pending. I perform it only when quoted backslashes or escaped newlines require disambiguation. */
+static unsigned module_response_grammar(const ModuleBuildMetadata *meta) {
+    char *driver = module_compiler_path(module_selected_compiler(meta));
+    if (!driver) return 0;
+    int64_t deadline;
+    if (!module_capture_deadline(&deadline)) { free(driver); return 0; }
+    const char *temporary = getenv("TMPDIR");
+    if (!temporary || !*temporary) temporary = "/tmp";
+    char directory[2048] = {0}, response[2048] = {0}, source[2048] = {0}, argument[2050] = {0};
+    bool made = module_build_append(directory, sizeof(directory), "%s/nano-response-check-XXXXXX", temporary)
+        && mkdtemp(directory);
+    bool ok = made && module_build_append(response, sizeof(response), "%s/flags.rsp", directory)
+        && module_build_append(source, sizeof(source), "%s/input.c", directory)
+        && module_build_append(argument, sizeof(argument), "@%s", response);
+    if (ok) {
+        FILE *file = fopen(response, "wx");
+        ok = file != NULL;
+        if (file) {
+            ok = fputs("'-DNANO_RSP_A=a\\b' '-DNANO_RSP_B=a\\\\b' "
+                       "\"-DNANO_RSP_C=a\\qb\" \"-DNANO_RSP_D=a\\\\b\"\n", file) >= 0;
+            if (fclose(file)) ok = false;
+        }
+    }
+    if (ok) {
+        FILE *file = fopen(source, "wx");
+        ok = file != NULL;
+        if (file) {
+            ok = fputs("NANO_RSP_A\nNANO_RSP_B\nNANO_RSP_C\nNANO_RSP_D\n", file) >= 0;
+            if (fclose(file)) ok = false;
+        }
+    }
+    char output[256] = {0};
+    char *args[] = {driver, "-E", "-P", "-x", "c", argument, source, NULL};
+    if (ok) ok = module_link_query_output(args, output, sizeof(output), deadline);
+    unsigned grammar = 0;
+    if (ok) {
+        size_t first = strspn(output, " \t\r\n"), size = strlen(output);
+        while (size > first && strchr(" \t\r\n", output[size - 1])) size--;
+        output[size] = 0;
+        if (!strcmp(output + first, "ab\na\\b\naqb\na\\b")) grammar = 1;
+        else if (!strcmp(output + first, "a\\b\na\\\\b\na\\qb\na\\b")) grammar = 2;
+    }
+    if (response[0]) unlink(response);
+    if (source[0]) unlink(source);
+    if (made) rmdir(directory);
+    free(driver);
+    return grammar;
 }
 
 static ModuleLinkResponseGrammar module_link_response_grammar_command(const char *command) {
@@ -4124,6 +4191,15 @@ static bool module_capture_assembly_file(ModuleAssemblyCapture *capture, const c
 /* I let the selected driver interpret retained .i input as C or C++; forcing
  * cpp-output would override a C++ driver. I copy preprocessed assembler without changing
  * its grammar. The destination is always private to this capture. */
+static bool module_assembly_command(char *command, size_t capacity, const char *prefix,
+                                    const char *input, const char *output, bool hidden) {
+    command[0] = 0;
+    return module_build_append(command, capacity, "%s%s", prefix,
+                               hidden ? " -fvisibility=hidden" : "") &&
+        module_append_path_flag(command, capacity, "", input) &&
+        module_append_path_flag(command, capacity, "-o ", output);
+}
+
 static bool module_prepare_assembly(ModuleBuildMetadata *meta, const char *prefix,
                                     const char *input, const char *output, size_t group, size_t index) {
     const char *source = group ? meta->shared_c_sources[index] : meta->c_sources[index];
@@ -4132,10 +4208,64 @@ static bool module_prepare_assembly(ModuleBuildMetadata *meta, const char *prefi
         return module_capture_assembly_file(&copy, input, output, false, 0);
     }
     char command[8192] = {0};
-    return module_build_append(command, sizeof(command), "%s%s", prefix,
-                               group ? " -fvisibility=hidden" : "") &&
-        module_append_path_flag(command, sizeof(command), "", input) &&
-        module_append_path_flag(command, sizeof(command), "-o ", output) && !system(command);
+    return module_assembly_command(command, sizeof(command), prefix, input, output, group != 0) &&
+        !system(command);
+}
+
+/* I retain every compiler job. Only independent, already captured inputs run
+ * together; later assembler observations and hashing remain ordered. */
+#define MODULE_ASSEMBLY_WORKERS 8
+static bool module_wait_assemblies(pid_t *children, size_t count) {
+    bool ok = true;
+    for (size_t i = 0; i < count; ++i) {
+        int status = 0;
+        pid_t observed;
+        do { observed = waitpid(children[i], &status, 0); } while (observed < 0 && errno == EINTR);
+        if (observed != children[i] || !WIFEXITED(status) || WEXITSTATUS(status)) ok = false;
+    }
+    return ok;
+}
+
+static unsigned module_assembly_workers(void) {
+    long available = sysconf(_SC_NPROCESSORS_ONLN);
+    return available > MODULE_ASSEMBLY_WORKERS ? MODULE_ASSEMBLY_WORKERS :
+           available > 1 ? (unsigned)available : 1;
+}
+
+static bool module_prepare_assemblies(ModuleBuildMetadata *meta, const char *prefix,
+                                      const char *directory, const char *stem, unsigned limit) {
+    if (!directory || !limit || limit > MODULE_ASSEMBLY_WORKERS) return false;
+    pid_t children[MODULE_ASSEMBLY_WORKERS];
+    size_t active = 0;
+    bool ok = true;
+    extern char **environ;
+    for (size_t group = 0; ok && group < 2; ++group) {
+        size_t count = group ? meta->shared_c_sources_count : meta->c_sources_count;
+        for (size_t i = 0; ok && i < count; ++i) {
+            char input[2048] = {0}, output[2048] = {0}, command[8192];
+            const char *source = group ? meta->shared_c_sources[i] : meta->c_sources[i];
+            ok = module_build_append(input, sizeof(input), "%s/__snapshot_%zu_%zu.i", directory, group, i) &&
+                module_build_append(output, sizeof(output), "%s/%s_%zu_%zu.s", directory, stem, group, i);
+            if (!ok) break;
+            if (limit == 1 || module_source_kind(source) != 1) {
+                ok = module_prepare_assembly(meta, prefix, input, output, group, i);
+                continue;
+            }
+            ok = module_assembly_command(command, sizeof(command), prefix, input, output, group != 0);
+            if (!ok) break;
+            char *args[] = {"sh", "-c", command, NULL};
+            /* I inherit the caller's process group and descriptors, so its
+             * existing deadline/interrupt cleanup still owns every worker. */
+            ok = posix_spawn(&children[active], "/bin/sh", NULL, NULL, args, environ) == 0;
+            if (!ok) break;
+            if (++active == limit) {
+                ok = module_wait_assemblies(children, active);
+                active = 0;
+            }
+        }
+    }
+    bool drained = module_wait_assemblies(children, active);
+    return ok && drained;
 }
 
 static uint64_t module_gcc_capture_assembly(ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
@@ -4184,6 +4314,8 @@ failed:
 /* I accept only tested version tokens on the GNU assembler banner's first
  * line. This is compatibility selection, not executable authentication. */
 static bool module_assembler_version_supported(const char *version) {
+    /* I qualify only this identified source repair, not generic GNU2.46. */
+    if (version && !strncmp(version, "GNU assembler (GNU Binutils for NanoLang retained capture r1) 2.46.0.20260210\n", 78)) return true;
     static const char prefix[] = "GNU assembler (";
     static const char *versions[] = {" 2.40", " 2.42"};
     if (!version || strncmp(version, prefix, sizeof(prefix) - 1)) return false;
@@ -4400,7 +4532,8 @@ static size_t module_assembler_report(char *report, char **args, char *storage, 
         ? "Apple clang version 21.0.0 " : !strncmp(report, "Apple clang version 15.0.0 ", 27)
         ? "Apple clang version 15.0.0 " : !strncmp(report, "Debian clang version 14.0.6\n", 28)
         ? "Debian clang version 14.0.6" : !strncmp(report, "Ubuntu clang version 18.1.3 (1ubuntu1)\n", 39)
-        ? "Ubuntu clang version 18.1.3 (1ubuntu1)" : NULL;
+        ? "Ubuntu clang version 18.1.3 (1ubuntu1)" : !strncmp(report, "Ubuntu clang version 21.1.8 (6ubuntu1)\n", 39)
+        ? "Ubuntu clang version 21.1.8 (6ubuntu1)" : NULL;
     if (!banner) return 0;
     char *selected = NULL;
     for (char *line = report; line && *line;) {
@@ -4529,6 +4662,7 @@ static uint64_t module_clang_expansion(ModuleBuildMetadata *meta, const ModulePk
     ModuleAssemblyCapture capture = {directory, 0, 0, fingerprint};
     hash_context_field(&capture.hash, integrated ? "clang-integrated-expanded-native-v1" :
                                                  "apple-selected-assembler-expanded-native-v2");
+    if (!module_prepare_assemblies(meta, retained, directory, "__assembly", module_assembly_workers())) goto failed;
     for (size_t group = 0; group < 2; group++) {
         size_t count = group ? meta->shared_c_sources_count : meta->c_sources_count;
         for (size_t i = 0; i < count; i++) {
@@ -4538,8 +4672,7 @@ static uint64_t module_clang_expansion(ModuleBuildMetadata *meta, const ModulePk
                 module_build_append(raw, sizeof(raw), "%s/__assembly_%zu_%zu.s", directory, group, i) &&
                 module_build_append(expanded, sizeof(expanded), "%s/__expanded_%zu_%zu.s", directory, group, i) &&
                 module_build_append(frozen, sizeof(frozen), "%s/__snapshot_%zu_%zu.s", directory, group, i) &&
-                module_build_append(object, sizeof(object), "%s/__as_query_%zu_%zu.o", directory, group, i) &&
-                module_prepare_assembly(meta, retained, input, raw, group, i);
+                module_build_append(object, sizeof(object), "%s/__as_query_%zu_%zu.o", directory, group, i);
             command[0] = 0;
             if (ok) ok = module_build_append(command, sizeof(command), "%s -x assembler", assemble) &&
                 module_append_path_flag(command, sizeof(command), "", raw) &&
@@ -4658,15 +4791,18 @@ static bool module_dynamic_elf(const char *path) {
 }
 
 static bool module_tool_output(const char *command, char *output, size_t capacity) {
-    FILE *pipe = popen(command, "r");
-    if (!pipe) return false;
-    size_t size = fread(output, 1, capacity - 1, pipe);
-    bool ok = !ferror(pipe) && feof(pipe) && !memchr(output, 0, size);
-    char discard[1024];
-    while (fread(discard, 1, sizeof(discard), pipe)) {}
-    if (pclose(pipe)) ok = false;
-    output[size] = 0;
-    return ok && size;
+    if (!command || !output || capacity < 2) return false;
+    int64_t deadline;
+    if (!module_capture_deadline(&deadline)) return false;
+    int64_t started = module_link_query_clock();
+    if (started < 0) return false;
+    char *args[] = {"/bin/sh", "-c", (char *)command, NULL};
+    /* My former fread/feof guard refused capacity-1 bytes. I retain that bound. */
+    bool ok = module_link_query_output(args, output, capacity - 1, deadline);
+    int64_t finished = module_link_query_clock();
+    module_trace_evidence("tool-query-ms", deadline > started ? (uint64_t)(deadline - started) : 0,
+                         finished >= started ? (uint64_t)(finished - started) : 0, ok);
+    return ok;
 }
 
 static uint64_t module_gcc_read_capture(ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
@@ -4729,6 +4865,7 @@ static uint64_t module_gcc_read_capture(ModuleBuildMetadata *meta, const ModuleP
     char retained[4096], assemble[4096];
     if (ok) ok = module_compile_prefix(meta, retained, sizeof(retained), MODULE_C_RETAINED_ASSEMBLY, flags) &&
         module_compile_prefix(meta, assemble, sizeof(assemble), MODULE_C_ASSEMBLE, flags);
+    if (ok) ok = module_prepare_assemblies(meta, retained, directory, "__snapshot", module_assembly_workers());
     NacRead *reads = ok ? calloc(NAC_READS, sizeof(*reads)) : NULL;
     if (!reads) ok = false;
     for (size_t group = 0; ok && group < 2; group++) {
@@ -4743,8 +4880,7 @@ static uint64_t module_gcc_read_capture(ModuleBuildMetadata *meta, const ModuleP
                 module_build_append(parent, sizeof(parent), "%s", directory) &&
                 module_build_append(assembly, sizeof(assembly), "%s/__snapshot_%zu_%zu.s", directory, group, i) &&
                 module_build_append(object, sizeof(object), "%s/__as_capture_%zu_%zu.o", directory, group, i) &&
-                module_build_append(record, sizeof(record), "%s/__as_read_%zu_%zu", directory, group, i) &&
-                module_prepare_assembly(meta, retained, input, assembly, group, i);
+                module_build_append(record, sizeof(record), "%s/__as_read_%zu_%zu", directory, group, i);
             const char *selected_input = assembly;
             if (ok && module_source_kind(source) > 1) {
                 ok = module_unit_input(meta, directory, group, i, alias, sizeof(alias), parent, sizeof(parent));

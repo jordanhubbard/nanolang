@@ -1,0 +1,12 @@
+{
+  "status": "INTEGRITY_PASS",
+  "qualification": "PARTIAL_OPEN_C_ADAPTER_1140_1198_RAW_STAGES_PAIRED_PLATFORMS",
+  "source_commit": "470a91cb0295ad7cc1aff00cdc7bebb525021518",
+  "records": 24161,
+  "raw_bytes": 8744591464,
+  "current_python_methods": 67,
+  "builder_positive_programs": 7,
+  "builder_producer_routes_per_program": 3,
+  "strict_callable_names_retained": 576,
+  "unavailable_historical_references": 1
+}

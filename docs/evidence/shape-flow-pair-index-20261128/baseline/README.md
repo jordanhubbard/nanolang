@@ -1,0 +1,11 @@
+# My unchanged directional-flow baseline
+
+I retain hosted run46118906214 at source da369f8d54bcc92f04771de53d4c84c2775fb9f7. The production shape source/header, original3890-assertion C suite and Makefile remain byte-identical to sourcef8. I retain the exact previous flow_one helper and bind every actual input to Git. Ordinary and ASan/UBSan modes pass1800 graph-state cases, four chain sizes, a cycle and a shared128-field record on both hosted Linux X64 and Darwin ARM64. Both modes complete all functional assertions before the strict work budget returns7. The unchanged original C suite passes3890 assertions on each host.
+
+Actual root calls for32/128/1024/4096-node chain cases are690/8898/529922/8411138. The128-node cycle makes9033; the128-field shared case makes17026. These are work counts, not elapsed-time savings or a demonstrated historical timeout cause. I observe no optional index allocation in this unchanged helper.
+
+The physical graph digest is8de404ed88f26dc8 on Linux and9eb5444b4d79c88f on Darwin; each host agrees between ordinary and sanitizer builds. My later regression compares old/current graph states on the same host instead of imposing one compiler's physical-node digest on another. I preserve both original baselines. No fixture, assertion, corpus or deadline is relaxed by that comparison.
+
+Artifact15253125759 is344319bytes/40members/SHA25658e2687ba3ea93dfe5e7716e65fb4ccfd5aff51298b4f2645ca4af3553fd67de. Artifact15251984738 is233635bytes/43members/SHA25630c122eaa000c252074bde01cb3d5bd066423dd8da539676b14fde2adfe076fc. My independent reader checks the whole API-bound ZIPs/CRC, exact Git inputs, observed source/tool before/after guards, actual command exits/deadlines, retained generated sources/binaries/streams and both original suite results. Compiler identity hashes and version text are retained; the compiler executable itself is not copied in this focused observation. I retain the reader's first incorrect uniform ZIP-member-count assumption and corrected40/43 check.
+
+Run `python3 verify.py --workspace /path/on/large/volume --repo /path/to/nanolang`. My reader executes no product. Current indexed-helper controls, every original platform/native/consumer gate, default custody, pure translator/cutover and all69 release requirements remain separate.

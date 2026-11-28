@@ -539,20 +539,20 @@ I do this to prevent name collisions with the C runtime and to provide clean int
 
 ### Interpreter with Tracing
 
-I include a fast interpreter for development.
+I include a tree-walking interpreter for development.
 
 ```bash
 nano program.nano
 ```
 
-I provide several tracing flags:
+I am restoring these standalone tracing flags under #1209; my current CLI does not wire them yet:
 - `--trace-all` - Trace everything
 - `--trace-function=<name>` - Trace specific function
 - `--trace-var=<name>` - Trace variable operations
 - `--trace-scope=<name>` - Trace function scope
 - `--trace-regex=<pattern>` - Trace by regex
 
-I use this to allow for fast iteration and detailed execution traces without a compilation step. I run shadow-tests automatically when using the interpreter.
+I also track automatic standalone-interpreter shadow execution under #1209. My current CLI runs the program directly and does not run its shadows automatically. The original tracing and shadow requirements remain open.
 
 ---
 
@@ -797,9 +797,9 @@ I provide type-safe bindings for direct C function calls with no overhead, facil
 
 **Tooling:**
 - Complete: Self-hosted compiler (100% bootstrap — stage1 → stage2 → stage3)
-- Complete: Interpreter with tracing (`--trace-all`, `--trace-function=<name>`, …)
+- In progress: Standalone interpreter tracing and automatic shadows (#1209).
 - Complete: Shadow-test system (compile-time execution, 100% function coverage required)
-- Complete: Interactive REPL with history, hot-reload (`:load`, `:save`, `:reload`)
+- In progress: Interactive REPL with checked input, history and function-only hot reload (`:load`, `:save`, `:reload`). My [saved sessions](REPL_SESSIONS.md) replay accepted input/load/reload/clear operations with preserved source origins. Original 18 plus 16 session methods pass strict Linux normal/sanitizer/production checks; aggregate ownership and paired acceptance remain open under #1205/#1116.
 - Complete: Language Server (`bin/nanolang-lsp`) — hover, go-to-definition, completion, diagnostics
 - Complete: Debug Adapter Protocol server (`bin/nanolang-dap`) — breakpoints, step-through, variable inspection
 - Complete: VS Code extension (`editors/vscode/`) — LSP + DAP wired automatically, format-on-save

@@ -612,7 +612,8 @@ NvmV2Result nvm_ownership_union_variant(const NvmModule *module,
                                         uint32_t union_ordinal,
                                         uint16_t variant,
                                         NvmUnionVariantFact *out) {
-    if (!module || !out || !module->ownership_data || !module->layout_data)
+    if (!module || !out || !module->ownership_data || !module->layout_data ||
+        union_ordinal==NVM_V2_NO_INDEX)
         return NVM_V2_ERR_INDEX_RANGE;
     bool needs=false;
     NvmV2Result result=nvm_ownership_contracts_validate(module,&needs);

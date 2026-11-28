@@ -135,7 +135,7 @@ static int ra_check_depth_three(Analysis *a) {
     if(!analysis_work(a,ORIGINS*16u))goto done;
     for(uint32_t i=0;i<a->report.origin_count;i++)if(a->origin_kind[i]==NVM_HEAP_ORIGIN_ARRAY) {
         uint8_t declared=a->report.origins[i].declared_tag;
-        Value content=a->children[i];merge(&content,a->all_writes[i]);
+        Value content=a->children[i];merge(&content,&a->all_writes[i]);
         if(content.unknown)goto invalid;
         if(declared==TAG_ARRAY) {
             if((content.tags&~BIT(TAG_ARRAY)) || (content.tags && !content.origins))goto invalid;
@@ -159,7 +159,7 @@ static int ra_check_depth_three(Analysis *a) {
         for(uint32_t i=0;i<a->report.origin_count;i++) {
             if(!analysis_work(a,1))goto done;
             if(a->origin_kind[i]!=NVM_HEAP_ORIGIN_ARRAY || a->report.origins[i].declared_tag!=TAG_ARRAY)continue;
-            Value content=a->children[i];merge(&content,a->all_writes[i]);
+            Value content=a->children[i];merge(&content,&a->all_writes[i]);
             for(uint32_t j=0;j<a->report.origin_count;j++) {
                 if(!analysis_work(a,1))goto done;
                 if(!(content.origins&(UINT64_C(1)<<j)))continue;
@@ -215,7 +215,7 @@ static int ra_check_constraints(Analysis *a) {
     if(a->nested_arrays && !analysis_work(a,ORIGINS*ORIGINS*4u))return 0;
     for(uint32_t i=0;i<a->report.origin_count;i++)if(a->origin_kind[i]==NVM_HEAP_ORIGIN_ARRAY &&
         a->report.origins[i].declared_tag==TAG_ARRAY) {
-        Value content=a->children[i];merge(&content,a->all_writes[i]);
+        Value content=a->children[i];merge(&content,&a->all_writes[i]);
         if(content.unknown || (content.tags&~BIT(TAG_ARRAY)) ||
            (content.tags && !content.origins))
             return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require proved nested array children.");

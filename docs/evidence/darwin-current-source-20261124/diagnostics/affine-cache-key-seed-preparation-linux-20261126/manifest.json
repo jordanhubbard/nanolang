@@ -1,0 +1,54 @@
+{
+  "format": "plain-controller-v1",
+  "terminal": true,
+  "prepared_only": true,
+  "accepted_component": false,
+  "whole_release": false,
+  "files": [
+    {
+      "path": "setup.py",
+      "sha256": "1b0a71c0857bca2cd1f01fc09a864e6487717512f9311af7e11cc8f1569f7ea2",
+      "bytes": 11883
+    },
+    {
+      "path": "cohort.py",
+      "sha256": "f7e700433e319c4f2c3ad42fdc7e59b9a2213cea2ba56cea30c8b30b2a87fc7c",
+      "bytes": 7951
+    },
+    {
+      "path": "admit.py",
+      "sha256": "b229993b709fe631aca3f9c157e9c2fdf78c6a3c3c31e0018bd7612e8aab00dc",
+      "bytes": 2210
+    },
+    {
+      "path": "cohort_journal.py",
+      "sha256": "4e5a202045b7d4576c7cfa8ed9845cc895e5b2bf4cd2e727e68534a2a34c652d",
+      "bytes": 5878
+    },
+    {
+      "path": "preparation.json",
+      "sha256": "609e87c17431cdf2211d9aee5af8375b33451385df22ce045c77747d4d66de74",
+      "bytes": 673
+    },
+    {
+      "path": "result.json",
+      "sha256": "d843befabdae2636593235b33957a47cb4558e7738e442720a8bcf5c1c4c29a1",
+      "bytes": 668
+    },
+    {
+      "path": "live-parent-refusal.json",
+      "sha256": "d6de211b3f534fde8ae04a32fb255b8cff1b31300f3e562faa9cfe3a223c67cd",
+      "bytes": 143
+    },
+    {
+      "path": "live-parent-refusal.stdout",
+      "sha256": "1217b7d061defa06f9507a98b4487843f940f791656590bc2c1f8acb21b12e38",
+      "bytes": 56
+    },
+    {
+      "path": "live-parent-refusal.stderr",
+      "sha256": "bec0c9d578d2ea36a07431f45d09d56a8f1b5e343481a23b52693438868b2229",
+      "bytes": 594
+    }
+  ]
+}

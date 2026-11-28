@@ -1,0 +1,19 @@
+# My service completion-clock observations
+
+I reproduce both #1250 static leads with real qualified service products at source04cee11a861af22dfd4540f369eb2c6bb42a9cfd. I use the C seed and File runtime from my independently qualified [cold bootstrap/native36/emitter12 receipt](../typechecker-vector-prefix-cold-bootstrap-linux-20261126/README.md). I change no product source, clock return, child report, source assertion, service grant or deadline.
+
+My ordinary module and native baselines execute the exact original generated File binding plus the original main suffix and interface bytes. Each retains five matching SELECT/START/DONE records. The module path forks once; native publication forks twice. Both ordinary and late native products execute with only their original --allow-temporary-files grant.
+
+My external fork observer stops only the selected real C-seed child before its original body. I independently attribute fork1 to service_shadows.c and native fork2 to compile_native in service_product.c using the actual image and addr2line. I observe the parent sleeping, stop that parent, retain real stopped states and monotonic timestamps, then hold the child beyond the original deadline. I resume the child to run its unchanged work, observe its real exit through pidfd and only then resume the parent. No synthetic success or report is supplied.
+
+The service child is held for10.261076397 seconds beyond a parent-stopped point already after supervision begins, exceeding the unchanged10-second deadline. The parent exits0 and replaces prior output with a module byte-identical to the ordinary baseline, retaining all five records. The whole case lasts10.505652017 seconds.
+
+The native compiler child is separately held for120.309487279 seconds, exceeding its unchanged120-second limit before real compilation starts. The parent later exits0 and publishes a native executable that runs successfully. I retain its already-generated C/staging inputs. The whole case lasts128.576965859 seconds.
+
+I preserve my initial failed controller: its ordinary module baseline passes, but a regex-shaped State:.*T needle cannot satisfy toolscheme's literal substring match. It reaches a20-second harness timeout with matching guards and no owned child left. This failed root establishes no late-publication result. A separate five-case helper control demonstrates the literal/regex-shaped and positive/negative behavior on both a regular snapshot and a real stopped child's proc status. My corrected controller reverses exactly three regions to that failed controller: bounded wait-result recording and two literal stopped-state predicates. All four original service/native cases and assertions remain unchanged.
+
+Fresh qualified-source/tool/library/fixture/observer/capacity admission and actual adopted-child cleanup controls pass. Every selected3971-source and tool/image/library/observer/controller guard matches after the observations; no owned child remains. My collector refuses actual nonterminal work before creating an archive.
+
+This is a controlled scheduling/fault observation, not ordinary runtime qualification, a repair, a performance claim, a new service grant, paired qualification or release completion. #1250 remains open for the C owner's reviewed repair or explicit narrow handoff, followed by its complete original source/VM/native/refusal/fault and platform qualification. The full69 requirements, #1262-dependent pure-translator gates, pure runtime C emission and native cutover remain required.
+
+Run python3 read_archive.py to independently verify145 records, exact published products/source, fixtures, fork/callsite/report/order controls, stopped states/pidfd timing, native executions, prior outputs, retained harness failure/helper controls, controller reversal, guards and cleanup. Manifest SHA-256: 5b242b6e877c00e1df5e8a2f8d16b279ca8d7504a8b4ed66841b6f648e1baf2e.

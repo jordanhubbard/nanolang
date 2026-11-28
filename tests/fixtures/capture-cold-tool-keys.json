@@ -1,0 +1,16 @@
+{
+  "command": [
+    "/home/runner/work/nanolang/nanolang/obj/test_module_generation_probe",
+    "build-info",
+    "/home/runner/work/nanolang/nanolang/modules/compiler_support"
+  ],
+  "compiler": "/usr/bin/x86_64-linux-gnu-gcc-15",
+  "assembler": "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/fixed-as246/bin/as",
+  "tool_sha256": {
+    "/usr/bin/x86_64-linux-gnu-gcc-15": "864711037b900acdb7a449cf48d912cefa935b527fb60c767ccb956779e66136",
+    ".test_output/source-capture-diagnostic/fixed-as246/bin/as": "f881e708d6cd94ee8d3d1b9d163cfd502f5447b0436887e4d1e66b7c3134e310",
+    "obj/test_module_generation_probe": "ac83b27ffd8d256463838975139a8fc94cfa69b2760e29ba2b0fd729d14a2e38",
+    "bin/nano_as_capture.so": "cd0910f4850c863c5b9742eb7b248fd5ca405a3783f2ee03a471be4b00094de7"
+  },
+  "provenance": "I retain the exact identity fields from successful cold capture in run44999044605; this fixture is not a new capture receipt."
+}

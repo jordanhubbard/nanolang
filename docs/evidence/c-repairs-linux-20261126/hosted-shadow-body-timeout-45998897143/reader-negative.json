@@ -1,0 +1,6 @@
+{
+  "changed_manifest_refused": true,
+  "exit": 1,
+  "stderr": "Traceback (most recent call last):\n  File \"/var/tmp/nanolang-darwin-publication-qkk55gi3/docs/evidence/c-repairs-linux-20261126/hosted-shadow-body-timeout-45998897143/read_shadow_timeout.py\", line 7, in <module>\n    raw=(a.archive/'manifest.json').read_bytes();assert sha(raw)=='20213c0ad070ef267a2501fe1d4bfa690e3a1d0ecb5ffe030314bf637f4adbd2'\n                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n",
+  "product_execution": false
+}

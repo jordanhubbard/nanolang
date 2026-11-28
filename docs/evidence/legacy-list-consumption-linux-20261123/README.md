@@ -1,0 +1,25 @@
+# My explicit legacy-list consumption boundary
+
+I qualify native Linux ARM64 source `229c2fe671f025541cccd176d4200b7fcae428da` under #1233. I release an explicitly freed lower-case record list's malloc-backed header and data immediately. My private heap removes one exact allocation before destruction and updates its original ownership counters. My adapter retains consumed-address facts, with no released payload, while typed aliases or record fields remain reachable. A successful complete walk prunes withdrawn facts; failed walks preserve them. Transfers reaching consumed lists refuse atomically. Ordinary INT bits grant neither ownership nor fresh lifetime.
+
+I preserve my public Value/container/foreign layouts and ordinary environment selection. A known constructor/admission starts a new owned lifetime. A caller reusing a consumed address supplies an explicit valid canonical or legacy layout through `nl_carrier_values_begin_list_borrow`, replaces obsolete caller root facts and keeps storage valid until withdrawing them. I adopt no caller storage at that boundary.
+
+My independent reader compares the original unmodified explicit-free probe with its retained ASan use-after-free in the previous archive and verifies the repaired probe across all three original profiles. New source shadows and 512 actual source rounds cover returned lists, explicit free through aliases and record fields, copied STRING/scalar/record results, a caller-provided argument and retained host roots. My native allocation counter observes and releases a 2 MiB positive control, then measures rounds 128 and 512 against the original 1,024-byte growth allowance. My final logs record the actual measurements.
+
+My C/API controls check immediate real destructor calls, repeated-free refusal before dereference, separately owned children, field/alias tracing, transfer refusal, failed-trace recovery, metadata allocation rollback, borrowed teardown in both orders and 512 bounded consumption rounds. My deterministic same-address lifetime model retains only its arena header, frees its data and poisons the consumed header under ASan. It exercises new owned and borrowed legacy lifetimes and a caller-owned canonical layout at that address. I distinguish this model from my real native-free cases. A dedicated test adapter renames its list destructor; I require no GNU linker-wrapper flag.
+
+I rebuild all six affected private-header consumers in normal, ASan/UBSan/LSan and strict optimized profiles. I guard and reuse unaffected providers; this is not a fresh build of the complete provider closure. My original evaluator 134 and checker 88 cases pass normally and with ASan/UBSan, with leak detection disabled for those broad suites. Focused ownership gates retain LSan. I preserve all original engine/adapter assertions, add reentry/single-object retirement and allocation-failure controls, and pass existing heap fault/compaction and ownership/native-byte neighbors.
+
+My default 34 and private 41 REPL methods pass across all three profiles. My final actual Make gates include both original legacy-list targets and both new consumption targets in each profile. My complete default admission suite still reports three LSan failures of 168, 172 and 172 bytes; I make no default ownership activation claim.
+
+My final ordinary C seed completes all 1,306 original compiler-source shadows in 139.849 seconds under the unchanged 600-second outer and default 10-second shadow limits, publishes a native seed and runs `--help`. The original 10 lexical and 7 record-payload methods pass. I retain the preceding legacy-only-borrow stage separately, with its source snapshot and byte-identical compiler reconstruction from its unchanged guarded link inputs; I do not rerun its full source command. I also retain fixture declaration, premature collection-check, copied-result identity and output-path and archive-copy setup failures without relabeling them product defects.
+
+I verify all compressed/raw hashes, exact committed Git inputs, native images, original assertions, profile outcomes, source guards, product hashes, public-tool guards and nine-library closure with:
+
+```sh
+python3 docs/evidence/legacy-list-consumption-linux-20261123/read_archive.py
+```
+
+My reader passes 3,204 records, 1,443 exact Git inputs and 149 native ELF images. My archive reuses unchanged content-addressed objects through the checked prior manifest. Intermediate journals are distinct from final source qualification. All my local native jobs are terminal when I publish; I hold no Darwin reservation. Peer source, old roots, stashes and NAS/TCC/migration pauses remain preserved.
+
+[#1232](https://github.com/jordanhubbard/nanolang/issues/1232) still owns full private compiler cost at the original deadline. [#1231](https://github.com/jordanhubbard/nanolang/issues/1231), default aggregate ownership, raw bootstrap, paired-platform and whole-release acceptance remain open. I assign no historical timeout cause and claim no performance gain.

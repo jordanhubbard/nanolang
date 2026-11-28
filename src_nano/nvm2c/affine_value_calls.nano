@@ -1,0 +1,169 @@
+module nvm2c_affine_value_calls
+module "src_nano/nvm2c/affine_frame.nano" as frame
+module "src_nano/nvm2c/affine_state.nano" as state
+module "src_nano/nvm2c/affine_facts.nano" as facts
+module "src_nano/nvm2c/affine_value_contract.nano" as values
+module "src_nano/nvm2c/affine_effects.nano" as effects
+module "src_nano/nvm2c/affine_global_flow.nano" as flow
+module "src_nano/nvm2c/ownership_queries.nano" as queries
+module "src_nano/nvm2c/ownership.nano" as owner
+module "src_nano/nvm2c/passive_calls.nano" as calls
+
+# My walk must derive a converged callee summary before applying it here.
+pub struct Plan { handled: bool, valid: bool, target: int, arguments: int, result: facts.Slot, message: string }
+pub struct Summary { target: int, ok: bool, keys: array<int>, global_allowed: array<int>, global_returns: array<int> }
+pub struct Transition { handled: bool, valid: bool, frame: frame.Frame, allowed: array<int>, keys: array<int>, message: string }
+struct CallSample { ownership: array<u8>, context: queries.Context, value: frame.Frame }
+
+pub fn handles(opcode: int) -> bool { return (== opcode 59) }
+shadow handles { assert (handles 59) assert (not (handles 15)) assert (not (handles 60)) }
+
+fn unready(handled: bool, target: int, message: string) -> Plan {
+    return Plan { handled: handled, valid: false, target: target, arguments: 0, result: (facts.slot 0 4294967295), message: message }
+}
+shadow unready {
+    let item: Plan = (unready true 7 "refused")
+    assert item.handled assert (not item.valid) assert (== item.target 7) assert (== item.message "refused")
+}
+
+pub fn prepare(input: frame.Frame, opcode: int, target: int, ownership: array<u8>, context: queries.Context, value_graph: bool) -> Plan {
+    if (not (handles opcode)) { return (unready false target "") }
+    if (or (not value_graph) (or (not context.present) (or (<= target 0) (>= target (array_length context.model.functions))))) {
+        return (unready true target "I require a checked acyclic owned value call")
+    }
+    let declaration: calls.Function = (at context.model.functions target)
+    let callee: state.State = (state.create (facts.prepare ownership context.model target 1 1) declaration.locals)
+    let parameters: state.Query = (state.value_parameters callee 8 true false)
+    let result: state.Query = (state.value_result callee)
+    if (or (not parameters.valid) (or (not result.valid) (or (!= parameters.number declaration.arity) (< (array_length input.stack) parameters.number)))) {
+        return (unready true target "I require a complete consuming argument list")
+    }
+    let first: int = (- (array_length input.stack) parameters.number)
+    for index in (range 0 parameters.number) {
+        if (not (values.matches input.locals (at input.stack (+ first index)) (at parameters.values index))) {
+            return (unready true target "I require exact positional consuming argument types")
+        }
+    }
+    return Plan { handled: true, valid: true, target: target, arguments: parameters.number,
+        result: (facts.slot result.value.tag result.value.layout), message: "" }
+}
+shadow prepare {
+    let fixture: CallSample = (sample)
+    let ready: Plan = (prepare fixture.value 59 1 fixture.ownership fixture.context true)
+    assert ready.handled assert ready.valid assert (== ready.arguments 0) assert (== ready.result.tag 1)
+    let invalid: Plan = (prepare fixture.value 59 0 fixture.ownership fixture.context true)
+    assert (not invalid.valid) assert (== invalid.message "I require a checked acyclic owned value call")
+    let other: Plan = (prepare fixture.value 15 1 fixture.ownership fixture.context true)
+    assert (not other.handled)
+}
+
+fn snapshot(input: frame.Frame, allowed: array<int>, keys: array<int>, handled: bool, message: string) -> Transition {
+    return Transition { handled: handled, valid: false, frame: (frame.clone input),
+        allowed: (array_slice allowed 0 (array_length allowed)), keys: (array_slice keys 0 (array_length keys)), message: message }
+}
+shadow snapshot {
+    let fixture: CallSample = (sample)
+    let allowed: array<int> = [3]
+    let keys: array<int> = [0]
+    let out: Transition = (snapshot fixture.value allowed keys true "refused")
+    (array_set out.allowed 0 0) (array_set out.keys 0 1) (array_set out.frame.globals 0 15)
+    assert (== (at allowed 0) 3) assert (== (at keys 0) 0) assert (== (at fixture.value.globals 0) 9)
+    assert out.handled assert (not out.valid) assert (== out.message "refused")
+}
+
+fn checked_vectors(input: frame.Frame, allowed: array<int>, plan: Plan, summary: Summary) -> bool {
+    let count: int = (array_length input.globals)
+    if (or (!= plan.target summary.target) (or (> count 256) (or (!= count (array_length allowed))
+        (or (!= count (array_length summary.global_allowed)) (!= count (array_length summary.global_returns)))))) { return false }
+    if (or (< plan.arguments 0) (> plan.arguments (array_length input.stack))) { return false }
+    if (> (array_length summary.keys) 256) { return false }
+    for index in (range 0 count) {
+        if (or (< (at input.globals index) 0) (> (at input.globals index) 15)) { return false }
+        if (or (< (at allowed index) 0) (> (at allowed index) 3)) { return false }
+        if (or (< (at summary.global_allowed index) 0) (> (at summary.global_allowed index) 3)) { return false }
+        if (or (< (at summary.global_returns index) 0) (> (at summary.global_returns index) 15)) { return false }
+    }
+    return true
+}
+shadow checked_vectors {
+    let fixture: CallSample = (sample)
+    let plan: Plan = (prepare fixture.value 59 1 fixture.ownership fixture.context true)
+    let summary: Summary = Summary { target: 1, ok: true, keys: [], global_allowed: [3], global_returns: [9] }
+    assert (checked_vectors fixture.value [3] plan summary)
+    assert (not (checked_vectors fixture.value [] plan summary))
+    assert (not (checked_vectors fixture.value [4] plan summary))
+}
+
+pub fn apply_summary(input: frame.Frame, allowed: array<int>, escaped: array<int>, plan: Plan, summary: Summary,
+    context: queries.Context, function: int, effect_globals: bool) -> Transition {
+    if (or (not plan.handled) (not plan.valid)) { return (snapshot input allowed escaped plan.handled plan.message) }
+    if (not (checked_vectors input allowed plan summary)) {
+        return (snapshot input allowed escaped true "I require matching checked call summaries and global relations")
+    }
+    if (not summary.ok) { return (snapshot input allowed escaped true "I require complete consuming-helper owner resolution") }
+    let first: int = (- (array_length input.stack) plan.arguments)
+    let mut keys: array<int> = (array_slice escaped 0 (array_length escaped))
+    if (> (array_length summary.keys) 0) {
+        if (not (state.can_suspend input.locals)) {
+            return (snapshot input allowed escaped true "I cannot suspend live local owners across an escaping effect call")
+        }
+        for index in (range 0 first) {
+            let item: frame.Value = (at input.stack index)
+            if (or item.owned item.observation) {
+                return (snapshot input allowed escaped true "I cannot suspend staged owners across an escaping effect call")
+            }
+        }
+        for index in (range 0 (array_length summary.keys)) {
+            let recorded: effects.Escape = (effects.record_escape input keys context function (at summary.keys index))
+            if (not recorded.valid) { return (snapshot input allowed escaped true "I cannot retain escaping operation identities") }
+            set keys recorded.keys
+        }
+    }
+    let copied: frame.Frame = (frame.clone input)
+    let after_allowed: array<int> = (array_slice allowed 0 (array_length allowed))
+    if (not effect_globals) {
+        for index in (range 0 (array_length input.globals)) {
+            (array_set after_allowed index (flow.intersect (at allowed index) (flow.require (at input.globals index) (at summary.global_allowed index))))
+            (array_set copied.globals index (flow.compose (at input.globals index) (at summary.global_returns index)))
+        }
+    }
+    let reduced: frame.Frame = frame.Frame { locals: copied.locals, stack: (array_slice copied.stack 0 first),
+        globals: copied.globals, handlers: copied.handlers, floor: copied.floor, activation: copied.activation }
+    if (== plan.result.tag 0) { return Transition { handled: true, valid: true, frame: reduced, allowed: after_allowed, keys: keys, message: "" } }
+    let pushed: frame.Join = (frame.push reduced (frame.value plan.result.tag false 65535
+        (state.type_owned input.locals plan.result) plan.result.layout 65535))
+    if (not pushed.valid) { return (snapshot input allowed escaped true "I cannot retain a checked value-call result") }
+    return Transition { handled: true, valid: true, frame: pushed.frame, allowed: after_allowed, keys: keys, message: "" }
+}
+
+fn sample() -> CallSample {
+    let ownership: array<u8> = [3,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,1,0,0,0,255,255,255,255,0,0,0,0,1,0,0,0,255,255,255,255,4,0,0,0,0,0,0,0,2,0,0,0,3,0,1,0,12,0,0,0,1,0,0,0,1,1,0,0,255,255,255,255,4,0,1,0,20,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,255,255,255,255]
+    let context: queries.Context = queries.Context { present: true, ownership_present: true, layouts_present: true,
+        model: owner.Module { layouts: [0,0,0,0], code: [163,61], strings: [[111,112],[111,112]],
+            functions: [calls.Function { start: 0, length: 1, arity: 0, locals: 0, upvalues: 0, results: 1 },
+                calls.Function { start: 1, length: 1, arity: 0, locals: 0, upvalues: 0, results: 1 }],
+            params: [[],[]], results: [1,1], records: 0, enums: 0, unions: 0 } }
+    let caller: state.State = (state.create (facts.prepare ownership context.model 0 1 1) 0)
+    return CallSample { ownership: ownership, context: context, value: (frame.create caller 1) }
+}
+shadow sample { let fixture: CallSample = (sample) assert fixture.value.locals.valid assert (== (array_length fixture.value.globals) 1) }
+shadow apply_summary {
+    let fixture: CallSample = (sample)
+    let plan: Plan = (prepare fixture.value 59 1 fixture.ownership fixture.context true)
+    let allowed: array<int> = [3]
+    let keys: array<int> = []
+    let summary: Summary = Summary { target: 1, ok: true, keys: [], global_allowed: [2], global_returns: [10] }
+    let out: Transition = (apply_summary fixture.value allowed keys plan summary fixture.context 0 false)
+    assert out.valid assert (== (at out.allowed 0) 2) assert (== (at out.frame.globals 0) 10)
+    assert (== (array_length out.frame.stack) 1) assert (== (at out.frame.stack 0).tag 1)
+    let failed: Summary = Summary { target: 1, ok: false, keys: [], global_allowed: [2], global_returns: [10] }
+    let refused: Transition = (apply_summary fixture.value allowed keys plan failed fixture.context 0 false)
+    assert (not refused.valid) assert (== (at refused.allowed 0) 3) assert (== (at refused.frame.globals 0) 9)
+    let escaping: Summary = Summary { target: 1, ok: true, keys: [0], global_allowed: [0], global_returns: [0] }
+    let suspended: Transition = (apply_summary fixture.value allowed keys plan escaping fixture.context 0 true)
+    assert suspended.valid assert (== (at suspended.keys 0) 0)
+    assert (== (at suspended.allowed 0) 3) assert (== (at suspended.frame.globals 0) 9)
+    (array_set out.allowed 0 0) (array_set out.frame.globals 0 15) (array_set suspended.keys 0 1)
+    assert (== (at allowed 0) 3) assert (== (at fixture.value.globals 0) 9) assert (== (array_length keys) 0)
+    assert (== (at summary.global_allowed 0) 2) assert (== (at summary.global_returns 0) 10)
+}

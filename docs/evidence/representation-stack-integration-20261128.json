@@ -1,0 +1,11 @@
+{
+  "qualified_source": "471e571224ab500d1992e84d0f13b958391f0efa",
+  "base_integration": "d02c04d2447f18e0a77636d5f542dd72864f288e",
+  "all_non_document_bytes_identical": {
+    "files": 4719,
+    "sha256": "16345f5457fbb7c76fba531daf5170ef1ea8c337ab2ac542d50eda77845256e9"
+  },
+  "roadmap_resolution": "I retain every prior integration roadmap line in order, retain the five component plans, and mark only their qualified corrections/port complete. All broader compiler/C/qualification/release requirements stay open.",
+  "qualification_manifest_sha256": "8538775988a934cc11ab6d69035fb85ef7870a30c1dab2ec44dddafa43d6c03e",
+  "whole_release": false
+}

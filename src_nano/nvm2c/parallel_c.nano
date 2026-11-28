@@ -1,0 +1,136 @@
+module nvm2c_parallel_c
+module "src_nano/nvm2c/c_text.nano" as tokens
+
+# I spell simultaneous copies of already checked, bound scalar registers.
+pub struct Transfer { valid: bool, count: int, text: string }
+
+fn refused() -> Transfer {
+    return Transfer { valid: false, count: 0, text: "" }
+}
+shadow refused {
+    let result: Transfer = (refused)
+    assert (== result.valid false)
+    assert (== result.count 0)
+    assert (== result.text "")
+}
+
+fn c_type(tag: int) -> string {
+    if (or (== tag 1) (== tag 4)) { return "int64_t" }
+    if (== tag 3) { return "double" }
+    return ""
+}
+shadow c_type {
+    assert (== (c_type 1) "int64_t")
+    assert (== (c_type 4) "int64_t")
+    assert (== (c_type 3) "double")
+    assert (== (c_type 0) "")
+    assert (== (c_type 2) "")
+    assert (== (c_type -1) "")
+}
+
+fn scratch(index: int) -> string {
+    if (== (tokens.unsigned32 index) "") { return "" }
+    return (+ "nano_aot_edge_" (int_to_string index))
+}
+shadow scratch {
+    assert (== (scratch 0) "nano_aot_edge_0")
+    assert (== (scratch 4294967295) "nano_aot_edge_4294967295")
+    assert (== (scratch -1) "")
+    assert (== (scratch 4294967296) "")
+}
+
+fn columns_valid(destinations: array<int>, sources: array<int>, tags: array<int>) -> bool {
+    let count: int = (array_length destinations)
+    if (or (!= count (array_length sources)) (!= count (array_length tags))) { return false }
+    if (> count 4294967296) { return false }
+    for index in (range 0 count) {
+        let destination: int = (at destinations index)
+        let source: int = (at sources index)
+        let tag: int = (at tags index)
+        if (== (c_type tag) "") { return false }
+        if (or (== (tokens.name 1 destination) "") (== (tokens.name 1 source) "")) { return false }
+        for prior in (range 0 index) {
+            let old_destination: int = (at destinations prior)
+            let old_source: int = (at sources prior)
+            if (== destination old_destination) { return false }
+            if (!= tag (at tags prior)) {
+                if (or (== source old_source) (or (== source old_destination) (== destination old_source))) { return false }
+            }
+        }
+    }
+    return true
+}
+shadow columns_valid {
+    assert (columns_valid [] [] [])
+    assert (columns_valid [0,1] [1,0] [1,1])
+    assert (columns_valid [0,1] [2,2] [3,3])
+    assert (columns_valid [0,2] [1,3] [1,3])
+    assert (columns_valid [4294967295] [0] [4])
+    assert (not (columns_valid [0] [] [1]))
+    assert (not (columns_valid [0] [0] []))
+    assert (not (columns_valid [0] [-1] [1]))
+    assert (not (columns_valid [4294967296] [0] [1]))
+    assert (not (columns_valid [0] [0] [2]))
+    assert (not (columns_valid [0,0] [1,2] [1,1]))
+    assert (not (columns_valid [1,2] [0,0] [1,3]))
+    assert (not (columns_valid [1,0] [0,2] [1,3]))
+    assert (not (columns_valid [1,2] [0,1] [1,3]))
+}
+
+pub fn prelude() -> string {
+    return "#include <stdint.h>\n"
+}
+shadow prelude {
+    assert (== (prelude) "#include <stdint.h>\n")
+}
+
+pub fn emit(destinations: array<int>, sources: array<int>, tags: array<int>) -> Transfer {
+    if (not (columns_valid destinations sources tags)) { return (refused) }
+    let count: int = (array_length destinations)
+    let mut lines: array<string> = ["{\n"]
+    for index in (range 0 count) {
+        let target: string = (scratch index)
+        let source: string = (tokens.name 1 (at sources index))
+        let line: string = (+ "    " (+ (c_type (at tags index)) (+ " " (+ target (+ " = " (+ source ";\n"))))))
+        set lines (array_push lines line)
+    }
+    for index in (range 0 count) {
+        let destination: string = (tokens.name 1 (at destinations index))
+        let line: string = (+ "    " (+ destination (+ " = " (+ (scratch index) ";\n"))))
+        set lines (array_push lines line)
+    }
+    set lines (array_push lines "}\n")
+    return Transfer { valid: true, count: count, text: (str_join lines "") }
+}
+shadow emit {
+    let boolean: Transfer = (emit [0] [1] [4])
+    assert boolean.valid
+    assert (== boolean.count 1)
+    assert (str_starts_with boolean.text "{\n    int64_t nano_aot_edge_0 = nano_aot_local_1;")
+    let narrow: Transfer = (emit [0] [1] [2])
+    assert (== narrow.valid false)
+    assert (== narrow.count 0)
+    assert (== narrow.text "")
+    let empty: Transfer = (emit [] [] [])
+    assert empty.valid
+    assert (== empty.count 0)
+    assert (== empty.text "{\n}\n")
+    let swap: Transfer = (emit [0,1] [1,0] [1,1])
+    assert swap.valid
+    assert (== swap.count 2)
+    assert (== swap.text "{\n    int64_t nano_aot_edge_0 = nano_aot_local_1;\n    int64_t nano_aot_edge_1 = nano_aot_local_0;\n    nano_aot_local_0 = nano_aot_edge_0;\n    nano_aot_local_1 = nano_aot_edge_1;\n}\n")
+    let failure: Transfer = (emit [0,1] [1,4294967296] [1,1])
+    assert (== failure.valid false)
+    assert (== failure.count 0)
+    assert (== failure.text "")
+    let destinations: array<int> = [0,1]
+    let sources: array<int> = [1,0]
+    let tags: array<int> = [3,3]
+    let result: Transfer = (emit destinations sources tags)
+    assert result.valid
+    assert (== (at destinations 0) 0)
+    assert (== (at sources 1) 0)
+    assert (== (at tags 0) 3)
+    (array_set sources 0 0)
+    assert (!= result.text (emit destinations sources tags).text)
+}

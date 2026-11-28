@@ -1,0 +1,15 @@
+{
+  "source_pin": "d907f264d16d348b4589d3760bd213803e1c6f35",
+  "original_manifest_sha256": "3afca7ec6b5cacd796f2d0a4b6c805b2180de2f48300f2a85260f64593d8c11c",
+  "generated_inputs_only": true,
+  "files": [
+    {
+      "path": "inputs/modules/index.json",
+      "bytes": 63328,
+      "sha256": "142a3176b16015faef6de8fafd08c32e299620adae7179c2793538bf2da67c3a",
+      "stored": "objects/142a3176b16015faef6de8fafd08c32e299620adae7179c2793538bf2da67c3a.gz",
+      "stored_bytes": 11432,
+      "stored_sha256": "ee69d86eb535181a74386dc4d13082d478e60896411d5453851f79ad58f423f5"
+    }
+  ]
+}

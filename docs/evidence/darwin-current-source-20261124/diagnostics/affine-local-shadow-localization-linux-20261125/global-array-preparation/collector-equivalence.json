@@ -1,0 +1,13 @@
+{
+  "terminal": true,
+  "normalized_ast_equal": true,
+  "original": "/var/tmp/nanolang-affine-global-array-five-20261125-dt_0nb51/cohort.py",
+  "original_sha256": "d5c439279f3e8ad098395c7eb8cb9d93c8a37f5153f3de41a9e64829cc53cc83",
+  "candidate_sha256": "415700dd770d9f933f927ba7aceee55132bde60a24911c343064688bf663b83c",
+  "method_count": 2,
+  "metadata_sites": 3,
+  "commands_changed": false,
+  "cases_changed": false,
+  "assertions_changed": false,
+  "limits_changed": false
+}

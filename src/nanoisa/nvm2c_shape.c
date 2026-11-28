@@ -484,7 +484,10 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
             if (!payload || !flow_kind(g, payload, to, changed)) break;
             to = NVM_SHAPE_OPTIONAL;
         }
-        if (!pair.exact && (from == NVM_SHAPE_STRING || from == NVM_SHAPE_INT ||
+        /* I retain a present field's payload when a checked shared-record
+         * view boxes it, including below an optional ancestor. Exact storage
+         * outside that alias view still forbids this injection. */
+        if ((!pair.exact || pair.alias_view) && (from == NVM_SHAPE_STRING || from == NVM_SHAPE_INT ||
                             from == NVM_SHAPE_BOOL || from == NVM_SHAPE_FLOAT || from == NVM_SHAPE_ARRAY ||
                             from == NVM_SHAPE_MAP || from == NVM_SHAPE_FUNCTION || from == NVM_SHAPE_U8 || from == NVM_SHAPE_BSTRING) && to == NVM_SHAPE_OPTIONAL) {
             NvmShapeId payload = nvm_shape_child(g, target, 0);

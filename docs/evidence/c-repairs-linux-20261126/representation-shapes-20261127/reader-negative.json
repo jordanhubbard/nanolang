@@ -1,0 +1,7 @@
+{
+  "changed_manifest_refused": true,
+  "exit": 1,
+  "no_unpack_started": true,
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "7d9eb9611ada09ce12cc31eac4cad46ccba782cc628c83d148adf83798279589"
+}

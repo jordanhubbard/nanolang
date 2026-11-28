@@ -1,0 +1,13 @@
+{
+  "status": "INTEGRITY_PASS",
+  "source_commit": "a5fd6696d2bfef515fa8c00a8344330301899ae0",
+  "records": 1400,
+  "source_paths": 1342,
+  "selected_tracked_sources": 1341,
+  "selected_generated_sources": 1,
+  "original_make_methods": 32,
+  "vm_assertions": 569591,
+  "raw_seed_byte_identical": false,
+  "qualification": "PASS_COLLECTOR_GUARDS_AND_DECLARED_COHORTS_WITH_RETAINED_EXTERNAL_OBSERVER_MISMATCHES",
+  "release_acceptance": false
+}

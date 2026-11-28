@@ -1,0 +1,63 @@
+module "src_nano/nvm2c/module_verifier.nano" as verifier
+module "src_nano/nvm2c/container.nano" as wire
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+fn report(result: verifier.Result) -> string {
+    if result.deferred { return "A" }
+    if (!= result.status 0) { return (+ "R:" (int_to_string result.status)) }
+    if result.malformed { return "D" }
+    if (not result.valid) { return (+ "0:" result.message) }
+    let mut value: string = "1:"
+    if result.complete { set value (+ value "1:") } else { set value (+ value "0:") }
+    let mut i: int = 0
+    while (< i (array_length result.depths)) {
+        if (> i 0) { set value (+ value ",") }
+        set value (+ value (int_to_string (at result.depths i)))
+        set i (+ i 1)
+    }
+    return value
+}
+shadow report { assert (== (report (verifier.verify [])) "R:1") }
+fn evaluate(bytes: array<u8>, graph: bool) -> string {
+    if (< (array_length bytes) 8) { return "X" }
+    let size: int = (wire.read_u32 bytes 0)
+    let count: int = (wire.read_u32 bytes 4)
+    if (or (> count 64) (not (wire.contains bytes 8 size))) { return "X" }
+    let root: array<u8> = (array_slice bytes 8 size)
+    let mut cursor: int = (+ 8 size)
+    let mut links: array<verifier.LinkedModule> = []
+    let mut i: int = 0
+    while (< i count) {
+        if (not (wire.contains bytes cursor 8)) { return "X" }
+        let resolved: int = (wire.read_u32 bytes cursor)
+        let span: int = (wire.read_u32 bytes (+ cursor 4))
+        set cursor (+ cursor 8)
+        if (or (> resolved 1) (not (wire.contains bytes cursor span))) { return "X" }
+        set links (array_push links verifier.LinkedModule { resolved: (== resolved 1), bytes: (array_slice bytes cursor span) })
+        set cursor (+ cursor span)
+        set i (+ i 1)
+    }
+    if (!= cursor (array_length bytes)) { return "X" }
+    if graph {
+        let result: verifier.GraphResult = (verifier.verify_graph root links)
+        return (+ (int_to_string result.module_index) (+ "|" (report result.result)))
+    }
+    return (report (verifier.verify_linked root links))
+}
+shadow evaluate { assert (== (evaluate [] false) "X") assert (== (evaluate [0,0,0,0,0,0,0,0] true) "0|R:1") }
+fn main() -> int {
+    unsafe {
+        let mut index: int = 1
+        let mut graph: bool = false
+        if (> (get_argc) 1) {
+            if (== (get_argv 1) "--graph") { set index 2 set graph true }
+        }
+        while (< index (get_argc)) {
+            (println (evaluate (file_read_bytes (get_argv index)) graph))
+            set index (+ index 1)
+        }
+    }
+    return 0
+}
+shadow main { assert (== (main) 0) }

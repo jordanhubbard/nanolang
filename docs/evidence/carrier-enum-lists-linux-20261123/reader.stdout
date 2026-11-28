@@ -1,0 +1,9 @@
+{
+  "result": "PASS",
+  "source_pin": "7c6a9c1a14e5a4f7a1a0be624f6abea1dddf8a97",
+  "records": 2513,
+  "git_inputs": 1451,
+  "native_images": 94,
+  "native_enum_acceptance": false,
+  "whole_release": false
+}

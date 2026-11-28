@@ -285,6 +285,7 @@ struct ASTNode {
     ASTNode *lambda_definition;
     ASTNode *checked_global; /* I borrow the exact checked global declaration, never its storage. */
     bool checked_function_name; /* I resolved this spelling to a declaration, not a value binding. */
+    bool checked_record_list; /* Checked result provenance for private interpreter roots. */
     ASTNode *affine_use_owner; /* Borrowed exact checked source function. */
     uint64_t affine_use_epoch;
     unsigned char checked_affine_use; /* 0 unknown, 1 observe, 2 consume. */
@@ -441,7 +442,7 @@ struct ASTNode {
             char *name;               // Enum name
             char *original_name;      /* I retain the source spelling after module binding. */
             char **variant_names;     // Array of variant names
-            int *variant_values;      // Array of variant values (or NULL for auto)
+            long long *variant_values;      // Array of variant values (or NULL for auto)
             int variant_count;        // Number of variants
             bool is_pub;              // Visibility: public (pub) vs private
             bool is_extern;           // External C type: do not emit definition
@@ -505,6 +506,7 @@ struct ASTNode {
         /* Module declaration: module module_name */
         struct {
             char *name;             /* Explicit module name */
+            bool is_unsafe;         /* I retain the declaration's own marker. */
         } module_decl;
         /* Qualified name: module::symbol, std::io::fs::read_file */
         struct {
@@ -715,11 +717,11 @@ typedef struct {
     char *name;
     char *original_name;
     char **variant_names;
-    int *variant_values;
+    long long *variant_values;
     int variant_count;
     bool is_pub;     /* Visibility: public (true) vs private (false) - default false */
     bool is_extern;   /* External C type: do not emit definition */
-    char *module_name;  /* Module this enum belongs to (NULL for global) */
+    char *module_name;  /* I borrow API names; my checker allocation list owns copied names. */
 } EnumDef;
 
 /* Union definition entry */
@@ -746,7 +748,8 @@ typedef struct {
     char *c_type_name;     /* C type with pointer (e.g., "GLFWwindow*") */
 } OpaqueTypeDef;
 
-/* Effect operation signature */
+/* I own operation/result names, parameter arrays and copied parameter names.
+ * I borrow complete parameter/result annotations from the declaration AST. */
 typedef struct {
     char *name;              /* Operation name (e.g., "print") */
     Parameter *params;       /* Parameters */
@@ -759,7 +762,7 @@ typedef struct {
 /* Effect definition entry: effect IO { print : String -> Unit } */
 typedef struct {
     char *name;              /* Effect name (e.g., "IO") */
-    char *original_name;     /* I retain the source spelling before module qualification. */
+    char *original_name;     /* My checker allocation list owns the source spelling. */
     EffectOp *ops;           /* Operations */
     int op_count;
     bool is_pub;
@@ -864,6 +867,7 @@ typedef struct {
     GlobalImport *global_imports;
     int symbol_count;
     int symbol_capacity;
+    struct NlEvalCarrierSession *carrier_session; /* Private, explicitly enabled qualification ownership. */
     struct EnvCheckerAllocation *checker_allocations; /* Explicit checker-owned storage, independent of slots. */
     struct EnvSymbolIndex *symbol_index; /* Owned optional name index; slots remain authoritative. */
     Function *functions;
@@ -893,10 +897,11 @@ typedef struct {
     int generic_func_instance_capacity;
     EnumImport *enum_imports;
     EffectImport *effect_imports;
+    struct EnvFunctionImport *function_imports; /* Owned scoped names; stable declaring slots. */
     ModuleNamespace *namespaces;  /* Module alias → symbols mapping */
     int namespace_count;
     int namespace_capacity;
-    char *current_module;  /* Currently active module name (NULL for global scope) */
+    char *current_module;  /* Borrowed module-context cursor; NULL for global scope. */
     ImportTracker *import_tracker;  /* Track selective imports */
     bool builtins_registered;  /* Flag to prevent duplicate builtin registration */
     ModuleInfo *modules;  /* Module metadata for introspection */
@@ -971,12 +976,18 @@ bool bind_service_origin(ASTNode *program, Environment *env, const char *source_
 bool acquire_service_input(ASTNode *program, Environment *env);
 bool ast_is_value_expression(ASTNodeType type);
 bool ast_always_returns(const ASTNode *node);
+int ast_value_branch_count(const ASTNode *node);
+ASTNode *ast_value_branch(ASTNode *node, int index);
+const TypeInfo *ast_array_value_context(ASTNode *value, const TypeInfo *expected, ASTNode *target);
+const char *get_record_list_element_name(ASTNode *expr, Environment *env);
+const char *get_array_record_type_name(ASTNode *array, Environment *env);
 ASTNode *parse_repl_input(Token *tokens, int token_count);  /* REPL variant: accepts statements at top level */
 void free_ast(ASTNode *node);
 
 /* Type Checker */
 bool type_check(ASTNode *program, Environment *env);
 bool type_check_module(ASTNode *program, Environment *env);  /* Type check without requiring main */
+bool type_check_repl(ASTNode *program, Environment *env); /* I also check executable inputs. */
 bool type_check_root_shadows(ASTNode *program, Environment *env);
 /* I borrow checked callback metadata for map result allocation during lowering. */
 Type map_transform_result_type(ASTNode *callback, Environment *env);
@@ -992,6 +1003,8 @@ bool run_shadow_tests(ASTNode *program, Environment *env, bool verbose);
 bool run_program(ASTNode *program, Environment *env);
 Value call_function(const char *name, Value *args, int arg_count, Environment *env);
 /* REPL support */
+/* I return owned callable name/signature metadata; my caller retires both.
+ * Other result kinds retain their existing lifetime rules. */
 Value repl_eval_node(ASTNode *node, Environment *env);
 void  repl_print_value(Value val);
 
@@ -1014,9 +1027,18 @@ void env_symbol_index_invalidate(Environment *env);
 void env_set_current_file(Environment *env, const char *path);
 const char *env_current_file(Environment *env);
 void free_environment(Environment *env);
+/* I retain functions/types while clearing variables between evaluations. */
+void env_clear_variables(Environment *env);
+/* I publish module declarations only after their checker succeeds. */
+struct EnvModuleCheckpoint;
+struct EnvModuleCheckpoint *env_module_checkpoint(Environment *env, const char *owner, const char *path);
+bool env_module_checkpoint_declarations(Environment *env, struct EnvModuleCheckpoint *checkpoint);
+void env_module_commit(struct EnvModuleCheckpoint *checkpoint);
+void env_module_rollback(Environment *env, struct EnvModuleCheckpoint *checkpoint);
 /* Transfer one newly allocated checker-only block; NULL is a no-op.
  * Borrowed AST/signature blocks and runtime values must never enter this registry. */
 void *env_own_checker_allocation(Environment *env, void *allocation);
+TypeInfo *env_own_checker_type_info(Environment *env, TypeInfo *info);
 bool env_import_global(Environment *env, const char *owner_file, const char *name, ASTNode *declaration);
 const GlobalImport *env_lookup_global_import(Environment *env, const char *name);
 const GlobalImport *env_lookup_global_import_at(Environment *env, const char *owner_file, const char *name);
@@ -1034,6 +1056,8 @@ void env_reclaim_static_arrays(Environment *env);
 
 /* Diagnostic: number of static-array containers reclaimed at teardown. */
 size_t env_static_array_reclaim_count(void);
+/* I record direct STRING publications without changing their reference count. */
+void env_note_string_binding(Value value);
 Symbol *env_get_var(Environment *env, const char *name);
 Symbol *env_get_declared_global(Environment *env, const ASTNode *declaration);
 Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int column);
@@ -1045,6 +1069,9 @@ void env_set_evaluated_binding(Environment *env, Symbol *binding, Value value, A
 void env_set_var(Environment *env, const char *name, Value value);
 void env_define_function(Environment *env, Function func);
 Function *env_get_function(Environment *env, const char *name);
+Function *env_get_function_owned(Environment *env, const char *name, const char *owner);
+bool env_import_function(Environment *env, const char *name, Function *target);
+bool env_import_module_functions(Environment *env, const char *owner);
 Function *env_get_function_at(Environment *env, const char *name, int line, int column);
 bool env_array_push_is_builtin(Environment *env, int line, int column);
 const char *env_array_operation(Environment *env, ASTNode *call);
@@ -1075,7 +1102,7 @@ void env_register_hashmap_instantiation(Environment *env, const char *key_type, 
 char *typeinfo_to_generic_arg_name(TypeInfo *info);
 void env_register_union_instantiation(Environment *env, const char *union_name,
                                       const char **type_args, int type_arg_count);
-int env_get_enum_variant(Environment *env, const char *variant_name);
+long long env_get_enum_variant(Environment *env, const char *variant_name);
 /* I take ownership of a newly registered union and its allocated metadata. */
 void env_define_union(Environment *env, UnionDef union_def);
 UnionDef *env_get_union(Environment *env, const char *name);

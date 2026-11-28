@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "source_commit": "4e6adb1a6ad5d608bf4032d7867af08e4c2e17f4",
+  "records": 5330,
+  "original_plus_expanded_methods": 7,
+  "clang18_methods": 3,
+  "nominal_receiver_methods": 12,
+  "initial_fixture_refusals": 12,
+  "initial_lowering_refusals": 4,
+  "raw_bytes": 1844626607
+}

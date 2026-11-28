@@ -1,0 +1,25 @@
+{
+  "origin": "I preserve the exact retained four preprocessing streams and relative macro from #1157; I change no source bytes or witness decisions.",
+  "files": {
+    "actual-markers.s": {
+      "sha256": "9441616662db4bf9c164ff12adf478292da2982311b82465ce7a3f949628efea",
+      "bytes": 541
+    },
+    "without-directory.s": {
+      "sha256": "66aa8200b06fa4800725b2360b198c6a9faf42692a917159ac6453720d60298b",
+      "bytes": 432
+    },
+    "without-predef.s": {
+      "sha256": "54593d55e585a10d157c4c9875debf0d242b08dfd4060d002a4ea5d9d93d1be7",
+      "bytes": 502
+    },
+    "source-marker-only.s": {
+      "sha256": "ca8019a62323d4b2dd682ed841bf7a33767e1c01efbb30c5374cd21d7976eeec",
+      "bytes": 114
+    },
+    "debug macro.s": {
+      "sha256": "b5709c43ba665919e74e716c592bd15921ef06f98dfa088646e4abf1fbcc42ec",
+      "bytes": 86
+    }
+  }
+}

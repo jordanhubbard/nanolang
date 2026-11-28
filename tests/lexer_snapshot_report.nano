@@ -1,0 +1,57 @@
+import "src_nano/compiler/lexer.nano"
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+extern fn file_read(path: string) -> string
+fn report_octets(text: string) -> int {
+    let data: array<u8> = (bytes_from_string text)
+    (println (int_to_string (array_length data)))
+    let mut index: int = 0
+    while (< index (array_length data)) {
+        (println (int_to_string (cast_int (at data index))))
+        set index (+ index 1)
+    }
+    return (array_length data)
+}
+shadow report_octets { assert (== (report_octets "é") 2) }
+
+fn report_source(source: string) -> int {
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let tokens: List<LexerToken> = (tokenize_string source "semantic.nano" diags)
+    (println "TOKENS")
+    (println (int_to_string (list_LexerToken_length tokens)))
+    let mut index: int = 0
+    while (< index (list_LexerToken_length tokens)) {
+        let token: LexerToken = (list_LexerToken_get tokens index)
+        (println (int_to_string token.token_type))
+        (report_octets token.value)
+        (println (int_to_string token.value_bytes))
+        (println (int_to_string token.line))
+        (println (int_to_string token.column))
+        set index (+ index 1)
+    }
+    (println "DIAGNOSTICS")
+    (println (int_to_string (list_CompilerDiagnostic_length diags)))
+    set index 0
+    while (< index (list_CompilerDiagnostic_length diags)) {
+        let diag: CompilerDiagnostic = (list_CompilerDiagnostic_get diags index)
+        (println (int_to_string diag.phase))
+        (println (int_to_string diag.severity))
+        (report_octets diag.code)
+        (report_octets diag.message)
+        (report_octets diag.location.file)
+        (println (int_to_string diag.location.line))
+        (println (int_to_string diag.location.column))
+        set index (+ index 1)
+    }
+    return (list_CompilerDiagnostic_length diags)
+}
+shadow report_source { assert (== (report_source "@") 1) }
+fn main() -> int {
+    unsafe {
+        if (!= (get_argc) 2) { return 2 }
+        let count: int = (report_source (file_read (get_argv 1)))
+        if (< count 0) { return 1 }
+    }
+    return 0
+}
+shadow main { assert (== (report_source "let x: int = 1") 0) }

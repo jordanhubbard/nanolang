@@ -1,0 +1,54 @@
+{
+  "integration_parent": "f9034a460b4b43ba4a772cc75d23aae8a6183d50",
+  "peer": "6a0b4d6d439b7cb6729f96c4ca825b607f32b011",
+  "files": [
+    {
+      "path": ".test_output/verify-c908-evidence-integration.py",
+      "artifact": "verify-c908-evidence-integration.py.gz",
+      "bytes": 2936,
+      "sha256": "568150fea6eb130217818f3aa68c17f634fc0998f0876a138c9ffde497480496",
+      "compressed_bytes": 1330,
+      "compressed_sha256": "8c8435a1aefe52a76998a16be25d4e3c99a8a8725f959664cbe11ab9d52aae8c"
+    },
+    {
+      "path": ".test_output/verify-c908-evidence-integration-initial.py",
+      "artifact": "verify-c908-evidence-integration-initial.py.gz",
+      "bytes": 2707,
+      "sha256": "7a4bccd095cf0d5fdafb0c3c39ea07df8d4a1c1c6b4ff5ede2eff40c85188c43",
+      "compressed_bytes": 1266,
+      "compressed_sha256": "4196c186bc6459af3e752a21049f87c5c8f824c29c30f50f43eb24dc318788de"
+    },
+    {
+      "path": ".test_output/c908-evidence-integration-verification-initial.log",
+      "artifact": "c908-evidence-integration-verification-initial.log.gz",
+      "bytes": 443,
+      "sha256": "b729a456c739a7722f16ead91da1a0e68481a9f85fcc0c7654878672d6f8df92",
+      "compressed_bytes": 253,
+      "compressed_sha256": "56fd67e1115a260c88776a04406948b3a071e933404fd572745a126b86b6cafb"
+    },
+    {
+      "path": ".test_output/c908-evidence-integration-verification.log",
+      "artifact": "c908-evidence-integration-verification.log.gz",
+      "bytes": 488,
+      "sha256": "da11b1801a4ae5f2ed02fd0b60cacdb8bac0712171dcb6567631662a743b0ebd",
+      "compressed_bytes": 316,
+      "compressed_sha256": "d3e2e87c012be958cc73e122444c6b7d210a2ee825f87d02fe63645680ab3fc6"
+    },
+    {
+      "path": ".test_output/c908-evidence-integration-verification.json",
+      "artifact": "c908-evidence-integration-verification.json.gz",
+      "bytes": 584,
+      "sha256": "49eaef4e8bc3430ebd518cf563bc5922b0d7de958941bcd79f3f3d2306258c3c",
+      "compressed_bytes": 334,
+      "compressed_sha256": "de03775c313bf079d28b29e0edfe65ac457c0f09f1c09843756afdeaf18b681b"
+    },
+    {
+      "path": ".test_output/c908-evidence-integration-merge.log",
+      "artifact": "c908-evidence-integration-merge.log.gz",
+      "bytes": 95,
+      "sha256": "a801ccf6bdc07fea40dad84749341f5c149b3c45ecdc931c434dc3c33153fa36",
+      "compressed_bytes": 106,
+      "compressed_sha256": "93ba1f79fbc1c552c4c5c946e77b8f9bb1e7d3b2a5fb6633dcbf500c0f12ba08"
+    }
+  ]
+}

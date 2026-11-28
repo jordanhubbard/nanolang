@@ -1,0 +1,86 @@
+module "src_nano/nvm2c/callables.nano" as callable
+module "src_nano/nvm2c/shape_graph.nano" as shape
+module "src_nano/nvm2c/container.nano" as wire
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+# I read u32 counts, six function fields, five import fields plus parameter tags,
+# sized name bytes and raw code. This packet grants no execution authority.
+fn describe(bytes: array<u8>) -> string {
+    if (< (array_length bytes) 12) { return "P" }
+    let count: int = (wire.read_u32 bytes 0)
+    let strings: int = (wire.read_u32 bytes 4)
+    let foreign: int = (wire.read_u32 bytes 8)
+    if (> count (/ (- (array_length bytes) 12) 24)) { return "P" }
+    let mut position: int = (+ 12 (* count 24))
+    if (> foreign (/ (- (array_length bytes) position) 20)) { return "P" }
+    let mut functions: array<callable.Function> = []
+    let mut imports: array<callable.Foreign> = []
+    let mut names: array<array<u8>> = []
+    for i in (range 0 count) {
+        let at_index: int = (+ 12 (* i 24))
+        if (or (> (wire.read_u32 bytes (+ at_index 8)) 65535) (> (wire.read_u32 bytes (+ at_index 12)) 65535)) { return "P" }
+        if (or (> (wire.read_u32 bytes (+ at_index 16)) 65535) (> (wire.read_u32 bytes (+ at_index 20)) 255)) { return "P" }
+        set functions (array_push functions callable.Function { start: (wire.read_u32 bytes at_index), length: (wire.read_u32 bytes (+ at_index 4)),
+            arity: (wire.read_u32 bytes (+ at_index 8)), locals: (wire.read_u32 bytes (+ at_index 12)),
+            upvalues: (wire.read_u32 bytes (+ at_index 16)), results: (wire.read_u32 bytes (+ at_index 20)) })
+    }
+    for i in (range 0 foreign) {
+        if (not (wire.contains bytes position 20)) { return "P" }
+        let library: int = (wire.read_u32 bytes position)
+        let symbol: int = (wire.read_u32 bytes (+ position 4))
+        let parameters: int = (wire.read_u32 bytes (+ position 8))
+        let result: int = (wire.read_u32 bytes (+ position 12))
+        let present: int = (wire.read_u32 bytes (+ position 16))
+        if (or (> parameters 65535) (or (> result 255) (> present 1))) { return "P" }
+        set position (+ position 20)
+        let mut types: array<int> = []
+        if (== present 1) {
+            if (> parameters (/ (- (array_length bytes) position) 4)) { return "P" }
+            for p in (range 0 parameters) {
+                let tag: int = (wire.read_u32 bytes position)
+                if (> tag 255) { return "P" }
+                set types (array_push types tag) set position (+ position 4)
+            }
+        }
+        set imports (array_push imports callable.Foreign { library: library, symbol: symbol, parameters: parameters,
+            result: result, typed: (== present 1), types: types })
+    }
+    if (> strings (/ (- (array_length bytes) position) 4)) { return "P" }
+    for i in (range 0 strings) {
+        let length: int = (wire.read_u32 bytes position) set position (+ position 4)
+        if (not (wire.contains bytes position length)) { return "P" }
+        set names (array_push names (array_slice bytes position length)) set position (+ position length)
+    }
+    let result: callable.Analysis = (callable.analyze callable.Module { code: (array_slice bytes position (- (array_length bytes) position)),
+        functions: functions, imports: imports, names: names })
+    if (not result.valid) { return (+ "0|" result.error) }
+    let mut report: array<string> = ["1"]
+    for f in (range 0 (+ count 1)) {
+        let mut length: int = 0 if (< f count) { set length (at result.lengths f) }
+        for pc in (range 0 (+ length 1)) {
+            set report (array_push report (+ "|" (+ (int_to_string f) (+ "," (+ (int_to_string pc) ":")))))
+            set report (array_push report (+ (int_to_string (callable.projection_tags result f pc)) ":"))
+            let target: int = (callable.callee result f pc)
+            if (== target 0) { set report (array_push report "-") }
+            else {
+                let targets: int = (shape.function_count result.graph target)
+                set report (array_push report (int_to_string targets))
+                for i in (range 0 targets) {
+                    let value: shape.Target = (shape.function_target result.graph target i true)
+                    assert value.valid
+                    set report (array_push report (+ "," (int_to_string value.number)))
+                }
+            }
+        }
+    }
+    return (str_join report "")
+}
+shadow describe {
+    assert (== (describe []) "P")
+    assert (== (describe [0,0,0,0,0,0,0,0,0,0,0,0]) "0|I require callable module functions")
+}
+fn main() -> int {
+    unsafe { for i in (range 1 (get_argc)) { (println (describe (file_read_bytes (get_argv i)))) } }
+    return 0
+}

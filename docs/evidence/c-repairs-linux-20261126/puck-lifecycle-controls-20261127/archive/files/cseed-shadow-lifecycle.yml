@@ -1,0 +1,61 @@
+name: C seed shadow lifecycle diagnostic
+
+on:
+  push:
+    branches: [feat/5.1-service-module-integration, work/5.1-cseed-lifecycle-controls-20261127]
+    paths:
+      - '.github/workflows/cseed-shadow-lifecycle.yml'
+      - 'scripts/ci_darwin_shadow_lifecycle.c'
+      - 'scripts/ci_darwin_shadow_lifecycle.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  lifecycle:
+    name: C seed lifecycle observation (xcode-27)
+    runs-on: xcode-27
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Require a hosted diagnostic worker
+        run: test '${{ runner.environment }}' = github-hosted
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/docs/evidence/
+      - name: Preserve original storage admission
+        run: |
+          python3 - <<'PY'
+          import os, shutil, tempfile
+          for name in ['.', tempfile.gettempdir(), os.environ['RUNNER_TEMP']]:
+              disk=shutil.disk_usage(name)
+              assert disk.free>=20*1024**3 and disk.free/disk.total>=.10,(name,disk)
+          PY
+      - name: Install the original Darwin dependencies
+        timeout-minutes: 20
+        run: |
+          ./scripts/ci-brew-install.sh pkg-config openssl sqlite sdl2 \
+            sdl2_image sdl2_mixer sdl2_ttf utf8proc
+      - name: Select the unchanged pinned compiler and SDK
+        run: python3 scripts/ci_select_capture_clang.py
+      - name: Observe original C seed with calibrated tail observer
+        timeout-minutes: 15
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/ci_darwin_shadow_lifecycle.py
+      - name: Retain diagnostic controls, exact inputs and original results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cseed-shadow-lifecycle-${{ github.sha }}
+          path: .test_output/shadow-lifecycle/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30

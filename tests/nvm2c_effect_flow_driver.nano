@@ -1,0 +1,54 @@
+module "src_nano/nvm2c/effect_flow.nano" as effects
+module "src_nano/nvm2c/container.nano" as wire
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+# I read counts, three u32 function fields, sized operation bytes and raw code.
+fn describe(bytes: array<u8>) -> string {
+    if (< (array_length bytes) 8) { return "0" }
+    let count: int = (wire.read_u32 bytes 0)
+    let strings: int = (wire.read_u32 bytes 4)
+    if (> count (/ (- (array_length bytes) 8) 12)) { return "0" }
+    let mut position: int = (+ 8 (* count 12))
+    if (> strings (/ (- (array_length bytes) position) 4)) { return "0" }
+    let mut functions: array<effects.Function> = []
+    let mut names: array<array<u8>> = []
+    for i in (range 0 count) {
+        let at_index: int = (+ 8 (* i 12))
+        set functions (array_push functions effects.Function { start: (wire.read_u32 bytes at_index),
+            length: (wire.read_u32 bytes (+ at_index 4)), locals: (wire.read_u32 bytes (+ at_index 8)) })
+    }
+    for i in (range 0 strings) {
+        let length: int = (wire.read_u32 bytes position)
+        set position (+ position 4)
+        if (not (wire.contains bytes position length)) { return "0" }
+        set names (array_push names (array_slice bytes position length))
+        set position (+ position length)
+    }
+    let result: effects.Collection = (effects.collect (array_slice bytes position (- (array_length bytes) position)) functions names)
+    if (not result.valid) { return "0" }
+    let mut report: string = (+ "1:" (int_to_string (array_length result.handlers)))
+    for i in (range 0 (array_length result.handlers)) {
+        let item: effects.Handler = (at result.handlers i)
+        set report (+ report (+ "|" (int_to_string item.function)))
+        set report (+ report (+ "," (int_to_string item.operation)))
+        set report (+ report (+ "," (int_to_string item.target)))
+        set report (+ report (+ "," (int_to_string item.start)))
+        set report (+ report (+ "," (int_to_string item.count)))
+        set report (+ report ":")
+        for j in (range 0 (array_length item.flow)) {
+            if (at item.flow j) { set report (+ report "1") }
+            else { set report (+ report "0") }
+        }
+    }
+    return report
+}
+shadow describe {
+    assert (== (describe []) "0")
+    assert (== (describe [0,0,0,0,0,0,0,0]) "1:0")
+    assert (== (describe [255,255,255,255,0,0,0,0]) "0")
+}
+fn main() -> int {
+    unsafe { for i in (range 1 (get_argc)) { (println (describe (file_read_bytes (get_argv i)))) } }
+    return 0
+}

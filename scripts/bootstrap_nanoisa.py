@@ -30,9 +30,14 @@ def source_inputs(root):
     for directory in ('src_nano', 'src', 'modules', 'std', 'stdlib'):
         base = root / directory
         if base.exists():
-            names.extend(str(p.relative_to(root)) for p in base.rglob('*')
-                         if p.is_file() and p.suffix in ('.nano', '.c', '.h', '.inc', '.json')
-                         and not any(part.startswith('.') for part in p.relative_to(base).parts))
+            for parent, directories, files in os.walk(base, followlinks=False):
+                directories[:] = [name for name in directories if not name.startswith('.')]
+                for name in files:
+                    if name.startswith('.'):
+                        continue
+                    path = Path(parent) / name
+                    if path.suffix in ('.nano', '.c', '.h', '.inc', '.json') and path.is_file():
+                        names.append(str(path.relative_to(root)))
     return {name: digest(root / name) for name in sorted(names)}
 
 
@@ -175,8 +180,9 @@ class Bootstrap:
         compiler = shlex.split(self.env.get('NANO_CC') or self.env.get('CC') or 'cc')
         if not compiler:
             raise RuntimeError('I require a host C compiler command.')
-        self.manifest = {'version': 1, 'phase': 'building-stage1', 'work': str(self.work),
+        self.manifest = {'version': 2, 'phase': 'building-stage1', 'work': str(self.work),
                          'root': str(self.root), 'sources': source_inputs(self.root),
+                         'module_build_cache': self.env.get('NANO_BUILD_CACHE'),
                          'tools': self.tool_inputs(), 'compiler': compiler,
                          'cflags': shlex.split(self.env.get('NANO_CFLAGS') or '-O1'),
                          'ldflags': shlex.split(self.env.get('NANO_LDFLAGS') or self.env.get('LDFLAGS') or ''),
@@ -223,11 +229,21 @@ class Bootstrap:
 
     def load(self):
         self.manifest = json.loads(self.receipt.read_text())
-        if self.manifest.get('version') != 1 or self.manifest.get('root') != str(self.root):
-            raise RuntimeError('I require a bootstrap receipt for this checkout.')
+        if self.manifest.get('version') != 2 or self.manifest.get('root') != str(self.root):
+            raise RuntimeError('I require a current bootstrap receipt with recorded module-cache context for this checkout.')
         if self.manifest.get('shadow_timeout_seconds') != self.shadow_timeout:
             raise RuntimeError('I require the recorded bootstrap shadow deadline; '
                                'use --shadow-timeout with the Stage 1 setting.')
+        cache = self.manifest.get('module_build_cache')
+        if ('module_build_cache' not in self.manifest or
+                (cache is not None and (not isinstance(cache, str) or '\0' in cache))):
+            raise RuntimeError('I require a valid recorded module-cache context; rebuild Stage 1.')
+        if 'NANO_BUILD_CACHE' in self.env and self.env['NANO_BUILD_CACHE'] != cache:
+            raise RuntimeError('I require the recorded module-cache context; rebuild Stage 1 to change it.')
+        if cache is None:
+            self.env.pop('NANO_BUILD_CACHE', None)
+        else:
+            self.env['NANO_BUILD_CACHE'] = cache
         self.work = Path(self.manifest['work'])
         self.check_inputs()
 

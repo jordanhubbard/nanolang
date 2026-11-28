@@ -1,0 +1,10 @@
+[
+  {
+    "tool": "nano_virt",
+    "exit": 1
+  },
+  {
+    "tool": "nanoc_stage1",
+    "exit": 1
+  }
+]

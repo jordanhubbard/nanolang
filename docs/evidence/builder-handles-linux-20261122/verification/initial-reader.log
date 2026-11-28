@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/mnt/ubumeh-scratch/nanolang/hosts/sparky/wt/01a1fec4/docs/evidence/builder-handles-linux-20261122/read_archive.py", line 167, in <module>
+    assert identity['sha256_before'] == identity['sha256_before_after']
+           ~~~~~~~~^^^^^^^^^^^^^^^^^
+KeyError: 'sha256_before'

@@ -1,0 +1,21 @@
+{
+  "status": "passed",
+  "sources": 1330,
+  "tools": {
+    "nano_virt": "9c6ac1e1607736bca28d9cf9793e1ec79ed73d05aa1a5a5aca0f5c30dfb13cfc",
+    "nano_vm": "eace50cf172987104d501458df04f6b0c5a6ad1ff046ff72de66fc77fa71306d",
+    "nanoisa": "e7e35317b38087bdf23d3b4ae347d21ddce8abffb6a6b754cb1c5c81a4d71cc2",
+    "nvm2c": "0760e22229afe023e0271496d6dee8052a5b9e958ccc5f537be909d16c9f6a75",
+    "nano_aot_runtime.o": "54648481d8e9ab3f766cb4a281bd09e9ba54d636c30b02ee5eb2d85f268fabf0",
+    "nano_as_capture.so": "a358c1777f62af4b878e38a618697a560d16b57515172d8f17d2bba1eb0e10af"
+  },
+  "artifacts": {
+    "nanoc_seed.nvm": "486df8ef10a67772669e12334b3d563b6e8f70c6c6900d340e8ccbf9e9d27c07",
+    "nanoc_stage1.nvm": "92b1c7a7a91fa58b2f0d06c34e5afb3efe46844f3a73d998f97a3a4267f59671",
+    "nanoc_stage1": "03bbebe611897c01d01db780a459ddff537fbc477bcfeb7a289f40caa7c811ec",
+    "nanoc_stage2.nvm": "92b1c7a7a91fa58b2f0d06c34e5afb3efe46844f3a73d998f97a3a4267f59671",
+    "nanoc_stage2": "856e86e9aea221475717a56b125fce0e6358c6f69a8354da3ff9c81e4be4c4ba"
+  },
+  "receipt_sha256": "c76d723871bd3f935b1ea40afb677ffd0e0f159f5db043416b3673c769900ebc",
+  "scope": "I check all existing source/tool/host/artifact guards. My initial additional manual assertion mistakenly compared the retained Stage1 hash to Stage2; the existing artifact guards already passed. Both actual images retain their independently recorded hashes."
+}

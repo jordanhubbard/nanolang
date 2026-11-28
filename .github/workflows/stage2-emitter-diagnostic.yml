@@ -1,0 +1,167 @@
+name: Retained Stage2 emitter setup diagnostic
+
+on:
+  push:
+    branches: [feat/5.1-service-module-integration]
+    paths:
+      - '.github/workflows/stage2-emitter-diagnostic.yml'
+      - 'scripts/ci_stage2_emitter_diagnostic.py'
+      - 'scripts/stage2_cpu_sampler.py'
+      - 'tests/test_stage2_emitter_diagnostic.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  observe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Require a hosted diagnostic worker
+        run: test '${{ runner.environment }}' = github-hosted
+      - uses: actions/checkout@v4
+        with:
+          ref: d18fed86140b6a4cf983898ac32a079002f6b784
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/docs/evidence/
+      - name: Record the pinned product before provisioning
+        run: |
+          mkdir -p .test_output/stage2-emitter-controls
+          git rev-parse HEAD > .test_output/stage2-emitter-controls/checkout-revision.txt
+          uname -a > .test_output/stage2-emitter-controls/host.txt
+      - name: Require original storage headroom
+        run: |
+          python3 - <<'PY'
+          import os, shutil, tempfile
+          for path in ['.', tempfile.gettempdir(), os.environ['RUNNER_TEMP']]:
+              disk=shutil.disk_usage(path)
+              assert disk.free >= 20*1024**3 and disk.free/disk.total >= .10
+          PY
+      - name: Install the original Linux dependencies
+        timeout-minutes: 25
+        run: |
+          ./scripts/ci-apt-install.sh build-essential pkg-config libssl-dev libffi-dev \
+            libsqlite3-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev \
+            libsdl2-ttf-dev libutf8proc-dev
+      - name: Provision diagnostic CPU sampling
+        timeout-minutes: 25
+        run: |
+          ./scripts/ci-apt-install.sh linux-tools-common linux-tools-generic
+          sudo -n sysctl -w kernel.perf_event_paranoid=-1
+          python3 - <<'PYTOOLS'
+          import hashlib, json, os, subprocess
+          from pathlib import Path
+          inventory=subprocess.check_output(['dpkg-query','-S','*/perf'],text=True)
+          ownership=[line.partition(': ') for line in inventory.splitlines()]
+          assert all(separator for package,separator,path in ownership)
+          packages=sorted({package for package,separator,path in ownership})
+          paths={path for package,separator,path in ownership}
+          binaries=[]
+          for name in sorted(paths):
+              path=Path(name)
+              if path.name=='perf' and path.is_file() and path.read_bytes()[:4]==b'\x7fELF':
+                  selected=path.resolve()
+                  version=subprocess.check_output([str(selected),'version'],text=True,timeout=5)
+                  binaries.append({'path':str(selected),'version':version,
+                                   'sha256':hashlib.sha256(selected.read_bytes()).hexdigest()})
+          report={'qualification':False,'packages':packages,'binaries':binaries,
+                  'perf_event_paranoid':Path('/proc/sys/kernel/perf_event_paranoid').read_text().strip(),
+                  'diagnostic_worker_only':True}
+          Path('.test_output/stage2-emitter-controls/perf-provision.json').write_text(json.dumps(report,indent=2)+'\n')
+          assert binaries
+          selected=Path(binaries[-1]['path'])
+          with open(os.environ['GITHUB_PATH'],'a') as stream:stream.write(str(selected.parent)+'\n')
+          PYTOOLS
+      - name: Preserve the original Python prerequisite
+        run: |
+          python3 -c 'import yaml' 2>/dev/null && exit 0
+          python3 -m pip install --user pyyaml \
+            || python3 -m pip install --user --break-system-packages pyyaml
+          python3 -c 'import yaml'
+      - name: Materialize the pinned assembler profile inputs omitted by sparse checkout
+        run: |
+          python3 - <<'PY'
+          import gzip, hashlib, json, subprocess
+          from pathlib import Path
+          root=Path.cwd().resolve()
+          base=root/'docs/evidence/capture-complete-hosted-20261122'
+          manifest_path=base/'manifest.json'
+          read=lambda name:subprocess.check_output(['git','show','HEAD:'+str(name.relative_to(root))])
+          raw=read(manifest_path)
+          assert hashlib.sha256(raw).hexdigest()=='1e9c5d0da4b187f976607d487fcf8c6cdec203516060ac4d88c7817a6878c489'
+          base.mkdir(parents=True,exist_ok=True);manifest_path.write_bytes(raw)
+          manifest=json.loads(raw)
+          prefix='observer/hosted-fixed-45009129801/fixed-as246/'
+          names=['build.json','binutils-2.46.0.tar.xz','input-scrub-before.c',
+                 'input-scrub-fixed.c','bin/as','baseline-gas.sum','fixed-gas.sum',
+                 'witness/results.json']
+          names += ['witness/'+tool+'-'+case+'.o' for case in
+                    ['actual-markers','without-directory','without-predef','source-marker-only']
+                    for tool in ['baseline','fixed']]
+          records=[]
+          for name in names:
+              rows=[r for r in manifest['files'] if r['path']==prefix+name]
+              assert len(rows)==1
+              row=rows[0];path=(base/row['artifact']).resolve()
+              assert path.is_relative_to(root/'docs/evidence')
+              packed=read(path);data=gzip.decompress(packed)
+              assert len(packed)==row['compressed_bytes'] and len(data)==row['bytes']
+              assert hashlib.sha256(packed).hexdigest()==row['compressed_sha256']
+              assert hashlib.sha256(data).hexdigest()==row['sha256']
+              path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(packed)
+              records.append({'logical':row['path'],'path':str(path.relative_to(root)),
+                              'sha256':row['compressed_sha256']})
+          Path('.test_output/stage2-emitter-controls/retained-fixtures.json').write_text(json.dumps(records,indent=2)+'\n')
+          PY
+      - name: Select the original verified capture assembler
+        timeout-minutes: 90
+        uses: ./.github/actions/setup-capture-assembler
+      - name: Load only pinned observer code outside the product tree
+        env:
+          OBSERVER_REVISION: ${{ github.sha }}
+        run: |
+          git fetch --filter=blob:none --depth=1 origin "$OBSERVER_REVISION"
+          git fetch --filter=blob:none --depth=1 origin 51c82debb858145371cd9f28005d683e0e79184f
+          code="$RUNNER_TEMP/stage2-emitter-observer"
+          mkdir -p "$code/scripts" "$code/tests"
+          touch "$code/scripts/__init__.py"
+          git show "$OBSERVER_REVISION:scripts/ci_stage2_emitter_diagnostic.py" > "$code/scripts/ci_stage2_emitter_diagnostic.py"
+          git show "$OBSERVER_REVISION:scripts/stage2_cpu_sampler.py" > "$code/scripts/stage2_cpu_sampler.py"
+          git show "$OBSERVER_REVISION:tests/test_stage2_emitter_diagnostic.py" > "$code/tests/test_stage2_emitter_diagnostic.py"
+          git show 51c82debb858145371cd9f28005d683e0e79184f:scripts/ci_darwin_shadow_lifecycle.py > "$code/scripts/ci_darwin_shadow_lifecycle.py"
+          git show 51c82debb858145371cd9f28005d683e0e79184f:tests/test_cseed_shadow_lifecycle_restore.py > "$code/tests/test_cseed_shadow_lifecycle_restore.py"
+      - name: Calibrate process observation and cache restoration
+        timeout-minutes: 3
+        run: |
+          mkdir -p .test_output/stage2-emitter-controls
+          controls="$GITHUB_WORKSPACE/.test_output/stage2-emitter-controls"
+          cd "$RUNNER_TEMP/stage2-emitter-observer"
+          python3 -m unittest discover -s tests -v > "$controls/stdout" 2> "$controls/stderr"
+      - name: Observe the retained command at its original limit
+        timeout-minutes: 15
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 "$RUNNER_TEMP/stage2-emitter-observer/scripts/ci_stage2_emitter_diagnostic.py" \
+            --root "$GITHUB_WORKSPACE" \
+            --restore-helper "$RUNNER_TEMP/stage2-emitter-observer/scripts/ci_darwin_shadow_lifecycle.py" \
+            --sample-cpu
+      - name: Retain original inputs, calibration and terminal observation
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage2-emitter-diagnostic-${{ github.sha }}
+          path: |
+            .test_output/stage2-emitter-diagnostic/
+            .test_output/stage2-emitter-controls/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30

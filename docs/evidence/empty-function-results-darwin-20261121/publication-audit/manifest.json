@@ -1,0 +1,110 @@
+{
+  "scope": "I preserve uncalled empty-result C refusals and exact prior output on both original/fixed Linux/Darwin tools.",
+  "files": [
+    {
+      "path": ".test_output/empty-function-boundary-20261121/unreached-helper-audit.json",
+      "artifact": "00-unreached-helper-audit.json.gz",
+      "bytes": 1414,
+      "sha256": "4718bc25ed2b714771f2f90251bc78baac22ae1e5e8ddd13cd70be2f77e19822",
+      "compressed_sha256": "b1e18702b65f2fb82ed091f22c70be0cc026723c3b749a74ebd41129e32c4ede"
+    },
+    {
+      "path": ".test_output/empty-function-boundary-20261121/original-unreached-helper.c",
+      "artifact": "01-original-unreached-helper.c.gz",
+      "bytes": 26,
+      "sha256": "232fb1cb12fc196bca404687781f452219720cc788b776fee4ef9ae97ad8b2e9",
+      "compressed_sha256": "09ed470f54b47c3b85abd9079100d0cadd3bdcec17755cfa0e0956e9be2a0cee"
+    },
+    {
+      "path": ".test_output/empty-function-boundary-20261121/original-unreached-helper.stdout",
+      "artifact": "02-original-unreached-helper.stdout.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "path": ".test_output/empty-function-boundary-20261121/original-unreached-helper.stderr",
+      "artifact": "03-original-unreached-helper.stderr.gz",
+      "bytes": 197,
+      "sha256": "193dedde956e3953d35438d73f1b80608c2b70d5c1545e15526c44b4966fcf36",
+      "compressed_sha256": "feb674b228a761d018dd4a8a2c70a2ce660d2ea13b052eef443cd10a94203198"
+    },
+    {
+      "path": ".test_output/empty-function-boundary-20261121/fixed-unreached-helper.c",
+      "artifact": "04-fixed-unreached-helper.c.gz",
+      "bytes": 26,
+      "sha256": "232fb1cb12fc196bca404687781f452219720cc788b776fee4ef9ae97ad8b2e9",
+      "compressed_sha256": "09ed470f54b47c3b85abd9079100d0cadd3bdcec17755cfa0e0956e9be2a0cee"
+    },
+    {
+      "path": ".test_output/empty-function-boundary-20261121/fixed-unreached-helper.stdout",
+      "artifact": "05-fixed-unreached-helper.stdout.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "path": ".test_output/empty-function-boundary-20261121/fixed-unreached-helper.stderr",
+      "artifact": "06-fixed-unreached-helper.stderr.gz",
+      "bytes": 197,
+      "sha256": "193dedde956e3953d35438d73f1b80608c2b70d5c1545e15526c44b4966fcf36",
+      "compressed_sha256": "feb674b228a761d018dd4a8a2c70a2ce660d2ea13b052eef443cd10a94203198"
+    },
+    {
+      "path": ".test_output/empty-function-boundary-20261121/darwin-publication-audit.json",
+      "artifact": "07-darwin-publication-audit.json.gz",
+      "bytes": 1505,
+      "sha256": "a1e9eaa8c51729f8aa3b0fad8de80400298ff498e214e5aa3db548dc87f9c99f",
+      "compressed_sha256": "03d2eaec4ab82a1bf18a9588e305c7db3dd3ff31abbaa9fd18350e3d777359e1"
+    },
+    {
+      "path": ".test_output/empty-function-boundary-20261121/empty-function-results-20261121-publication-audit/fixed.stdout",
+      "artifact": "08-fixed.stdout.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "path": ".test_output/empty-function-boundary-20261121/empty-function-results-20261121-publication-audit/manifest.json",
+      "artifact": "09-manifest.json.gz",
+      "bytes": 1505,
+      "sha256": "a1e9eaa8c51729f8aa3b0fad8de80400298ff498e214e5aa3db548dc87f9c99f",
+      "compressed_sha256": "03d2eaec4ab82a1bf18a9588e305c7db3dd3ff31abbaa9fd18350e3d777359e1"
+    },
+    {
+      "path": ".test_output/empty-function-boundary-20261121/empty-function-results-20261121-publication-audit/original.c",
+      "artifact": "10-original.c.gz",
+      "bytes": 26,
+      "sha256": "232fb1cb12fc196bca404687781f452219720cc788b776fee4ef9ae97ad8b2e9",
+      "compressed_sha256": "09ed470f54b47c3b85abd9079100d0cadd3bdcec17755cfa0e0956e9be2a0cee"
+    },
+    {
+      "path": ".test_output/empty-function-boundary-20261121/empty-function-results-20261121-publication-audit/original.stdout",
+      "artifact": "11-original.stdout.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "path": ".test_output/empty-function-boundary-20261121/empty-function-results-20261121-publication-audit/original.stderr",
+      "artifact": "12-original.stderr.gz",
+      "bytes": 203,
+      "sha256": "ac1d19023905c459098704ac18815d7befff0d18e98be5269f6daa0be191299e",
+      "compressed_sha256": "5628e634a9160e87a8f0a2b850e71cecb88c6bba28288d383982b601f493a742"
+    },
+    {
+      "path": ".test_output/empty-function-boundary-20261121/empty-function-results-20261121-publication-audit/fixed.stderr",
+      "artifact": "13-fixed.stderr.gz",
+      "bytes": 203,
+      "sha256": "ac1d19023905c459098704ac18815d7befff0d18e98be5269f6daa0be191299e",
+      "compressed_sha256": "5628e634a9160e87a8f0a2b850e71cecb88c6bba28288d383982b601f493a742"
+    },
+    {
+      "path": ".test_output/empty-function-boundary-20261121/empty-function-results-20261121-publication-audit/fixed.c",
+      "artifact": "14-fixed.c.gz",
+      "bytes": 26,
+      "sha256": "232fb1cb12fc196bca404687781f452219720cc788b776fee4ef9ae97ad8b2e9",
+      "compressed_sha256": "09ed470f54b47c3b85abd9079100d0cadd3bdcec17755cfa0e0956e9be2a0cee"
+    }
+  ]
+}

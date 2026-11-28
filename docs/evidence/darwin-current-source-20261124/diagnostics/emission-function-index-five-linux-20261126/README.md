@@ -1,0 +1,17 @@
+# My function index during emission
+
+I build a private name index for one sequential classic module or shadow emission. I retain the first name ordinal and ascending duplicate links; owner and body metadata remain live. I clear the index at entry, exit and reset. Standalone lookups and unexpected list-length changes retain the scans. My audited lifetime, representation and preserved empty-print schedule are described in `docs/NANOISA_EMISSION_FUNCTION_INDEX.md`.
+
+My retained baseline and candidate contain identical support and new useful assertions. Only the candidate replaces the four production lookup/emission bodies. Reversing those bodies reproduces the baseline; removing the shared additions and private reset cleanup reproduces every original source byte. Baseline/candidate file SHA-256 values are `248175dabe3caafd6e3fe37547cbc6d2cce4b33271fe024b01da6e5d9ec111fc` / `418e9cd9ad88bf9469c618a60bd01d6a3806199dff86dd41d366c97d2bd7cd4f`.
+
+I bind exact source `771a14330475bcd784d7cb19a215d6a4f15728d4` with one declared file overlay per role. My genuine source producer is Stage2 SHA `8d7c240099edbe11cde499a268705f34660c2d940da4895378fc2a2961c886a5`, bound to the original passing bootstrap published at `08c223f945474f459364c24d5e8767e4ede1b0ab`. Its original native36 gate passes; its emitter12 setup exceeds 300 seconds. This comparison does not change that result.
+
+My standalone comparison completes 270 commands, ten controls and 240 complete report comparisons through C-seed native, C-producer VM/ASan+UBSan native, and NanoLang-producer VM/ASan+UBSan native in both roles. I retain 600-second builds, 60-second executions and ordinary ten-second shadows, with stock sanitizer/link flags.
+
+Each comparison fixture embeds its exact role implementation and one common harness. I retain the original fixture report body, assertions, 24 source/expected-hash pairs, and execute the identical new shadow bodies in the fixture entrypoint. These assertions cover duplicates, misses, case/prefix, changing owners, defined/first-external fallback, lexical indirect calls, aliases and growth, changed equal-size contexts, reset, failures and both emission boundaries. I reconstruct and hash the embedding; I do not call this an unchanged invocation of my permanent unittest.
+
+All 3,971 selected source inputs per role, tools, images, hosts, producer, fixtures, harness, driver and cleanup helper retain their guards. Fresh admission and actual adopted-child cleanup controls pass. No owned child remains. My collector refuses an actual nonterminal comparison before creating its archive. I inspect sixteen function bodies from the actual retained C translations without rebuilding and check the candidate index and cleanup calls.
+
+This is component acceptance. I establish no whole-compiler speedup, sole timeout cause, new bootstrap, original emitter repair, paired-platform acceptance or release completion. I still require a published comparison, a fresh exact-source original bootstrap and the original native36/emitter12 gates. C-owner defects, pure runtime emission/cutover and all 69 release requirements remain separate.
+
+Run `python3 read_archive.py` to verify my 11,046 archived records, exact Git inputs and reversals, source producer origin, fixtures, reports, deadlines, sanitizer flags, retained generated C, cleanup and guards. My manifest SHA-256 is `ad2870976cf26941a50ee7b392e8238b81c9612b5b4a71376658f80a5eed192a`.

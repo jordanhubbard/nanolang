@@ -1,0 +1,216 @@
+module nvm2c_affine_owners
+module "src_nano/nvm2c/affine_frame.nano" as frame
+module "src_nano/nvm2c/affine_state.nano" as state
+module "src_nano/nvm2c/affine_facts.nano" as facts
+module "src_nano/nvm2c/affine_scalar.nano" as scalar
+module "src_nano/nvm2c/affine_value_contract.nano" as values
+module "src_nano/nvm2c/ownership_queries.nano" as queries
+module "src_nano/nvm2c/ownership.nano" as owner
+module "src_nano/nvm2c/reference_places.nano" as places
+
+pub fn handles(opcode: int) -> bool {
+    return (or (and (>= opcode 11) (<= opcode 14)) (and (>= opcode 22) (<= opcode 31)))
+}
+shadow handles {
+    assert (handles 11) assert (handles 14) assert (handles 22) assert (handles 31)
+    assert (not (handles 10)) assert (not (handles 15)) assert (not (handles 21)) assert (not (handles 32))
+}
+
+fn reject(input: frame.Frame, message: string) -> scalar.Transition {
+    return scalar.Transition { handled: true, valid: false, frame: (frame.clone input), message: message }
+}
+shadow reject {
+    let input: frame.Frame = (frame.create (state.empty) 1)
+    let output: scalar.Transition = (reject input "refused")
+    (array_set output.frame.globals 0 15)
+    assert output.handled assert (not output.valid) assert (== output.message "refused")
+    assert (== (at input.globals 0) 9)
+}
+
+fn with_locals(input: frame.Frame, locals: state.State, consumed: int) -> frame.Frame {
+    let copied: frame.Frame = (frame.clone input)
+    return frame.Frame { locals: locals, stack: (array_slice copied.stack 0 (- (array_length copied.stack) consumed)),
+        globals: copied.globals, handlers: copied.handlers, floor: copied.floor, activation: copied.activation }
+}
+shadow with_locals {
+    let input: frame.Frame = (frame.create (state.empty) 1)
+    let output: frame.Frame = (with_locals input (state.empty) 0)
+    (array_set output.globals 0 15)
+    assert (== (at input.globals 0) 9)
+}
+
+fn accepted(input: frame.Frame, locals: state.State, consumed: int) -> scalar.Transition {
+    return scalar.Transition { handled: true, valid: true, frame: (with_locals input locals consumed), message: "" }
+}
+shadow accepted { assert (accepted (frame.create (state.empty) 0) (state.empty) 0).valid }
+
+fn pushed(input: frame.Frame, locals: state.State, consumed: int, item: frame.Value, message: string) -> scalar.Transition {
+    if (>= (- (array_length input.stack) consumed) 256) { return (reject input message) }
+    let output: frame.Frame = (with_locals input locals consumed)
+    return scalar.Transition { handled: true, valid: true, message: "", frame: frame.Frame {
+        locals: output.locals, stack: (array_push output.stack (frame.copy_value item)), globals: output.globals,
+        handlers: output.handlers, floor: output.floor, activation: output.activation } }
+}
+shadow pushed {
+    let input: frame.Frame = (frame.create (state.empty) 1)
+    let result: scalar.Transition = (pushed input (state.empty) 0 (frame.value 1 false 65535 false 4294967295 65535) "full")
+    assert result.valid assert (== (array_length result.frame.stack) 1)
+    assert (== (array_length input.stack) 0)
+    (array_set (at result.frame.stack 0).excluded 0 true)
+    assert (== (array_length input.stack) 0)
+}
+
+pub fn transfer(input: frame.Frame, opcode: int, a: int, b: int, c: int,
+    ownership: array<u8>, context: queries.Context) -> scalar.Transition {
+    if (not (handles opcode)) {
+        return scalar.Transition { handled: false, valid: false, frame: (frame.clone input), message: "" }
+    }
+    if (or (== opcode 22) (== opcode 23)) {
+        let mut changed: state.Transition = state.Transition { valid: false, changed: false, state: input.locals }
+        let mut error: string = "I cannot begin another reference region"
+        if (== opcode 22) { set changed (state.region_begin input.locals) }
+        else { set changed (state.region_end input.locals) set error "I need a live reference region to end" }
+        if (not changed.valid) { return (reject input error) }
+        return (accepted input changed.state 0)
+    }
+    if (or (== opcode 30) (== opcode 31)) {
+        let mut mode: int = 1
+        if (== opcode 31) { set mode 2 }
+        let changed: state.Transition = (state.reborrow input.locals a b mode)
+        if (not changed.valid) {
+            return (reject input "I require permitted parent authority and a fresh reborrow in a deeper region")
+        }
+        return (accepted input changed.state 0)
+    }
+    if (or (or (== opcode 24) (== opcode 25)) (or (== opcode 28) (== opcode 29))) {
+        let exclusive: bool = (or (== opcode 25) (== opcode 29))
+        let mut path: array<int> = []
+        if (or (== opcode 28) (== opcode 29)) {
+            let found: queries.Query = (queries.path ownership context c 32 true true)
+            if (!= found.status 0) { return (reject input "I require a retained bounded ownership path") }
+            set path found.fields
+        }
+        if (and exclusive (frame.observes_owner input b)) {
+            return (reject input "I cannot borrow exclusively while an owner observation is on my stack")
+        }
+        let mut mode: int = 1
+        if exclusive { set mode 2 }
+        let changed: state.Transition = (state.borrow_local input.locals a b path mode)
+        if (not changed.valid) {
+            return (reject input "I require an available scalar-leaf resource owner and reference slot in a live region")
+        }
+        return (accepted input changed.state 0)
+    }
+    if (or (== opcode 26) (== opcode 27)) {
+        let field: state.Query = (state.reference_field input.locals a b (== opcode 27))
+        if (not field.valid) { return (reject input "I require a live permitted scalar reference field") }
+        if (== opcode 27) {
+            let removed: frame.Join = (frame.pop_scalar input field.value.tag)
+            if (not removed.valid) { return (reject input "I require the exact scalar reference field type") }
+            return scalar.Transition { handled: true, valid: true, frame: removed.frame, message: "" }
+        }
+        return (pushed input (state.clone input.locals) 0 (frame.value field.value.tag false 65535 false 4294967295 65535) "I cannot extend my analysis stack")
+    }
+    if (== opcode 11) {
+        if (frame.observes_owner input a) { return (reject input "I cannot move while an owner observation is on my stack") }
+        let arm: state.Query = (state.union_variant input.locals a)
+        let item: state.Query = (state.local_type input.locals a)
+        let changed: state.Transition = (state.take_local input.locals a)
+        if (or (not changed.valid) (not item.valid)) { return (reject input "I require a live unheld owner for an explicit move") }
+        let mut variant: int = 65535
+        if arm.valid { set variant arm.number }
+        return (pushed input changed.state 0 (frame.value item.value.tag false 65535 true item.value.layout variant) "I cannot extend my owned analysis stack")
+    }
+    let total: int = (array_length input.stack)
+    if (== opcode 12) {
+        if (== total 0) { return (reject input "I require an owned token for an explicit store") }
+        let item: frame.Value = (at input.stack (- total 1))
+        if (not item.owned) { return (reject input "I require an owned token for an explicit store") }
+        let mut changed: state.Transition = (state.put_local input.locals a (facts.slot item.tag item.layout))
+        if (not changed.valid) { return (reject input "I require an exact available owner destination") }
+        if (and (== item.tag 10) (!= item.variant 65535)) {
+            set changed (state.refine_union changed.state a item.variant)
+            if (not changed.valid) { return (reject input "I require the stored union's exact selected arm") }
+        }
+        return (accepted input changed.state 1)
+    }
+    if (== opcode 13) {
+        if (not (state.type_owned input.locals (facts.slot 8 a))) {
+            return (reject input "I require every declared field for owned construction")
+        }
+        let fields: state.Query = (state.record_fields input.locals a 256 true)
+        if (or (not fields.valid) (> fields.number total)) {
+            return (reject input "I require every declared field for owned construction")
+        }
+        for index in (range 0 fields.number) {
+            if (not (values.field_matches input.locals (at input.stack (+ (- total fields.number) index)) (at fields.values index))) {
+                return (reject input "I require exact scalar or owned fields in declaration order")
+            }
+        }
+        return (pushed input (state.clone input.locals) fields.number (frame.value 8 false 65535 true a 65535) "I cannot extend my owned analysis stack")
+    }
+    if (frame.observes_owner input a) { return (reject input "I cannot unpack while an owner observation is on my stack") }
+    let item: state.Query = (state.local_type input.locals a)
+    let fields: state.Query = (state.owned_local_fields input.locals a 256 true)
+    if (or (not item.valid) (or (not fields.valid) (> (+ total fields.number) 256))) {
+        return (reject input "I require an intact owner and space for all unpacked fields")
+    }
+    let changed: state.Transition = (state.take_local input.locals a)
+    if (not changed.valid) { return (reject input "I require an intact owner and space for all unpacked fields") }
+    let output: frame.Frame = (with_locals input changed.state 0)
+    let mut stack: array<frame.Value> = output.stack
+    for index in (range 0 fields.number) {
+        let field: facts.Slot = (at fields.values index)
+        set stack (array_push stack (frame.value field.tag false 65535 (state.type_owned input.locals field) field.layout 65535))
+    }
+    return scalar.Transition { handled: true, valid: true, message: "", frame: frame.Frame {
+        locals: output.locals, stack: stack, globals: output.globals, handlers: output.handlers,
+        floor: output.floor, activation: output.activation } }
+}
+
+fn sample() -> frame.Frame {
+    let f: facts.Facts = facts.Facts { valid: true, analysis: 1, module_identity: 1, function: 0,
+        rows: [places.Layout { kind: 0, fields_present: true, fields: [places.Field { tag: 1, nested: 4294967295 }] }],
+        flags: [3], locals: [(facts.slot 8 0), (facts.slot 8 0)], result: (facts.slot 0 4294967295),
+        parameters: 1, result_count: 0, result_tag: 0, arrays: [], variants: [], effects: [] }
+    return (frame.create (state.create f 2) 1)
+}
+shadow sample { assert (at (sample).locals.live 0) assert (not (at (sample).locals.live 1)) }
+
+shadow transfer {
+    let input: frame.Frame = (sample)
+    let context: queries.Context = queries.Context { present: false, ownership_present: false, layouts_present: false,
+        model: owner.Module { layouts: [], code: [], strings: [], functions: [], params: [], results: [], records: 0, enums: 0, unions: 0 } }
+    let moved: scalar.Transition = (transfer input 11 0 0 0 [] context)
+    assert moved.valid assert (at input.locals.live 0) assert (not (at moved.frame.locals.live 0))
+    assert (at moved.frame.stack 0).owned
+    let stored: scalar.Transition = (transfer moved.frame 12 1 0 0 [] context)
+    assert stored.valid assert (at stored.frame.locals.live 1) assert (== (array_length stored.frame.stack) 0)
+    let unpacked: scalar.Transition = (transfer stored.frame 14 1 0 0 [] context)
+    assert unpacked.valid assert (not (at unpacked.frame.locals.live 1)) assert (== (at unpacked.frame.stack 0).tag 1)
+    let packed: scalar.Transition = (transfer unpacked.frame 13 0 0 0 [] context)
+    assert packed.valid assert (at packed.frame.stack 0).owned
+    let restored: scalar.Transition = (transfer packed.frame 12 0 0 0 [] context)
+    assert restored.valid assert (at restored.frame.locals.live 0)
+    let begun: scalar.Transition = (transfer input 22 0 0 0 [] context)
+    assert begun.valid assert (== (at begun.frame.locals.control 0) 1)
+    let held: scalar.Transition = (transfer begun.frame 25 1 0 0 [] context)
+    assert held.valid assert (at held.frame.locals.references 1).live
+    let read: scalar.Transition = (transfer held.frame 26 1 0 0 [] context)
+    assert read.valid assert (== (at read.frame.stack 0).tag 1)
+    let wrote: scalar.Transition = (transfer read.frame 27 1 0 0 [] context)
+    assert wrote.valid assert (== (array_length wrote.frame.stack) 0)
+    let nested: scalar.Transition = (transfer held.frame 22 0 0 0 [] context)
+    let child: scalar.Transition = (transfer nested.frame 30 0 1 0 [] context)
+    assert child.valid assert (== (at child.frame.locals.references 0).parent 1)
+    let blocked: scalar.Transition = (transfer child.frame 27 1 0 0 [] context)
+    assert (not blocked.valid) assert (== blocked.message "I require a live permitted scalar reference field")
+    let ended: scalar.Transition = (transfer child.frame 23 0 0 0 [] context)
+    assert ended.valid assert (not (at ended.frame.locals.references 0).live)
+    let released: scalar.Transition = (transfer ended.frame 23 0 0 0 [] context)
+    assert released.valid assert (not (at released.frame.locals.references 1).live)
+    assert (== (at input.locals.control 0) 0) assert (not (at input.locals.references 1).live)
+    assert (not (transfer input 10 0 0 0 [] context).handled)
+    (array_set moved.frame.globals 0 15)
+    assert (== (at input.globals 0) 9)
+}

@@ -1,0 +1,47 @@
+module "src_nano/nvm2c/stack_types.nano" as types
+module "src_nano/nvm2c/container.nano" as wire
+module "src_nano/nvm2c/isa_metadata.nano" as isa
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+fn describe(bytes: array<u8>) -> string {
+    if (< (array_length bytes) 24) { return "D" }
+    let mode: int = (wire.read_u32 bytes 20)
+    if (== mode 1) {
+        let opcode: int = (wire.read_u32 bytes 0)
+        let item: types.Rule = (types.rule opcode)
+        let mut report: string = "R:0:"
+        if item.typed { set report "R:1:" }
+        set report (+ report (+ (int_to_string (array_length item.required)) (+ ":" (+ (int_to_string item.result) (+ ":" (int_to_string item.produces))))))
+        let mut i: int = 0
+        while (< i 3) {
+            let mut tag: int = 0
+            if (< i (array_length item.required)) { set tag (at item.required i) }
+            set report (+ report (+ ":" (int_to_string tag)))
+            set i (+ i 1)
+        }
+        return (+ report (+ ":" (isa.primary_name opcode)))
+    }
+    let functions: int = (wire.read_u32 bytes 8)
+    if (or (!= mode 0) (or (== functions 0) (> functions 65536))) { return "D" }
+    let result: types.Result = (types.verify (array_slice bytes 24 (- (array_length bytes) 24))
+        (wire.read_u32 bytes 0) (wire.read_u32 bytes 4) functions (wire.read_u32 bytes 12) (wire.read_u32 bytes 16))
+    if (not result.decoded) { return "D" }
+    if result.valid { return "1" }
+    return (+ "0:" result.message)
+}
+shadow describe {
+    assert (== (describe []) "D")
+    let empty: array<u8> = [0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    assert (== (describe empty) "1")
+}
+fn main() -> int {
+    unsafe {
+        let mut i: int = 1
+        while (< i (get_argc)) {
+            (println (describe (file_read_bytes (get_argv i))))
+            set i (+ i 1)
+        }
+    }
+    return 0
+}

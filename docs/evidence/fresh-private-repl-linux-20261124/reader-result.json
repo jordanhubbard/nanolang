@@ -1,0 +1,21 @@
+{
+  "result": "PASS",
+  "source": "8949313b0a56c0c3bd52509fb363edb4eefba3e4",
+  "records": 4674,
+  "git_inputs": 3520,
+  "native_images": 30,
+  "source_guards": 3388,
+  "private_methods_per_profile": 41,
+  "private_profiles": 3,
+  "private_native_sessions": 186,
+  "default_methods": 7,
+  "retained_default_failures": 3,
+  "retained_default_leak_bytes": [
+    168,
+    172,
+    172
+  ],
+  "default_ownership_enabled": false,
+  "full_compiler_source": false,
+  "whole_release": false
+}

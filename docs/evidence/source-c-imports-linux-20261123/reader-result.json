@@ -1,0 +1,15 @@
+{
+  "result": "PASS",
+  "source": "c93263c64f6d5dd1db0e856284d76f1c8e0fa131",
+  "records": 14924,
+  "git_inputs": 3518,
+  "unique_artifacts": 5907,
+  "native_images": 504,
+  "frozen_inputs": 3500,
+  "public_c_methods": 66,
+  "public_c_commands": 685,
+  "strict_consumer_commands": 207,
+  "full_source_acceptance": false,
+  "paired_platform": false,
+  "whole_release": false
+}

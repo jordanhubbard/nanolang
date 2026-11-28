@@ -1,0 +1,108 @@
+# I preserve borrowed strings while retiring fresh expression references.
+struct StringScopeBox { text: string }
+union StringScopeResult { Ok { text: string }, Err { code: int } }
+
+fn string_scope_return(value: string) -> string {
+    return value
+}
+shadow string_scope_return { assert (== (string_scope_return "caller") "caller") }
+
+fn string_scope_bindings() -> int {
+    let mut first: string = "before"
+    let alias: string = first
+    set first "after"
+    assert (== alias "before")
+    set first alias
+    assert (== first "before")
+    if true {
+        let returned: string = (string_scope_return first)
+        assert (== returned "before")
+    }
+    let box: StringScopeBox = StringScopeBox { text: alias }
+    let mut picked: string = box.text
+    set picked "changed"
+    assert (== box.text "before")
+    let pair: (string, int) = (alias, 7)
+    let projected: string = pair.0
+    assert (== projected "before")
+    let result: StringScopeResult = StringScopeResult.Ok { text: alias }
+    let unwrapped: string = (result_unwrap result)
+    assert (== unwrapped "before")
+    return (+ (str_length alias) (str_length picked))
+}
+shadow string_scope_bindings { assert (== (string_scope_bindings) 13) }
+
+fn string_scope_owner_rebind() -> int {
+    let mut box: StringScopeBox = StringScopeBox { text: "before" }
+    set box StringScopeBox { text: "fresh" }
+    assert (== box.text "fresh")
+    let borrowed: string = "caller"
+    set box StringScopeBox { text: borrowed }
+    assert (== box.text "caller")
+    assert (== borrowed "caller")
+    return (str_length box.text)
+}
+shadow string_scope_owner_rebind { assert (== (string_scope_owner_rebind) 6) }
+
+fn string_scope_helpers() -> int {
+    let text: string = " Before "
+    assert (== (str_concat text "after") " Before after")
+    assert (== (str_substring text 1 6) "Before")
+    assert (== (str_trim text) "Before")
+    assert (== (str_trim_left text) "Before ")
+    assert (== (str_trim_right text) " Before")
+    assert (== (str_to_lower text) " before ")
+    assert (== (str_to_upper text) " BEFORE ")
+    assert (== (str_replace text "Before" "After") " After ")
+    assert (== text " Before ")
+    return (str_length text)
+}
+shadow string_scope_helpers { assert (== (string_scope_helpers) 8) }
+
+fn string_scope_loop() -> int {
+    let mut total: int = 0
+    for text in ["left", "right"] {
+        let alias: string = text
+        assert (== alias text)
+        set total (+ total (str_length alias))
+        (str_concat text "")
+        (to_string text)
+    }
+    let mut index: int = 0
+    while (< index 16) {
+        set index (+ index 1)
+        (string_scope_return "last")
+    }
+    return total
+}
+shadow string_scope_loop { assert (== (string_scope_loop) 9) }
+
+let mut string_scope_global: string = "before"
+fn string_scope_change() -> string {
+    set string_scope_global "after"
+    return "!"
+}
+shadow string_scope_change { set string_scope_global "before" assert (== (string_scope_change) "!") }
+fn string_scope_sibling() -> int {
+    set string_scope_global "before"
+    let combined: string = (+ string_scope_global (string_scope_change))
+    assert (== combined "before!")
+    assert (== string_scope_global "after")
+    return (str_length combined)
+}
+shadow string_scope_sibling { assert (== (string_scope_sibling) 7) }
+
+fn string_scope_pair(left: string, right: string) -> int {
+    assert (== left "before")
+    assert (== right "!")
+    return (+ (str_length left) (str_length right))
+}
+shadow string_scope_pair { set string_scope_global "before" assert (== (string_scope_pair string_scope_global (string_scope_change)) 7) }
+fn string_scope_argument() -> int {
+    set string_scope_global "before"
+    return (string_scope_pair string_scope_global (string_scope_change))
+}
+shadow string_scope_argument { assert (== (string_scope_argument) 7) }
+
+fn main() -> int { return (string_scope_bindings) }
+shadow main { assert (== (main) 13) }

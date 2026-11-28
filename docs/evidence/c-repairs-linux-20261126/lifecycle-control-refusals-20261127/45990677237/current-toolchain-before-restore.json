@@ -1,0 +1,28 @@
+{
+  "developer_dir": "/Applications/Xcode_27.2.0.app/Contents/Developer",
+  "sdk_root": "/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+  "sdk_version": "27.2",
+  "sdk_resolved": "/Applications/Xcode_27.2.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+  "sdk_settings_sha256": "82165b15ee21419d4cffaba8895797391b908ac9499ba70f561f3e1bd16758d6",
+  "tools": {
+    "clang": {
+      "path": "/Applications/Xcode_27.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "sha256": "04988adaddb282c8c074a1a55f8221452f18f64df3ca0006135f62031710377b"
+    },
+    "as": {
+      "path": "/Applications/Xcode_27.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/as",
+      "sha256": "06770364632b454317238e79d670c094e27301c7322c3a488323bd42e4d0bcbc"
+    }
+  },
+  "wrappers": {
+    "cc": {
+      "path": "/Users/runner/work/nanolang/nanolang/.test_output/retirement/selected-tools/cc",
+      "sha256": "28ce03503938ac0a13ddd9126e44929807c48327119e820cfc8835fd1d97a6a0"
+    },
+    "clang": {
+      "path": "/Users/runner/work/nanolang/nanolang/.test_output/retirement/selected-tools/clang",
+      "sha256": "28ce03503938ac0a13ddd9126e44929807c48327119e820cfc8835fd1d97a6a0"
+    }
+  },
+  "version": "Apple clang version 21.0.0 (clang-2100.4.1.1)\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /Applications/Xcode_27.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n"
+}

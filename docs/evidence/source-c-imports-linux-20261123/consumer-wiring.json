@@ -1,0 +1,18 @@
+{
+  "source_pin": "c93263c64f6d5dd1db0e856284d76f1c8e0fa131",
+  "tested_target": "test-source-c-imports",
+  "tested_target_exit": 0,
+  "old_collection": "test-units: test-source-c-graph-api",
+  "new_collection": "test-units: test-source-c-imports",
+  "only_recipe_edge_changed": true,
+  "source_sha256": {
+    "src/main.c": "50f3f09f8c30f9db6a9c8a9450c42f42e2b5bf14bd260db9bf698636d14f0a92",
+    "src/c_backend.c": "027c7696ebf0ed4c3f4ea1e39ad78c2a183f40f7b964b78b7449149d91a4326b",
+    "src/c_backend.h": "a2c309bb3cd512622774140b255edc333335c8f3e113bc653a34a79e2dda7862",
+    "src/c_backend_values.inc": "a0c584d552cc572b775f3d3427489ce3e9e3ec245b72c35b97b0032ddafb9cb3",
+    "tests/test_source_c_imports.py": "131f36aefae0e6359898d90f2c1bfb348f3280a629807f929d5e3d9fed1721dd",
+    "tests/test_source_c_graph_api.c": "b1de58eb05dd2696ce93f2066b470b5fd9253fe67ed21a9f081deaa424acec83"
+  },
+  "makefile_sha256": "90b1a4c724c59dd3782f22e6915809ea1d021e62f5711a29079e45318724048f",
+  "compressed_sha256": "86ffd84bb0b149230072e96b38d0109b96ee49531192f7a06a818ad6be103fb8"
+}

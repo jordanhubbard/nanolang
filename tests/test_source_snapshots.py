@@ -15,6 +15,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from tests import test_module_cache_publication as cache
 from tests.characterize_source_snapshot import measure, require_consistent
+from tests.assembler_search_fixture import pkg_config_script
 
 
 class SourceSnapshots(unittest.TestCase):
@@ -162,8 +163,8 @@ class SourceSnapshots(unittest.TestCase):
     def test_supported_assembler_version_line(self):
         if not sys.platform.startswith("linux"): self.skipTest("I select GNU assembler replay only on Linux")
         accepted = ["GNU assembler (GNU Binutils for Debian) 2.40\nCopyright text\n",
-                    "GNU assembler (GNU Binutils for Ubuntu) 2.42\nCopyright text\n"]
-        rejected = ["GNU assembler (GNU Binutils) 2.41\n", "GNU assembler (GNU Binutils) 2.43\n",
+                    "GNU assembler (GNU Binutils for Ubuntu) 2.42\nCopyright text\n", "GNU assembler (GNU Binutils for NanoLang retained capture r1) 2.46.0.20260210\nCopyright text\n"]
+        rejected = ["GNU assembler (GNU Binutils for NanoLang retained capture r2) 2.46.0.20260210\n", "GNU assembler (GNU Binutils for NanoLang retained capture r1) 2.46.0.20260210", "GNU assembler (GNU Binutils) 2.46.0.20260210\n", "GNU assembler (GNU Binutils for Ubuntu) 2.46\n", "GNU assembler (GNU Binutils) 2.41\n", "GNU assembler (GNU Binutils) 2.43\n",
                     "GNU assembler (GNU Binutils) 2.42.1\n", "GNU assembler (GNU Binutils) 2.420\n",
                     "GNU assembler (GNU Binutils) 2.42", "GNU ld (GNU Binutils) 2.42\n",
                     "GNU assembler (GNU Binutils) 9.99\nPrevious version 2.42\n",
@@ -707,6 +708,8 @@ class SourceSnapshots(unittest.TestCase):
                     with self.subTest(shared_unit=shared_unit, shared_cache=shared_cache, suffix=suffix), tempfile.TemporaryDirectory(prefix="nano=native-timing-" if equals_paths else "nano-native-timing-") as tmp:
                         root = Path(tmp)
                         module, _, env = self.support.support.foreign_build_fixture(root)
+                        if sys.platform == "linux" and not integrated:
+                            env["NANO_AS_CAPTURE_HELPER"] = str(cache.ROOT / "bin/nano_as_capture.so")
                         if shared_cache: env["NANO_BUILD_CACHE"] = str(root / "cache")
                         payload = module / "payload.bin"
                         payload.write_bytes(b"*")
@@ -723,7 +726,8 @@ class SourceSnapshots(unittest.TestCase):
                         (module / "module.json").write_text(json.dumps(metadata))
                         marker, restored = root / "mutated", root / "restored"
                         wrapper = root / "cc-wrapper"
-                        native_name = f"__native_unit_{1 if shared_unit else 0}_{0 if shared_unit else 1}.o"
+                        native_prefix = "__as_capture" if sys.platform == "linux" and not integrated else "__native_unit"
+                        native_name = f"{native_prefix}_{1 if shared_unit else 0}_{0 if shared_unit else 1}.o"
                         wrapper.write_text(f'''#!{sys.executable}
 import os, pathlib, subprocess, sys
 marker, restored = pathlib.Path({str(marker)!r}), pathlib.Path({str(restored)!r})
@@ -1349,7 +1353,7 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                     metadata["pkg_config"] = [f"assembler-search-fixture-{i}" for i in range(len(package_flags))]
                     pkg = directory / "pkg-config"
                     mapping = dict(zip(metadata["pkg_config"], package_flags))
-                    pkg.write_text(f'#!{sys.executable}\nimport sys\nif "--cflags" in sys.argv: print({mapping!r}[sys.argv[-1]])\n')
+                    pkg.write_text(pkg_config_script(mapping))
                     pkg.chmod(0o700)
                     env["PKG_CONFIG"] = str(pkg)
                 # I also exercise the guarded linker query with assembler operands.
@@ -1383,7 +1387,7 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                 wrapper.write_text(f'#!{sys.executable}\nimport json,os,pathlib,sys,time\n'
                     f'with open({str(calls)!r}, "a") as log: log.write(json.dumps(sys.argv[1:]) + "\\n")\n'
                     f'marker=pathlib.Path({str(delayed)!r})\n'
-                    'if os.getenv("NANO_TEST_SLOW_RECOVERY") and "-###" in sys.argv and not marker.exists():\n'
+                    'if os.getenv("NANO_TEST_SLOW_RECOVERY") and any(a in sys.argv for a in ("-###", "-print-prog-name=as")) and not marker.exists():\n'
                     f'    marker.touch()\n    time.sleep({recovery_delay!r})\n'
                     f'os.execv({shutil.which("cc")!r}, [{shutil.which("cc")!r}] + sys.argv[1:])\n')
                 wrapper.chmod(0o700)
@@ -2378,8 +2382,12 @@ os.execv({shutil.which("cc")!r}, [{shutil.which("cc")!r}] + sys.argv[1:])
         accepted_reports.append(debian + command)
         apple15 = banner.replace("21.0.0", "15.0.0")
         ubuntu18 = debian.replace("Debian clang version 14.0.6", "Ubuntu clang version 18.1.3 (1ubuntu1)")
-        accepted_reports.extend((apple15 + command, ubuntu18 + command))
-        reports = accepted_reports + [apple15.replace("15.0.0", "15.0.01") + command,
+        ubuntu21 = debian.replace("Debian clang version 14.0.6", "Ubuntu clang version 21.1.8 (6ubuntu1)")
+        accepted_reports.extend((apple15 + command, ubuntu18 + command, ubuntu21 + command))
+        reports = accepted_reports + [ubuntu21.replace("21.1.8", "21.1.80") + command,
+                   ubuntu21.replace("(6ubuntu1)", "(6ubuntu2)") + command,
+                   ubuntu21 + command + command,
+                   apple15.replace("15.0.0", "15.0.01") + command,
                    ubuntu18.replace("18.1.3", "18.1.30") + command,
                    ubuntu18.replace("(1ubuntu1)", "(1ubuntu2)") + command,
                    ubuntu18 + command + command] + ["", banner, command, accepted + command, accepted + "unexpected command\n",

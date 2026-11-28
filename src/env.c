@@ -1,4 +1,5 @@
 #include "nanolang.h"
+#include "eval/carrier_runtime.h"
 #include "checked_borrow_facts.h"
 #include "nanoisa/file_source_snapshot.h"
 #include "service_namespace.h"
@@ -200,14 +201,135 @@ static Function *function_named(Environment *env, const char *name,
     return first;
 }
 
+/* I bind imported spellings to stable declaring slots, never table pointers.
+ * I index owner/name queries independently of declaration and insertion order. */
+typedef struct EnvFunctionBinding {
+    char *name;
+    char *owner;
+    int target;
+    uint64_t hash;
+    struct EnvFunctionBinding *next;
+    struct EnvFunctionBinding *bucket_next;
+} EnvFunctionBinding;
+
+struct EnvFunctionImport {
+    EnvFunctionBinding *entries;
+    EnvFunctionBinding **buckets;
+    size_t count;
+    size_t capacity;
+};
+
+static bool function_owner_matches(const char *left, const char *right) {
+    return (!left && !right) || (left && right && !strcmp(left, right));
+}
+
+static uint64_t function_import_hash(const char *name, const char *owner) {
+    uint64_t owner_hash = owner ? symbol_name_hash(owner) : UINT64_C(0x9e3779b97f4a7c15);
+    return symbol_name_hash(name) ^ ((owner_hash << 1) | (owner_hash >> 63));
+}
+
+static EnvFunctionBinding *function_import_binding(Environment *env, const char *name, const char *owner) {
+    struct EnvFunctionImport *table = env->function_imports;
+    if (!table) return NULL;
+    uint64_t hash = function_import_hash(name, owner);
+    for (EnvFunctionBinding *entry = table->buckets[hash & (table->capacity - 1)];
+         entry; entry = entry->bucket_next) {
+        if (entry->hash == hash && function_owner_matches(entry->owner, owner) &&
+            !strcmp(entry->name, name)) return entry;
+    }
+    return NULL;
+}
+
+static Function *function_imported(Environment *env, const char *name, const char *owner) {
+    EnvFunctionBinding *entry = function_import_binding(env, name, owner);
+    return entry ? &env->functions[entry->target] : NULL;
+}
+
+Function *env_get_function_owned(Environment *env, const char *name, const char *owner) {
+    Function *local = function_named(env, name, owner, true, false, 0, 0);
+    if (local && (local->body || local->is_extern)) return local;
+    Function *imported = function_imported(env, name, owner);
+    return imported ? imported : local;
+}
+
+bool env_import_function(Environment *env, const char *name, Function *target) {
+    if (!env || !name || !target) return false;
+    int slot = (int)(target - env->functions);
+    if (slot < 0 || slot >= env->function_count) return false;
+    EnvFunctionBinding *prior = function_import_binding(env, name, env->current_module);
+    if (prior) return prior->target == slot;
+    struct EnvFunctionImport *table = env->function_imports;
+    if (!table) {
+        table = calloc(1, sizeof *table);
+        if (!table) return false;
+        table->capacity = 16;
+        table->buckets = calloc(table->capacity, sizeof *table->buckets);
+        if (!table->buckets) { free(table); return false; }
+        env->function_imports = table;
+    }
+    if (table->count == SIZE_MAX) return false;
+    if (table->count / 2 >= table->capacity) {
+        if (table->capacity > SIZE_MAX / 2 / sizeof *table->buckets) return false;
+        size_t capacity = table->capacity * 2;
+        EnvFunctionBinding **buckets = calloc(capacity, sizeof *buckets);
+        if (!buckets) return false;
+        for (EnvFunctionBinding *entry = table->entries; entry; entry = entry->next) {
+            size_t bucket = entry->hash & (capacity - 1);
+            entry->bucket_next = buckets[bucket];
+            buckets[bucket] = entry;
+        }
+        free(table->buckets);
+        table->buckets = buckets;
+        table->capacity = capacity;
+    }
+    EnvFunctionBinding *entry = calloc(1, sizeof *entry);
+    if (!entry) return false;
+    entry->name = strdup(name);
+    entry->owner = env->current_module ? strdup(env->current_module) : NULL;
+    if (!entry->name || (env->current_module && !entry->owner)) {
+        free(entry->name); free(entry->owner); free(entry); return false;
+    }
+    entry->target = slot;
+    entry->hash = function_import_hash(name, env->current_module);
+    size_t bucket = entry->hash & (table->capacity - 1);
+    entry->bucket_next = table->buckets[bucket];
+    table->buckets[bucket] = entry;
+    entry->next = table->entries;
+    table->entries = entry;
+    table->count++;
+    return true;
+}
+
+bool env_import_module_functions(Environment *env, const char *owner) {
+    /* I preserve legacy first-import precedence and implicit module exports.
+     * Explicit selective aliases below still reject conflicting targets. */
+    for (int i = 0; i < env->function_count; ++i) {
+        Function *target = &env->functions[i];
+        if (!function_owner_matches(target->module_name, owner) ||
+            (!target->body && !target->is_extern)) continue;
+        if (!env_get_function_owned(env, target->name, env->current_module) &&
+            !env_import_function(env, target->name, target)) return false;
+    }
+    /* Newly inserted entries belong to my caller, not this target module. */
+    struct EnvFunctionImport *table = env->function_imports;
+    EnvFunctionBinding *first = table ? table->entries : NULL;
+    for (EnvFunctionBinding *entry = first; entry; entry = entry->next) {
+        if (!function_owner_matches(entry->owner, owner)) continue;
+        if (!env_get_function_owned(env, entry->name, env->current_module) &&
+            !env_import_function(env, entry->name, &env->functions[entry->target])) return false;
+    }
+    return true;
+}
+
 /* I retain checker allocations independently of mutable symbol/function slots.
- * Every registered block is unique and shallowly freed; borrowed subgraphs are
- * never traversed. This deliberately does not change runtime value ownership. */
+ * Untyped blocks are shallowly freed. Only explicitly copied TypeInfo roots
+ * use recursive retirement; ordinary borrowed AST annotations stay borrowed. */
 struct EnvCheckerAllocation {
     void *allocation;
+    void (*release)(void *);
     struct EnvCheckerAllocation *next;
 };
-void *env_own_checker_allocation(Environment *env, void *allocation) {
+static void *own_checker_payload(Environment *env, void *allocation, void (*release)(void *)) {
     if (!allocation) return NULL;
     struct EnvCheckerAllocation *entry = malloc(sizeof *entry);
     if (!entry) {
@@ -215,9 +337,20 @@ void *env_own_checker_allocation(Environment *env, void *allocation) {
         exit(1);
     }
     entry->allocation = allocation;
+    entry->release = release;
     entry->next = env->checker_allocations;
     env->checker_allocations = entry;
     return allocation;
+}
+
+void *env_own_checker_allocation(Environment *env, void *allocation) {
+    return own_checker_payload(env, allocation, free);
+}
+static void release_checker_type_info(void *allocation) {
+    free_payload_type_info(allocation);
+}
+TypeInfo *env_own_checker_type_info(Environment *env, TypeInfo *info) {
+    return own_checker_payload(env, info, release_checker_type_info);
 }
 
 /* Create environment */
@@ -293,6 +426,11 @@ Environment *create_environment(void) {
     return env;
 }
 
+/* I distinguish non-owning views from the bindings that retire storage. */
+static bool env_type_borrows_value(Type type) {
+    return type == TYPE_BORROW_SHARED || type == TYPE_BORROW_MUT;
+}
+
 static void env_free_value(Value v) {
     if (v.type == VAL_STRING) {
         /* Release GC-managed string if applicable */
@@ -320,6 +458,10 @@ static void env_free_value(Value v) {
                 } else {
                     free(sv->field_values[j].as.string_val);
                 }
+            } else if (sv->field_values[j].type == VAL_FUNCTION) {
+                /* I own direct callable copies in normalized record bindings.
+                 * Nested records and raw array carriers retain their old policy. */
+                env_free_value(sv->field_values[j]);
             }
         }
         release_struct_carrier_names(sv);
@@ -338,6 +480,11 @@ static void env_free_value(Value v) {
     }
 }
 
+/* I defer only explicitly registered binding storage to its owner. */
+static void env_release_binding_value(Environment *env, Value value) {
+    if (!env_carrier_owns(env, value)) env_free_value(value);
+}
+
 /* ── Alias-safe static-array reclamation ─────────────────────────────────
  * Static arrays are owned by the interpreter environment, not by one binding:
  * a container and its owned record/string elements can be referenced from
@@ -354,7 +501,7 @@ typedef struct {
 static size_t s_static_array_reclaims;
 
 size_t env_static_array_reclaim_count(void) {
-    return s_static_array_reclaims;
+    return s_static_array_reclaims + nl_carrier_values_reclaimed_arrays();
 }
 
 /* The type checker owns a few placeholder arrays through the explicit checker
@@ -471,16 +618,31 @@ static void env_release_value_arrays(EnvArrayReclaim *ctx, Value v) {
 }
 
 void env_reclaim_static_arrays(Environment *env) {
-    if (!env) return;
+    if (!env || env_carrier_enabled(env)) return;
     EnvArrayReclaim ctx;
     memset(&ctx, 0, sizeof ctx);
     for (int i = 0; i < env->symbol_count; i++) {
+        if (env_type_borrows_value(env->symbols[i].type)) continue;
         Value v = env->symbols[i].value;
         if (v.type == VAL_ARRAY && env_is_checker_allocation(env, v.as.array_val))
             continue;
         env_release_value_arrays(&ctx, v);
     }
     free(ctx.freed);
+}
+
+/* I clear variable owners between evaluations without retiring declarations. */
+void env_clear_variables(Environment *env) {
+    if (!env) return;
+    env_symbol_index_invalidate(env);
+    env_reclaim_static_arrays(env);
+    for (int i = 0; i < env->symbol_count; i++) {
+        free(env->symbols[i].name);
+        free(env->symbols[i].struct_type_name);
+        if (!env_type_borrows_value(env->symbols[i].type))
+            env_release_binding_value(env, env->symbols[i].value);
+    }
+    env->symbol_count = 0;
 }
 
 /* Free environment */
@@ -492,17 +654,8 @@ void free_environment(Environment *env) {
     nl_file_source_snapshots_free(env->service_inputs);
     for (int i = 0; i < env->service_origin_count; ++i) free(env->service_origins[i]);
     env_symbol_index_invalidate(env);
-    /* I reclaim every static array exactly once before the string/record
-     * teardown below, so shared containers and their elements do not leak. */
-    env_reclaim_static_arrays(env);
-    for (int i = 0; i < env->symbol_count; i++) {
-        free(env->symbols[i].name);
-        if (env->symbols[i].struct_type_name) {
-            free(env->symbols[i].struct_type_name);
-        }
-        if (env->symbols[i].type != TYPE_BORROW_SHARED && env->symbols[i].type != TYPE_BORROW_MUT)
-            env_free_value(env->symbols[i].value);
-    }
+    env_clear_variables(env);
+    env_carrier_close(env);
     free(env->symbols);
     if (env->import_tracker) {
         free(env->import_tracker->imports);
@@ -512,6 +665,16 @@ void free_environment(Environment *env) {
     for (int i = 0; i < env->function_count; i++) {
         /* Note: function names are not owned by environment - they point to AST */
         /* Freeing them causes double-free crashes */
+    }
+    if (env->function_imports) {
+        EnvFunctionBinding *entry = env->function_imports->entries;
+        while (entry) {
+            EnvFunctionBinding *next = entry->next;
+            free(entry->name); free(entry->owner); free(entry);
+            entry = next;
+        }
+        free(env->function_imports->buckets);
+        free(env->function_imports);
     }
     function_index_free(env);
     free(env->functions);
@@ -533,6 +696,24 @@ void free_environment(Environment *env) {
         free(env->structs[i].module_name);
     }
     free(env->structs);
+
+    /* I own these registered copies. Complete parameter/result annotations
+     * remain borrowed from the AST; original_name is checker-owned below. */
+    for (int i = 0; i < env->effect_count; i++) {
+        EffectDef *effect = &env->effects[i];
+        for (int j = 0; j < effect->op_count; j++) {
+            EffectOp *operation = &effect->ops[j];
+            for (int k = 0; k < operation->param_count; k++)
+                free(operation->params[k].name);
+            free(operation->params);
+            free(operation->name);
+            free(operation->return_type_name);
+        }
+        free(effect->ops);
+        free(effect->name);
+        free(effect->module_name);
+    }
+    free(env->effects);
     
     while (env->effect_imports) {
         EffectImport *item = env->effect_imports;
@@ -684,10 +865,194 @@ void free_environment(Environment *env) {
     while (env->checker_allocations) {
         struct EnvCheckerAllocation *entry = env->checker_allocations;
         env->checker_allocations = entry->next;
-        free(entry->allocation);
+        entry->release(entry->allocation);
         free(entry);
     }
     free(env);
+}
+
+/* I separate a failed importer's aliases from successfully loaded dependencies.
+ * Declaration checking then appends to those retained dependency tables. */
+struct EnvModuleCheckpoint {
+    char *owner, *path;
+    int namespaces;
+    EnvFunctionBinding *function_imports;
+    EnumImport *enum_imports;
+    EffectImport *effect_imports;
+    GlobalImport *global_imports;
+    Environment before;
+    Symbol *symbols;
+    Function *functions;
+    ModuleInfo *modules;
+    bool declarations;
+};
+
+struct EnvModuleCheckpoint *env_module_checkpoint(Environment *env, const char *owner, const char *path) {
+    struct EnvModuleCheckpoint *mark = calloc(1, sizeof *mark);
+    if (!mark) return NULL;
+    mark->owner = owner ? strdup(owner) : NULL;
+    mark->path = path ? strdup(path) : NULL;
+    if ((owner && !mark->owner) || (path && !mark->path)) { env_module_commit(mark); return NULL; }
+    mark->namespaces = env->namespace_count;
+    mark->function_imports = env->function_imports ? env->function_imports->entries : NULL;
+    mark->enum_imports = env->enum_imports;
+    mark->effect_imports = env->effect_imports;
+    mark->global_imports = env->global_imports;
+    return mark;
+}
+
+bool env_module_checkpoint_declarations(Environment *env, struct EnvModuleCheckpoint *mark) {
+    mark->before = *env;
+    if (env->function_count) {
+        mark->functions = malloc((size_t)env->function_count * sizeof *mark->functions);
+        if (!mark->functions) return false;
+        memcpy(mark->functions, env->functions, (size_t)env->function_count * sizeof *mark->functions);
+    }
+    if (env->module_count) {
+        mark->modules = malloc((size_t)env->module_count * sizeof *mark->modules);
+        if (!mark->modules) return false;
+        memcpy(mark->modules, env->modules, (size_t)env->module_count * sizeof *mark->modules);
+    }
+    if (env->symbol_count) {
+        mark->symbols = calloc((size_t)env->symbol_count, sizeof *mark->symbols);
+        if (!mark->symbols) return false;
+        for (int i = 0; i < env->symbol_count; ++i) {
+            mark->symbols[i] = env->symbols[i];
+            mark->symbols[i].name = env->symbols[i].name ? strdup(env->symbols[i].name) : NULL;
+            mark->symbols[i].struct_type_name = env->symbols[i].struct_type_name ? strdup(env->symbols[i].struct_type_name) : NULL;
+            if ((env->symbols[i].name && !mark->symbols[i].name) ||
+                (env->symbols[i].struct_type_name && !mark->symbols[i].struct_type_name)) return false;
+        }
+    }
+    mark->declarations = true;
+    return true;
+}
+
+void env_module_commit(struct EnvModuleCheckpoint *mark) {
+    if (!mark) return;
+    if (mark->symbols) for (int i = 0; i < mark->before.symbol_count; ++i) {
+        free(mark->symbols[i].name); free(mark->symbols[i].struct_type_name);
+    }
+    free(mark->symbols); free(mark->functions); free(mark->modules);
+    free(mark->owner); free(mark->path); free(mark);
+}
+
+/* I fail closed if I cannot retain the ownership required for rollback. */
+static void *module_rollback_copy(const void *table, int count, size_t width) {
+    if (!count) return NULL;
+    if (count < 0 || (size_t)count > SIZE_MAX / width) abort();
+    void *copy = malloc((size_t)count * width);
+    if (!copy) {
+        fprintf(stderr, "I cannot allocate module rollback ownership.\n");
+        exit(1);
+    }
+    memcpy(copy, table, (size_t)count * width);
+    return copy;
+}
+
+void env_module_rollback(Environment *env, struct EnvModuleCheckpoint *mark) {
+    if (!mark) return;
+    if (mark->declarations) {
+        Environment *retired = calloc(1, sizeof *retired);
+        if (!retired) { fprintf(stderr, "I cannot allocate module rollback ownership.\n"); exit(1); }
+        /* My ordinary environment destructor owns every appended declaration.
+         * I copy table suffixes, never free an interior allocation pointer. */
+#define RETIRE_TABLE(field, count) do { \
+    int first = mark->before.count; \
+    if (env->count < first) abort(); \
+    retired->count = env->count - first; \
+    retired->field = module_rollback_copy(retired->count ? env->field + first : NULL, \
+                                         retired->count, sizeof *env->field); \
+    env->count = first; \
+} while (0)
+        RETIRE_TABLE(symbols, symbol_count);
+        RETIRE_TABLE(functions, function_count);
+        RETIRE_TABLE(structs, struct_count);
+        RETIRE_TABLE(enums, enum_count);
+        RETIRE_TABLE(unions, union_count);
+        RETIRE_TABLE(opaque_types, opaque_type_count);
+        RETIRE_TABLE(effects, effect_count);
+        RETIRE_TABLE(generic_instances, generic_instance_count);
+        RETIRE_TABLE(generic_func_instances, generic_func_instance_count);
+        RETIRE_TABLE(namespaces, namespace_count);
+        RETIRE_TABLE(modules, module_count);
+#undef RETIRE_TABLE
+        env_symbol_index_invalidate(env);
+        function_index_free(env);
+        for (int i = 0; i < env->symbol_count; ++i) {
+            free(env->symbols[i].name); free(env->symbols[i].struct_type_name);
+            env->symbols[i] = mark->symbols[i];
+            mark->symbols[i].name = mark->symbols[i].struct_type_name = NULL;
+        }
+        if (env->function_count)
+            memcpy(env->functions, mark->functions, (size_t)env->function_count * sizeof *env->functions);
+        for (int i = 0; i < env->module_count; ++i) {
+            ModuleInfo *live = &env->modules[i], *saved = &mark->modules[i];
+            while (live->function_count > saved->function_count) free(live->exported_functions[--live->function_count]);
+            while (live->struct_count > saved->struct_count) free(live->exported_structs[--live->struct_count]);
+            live->has_ffi = saved->has_ffi; live->is_unsafe = saved->is_unsafe;
+        }
+        env->builtins_registered = mark->before.builtins_registered;
+        env->current_module_is_unsafe = mark->before.current_module_is_unsafe;
+        /* All new checker payloads leave with the retired declaration suffix. */
+        struct EnvCheckerAllocation **tail = &env->checker_allocations;
+        while (*tail != mark->before.checker_allocations) tail = &(*tail)->next;
+        retired->checker_allocations = env->checker_allocations == mark->before.checker_allocations ? NULL : env->checker_allocations;
+        *tail = NULL;
+        env->checker_allocations = mark->before.checker_allocations;
+        env->global_imports = mark->before.global_imports;
+        free_environment(retired);
+    }
+    /* I withdraw only this failed importer's new aliases. Child modules and
+     * aliases that preceded this load retain their source and slot identities. */
+    struct EnvFunctionImport *imports = env->function_imports;
+    if (imports) {
+        EnvFunctionBinding **entry = &imports->entries;
+        while (*entry != mark->function_imports) {
+            EnvFunctionBinding *item = *entry;
+            if (function_owner_matches(item->owner, mark->owner)) {
+                *entry = item->next; free(item->name); free(item->owner); free(item); --imports->count;
+            } else entry = &item->next;
+        }
+        memset(imports->buckets, 0, imports->capacity * sizeof *imports->buckets);
+        for (EnvFunctionBinding *item = imports->entries; item; item = item->next) {
+            size_t bucket = item->hash & (imports->capacity - 1);
+            item->bucket_next = imports->buckets[bucket]; imports->buckets[bucket] = item;
+        }
+    }
+#define WITHDRAW_ALIASES(field, type, stop) do { \
+    type **entry = &env->field; \
+    while (*entry != mark->stop) { \
+        type *item = *entry; \
+        if (function_owner_matches(item->owner_module, mark->owner)) { \
+            *entry = item->next; free(item->name); free(item->owner_module); free(item->target_name); free(item); \
+        } else entry = &item->next; \
+    } \
+} while (0)
+    WITHDRAW_ALIASES(enum_imports, EnumImport, enum_imports);
+    WITHDRAW_ALIASES(effect_imports, EffectImport, effect_imports);
+#undef WITHDRAW_ALIASES
+    GlobalImport **global = &env->global_imports;
+    while (*global != mark->global_imports) {
+        GlobalImport *item = *global;
+        if (mark->path && !strcmp(item->owner_file, mark->path)) {
+            *global = item->next;
+            struct EnvCheckerAllocation **owned = &env->checker_allocations;
+            while (*owned && (*owned)->allocation != item) owned = &(*owned)->next;
+            if (*owned) { struct EnvCheckerAllocation *found = *owned; *owned = found->next; found->release(found->allocation); free(found); }
+        } else global = &item->next;
+    }
+    for (int i = mark->namespaces; i < env->namespace_count;) {
+        if (!function_owner_matches(env->namespaces[i].owner_module, mark->owner)) { ++i; continue; }
+        Environment *retired = calloc(1, sizeof *retired);
+        if (!retired) { fprintf(stderr, "I cannot allocate module rollback ownership.\n"); exit(1); }
+        retired->namespace_count = 1;
+        retired->namespaces = module_rollback_copy(&env->namespaces[i], 1, sizeof *env->namespaces);
+        memmove(env->namespaces + i, env->namespaces + i + 1,
+                (size_t)(--env->namespace_count - i) * sizeof *env->namespaces);
+        free_environment(retired);
+    }
+    env_module_commit(mark);
 }
 
 /* Define variable */
@@ -697,6 +1062,20 @@ void env_define_var(Environment *env, const char *name, Type type, bool is_mut, 
 
 void env_define_var_with_element_type(Environment *env, const char *name, Type type, Type element_type, bool is_mut, Value value) {
     env_define_var_with_type_info(env, name, type, element_type, NULL, is_mut, value);
+}
+
+/* I skip only an allocation that no environment binding has ever held.
+ * All publication paths mark before another evaluated binding can observe it.
+ * A set bit is conservative across scopes and environments; I still scan. */
+static bool env_string_binding_seen(Value value) {
+    return value.type == VAL_STRING && value.as.string_val &&
+        gc_is_managed(value.as.string_val) &&
+        (gc_get_header(value.as.string_val)->flags & GC_FLAG_ENV_STRING_BOUND) != 0;
+}
+
+void env_note_string_binding(Value value) {
+    if (value.type == VAL_STRING && value.as.string_val && gc_is_managed(value.as.string_val))
+        gc_get_header(value.as.string_val)->flags |= GC_FLAG_ENV_STRING_BOUND;
 }
 
 /* The most recent symbol with this name defined in the file currently being
@@ -709,18 +1088,26 @@ static Symbol *env_get_var_same_file(Environment *env, const char *name) {
     return symbol_lookup(env, name, true);
 }
 
-static void env_define_var_impl(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value, bool retain_string_aliases) {
+static void env_define_var_impl(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value, bool retain_string_aliases, bool adopt_record_literal) {
     /* Borrowed parameters retain their caller's identity and do not own its storage. */
     if (value.type == VAL_STRUCT && value.as.struct_val &&
         type != TYPE_BORROW_SHARED && type != TYPE_BORROW_MUT) {
-        StructValue *sv = value.as.struct_val;
-        value = create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
+        if (!adopt_record_literal) {
+            StructValue *sv = value.as.struct_val;
+            value = create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
+        }
+        if (adopt_record_literal && env_carrier_owns(env, value))
+            env_carrier_hold(env, nl_carrier_value(value));
+        else
+            env_carrier_track_binding(env, value);
     }
     if (env->symbol_count >= env->symbol_capacity) {
         env->symbol_capacity *= 2;
         env->symbols = realloc(env->symbols, sizeof(Symbol) * env->symbol_capacity);
     }
 
+    if (!env_type_borrows_value(type) && env_carrier_retain_string(env, value))
+        retain_string_aliases = false;
     Symbol sym;
     sym.name = strdup(name);
     sym.type = type;
@@ -761,6 +1148,7 @@ static void env_define_var_impl(Environment *env, const char *name, Type type, T
             existing->type_info = sym.type_info;
             existing->is_mut = sym.is_mut;
             existing->value = sym.value;
+            env_note_string_binding(sym.value);
             /* Don't add a new symbol - we updated the existing one */
             return;
         }
@@ -769,7 +1157,8 @@ static void env_define_var_impl(Environment *env, const char *name, Type type, T
     /* GC refcount fix: If this string value is already referenced by another
      * variable in the environment, increment refcount to prevent use-after-free
      * when one variable is later reassigned. Handles: let s = (func); let mut r = s */
-    if (retain_string_aliases && value.type == VAL_STRING && value.as.string_val && gc_is_managed(value.as.string_val)) {
+    if (retain_string_aliases && !env_type_borrows_value(type) &&
+        env_string_binding_seen(value)) {
         for (int i = 0; i < env->symbol_count; i++) {
             if (env->symbols[i].value.type == VAL_STRING &&
                 env->symbols[i].value.as.string_val == value.as.string_val) {
@@ -780,6 +1169,7 @@ static void env_define_var_impl(Environment *env, const char *name, Type type, T
     }
 
     env->symbols[env->symbol_count++] = sym;
+    env_note_string_binding(value);
 }
 
 /* I elide alias scans only for completed STRING constructors in my evaluator. */
@@ -791,19 +1181,28 @@ static bool evaluated_string_is_fresh(ASTNode *expression, Value value) {
            expression->as.prefix_op.arg_count == 2;
 }
 
+/* I adopt a completed literal after its constructor has copied owned fields.
+ * Identifiers, calls and propagated control flow keep their copying policy. */
+static bool evaluated_record_is_fresh(ASTNode *expression, Value value) {
+    return expression && expression->type == AST_STRUCT_LITERAL &&
+        value.type == VAL_STRUCT && value.as.struct_val &&
+        !value.is_return && !value.is_break && !value.is_continue;
+}
+
 void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value) {
-    env_define_var_impl(env, name, type, element_type, type_info, is_mut, value, true);
+    env_define_var_impl(env, name, type, element_type, type_info, is_mut, value, true, false);
 }
 
 void env_define_evaluated_var(Environment *env, const char *name, Type type, Type element_type,
                               TypeInfo *type_info, bool is_mut, Value value, ASTNode *expression) {
     env_define_var_impl(env, name, type, element_type, type_info, is_mut, value,
-                        !evaluated_string_is_fresh(expression, value));
+                        !evaluated_string_is_fresh(expression, value),
+                        evaluated_record_is_fresh(expression, value));
 }
 
 /* I construct a fresh allocation here; an existing binding cannot alias it. */
 void env_define_string_copy(Environment *env, const char *name, Type type, bool is_mut, const char *text) {
-    env_define_var_impl(env, name, type, TYPE_UNKNOWN, NULL, is_mut, create_string(text), false);
+    env_define_var_impl(env, name, type, TYPE_UNKNOWN, NULL, is_mut, create_string(text), false, false);
 }
 
 /* Get variable */
@@ -991,10 +1390,18 @@ Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int
 /* Set variable value */
 static void env_set_binding_impl(Environment *env, Symbol *sym, Value value, bool retain_string_aliases) {
     if (sym) {
+        /* I rebind a non-owning view without retiring or retaining its target.
+         * Mutability/type permission remains the checker's existing contract. */
+        if (env_type_borrows_value(sym->type)) {
+            sym->value = value;
+            env_note_string_binding(value);
+            return;
+        }
         /* I keep the binding's ownership when its STRING pointer is unchanged. */
         if (value.type == VAL_STRING && sym->value.type == VAL_STRING &&
             value.as.string_val == sym->value.as.string_val) {
             sym->value = value;
+            env_note_string_binding(value);
             return;
         }
         /* I copy before releasing the old binding, including self-assignment
@@ -1002,14 +1409,16 @@ static void env_set_binding_impl(Environment *env, Symbol *sym, Value value, boo
         if (value.type == VAL_STRUCT && value.as.struct_val) {
             StructValue *sv = value.as.struct_val;
             value = create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
+        env_carrier_track_binding(env, value);
         }
-        env_free_value(sym->value);
+        if (env_carrier_retain_string(env, value)) retain_string_aliases = false;
+        env_release_binding_value(env, sym->value);
         sym->value = value;
 
         /* GC refcount fix: If the new string value is already referenced by
          * another variable, increment refcount to prevent use-after-free.
          * Handles: set x y where y is a string variable */
-        if (retain_string_aliases && value.type == VAL_STRING && value.as.string_val && gc_is_managed(value.as.string_val)) {
+        if (retain_string_aliases && env_string_binding_seen(value)) {
             for (int i = 0; i < env->symbol_count; i++) {
                 if (&env->symbols[i] != sym &&
                     env->symbols[i].value.type == VAL_STRING &&
@@ -1019,6 +1428,7 @@ static void env_set_binding_impl(Environment *env, Symbol *sym, Value value, boo
                 }
             }
         }
+        env_note_string_binding(value);
     }
 }
 
@@ -1092,6 +1502,19 @@ Function *env_get_function_at(Environment *env, const char *name, int line, int 
         return NULL;
     }
 
+    /* I retain imported runtime references with a spelling my lexer cannot
+     * produce. This selector is local to this environment's stable slots. */
+    if (!strncmp(name, "#function:", 10)) {
+        const char *digit = name + 10;
+        size_t slot = 0;
+        if (!*digit) return NULL;
+        for (; *digit; ++digit) {
+            if (*digit < '0' || *digit > '9' || slot > (SIZE_MAX - 9) / 10) return NULL;
+            slot = slot * 10 + (size_t)(*digit - '0');
+        }
+        return slot < (size_t)env->function_count ? &env->functions[slot] : NULL;
+    }
+
     /* Check for Module.function pattern */
     const char *dot = strchr(name, '.');
     if (dot) {
@@ -1102,22 +1525,12 @@ Function *env_get_function_at(Environment *env, const char *name, int line, int 
         }
         strncpy(module_alias, name, module_len);
         module_alias[module_len] = '\0';
-        const char *func_name = dot + 1;
         
         /* Find namespace */
         for (int i = 0; i < env->namespace_count; i++) {
             if (namespace_owned_by(&env->namespaces[i], env->current_module) &&
                 strcmp(env->namespaces[i].alias, module_alias) == 0) {
-                /* Check if function is in this namespace */
-                for (int j = 0; j < env->namespaces[i].function_count; j++) {
-                    if (strcmp(env->namespaces[i].function_names[j], func_name) == 0) {
-                        /* Look up the actual function by its original name AND module name */
-                        const char *orig_mod = env->namespaces[i].module_name;
-                        return function_named(env, func_name, orig_mod, true, false, line, column);
-                    }
-                }
-                /* Function not found in this module's namespace */
-                return NULL;
+                return env_get_function_owned(env, dot + 1, env->namespaces[i].module_name);
             }
         }
         /* Module alias not found */
@@ -1134,6 +1547,8 @@ Function *env_get_function_at(Environment *env, const char *name, int line, int 
      * Synthetic registered builtins have neither a body nor an extern boundary. */
     Function *declared = function_named(env, name, env->current_module, true, false, line, column);
     if (declared && (declared->body || declared->is_extern)) return declared;
+    Function *imported = function_imported(env, name, env->current_module);
+    if (imported && (imported->body || imported->is_extern)) return imported;
 
     /* Check built-in functions via unified registry (only BUILTIN_LANG entries) */
     for (int i = 0; i < builtin_registry_count; i++) {
@@ -1359,6 +1774,11 @@ Value create_struct(const char *struct_name, char **field_names, Value *field_va
         if (field_values[i].type == VAL_STRING) {
             const char *src = field_values[i].as.string_val ? field_values[i].as.string_val : "";
             v.as.struct_val->field_values[i] = create_string(src);
+        } else if (field_values[i].type == VAL_FUNCTION) {
+            /* I copy borrowed callable metadata before its source can retire. */
+            v.as.struct_val->field_values[i] = create_function(
+                field_values[i].as.function_val.function_name,
+                copy_function_signature(field_values[i].as.function_val.signature));
         } else if (field_values[i].type == VAL_STRUCT && field_values[i].as.struct_val) {
             StructValue *nested = field_values[i].as.struct_val;
             v.as.struct_val->field_values[i] = create_struct(nested->struct_name,
@@ -1398,6 +1818,11 @@ Value create_union(const char *union_name, int variant_index, const char *varian
             if (field_values[i].type == VAL_STRING) {
                 v.as.union_val->field_values[i] = create_string(
                     field_values[i].as.string_val ? field_values[i].as.string_val : "");
+            } else if (field_values[i].type == VAL_FUNCTION) {
+                /* I copy borrowed callable metadata before its source can retire. */
+                v.as.union_val->field_values[i] = create_function(
+                    field_values[i].as.function_val.function_name,
+                    copy_function_signature(field_values[i].as.function_val.signature));
             } else if (field_values[i].type == VAL_STRUCT && field_values[i].as.struct_val) {
                 StructValue *nested = field_values[i].as.struct_val;
                 v.as.union_val->field_values[i] = create_struct(nested->struct_name,
@@ -1633,7 +2058,7 @@ EnumDef *env_get_enum(Environment *env, const char *name) {
 }
 
 /* Get enum variant value */
-int env_get_enum_variant(Environment *env, const char *variant_name) {
+long long env_get_enum_variant(Environment *env, const char *variant_name) {
     if (!env || !variant_name) return -1;
     
     for (int i = 0; i < env->enum_count; i++) {
@@ -1822,11 +2247,11 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     
     /* List_T_new() -> List<T>* */
     snprintf(func_name, sizeof(func_name), "%s_new", specialized);
-    func.name = strdup(func_name);
+    func.name = env_own_checker_allocation(env, strdup(func_name));
     func.param_count = 0;
     func.params = NULL;
     func.return_type = TYPE_LIST_GENERIC;
-    func.return_struct_type_name = NULL;
+    func.return_struct_type_name = env_own_checker_allocation(env, strdup(element_type));
     func.return_fn_sig = NULL;
     func.return_type_info = NULL;
     func.body = NULL;  /* Built-in */
@@ -1835,16 +2260,16 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     
     /* List_T_push(list: List<T>*, value: T) -> void */
     snprintf(func_name, sizeof(func_name), "%s_push", specialized);
-    func.name = strdup(func_name);
+    func.name = env_own_checker_allocation(env, strdup(func_name));
     func.param_count = 2;
-    params = calloc(2, sizeof(Parameter));
-    params[0].name = strdup("list");
+    params = env_own_checker_allocation(env, calloc(2, sizeof(Parameter)));
+    params[0].name = env_own_checker_allocation(env, strdup("list"));
     params[0].type = TYPE_LIST_GENERIC;
     params[0].struct_type_name = NULL;
     params[0].element_type = TYPE_UNKNOWN;
-    params[1].name = strdup("value");
+    params[1].name = env_own_checker_allocation(env, strdup("value"));
     params[1].type = TYPE_STRUCT;
-    params[1].struct_type_name = strdup(element_type);
+    params[1].struct_type_name = env_own_checker_allocation(env, strdup(element_type));
     params[1].element_type = TYPE_UNKNOWN;
     func.params = params;
     func.return_type = TYPE_VOID;
@@ -1856,20 +2281,20 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     
     /* List_T_get(list: List<T>*, index: int) -> T */
     snprintf(func_name, sizeof(func_name), "%s_get", specialized);
-    func.name = strdup(func_name);
+    func.name = env_own_checker_allocation(env, strdup(func_name));
     func.param_count = 2;
-    params = calloc(2, sizeof(Parameter));
-    params[0].name = strdup("list");
+    params = env_own_checker_allocation(env, calloc(2, sizeof(Parameter)));
+    params[0].name = env_own_checker_allocation(env, strdup("list"));
     params[0].type = TYPE_LIST_GENERIC;
     params[0].struct_type_name = NULL;
     params[0].element_type = TYPE_UNKNOWN;
-    params[1].name = strdup("index");
+    params[1].name = env_own_checker_allocation(env, strdup("index"));
     params[1].type = TYPE_INT;
     params[1].struct_type_name = NULL;
     params[1].element_type = TYPE_UNKNOWN;
     func.params = params;
     func.return_type = TYPE_STRUCT;
-    func.return_struct_type_name = strdup(element_type);
+    func.return_struct_type_name = env_own_checker_allocation(env, strdup(element_type));
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = true;
@@ -1877,10 +2302,10 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     
     /* List_T_length(list: List<T>*) -> int */
     snprintf(func_name, sizeof(func_name), "%s_length", specialized);
-    func.name = strdup(func_name);
+    func.name = env_own_checker_allocation(env, strdup(func_name));
     func.param_count = 1;
-    params = calloc(1, sizeof(Parameter));
-    params[0].name = strdup("list");
+    params = env_own_checker_allocation(env, calloc(1, sizeof(Parameter)));
+    params[0].name = env_own_checker_allocation(env, strdup("list"));
     params[0].type = TYPE_LIST_GENERIC;
     params[0].struct_type_name = NULL;
     params[0].element_type = TYPE_UNKNOWN;
@@ -2127,14 +2552,9 @@ static FunctionSignature *payload_signature(const FunctionSignature *source, uns
     copy->return_type_info = payload_copy(source->return_type_info, depth + 1);
     return copy;
 }
-const TypeInfo *row_field_info(const TypeInfo *info, int index, TypeInfo *fallback) {
-    if (!info || index < 0 || index >= info->row_field_count) return NULL;
-    if (info->row_field_type_info && info->row_field_type_info[index]) return info->row_field_type_info[index];
-    if (!fallback || !info->row_field_types) return NULL;
-    *fallback = (TypeInfo){.base_type = info->row_field_types[index],
-        .generic_name = info->row_field_type_names ? info->row_field_type_names[index] : NULL};
-    return fallback;
-}
+#define NL_DEFINE_ROW_FIELD_INFO
+#include "type_metadata_queries.inc"
+#undef NL_DEFINE_ROW_FIELD_INFO
 
 static TypeInfo *payload_copy(const TypeInfo *source, unsigned depth) {
     if (!source) return NULL;

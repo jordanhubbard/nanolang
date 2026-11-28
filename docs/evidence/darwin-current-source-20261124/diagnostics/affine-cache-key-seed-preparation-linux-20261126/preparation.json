@@ -1,0 +1,17 @@
+{
+  "terminal": true,
+  "prepared": true,
+  "execution_started": false,
+  "source_created": false,
+  "refusal_exit": 1,
+  "commands": 0,
+  "whole_release": false,
+  "source_commit": "901caef8e6f995080ac7d3c48c4cf23c75c99315",
+  "cache_evidence_commit": "beecf685b2ca9bc74791be2d8abf246689e01968",
+  "controller_sha256": {
+    "setup.py": "1b0a71c0857bca2cd1f01fc09a864e6487717512f9311af7e11cc8f1569f7ea2",
+    "cohort.py": "f7e700433e319c4f2c3ad42fdc7e59b9a2213cea2ba56cea30c8b30b2a87fc7c",
+    "admit.py": "b229993b709fe631aca3f9c157e9c2fdf78c6a3c3c31e0018bd7612e8aab00dc",
+    "cohort_journal.py": "4e5a202045b7d4576c7cfa8ed9845cc895e5b2bf4cd2e727e68534a2a34c652d"
+  }
+}

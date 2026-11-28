@@ -1,0 +1,10 @@
+{
+  "original_functions_unchanged": [
+    "controls",
+    "observe",
+    "identities",
+    "captured",
+    "restore"
+  ],
+  "workflow_yaml_valid": true
+}

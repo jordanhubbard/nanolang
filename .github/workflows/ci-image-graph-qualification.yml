@@ -1,0 +1,114 @@
+name: Native CI image graph qualification
+on:
+  push:
+    branches: [qualify/5.1-image-index-1182]
+permissions:
+  contents: read
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    outputs:
+      artifact: ${{ steps.upload.outputs.artifact-id }}
+      image: ${{ steps.build.outputs.image-id }}
+      archive: ${{ steps.build.outputs.archive-sha256 }}
+      platform: ${{ steps.build.outputs.platform }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: I check my native worker before the image build
+        run: |
+          mkdir -p .test_output/ci-image-graph
+          {
+            df -Pk "$GITHUB_WORKSPACE" "$RUNNER_TEMP" /tmp /var/lib/docker
+            free -b
+            nproc
+            vmstat 5 4
+          } | tee .test_output/ci-image-graph/worker.log
+          python3 - <<'PY'
+          import os, shutil
+          from pathlib import Path
+          for path in (os.environ['GITHUB_WORKSPACE'], os.environ['RUNNER_TEMP'], '/tmp', '/var/lib/docker'):
+              disk = shutil.disk_usage(path)
+              if disk.free < 14 * 1024**3:
+                  raise SystemExit('I hold the image build below my estimated 12GiB peak plus 2GiB reserve.')
+          memory = {line.split(':')[0]: int(line.split()[1]) for line in Path('/proc/meminfo').read_text().splitlines() if line.startswith(('MemTotal:', 'MemAvailable:'))}
+          if memory['MemAvailable'] / memory['MemTotal'] <= 0.05:
+              raise SystemExit('I hold the image build at critical memory pressure.')
+          PY
+      - name: I check archive identity and refusal controls
+        run: python3 -m unittest -v tests.test_ci_container 2>&1 | tee .test_output/ci-image-graph/controls.log
+      - name: I build and verify my original pinned native image
+        id: build
+        run: |
+          set -o pipefail
+          python3 scripts/ci_container.py build "$RUNNER_TEMP/instrumented-image.tar" 2>&1 | tee .test_output/ci-image-graph/build.log
+      - name: I transfer the exact native archive
+        id: upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: image-graph-native-${{ github.run_id }}
+          path: ${{ runner.temp }}/instrumented-image.tar
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
+      - name: I retain build and identity evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: image-graph-producer-evidence-${{ github.run_id }}
+          path: .test_output/ci-image-graph
+          if-no-files-found: error
+          retention-days: 14
+  consumer:
+    needs: image
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      NANO_CI_IMAGE_ID: ${{ needs.image.outputs.image }}
+      NANO_CI_ARCHIVE_SHA256: ${{ needs.image.outputs.archive }}
+      NANO_CI_IMAGE_PLATFORM: ${{ needs.image.outputs.platform }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: I check my native worker before receiving the archive
+        run: |
+          mkdir -p .test_output/ci-image-graph
+          {
+            df -Pk "$GITHUB_WORKSPACE" "$RUNNER_TEMP" /tmp /var/lib/docker
+            free -b
+            nproc
+            vmstat 5 4
+          } | tee .test_output/ci-image-graph/worker.log
+          python3 - <<'PY'
+          import os, shutil
+          from pathlib import Path
+          for path in (os.environ['GITHUB_WORKSPACE'], os.environ['RUNNER_TEMP'], '/tmp', '/var/lib/docker'):
+              if shutil.disk_usage(path).free < 14 * 1024**3:
+                  raise SystemExit('I hold archive transfer below my image transport reserve.')
+          memory = {line.split(':')[0]: int(line.split()[1]) for line in Path('/proc/meminfo').read_text().splitlines() if line.startswith(('MemTotal:', 'MemAvailable:'))}
+          if memory['MemAvailable'] / memory['MemTotal'] <= 0.05:
+              raise SystemExit('I hold archive transfer at critical memory pressure.')
+          PY
+      - uses: actions/download-artifact@v4
+        with:
+          artifact-ids: ${{ needs.image.outputs.artifact }}
+          path: ${{ runner.temp }}
+          merge-multiple: true
+      - name: I run the original native transport and provider smoke
+        run: |
+          set -o pipefail
+          mkdir -p .test_output/ci-image-graph
+          python3 scripts/ci_container_smoke.py "$RUNNER_TEMP/instrumented-image.tar" 2>&1 | tee .test_output/ci-image-graph/smoke.log
+      - name: I retain consumer identity and native provider evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: image-graph-consumer-evidence-${{ github.run_id }}
+          path: |
+            .test_output/ci-image-graph
+            ${{ runner.temp }}/ci-loaded-image.json
+            ${{ runner.temp }}/container-checkpoint-probe
+            ${{ runner.temp }}/container-smoke-*.sh
+            ${{ runner.temp }}/container-smoke-output
+            ${{ runner.temp }}/container-smoke-summary
+          if-no-files-found: error
+          retention-days: 14

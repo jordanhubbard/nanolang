@@ -1,0 +1,106 @@
+# I retain record identity while iterating typed List storage.
+struct LoopItem { number: int, text: string }
+struct LoopHolder { items: List<LoopItem> }
+let mut loop_producer_calls: int = 0
+fn loop_items() -> List<LoopItem> {
+    unsafe {
+        let items: List<LoopItem> = (List_LoopItem_new)
+        (List_LoopItem_push items LoopItem { number: 1, text: "kept" })
+        (List_LoopItem_push items LoopItem { number: 2, text: "kept" })
+        (List_LoopItem_push items LoopItem { number: 3, text: "kept" })
+        return items
+    }
+}
+shadow loop_items { unsafe { let items = (loop_items) assert (== (List_LoopItem_length items) 3) } }
+fn loop_sum(items: List<LoopItem>) -> int {
+    let mut total: int = 0
+    for row in items {
+        assert (== row.text "kept")
+        set total (+ total row.number)
+    }
+    return total
+}
+shadow loop_sum { assert (== (loop_sum (loop_items)) 6) }
+fn loop_forward(items: List<LoopItem>) -> List<LoopItem> {
+    set loop_producer_calls (+ loop_producer_calls 1)
+    return items
+}
+shadow loop_forward { unsafe { set loop_producer_calls 0 let items = (loop_forward (loop_items)) assert (== loop_producer_calls 1) assert (== (List_LoopItem_length items) 3) } }
+fn loop_alias_field_call() -> int {
+    let items = (loop_items)
+    let alias = items
+    let holder: LoopHolder = LoopHolder { items: alias }
+    let mut total: int = 0
+    for row in holder.items { set total (+ total row.number) }
+    set loop_producer_calls 0
+    for row in (loop_forward alias) { set total (+ total row.number) }
+    assert (== loop_producer_calls 1)
+    return total
+}
+shadow loop_alias_field_call { assert (== (loop_alias_field_call) 12) }
+fn loop_controls(items: List<LoopItem>) -> int {
+    let mut total: int = 0
+    for row in items {
+        if (== row.number 2) { continue }
+        set total (+ total row.number)
+    }
+    for row in items {
+        if (== row.number 2) { break }
+        set total (+ total row.number)
+    }
+    return total
+}
+shadow loop_controls { assert (== (loop_controls (loop_items)) 5) }
+fn loop_first(items: List<LoopItem>) -> LoopItem {
+    for row in items { return row }
+    return LoopItem { number: -1, text: "empty" }
+}
+shadow loop_first { let first: LoopItem = (loop_first (loop_items)) assert (== first.number 1) assert (== first.text "kept") }
+fn loop_nested(items: List<LoopItem>) -> int {
+    let mut total: int = 0
+    for outer in items {
+        for inner in items {
+            if (== inner.number 2) { continue }
+            set total (+ total outer.number)
+        }
+    }
+    return total
+}
+shadow loop_nested { assert (== (loop_nested (loop_items)) 12) }
+fn loop_mutation(items: List<LoopItem>) -> int {
+    let mut total: int = 0
+    for row in items {
+        if (== row.number 1) {
+            unsafe {
+                (List_LoopItem_push items LoopItem { number: 4, text: "kept" })
+                (List_LoopItem_push items LoopItem { number: 5, text: "kept" })
+            }
+        }
+        assert (== row.text "kept")
+        set total (+ total row.number)
+    }
+    return total
+}
+shadow loop_mutation { unsafe { let items = (loop_items) assert (== (loop_mutation items) 6) assert (== (List_LoopItem_length items) 5) } }
+fn loop_empty() -> int {
+    for row in (List_LoopItem_new) { assert (< row.number 0) }
+    return 0
+}
+shadow loop_empty { assert (== (loop_empty) 0) }
+fn main() -> int {
+    unsafe {
+        let items = (loop_items)
+        assert (== (loop_sum items) 6)
+        assert (== (loop_alias_field_call) 12)
+        assert (== (loop_controls items) 5)
+        assert (== (loop_nested items) 12)
+        let first: LoopItem = (loop_first items)
+        assert (== first.number 1)
+        assert (== first.text "kept")
+        assert (== (loop_mutation items) 6)
+        assert (== (List_LoopItem_length items) 5)
+        assert (== (loop_empty) 0)
+    }
+    return 0
+}
+shadow main { assert (== (main) 0) }

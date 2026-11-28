@@ -1,0 +1,45 @@
+{
+  "source_pin": "45223340186ae620fad7ed6272b13fb497320e8a",
+  "manifest_sha256": "96afeffcd879fb1467c80a14ab097bf3b8b2daca60892130dd3570d876a06a6a",
+  "tool_sha256": "729820b30caaca7f5d3897b403d20e3b7cdaac34a5d12963119c501eadd90005",
+  "cases": [
+    {
+      "label": "c-producer",
+      "command": [
+        "/mnt/ubumeh-scratch/nanolang/hosts/sparky/wt/01a1fec4/bin/nvm2c",
+        "/tmp/nano-affine-frame-pm2_3xy1/decoder.nvm",
+        "-o",
+        "/mnt/ubumeh-scratch/nanolang/hosts/sparky/wt/01a1fec4/.test_output/affine-cfg-foundation-20261122/prior-c-producer.c"
+      ],
+      "module_archive": "products/frame/decoder.nvm",
+      "module_sha256": "d859400f2f44afb1ccc5e2927cedf6538c3dc20b63e9344e3250f428641d743f",
+      "exit": 1,
+      "seconds": 0.5991934229969047,
+      "stdout_hex": "",
+      "stderr": "I cannot translate '/tmp/nano-affine-frame-pm2_3xy1/decoder.nvm': I cannot solve aggregate storage shape conversions: I cannot widen an exactly constrained bool destination at nodes 51924/1675 (conversion 51924/1675)\n",
+      "prior_hex": "492072657461696e2074686973206f726967696e616c206f75747075742e00ff0a",
+      "after_hex": "492072657461696e2074686973206f726967696e616c206f75747075742e00ff0a",
+      "prior_sha256": "52d7443fa78feb6738f69a14683c8a6323138dc3bb01ae678f867f5b6de994db",
+      "after_sha256": "52d7443fa78feb6738f69a14683c8a6323138dc3bb01ae678f867f5b6de994db"
+    },
+    {
+      "label": "nanolang-producer",
+      "command": [
+        "/mnt/ubumeh-scratch/nanolang/hosts/sparky/wt/01a1fec4/bin/nvm2c",
+        "/mnt/ubumeh-scratch/nanolang/hosts/sparky/wt/01a1fec4/.test_output/affine-cfg-foundation-20261122/pure-frame-driver.nvm",
+        "-o",
+        "/mnt/ubumeh-scratch/nanolang/hosts/sparky/wt/01a1fec4/.test_output/affine-cfg-foundation-20261122/prior-nanolang-producer.c"
+      ],
+      "module_archive": "observer/pure-frame-driver.nvm",
+      "module_sha256": "6d961e8d464dbfee6dcc0aed988d3e725b61a23ff0c363f21b5eb98cbb63c7cd",
+      "exit": 1,
+      "seconds": 0.5726807189930696,
+      "stdout_hex": "",
+      "stderr": "I cannot translate '/mnt/ubumeh-scratch/nanolang/hosts/sparky/wt/01a1fec4/.test_output/affine-cfg-foundation-20261122/pure-frame-driver.nvm': I cannot solve aggregate storage shape conversions: I cannot widen an exactly constrained bool destination at nodes 39369/9626 (conversion 39369/9626)\n",
+      "prior_hex": "492072657461696e2074686973206f726967696e616c206f75747075742e00ff0a",
+      "after_hex": "492072657461696e2074686973206f726967696e616c206f75747075742e00ff0a",
+      "prior_sha256": "52d7443fa78feb6738f69a14683c8a6323138dc3bb01ae678f867f5b6de994db",
+      "after_sha256": "52d7443fa78feb6738f69a14683c8a6323138dc3bb01ae678f867f5b6de994db"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "revisions": [
+    "f8e7b78334281485c3b48765c835b8bda218c975",
+    "ddd3b5a4ff35678d1906c07c08fc6bbc39b041de",
+    "d9decd063d14d74b0613072a0a3ac7ea555deef8"
+  ],
+  "scope_sha256": "efdccb6acb7cb2b15a7a96f34c7b11d81be4f93ff468af699ce33c2334b8d823",
+  "all_69_headline_requirements_unchanged": true,
+  "release_version": "v5.1.0",
+  "release_complete": false
+}

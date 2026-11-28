@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "run": 46042142609,
+  "job": 140652282110,
+  "source": "d18fed86140b6a4cf983898ac32a079002f6b784",
+  "test_fix": "7123cb885d7d792261973e1f64b38131312a38ec",
+  "qualification": false,
+  "whole_wrapper_reconstructed": false,
+  "files": [
+    {
+      "path": "after.c",
+      "bytes": 9238,
+      "sha256": "f895a2ef07d5aa3f63343043bee3c43b9a7a3f46c892fbce8d6fe946ec194328"
+    },
+    {
+      "path": "before.c",
+      "bytes": 9179,
+      "sha256": "6cc87510579261f3104c6da91634fd103dd3e0a9447fb34a6d6d56613da9ab29"
+    },
+    {
+      "path": "darwin-bootstrap-job.json",
+      "bytes": 5120,
+      "sha256": "49aaf7a9dfc6f0e572a80fc6a086480c26a66fe2cab28e5d95ba3cd8daf07016"
+    },
+    {
+      "path": "darwin-bootstrap.log",
+      "bytes": 148392,
+      "sha256": "7bcc4bcdf3b2b79ba39366e7d3dbb4f01b200946b6cd82afe5b259152b3a5d42"
+    }
+  ]
+}

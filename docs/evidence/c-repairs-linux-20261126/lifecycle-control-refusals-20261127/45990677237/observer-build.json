@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "cc",
+    "-std=c11",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-O2",
+    "/Users/runner/work/nanolang/nanolang/scripts/ci_darwin_shadow_lifecycle.c",
+    "-lproc",
+    "-o",
+    "/Users/runner/work/nanolang/nanolang/.test_output/shadow-lifecycle/lifecycle-observer"
+  ],
+  "sha256": "74cd644f50e626116174111a596ba52c881106d22ffec55eedfbbdbc22e597f5",
+  "source_sha256": "c75d7381a0cd835c381356a386d49f40a05a080e35f2a5c5244ab66887eb4278"
+}

@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/home/jkh/.local/share/fleet-migration/puck-volume/nanolang/worktrees/darwin-publication-qkk55gi3/docs/evidence/caller-root-feature-macros-20261128/verify.py", line 42, in <module>
+    assert not m['qualification'] and not m['whole_release']
+               ^
+NameError: name 'm' is not defined

@@ -1,0 +1,7 @@
+{
+  "captured_utc": "2026-11-26T19:10:50Z",
+  "pid": 6518,
+  "expected_start": "Thu Nov 26 11:08:20 2026",
+  "exit": 0,
+  "observation": "Thu Nov 26 11:08:20 2026     S    02:30 /Users/jkh/.local/bin/python3 /private/var/tmp/nanolang-5.1-current-20261126-ma5c1nma/control.py"
+}

@@ -1,0 +1,38 @@
+{
+  "format": "plain-controller-v1",
+  "prepared_only": true,
+  "accepted_component": false,
+  "whole_release": false,
+  "files": [
+    {
+      "path": "fixture-binding.json",
+      "bytes": 362,
+      "sha256": "9f5e4666cda302211a8a737a79597803237c8267e084c3d249b6edb2d5a49154"
+    },
+    {
+      "path": "missing-terminal-refusal.stderr",
+      "bytes": 366,
+      "sha256": "492ac9b3ff7e6991faa7e559c4ab030b02a55a38c68f19de0f863ffe8a158870"
+    },
+    {
+      "path": "missing-terminal-refusal.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "package_terminal.py",
+      "bytes": 4856,
+      "sha256": "dad1b57b5528d10e5270224488cc7deaf61077c86321e31d97ea46e15065b6a5"
+    },
+    {
+      "path": "preparation-result.json",
+      "bytes": 779,
+      "sha256": "8620a635e9f28c01ef96cfd9248eb82d7ef4d149f5f16bbbc272c202dcd18e8d"
+    },
+    {
+      "path": "read_preflight.template.py",
+      "bytes": 14477,
+      "sha256": "f535400980400d071c315d139584689409eca3ff365b4ecbe977acfe8ca48a03"
+    }
+  ]
+}

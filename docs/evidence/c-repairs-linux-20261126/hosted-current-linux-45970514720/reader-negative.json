@@ -1,0 +1,7 @@
+{
+  "expected_refusal": true,
+  "exit_code": 1,
+  "mutation": "I alter only the sealed run number in a private manifest copy.",
+  "before_product_execution": true,
+  "whole_release": false
+}

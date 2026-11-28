@@ -1,0 +1,9 @@
+I implement the internal global load/store transfer in `affine_globals.nano`, using my existing pure ownership Global declaration type, frame/state ownership queries and relation algebra. I retain exact type/layout and owner/observation rules, per-function allowed-entry masks, effect-global bypass and isolated failure snapshots. This source does not compute call-graph or effect authority.
+
+At exact `be8047814d3ee10b9274f91025924ba7e431b522`, my actual-C audit passes316 commands: all1001 original reports retain SHA256 `f5f4555c26ea20dbc13237f4a9843c42e98b16f7fc6f4e9f9ea3de7b3d3dcbd0`; all3688 global reports match independent expectations and SHA256 `e5bc1a381ceddd87cbe704d0e38d4ff341eb886aff156ad0c0d7b4b9597b931c`. Named carriers cover all16 initialization relations, four allowed masks, mutability/effect modes, physical tags, ownership and exact layout boundaries, full stacks, missing slots and malformed inputs. Original8-case/600-second batches and new32-case/8KiB/60-second limits remain. The measured command wall time totals1.493s; I make no compiler performance comparison.
+
+My independent reader verifies11633 records, complete reports/expectations, exact Git source and unchanged production C/tool/object inputs. I retain three unsuccessful precursors: reserved effect locals refused by the parser, a missing private include mapping, and one missing expected load result in the valid malformed-input baseline. The corrected expectation changes no input byte. Typed-AST checking passes after the local rename, but does not execute shadows.
+
+This audit executes only actual C. NanoLang execution, selected shadows, full five routes, targeted instrumentation, paired Darwin, call/effect/CFG composition, private admission, C body/runtime emission, product cutover and all69 release requirements remain open. My separate frozen exactb430 five-method run does not include this new leaf.
+
+I verify my archive with `python3 read_archive.py`.

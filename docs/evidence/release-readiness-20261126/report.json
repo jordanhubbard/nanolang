@@ -1,0 +1,41 @@
+{
+  "observed_source": "4a1d4e24eeeb134addfc362411ef3bec844e743e",
+  "observed_main": "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4",
+  "observed_integration": "4a1d4e24eeeb134addfc362411ef3bec844e743e",
+  "scope_unchanged": true,
+  "headline_entries": 69,
+  "original_headlines": 67,
+  "additional_headlines": 2,
+  "open_issues": 134,
+  "release_scoped_issues": 132,
+  "outside_gate_issues": [
+    1195,
+    1089
+  ],
+  "open_prs": 22,
+  "release_scoped_prs": 22,
+  "draft_prs": 13,
+  "approved_reviews": 0,
+  "integration_ancestor_heads": 18,
+  "main_ancestor_heads": 0,
+  "reported_base_mismatches": [
+    1176,
+    1122,
+    1052
+  ],
+  "readiness_pass": false,
+  "release_complete": false,
+  "merged": [],
+  "closed": [],
+  "scope_moved": [],
+  "retrieved_at_utc": {
+    "open-issues.json": "2026-11-26T18:31:56.302325+00:00",
+    "open-prs.json": "2026-11-26T18:31:55.542314+00:00",
+    "pr-bases.json": "2026-11-26T18:34:18.502328+00:00",
+    "counts.json": "2026-11-26T18:44:20.600152+00:00",
+    "parent-1255.json": "2026-11-26T18:34:16.832305+00:00",
+    "parent-1255-terminal.json": "2026-11-26T18:44:21.629165+00:00",
+    "parent-995.json": "2026-11-26T18:34:17.365312+00:00",
+    "live-refs.txt": "2026-11-26T18:41:50.203100+00:00"
+  }
+}

@@ -1,0 +1,55 @@
+enum Mode { Zero, Gap = 17, Negative = -3 }
+struct Marker { value: int }
+fn enum_entries() -> List<Mode> {
+    let result: List<Mode> = (list_Mode_new)
+    (list_Mode_push result Mode.Gap)
+    return result
+}
+shadow enum_entries { assert (== (list_Mode_length (enum_entries)) 1) }
+fn enum_pressure_noise() -> int {
+    let mut total: int = 0
+    for index in (range 0 40) {
+        let item: Marker = Marker { value: index }
+        set total (+ total item.value)
+    }
+    return total
+}
+shadow enum_pressure_noise { assert (== (enum_pressure_noise) 780) }
+fn enum_size(items: List<Mode>, count: int) -> int {
+    let length: int = (list_Mode_length items)
+    (list_Mode_free items)
+    return (+ length count)
+}
+shadow enum_size { assert (== (enum_size (enum_entries) 5) 6) }
+fn enum_hold() -> int {
+    return (enum_size (enum_entries) (enum_pressure_noise))
+}
+shadow enum_hold { assert (== (enum_hold) 781) }
+fn main() -> int {
+    assert (== (enum_hold) 781)
+    return 0
+}
+shadow main { assert (== (main) 0) }
+
+struct EnumHolder { items: List<Mode> }
+fn enum_field() -> int {
+    let holder: EnumHolder = EnumHolder { items: (enum_entries) }
+    assert (== (enum_pressure_noise) 780)
+    (list_Mode_push holder.items Mode.Negative)
+    assert (== (list_Mode_get holder.items 0) 17)
+    let result: Mode = (list_Mode_pop holder.items)
+    (list_Mode_free holder.items)
+    return result
+}
+shadow enum_field { assert (== (enum_field) -3) }
+fn enum_scalar_values() -> int {
+    let items: List<Mode> = (enum_entries)
+    (list_Mode_push items Mode.Zero)
+    assert (== (list_Mode_pop items) 0)
+    (list_Mode_push items Mode.Negative)
+    assert (== (list_Mode_pop items) -3)
+    assert (== (list_Mode_get items 0) 17)
+    (list_Mode_free items)
+    return 17
+}
+shadow enum_scalar_values { assert (== (enum_scalar_values) 17) }

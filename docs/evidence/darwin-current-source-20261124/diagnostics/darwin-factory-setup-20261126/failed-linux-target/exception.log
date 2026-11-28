@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/private/var/tmp/nanolang-5.1-current-20261126-gs2szvug/control.py", line 105, in <module>
+    run('cold-tools',make+['bin/nano','bin/nanoc_c','bin/nano_vm','bin/nvm2c','bin/nanoisa','bin/nano_virt','bin/nano_aot_runtime.o','bin/nano_as_capture.so','modules-index'],cwd=source,timeout=1800)
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/var/tmp/nanolang-5.1-current-20261126-gs2szvug/control.py", line 26, in run
+    assert row['exit']==0 and not row.get('timed_out'),label
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: cold-tools

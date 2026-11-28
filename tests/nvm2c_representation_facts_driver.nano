@@ -1,0 +1,184 @@
+module "src_nano/nvm2c/representation_facts.nano" as facts
+module "src_nano/nvm2c/container.nano" as wire
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+fn bit(value: bool) -> string { if value { return "1" } return "0" }
+shadow bit { assert (== (bit true) "1") assert (== (bit false) "0") }
+fn number(value: int) -> string { return (int_to_string value) }
+shadow number { assert (== (number 255) "255") }
+fn initial(flags: int) -> facts.State {
+    return facts.State { changed: (== (% flags 2) 1), failed: (== (% (/ flags 2) 2) 1),
+        error: (cond ((>= flags 4) "prior") (else "")) }
+}
+shadow initial { assert (initial 7).changed assert (initial 7).failed assert (== (initial 7).error "prior") }
+fn default_context() -> facts.Context { return facts.Context { function_index: 17, offset: 29, local_width: 3, record_width: 4 } }
+shadow default_context { assert (== (default_context).record_width 4) }
+fn default_location(policy: int) -> facts.Location {
+    if (>= policy 4) { return facts.Location { role: 0, ordinal: 1 } }
+    if (== policy 3) { return facts.Location { role: 3, ordinal: 4 } }
+    return facts.Location { role: 1, ordinal: 5 }
+}
+shadow default_location { assert (== (default_location 3).ordinal 4) assert (== (default_location 0).role 1) }
+fn location_ok(policy: int, role: int, ordinal: int, local_width: int, record_width: int, span: int) -> bool {
+    if (or (> role 4) (or (< local_width 1) (or (> local_width 66559) (or (< record_width 1) (> record_width 65535))))) { return false }
+    if (> (+ (* (* 2 local_width) (+ 1 record_width)) (+ (* 4 record_width) 4)) 1048576) { return false }
+    if (>= policy 4) { return (and (< ordinal 2) (or (!= policy 6) (>= record_width 2))) }
+    if (== role 0) { return true }
+    let size: int = (cond ((== role 1) (* 2 local_width)) ((== role 2) (* (* 2 local_width) record_width))
+        ((== role 3) (* 2 record_width)) (else 2))
+    return (and (<= span size) (<= ordinal (- size span)))
+}
+shadow location_ok { assert (location_ok 0 1 5 3 4 1) assert (not (location_ok 0 1 6 3 4 1)) assert (not (location_ok 0 0 0 66559 65535 1)) }
+fn packet_valid(bytes: array<u8>) -> bool {
+    let length: int = (array_length bytes)
+    if (or (< length 4) (> length 1048576)) { return false }
+    let count: int = (wire.read_u32 bytes 0)
+    if (or (> count 262144) (> count (/ (- length 4) 5))) { return false }
+    let mut position: int = 4
+    for i in (range 0 count) {
+        if (not (wire.contains bytes position 1)) { return false }
+        let op: int = (cast_int (at bytes position))
+        let mut width: int = 0
+        if (or (== op 0) (== op 1)) {
+            set width 5
+            if (not (wire.contains bytes position width)) { return false }
+            if (and (== op 0) (or (> (at bytes (+ position 1)) 6) (> (at bytes (+ position 4)) 7))) { return false }
+        } else if (== op 2) {
+            set width 26
+            if (not (wire.contains bytes position width)) { return false }
+            let policy: int = (cast_int (at bytes (+ position 1)))
+            let role: int = (cast_int (at bytes (+ position 5)))
+            let local_width: int = (wire.read_u32 bytes (+ position 18))
+            let record_width: int = (wire.read_u32 bytes (+ position 22))
+            let span: int = (cond ((== policy 3) record_width) (else 1))
+            if (or (> policy 6) (or (> (at bytes (+ position 4)) 7)
+                (not (location_ok policy role (wire.read_u32 bytes (+ position 6)) local_width record_width span)))) { return false }
+        } else if (== op 3) {
+            if (not (wire.contains bytes position 10)) { return false }
+            let policy: int = (cast_int (at bytes (+ position 1)))
+            let record_width: int = (wire.read_u16 bytes (+ position 8))
+            if (not (or (or (== policy 0) (== policy 3)) (or (== policy 5) (== policy 6)))) { return false }
+            if (or (> (at bytes (+ position 2)) 7)
+                (not (location_ok policy (cast_int (at bytes (+ position 3))) (wire.read_u32 bytes (+ position 4)) 3 record_width record_width))) { return false }
+            set width (+ 10 (* 2 record_width))
+        } else if (== op 4) {
+            if (not (wire.contains bytes position 6)) { return false }
+            let use_source: int = (cast_int (at bytes (+ position 3)))
+            if (or (> use_source 1) (> (at bytes (+ position 1)) 7)) { return false }
+            set width (+ 6 (cond ((== use_source 1) (wire.read_u16 bytes (+ position 4))) (else 0)))
+        } else if (== op 5) {
+            if (not (wire.contains bytes position 5)) { return false }
+            if (> (at bytes (+ position 1)) 7) { return false }
+            let n: int = (wire.read_u16 bytes (+ position 3))
+            set width (+ 5 (* 2 n))
+            if (not (wire.contains bytes position width)) { return false }
+            for j in (range 0 n) { if (> (at bytes (+ (+ position 5) (* 2 j))) 6) { return false } }
+        } else { return false }
+        if (not (wire.contains bytes position width)) { return false }
+        set position (+ position width)
+    }
+    return (== position length)
+}
+shadow packet_valid { assert (packet_valid [0,0,0,0]) assert (packet_valid [1,0,0,0,0,0,2,0,0]) assert (not (packet_valid [1,0,0,0,0,7,2,0,0])) }
+fn values_text(values: array<int>) -> string {
+    let mut text: array<string> = []
+    for i in (range 0 (array_length values)) { set text (array_push text (number (at values i))) }
+    return (str_join text ",")
+}
+shadow values_text { assert (== (values_text [0,255,2]) "0,255,2") assert (== (values_text []) "") }
+fn state_text(s: facts.State) -> string { return (+ (bit s.changed) (+ "|" (+ (bit s.failed) (+ "|" s.error)))) }
+shadow state_text { assert (== (state_text (initial 7)) "1|1|prior") }
+fn read_values(bytes: array<u8>, start: int, count: int) -> array<int> {
+    let mut values: array<int> = []
+    for i in (range 0 count) { set values (array_push values (cast_int (at bytes (+ start i)))) }
+    return values
+}
+shadow read_values { assert (== (at (read_values [255,0] 0 2) 0) 255) }
+fn cell_text(policy: int, flags: int, current: int, incoming: int, c: facts.Context, location: facts.Location) -> string {
+    let r: facts.Cell = (facts.cell c location current incoming policy (initial flags))
+    return (+ "C|" (+ (number policy) (+ "|" (+ (number flags) (+ "|" (+ (number current) (+ "|" (+ (number incoming)
+        (+ "|" (+ (bit r.valid) (+ "|" (+ (bit r.accepted) (+ "|" (+ (number r.kind) (+ "|" (state_text r.state))))))))))))))))
+}
+shadow cell_text { assert (== (cell_text 0 0 2 7 (default_context) (default_location 0)) "C|0|0|2|7|1|1|7|1|0|") }
+fn packet_rows(bytes: array<u8>) -> array<string> {
+    if (not (packet_valid bytes)) { return ["P"] }
+    let count: int = (wire.read_u32 bytes 0)
+    let mut rows: array<string> = [(+ "Z|" (number count))]
+    let mut p: int = 4
+    for i in (range 0 count) {
+        let op: int = (cast_int (at bytes p))
+        let a: int = (cast_int (at bytes (+ p 1)))
+        let b: int = (cast_int (at bytes (+ p 2)))
+        let d: int = (cast_int (at bytes (+ p 3)))
+        let mut text: string = ""
+        let mut width: int = 5
+        if (== op 0) {
+            set text (cell_text a (cast_int (at bytes (+ p 4))) b d (default_context) (default_location a))
+        } else if (== op 1) {
+            let value: int = (cast_int (at bytes (+ p 4)))
+            let r: facts.Pair = (facts.exact_map_pair a b d value)
+            set text (+ "M|" (+ (number a) (+ "|" (+ (number b) (+ "|" (+ (number d) (+ "|" (+ (number value) (+ "|" (bit r.exact))))))))))
+        } else if (== op 2) {
+            let c: facts.Context = facts.Context { function_index: (wire.read_u32 bytes (+ p 10)), offset: (wire.read_u32 bytes (+ p 14)),
+                local_width: (wire.read_u32 bytes (+ p 18)), record_width: (wire.read_u32 bytes (+ p 22)) }
+            let location: facts.Location = facts.Location { role: (cast_int (at bytes (+ p 5))), ordinal: (wire.read_u32 bytes (+ p 6)) }
+            set text (cell_text a (cast_int (at bytes (+ p 4))) b d c location)
+            set width 26
+        } else if (== op 3) {
+            let ordinal: int = (wire.read_u32 bytes (+ p 4))
+            let n: int = (wire.read_u16 bytes (+ p 8))
+            let c: facts.Context = facts.Context { function_index: 17, offset: 29, local_width: 3, record_width: n }
+            let location: facts.Location = facts.Location { role: d, ordinal: ordinal }
+            let prior: array<int> = (read_values bytes (+ p 10) n)
+            let r: facts.Vector = (facts.fields c location prior (read_values bytes (+ (+ p 10) n) n) a (initial b))
+            set text (+ "V|" (+ (number a) (+ "|" (+ (number b) (+ "|" (+ (number d) (+ "|" (+ (number ordinal)
+                (+ "|" (+ (bit r.valid) (+ "|" (+ (bit r.accepted) (+ "|" (+ (state_text r.state) (+ "|" (+ (values_text r.values) (+ "|" (values_text prior))))))))))))))))))
+            set width (+ 10 (* 2 n))
+        } else if (== op 4) {
+            let n: int = (wire.read_u16 bytes (+ p 4))
+            let source: array<int> = (cond ((== d 1) (read_values bytes (+ p 6) n)) (else []))
+            let r: facts.Vector = (facts.copy_fields source n b (== d 1) (initial a))
+            let mut detached: bool = true
+            if (and (== d 1) (> n 0)) {
+                let before: int = (at source 0)
+                (array_set r.values 0 (% (+ (at r.values 0) 1) 256))
+                set detached (== (at source 0) before)
+            }
+            set text (+ "D|" (+ (number a) (+ "|" (+ (number b) (+ "|" (+ (number d) (+ "|" (+ (number n)
+                (+ "|" (+ (bit r.valid) (+ "|" (+ (bit r.accepted) (+ "|" (+ (bit detached) (+ "|" (+ (state_text r.state) (+ "|" (values_text r.values))))))))))))))))))
+            set width (+ 6 (cond ((== d 1) n) (else 0)))
+        } else {
+            let n: int = (wire.read_u16 bytes (+ p 3))
+            let mut state: facts.State = (initial a)
+            let mut kind: int = b
+            let mut steps: array<string> = []
+            for j in (range 0 n) {
+                let at_position: int = (+ (+ p 5) (* j 2))
+                let policy: int = (cast_int (at bytes at_position))
+                let incoming: int = (cast_int (at bytes (+ at_position 1)))
+                let r: facts.Cell = (facts.cell (default_context) (default_location policy) kind incoming policy state)
+                set kind r.kind
+                set state r.state
+                set steps (array_push steps (+ (number policy) (+ "^" (+ (number incoming) (+ "^" (+ (bit r.accepted)
+                    (+ "^" (+ (number kind) (+ "^" (+ (bit state.changed) (+ "^" (+ (bit state.failed) (+ "^" state.error)))))))))))))
+            }
+            set text (+ "Q|" (+ (number a) (+ "|" (+ (number b) (+ "|" (+ (number n) (+ "|" (str_join steps "~"))))))))
+            set width (+ 5 (* 2 n))
+        }
+        set rows (array_push rows text)
+        set p (+ p width)
+    }
+    return rows
+}
+shadow packet_rows { assert (== (at (packet_rows [1,0,0,0,0,0,2,7,0]) 1) "C|0|0|2|7|1|1|7|1|0|") assert (== (at (packet_rows [1,0,0,0,6,0,0,0,0]) 0) "P") }
+fn main() -> int {
+    unsafe {
+        for i in (range 1 (get_argc)) {
+            let lines: array<string> = (packet_rows (file_read_bytes (get_argv i)))
+            for j in (range 0 (array_length lines)) { (println (at lines j)) }
+        }
+    }
+    return 0
+}
+shadow main { assert (== (at (packet_rows [0,0,0,0]) 0) "Z|0") }

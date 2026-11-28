@@ -1,0 +1,232 @@
+module nvm2c_affine_frame
+module "src_nano/nvm2c/affine_state.nano" as state
+module "src_nano/nvm2c/affine_facts.nano" as facts
+module "src_nano/nvm2c/affine_global_flow.nano" as global
+
+pub struct Value { tag: int, observation: bool, root: int, owned: bool, layout: int, variant: int, excluded: array<bool> }
+pub struct Handler { key: int, site: int }
+pub struct Frame { locals: state.State, stack: array<Value>, globals: array<int>, handlers: array<Handler>, floor: int, activation: int }
+pub struct Join { valid: bool, changed: bool, frame: Frame, message: string }
+
+pub fn value(tag: int, observation: bool, root: int, owned: bool, layout: int, variant: int) -> Value {
+    let mut excluded: array<bool> = []
+    for index in (range 0 256) { set excluded (array_push excluded false) }
+    return Value { tag: tag, observation: observation, root: root, owned: owned, layout: layout, variant: variant, excluded: excluded }
+}
+shadow value {
+    let item: Value = (value 10 false 65535 false 0 65535)
+    assert (== (array_length item.excluded) 256) assert (not (at item.excluded 255))
+}
+
+pub fn copy_value(item: Value) -> Value {
+    return Value { tag: item.tag, observation: item.observation, root: item.root, owned: item.owned,
+        layout: item.layout, variant: item.variant, excluded: (array_slice item.excluded 0 (array_length item.excluded)) }
+}
+shadow copy_value {
+    let item: Value = (value 10 false 0 false 0 65535)
+    let copied: Value = (copy_value item)
+    (array_set copied.excluded 255 true)
+    assert (not (at item.excluded 255))
+}
+
+pub fn create(locals: state.State, globals: int) -> Frame {
+    let mut relations: array<int> = []
+    if (and (>= globals 0) (<= globals 256)) {
+        for index in (range 0 globals) { set relations (array_push relations 9) }
+        return Frame { locals: (state.clone locals), stack: [], globals: relations, handlers: [], floor: 0, activation: 0 }
+    }
+    return Frame { locals: (state.empty), stack: [], globals: [], handlers: [], floor: 0, activation: 0 }
+}
+shadow create { assert (== (array_length (create (state.empty) 256).globals) 256) assert (not (create (state.empty) 257).locals.valid) }
+
+pub fn clone(frame: Frame) -> Frame {
+    let mut stack: array<Value> = []
+    for index in (range 0 (array_length frame.stack)) { set stack (array_push stack (copy_value (at frame.stack index))) }
+    return Frame { locals: (state.clone frame.locals), stack: stack,
+        globals: (array_slice frame.globals 0 (array_length frame.globals)),
+        handlers: (array_slice frame.handlers 0 (array_length frame.handlers)), floor: frame.floor, activation: frame.activation }
+}
+shadow clone {
+    let frame: Frame = (create (state.empty) 1)
+    let copied: Frame = (clone frame)
+    (array_set copied.globals 0 15)
+    assert (== (at frame.globals 0) 9)
+}
+
+# I operate on checked frame snapshots; validity here describes this operation.
+pub fn push(frame: Frame, item: Value) -> Join {
+    if (>= (array_length frame.stack) 256) { return (refused frame "") }
+    let out: Frame = (clone frame)
+    return Join { valid: true, changed: true, message: "", frame: Frame {
+        locals: out.locals, stack: (array_push out.stack (copy_value item)),
+        globals: out.globals, handlers: out.handlers, floor: out.floor, activation: out.activation } }
+}
+shadow push {
+    let before: Frame = (create (state.empty) 1)
+    let item: Value = (value 8 true 7 true 11 65535)
+    (array_set item.excluded 255 true)
+    let added: Join = (push before item)
+    assert added.valid assert added.changed
+    assert (== (array_length before.stack) 0)
+    assert (== (at added.frame.stack 0).root 7)
+    assert (at (at added.frame.stack 0).excluded 255)
+    (array_set item.excluded 255 false)
+    (array_set added.frame.globals 0 15)
+    assert (at (at added.frame.stack 0).excluded 255)
+    assert (== (at before.globals 0) 9)
+    let mut full: array<Value> = []
+    for index in (range 0 256) { set full (array_push full (value 1 false 65535 false 4294967295 65535)) }
+    let maximum: Frame = Frame { locals: before.locals, stack: full, globals: [], handlers: [], floor: 0, activation: 0 }
+    assert (not (push maximum item).valid)
+    assert (== (array_length maximum.stack) 256)
+}
+
+# I match the C helper's exact tag rule, including its non-scalar physical tags.
+pub fn pop_scalar(frame: Frame, tag: int) -> Join {
+    let count: int = (array_length frame.stack)
+    if (== count 0) { return (refused frame "") }
+    let item: Value = (at frame.stack (- count 1))
+    if (or item.observation (or item.owned (!= item.tag tag))) { return (refused frame "") }
+    let out: Frame = (clone frame)
+    return Join { valid: true, changed: true, message: "", frame: Frame {
+        locals: out.locals, stack: (array_slice out.stack 0 (- count 1)),
+        globals: out.globals, handlers: out.handlers, floor: out.floor, activation: out.activation } }
+}
+shadow pop_scalar {
+    let before: Frame = (create (state.empty) 1)
+    assert (not (pop_scalar before 1).valid)
+    let text: Frame = (push before (value 5 false 65535 false 4294967295 65535)).frame
+    assert (pop_scalar text 5).valid
+    assert (not (pop_scalar text 1).valid)
+    assert (== (array_length text.stack) 1)
+    let observed: Frame = (push before (value 1 true 0 false 4294967295 65535)).frame
+    let owned: Frame = (push before (value 1 false 65535 true 4294967295 65535)).frame
+    assert (not (pop_scalar observed 1).valid)
+    assert (not (pop_scalar owned 1).valid)
+}
+
+pub fn observes_owner(frame: Frame, root: int) -> bool {
+    for index in (range 0 (array_length frame.stack)) {
+        let item: Value = (at frame.stack index)
+        if (and item.observation (== item.root root)) { return true }
+    }
+    return false
+}
+shadow observes_owner { assert (not (observes_owner (create (state.empty) 0) 0)) }
+
+fn refused(frame: Frame, message: string) -> Join {
+    return Join { valid: false, changed: false, frame: frame, message: message }
+}
+shadow refused { assert (not (refused (create (state.empty) 0) "I refuse").valid) }
+
+pub fn stack_meet(destination: Frame, incoming: Frame) -> Join {
+    let error: string = "I require exact ownership and stack provenance at every join"
+    if (!= (array_length destination.stack) (array_length incoming.stack)) { return (refused destination error) }
+    let out: Frame = (clone destination)
+    let mut changed: bool = false
+    for index in (range 0 (array_length destination.stack)) {
+        let x: Value = (at destination.stack index)
+        let y: Value = (at incoming.stack index)
+        if (or (!= x.tag y.tag) (or (!= x.observation y.observation) (or (!= x.owned y.owned)
+            (or (and (or x.owned (or (== x.tag 8) (== x.tag 7)))
+                (not (state.types_equal destination.locals (facts.slot x.tag x.layout) (facts.slot y.tag y.layout))))
+                (and x.observation (!= x.root y.root)))))) { return (refused destination error) }
+        if (== x.tag 10) {
+            if (!= x.layout y.layout) { return (refused destination error) }
+            let mut variant: int = x.variant
+            let mut root: int = x.root
+            let excluded: array<bool> = (array_slice x.excluded 0 256)
+            if (or (!= x.variant y.variant) (== x.variant 65535)) {
+                for arm in (range 0 256) {
+                    let mut a: bool = (!= x.variant arm)
+                    let mut b: bool = (!= y.variant arm)
+                    if (== x.variant 65535) { set a (at x.excluded arm) }
+                    if (== y.variant 65535) { set b (at y.excluded arm) }
+                    let joined: bool = (and a b)
+                    if (!= (at excluded arm) joined) { (array_set excluded arm joined) set changed true }
+                }
+                if (!= x.variant 65535) { set variant 65535 set changed true }
+            }
+            if (and (!= x.root y.root) (!= x.root 65535)) { set root 65535 set changed true }
+            (array_set out.stack index Value { tag: x.tag, observation: x.observation, root: root,
+                owned: x.owned, layout: x.layout, variant: variant, excluded: excluded })
+        }
+    }
+    return Join { valid: true, changed: changed, frame: out, message: "" }
+}
+
+fn sample() -> Frame {
+    let f: facts.Facts = facts.Facts { valid: true, analysis: 1, module_identity: 1, function: 0,
+        rows: [], flags: [], locals: [(facts.slot 1 4294967295)], result: (facts.slot 0 4294967295),
+        parameters: 0, result_count: 0, result_tag: 0, arrays: [], variants: [], effects: [] }
+    let base: Frame = (create (state.create f 1) 1)
+    return Frame { locals: base.locals, stack: [(value 10 false 0 false 0 1)], globals: base.globals,
+        handlers: [], floor: 0, activation: 0 }
+}
+shadow sample { assert (sample).locals.valid assert (== (array_length (sample).stack) 1) }
+shadow stack_meet {
+    let a: Frame = (sample)
+    let b: Frame = (clone a)
+    (array_set b.stack 0 (value 10 false 1 false 0 2))
+    let joined: Join = (stack_meet a b)
+    assert joined.valid assert joined.changed
+    assert (== (at joined.frame.stack 0).variant 65535) assert (== (at joined.frame.stack 0).root 65535)
+    assert (not (at (at joined.frame.stack 0).excluded 1)) assert (at (at joined.frame.stack 0).excluded 255)
+    assert (== (at a.stack 0).variant 1) assert (not (at (at a.stack 0).excluded 255))
+}
+
+pub fn meet(destination: Frame, incoming: Frame) -> Join {
+    let count: int = (array_length destination.handlers)
+    if (or (!= count (array_length incoming.handlers)) (or (!= destination.floor incoming.floor)
+        (!= destination.activation incoming.activation))) {
+        return (refused destination "I require identical handler context at every control-flow join")
+    }
+    for index in (range 0 count) {
+        let a: Handler = (at destination.handlers index)
+        let b: Handler = (at incoming.handlers index)
+        if (or (!= a.key b.key) (!= a.site b.site)) {
+            return (refused destination "I require identical handler context at every control-flow join")
+        }
+    }
+    let stack: Join = (stack_meet destination incoming)
+    if (not stack.valid) { return (refused destination stack.message) }
+    let locals: state.Transition = (state.meet_initialization stack.frame.locals incoming.locals)
+    if (not locals.valid) { return (refused destination "I require exact ownership and stack provenance at every join") }
+    if (!= (array_length destination.globals) (array_length incoming.globals)) {
+        return (refused destination "I require one global declaration domain at every join")
+    }
+    let mut changed: bool = (or stack.changed locals.changed)
+    let out: Frame = stack.frame
+    for index in (range 0 (array_length destination.globals)) {
+        let relation: int = (global.unite (at destination.globals index) (at incoming.globals index))
+        if (!= relation (at destination.globals index)) { (array_set out.globals index relation) set changed true }
+    }
+    return Join { valid: true, changed: changed, message: "", frame: Frame { locals: locals.state,
+        stack: out.stack, globals: out.globals, handlers: out.handlers, floor: out.floor, activation: out.activation } }
+}
+shadow meet {
+    let a: Frame = (sample)
+    let b: Frame = (clone a)
+    (array_set b.globals 0 15)
+    let joined: Join = (meet a b)
+    assert joined.valid assert joined.changed assert (== (at joined.frame.globals 0) 15)
+    assert (== (at a.globals 0) 9) assert (not (meet a (create (state.empty) 0)).valid)
+}
+
+pub fn refine(frame: Frame, variant: int) -> Join {
+    let count: int = (array_length frame.stack)
+    if (or (== count 0) (or (< variant 0) (>= variant 256))) { return (refused frame "I require a checked scalar-union match edge") }
+    let item: Value = (at frame.stack (- count 1))
+    if (or (!= item.tag 10) (or item.observation (and (!= item.variant 65535) (!= item.variant variant)))) {
+        return (refused frame "I require a checked scalar-union match edge")
+    }
+    let copied: Frame = (clone frame)
+    (array_set copied.stack (- count 1) (value item.tag item.observation item.root item.owned item.layout variant))
+    return Join { valid: true, changed: false, frame: copied, message: "" }
+}
+shadow refine {
+    let frame: Frame = (sample)
+    assert (refine frame 1).valid assert (not (refine frame 2).valid)
+    assert (== (at (refine frame 1).frame.stack 0).variant 1)
+    assert (not (refine frame 256).valid)
+}

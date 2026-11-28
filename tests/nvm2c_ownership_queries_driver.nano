@@ -1,0 +1,83 @@
+module "src_nano/nvm2c/ownership_queries.nano" as queries
+module "src_nano/nvm2c/ownership_wire.nano" as read
+module "tests/nvm2c_affine_fixture.nano" as fixture
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+fn number(n: int) -> string { return (+ (int_to_string n) ",") }
+shadow number { assert (== (number 4294967295) "4294967295,") }
+fn value(v: queries.Value) -> string { return (+ (number v.tag) (number v.layout)) }
+shadow value { assert (== (value queries.Value { tag: 1, layout: 4294967295 }) "1,4294967295,") }
+fn bit(flags: int, place: int) -> bool { return (== (% (/ flags place) 2) 1) }
+shadow bit { assert (bit 63 32) assert (not (bit 31 32)) }
+fn same(a: array<u8>, b: array<u8>) -> bool {
+    if (!= (array_length a) (array_length b)) { return false }
+    for i in (range 0 (array_length a)) { if (!= (at a i) (at b i)) { return false } }
+    return true
+}
+shadow same { assert (same [0,255] [0,255]) assert (not (same [] [0])) }
+
+fn describe(bytes: array<u8>) -> string {
+    let c: read.Cursor = (read.open bytes)
+    let op: int = (read.read_u32 c)
+    let a: int = (read.read_u32 c)
+    let b: int = (read.read_u32 c)
+    let flags: int = (read.read_u32 c)
+    let size: int = (read.read_u32 c)
+    if (or (!= (read.status c) 0) (or (> op 5) (or (> flags 63)
+        (or (!= size (- (array_length bytes) 20)) (and (or (== op 0) (== op 5)) (> b 65535)))))) { return "D" }
+    let image: fixture.Fixture = (fixture.parse (array_slice bytes 20 size))
+    if (not image.valid) { return "D" }
+    let ctx: queries.Context = queries.Context { present: (bit flags 1), ownership_present: (bit flags 2),
+        layouts_present: (bit flags 4), model: image.model }
+    let before: array<u8> = (array_slice image.ownership 0 (array_length image.ownership))
+    let layouts: array<u8> = (array_slice image.model.layouts 0 (array_length image.model.layouts))
+    let mut answer: queries.Query = (queries.globals [] queries.Context { present: false, ownership_present: false, layouts_present: false, model: image.model } 0 false false)
+    if (== op 0) { set answer (queries.path image.ownership ctx a b (bit flags 8) (bit flags 16)) }
+    else if (== op 1) { set answer (queries.globals image.ownership ctx a (bit flags 8) (bit flags 16)) }
+    else if (== op 2) { set answer (queries.signature image.ownership ctx a (bit flags 8)) }
+    else if (== op 3) { set answer (queries.effect_types image.ownership ctx (bit flags 8)) }
+    else if (== op 4) { set answer (queries.array_constructor image.ownership ctx a b (bit flags 8) (bit flags 32)) }
+    else { set answer (queries.union_variant image.ownership ctx a b (bit flags 8)) }
+    assert (same before image.ownership) assert (same layouts image.model.layouts)
+    let mut text: string = (number answer.status)
+    if (!= answer.status 0) { return text }
+    if (== op 0) {
+        set text (+ text (number answer.number))
+        for index in (range 0 (array_length answer.fields)) { set text (+ text (number (at answer.fields index))) }
+        if (> (array_length answer.fields) 0) {
+            (array_set answer.fields 0 (% (+ (at answer.fields 0) 1) 65536))
+            assert (same before image.ownership)
+        }
+    } else if (== op 1) {
+        set text (+ text (number answer.number))
+        for index in (range 0 (array_length answer.globals)) {
+            let row: queries.Global = (at answer.globals index)
+            let mut mutable: int = 0
+            if row.mutable { set mutable 1 }
+            set text (+ text (+ (number row.tag) (+ (number mutable) (number row.layout))))
+        }
+    } else if (== op 2) {
+        let row: queries.Effect = answer.signature
+        set text (+ text (+ (number row.key) (+ (value row.result) (number (array_length row.parameters)))))
+        for index in (range 0 (array_length row.parameters)) { set text (+ text (value (at row.parameters index))) }
+    } else if (== op 3) {
+        set text (+ text (number answer.number))
+        for index in (range 0 (array_length answer.types)) { set text (+ text (value (at answer.types index))) }
+    } else if (== op 4) { set text (+ text (number answer.number)) }
+    else {
+        let row: queries.Variant = answer.variant
+        set text (+ text (+ (number row.layout) (+ (number row.name) (+ (number row.offset) (number row.count)))))
+    }
+    return text
+}
+shadow describe { assert (== (describe []) "D") assert (== (describe [0,0,0,0]) "D") }
+
+fn main() -> int {
+    unsafe {
+        let mut index: int = 1
+        while (< index (get_argc)) { (println (describe (file_read_bytes (get_argv index)))) set index (+ index 1) }
+    }
+    return 0
+}
+shadow main { assert (== (describe []) "D") }

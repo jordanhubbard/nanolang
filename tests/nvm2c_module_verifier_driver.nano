@@ -1,0 +1,36 @@
+module "src_nano/nvm2c/module_verifier.nano" as verifier
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+fn report(result: verifier.Result) -> string {
+    if result.deferred { return "A" }
+    if (!= result.status 0) { return (+ "R:" (int_to_string result.status)) }
+    if result.malformed { return "D" }
+    if (not result.valid) { return (+ "0:" result.message) }
+    let mut value: string = "1:"
+    if result.complete { set value (+ value "1:") } else { set value (+ value "0:") }
+    let mut i: int = 0
+    while (< i (array_length result.depths)) {
+        if (> i 0) { set value (+ value ",") }
+        set value (+ value (int_to_string (at result.depths i)))
+        set i (+ i 1)
+    }
+    return value
+}
+shadow report { assert (== (report (verifier.verify [])) "R:1") }
+fn main() -> int {
+    unsafe {
+        let mut index: int = 1
+        let mut declared: bool = false
+        if (> (get_argc) 1) {
+            if (== (get_argv 1) "--declared") { set index 2 set declared true }
+        }
+        while (< index (get_argc)) {
+            let bytes: array<u8> = (file_read_bytes (get_argv index))
+            if declared { (println (report (verifier.verify_declared bytes))) } else { (println (report (verifier.verify bytes))) }
+            set index (+ index 1)
+        }
+    }
+    return 0
+}
+shadow main { assert (== (main) 0) }

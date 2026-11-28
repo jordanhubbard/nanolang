@@ -1,0 +1,11 @@
+--- a/src/nanoisa/nvm2c.c
++++ b/src/nanoisa/nvm2c.c
+@@ -1174,7 +1174,7 @@
+     }
+     if (!slot.shape) slot.shape = shape_variable(b, b->shape_current);
+     if (b->shape_opcode == OP_AGG_GET ||
+-        (b->shape_opcode == OP_LOAD_LOCAL &&
++        ((b->shape_opcode == OP_LOAD_LOCAL || b->shape_opcode == OP_DUP || b->shape_opcode == OP_PICK) &&
+          (slot.kind == NVM2C_VK_STR || slot.kind == NVM2C_VK_INT || slot.kind == NVM2C_VK_BOOL || slot.kind == NVM2C_VK_FLOAT))) {
+         if (!shape_field_kind(b, slot.shape, slot.kind)) return 0;
+     } else if (!shape_kind(b, slot.shape, slot.kind)) return 0;

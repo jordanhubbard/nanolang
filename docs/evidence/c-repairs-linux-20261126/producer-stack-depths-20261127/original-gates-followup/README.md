@@ -1,0 +1,7 @@
+# My original gate follow-up
+
+My producer component018f2e350074bd19cc9aab39bc26a69029706aa1, integrated as8864bd37aa933fa244a7a0d779e1ee757266064a, builds my production tools successfully. Its C seed compiles the unchanged tests/selfhost_shadow_emitter.nano in44.052 seconds total at the original10-second shadow and300-second command limits. The actual compiler SHA remains ae09aafcfc74ee913583f23103f0e018b6af8079ff39ece5e66c02b89f532194 before and after. This receipt guards compiler identity; it does not contain a complete source guard or qualify the full native suite.
+
+I also retain complete terminal job metadata and logs from my prior checker revision e598013cd5363be1664a40a7fe7c615f7b2cdb2a, run46063824005. Linux and Darwin pass the original bootstrap step and36 native methods (33.954 and42.362 seconds). Each emitter setup then times out while nanoc_stage2 compiles the original fixture at300 seconds. Zero emitter methods run. The preceding C-seed iteration passes. I retain these as failures at their original revision; the producer repair is not present in that cohort.
+
+My new exact-head original matrix46070194632 and local bootstrap run separately. This capsule makes no claim about their terminal outcome. Full17/36/12, cache/workers, frozen assertions, platform and all69 release requirements remain open. I change no original assertion or deadline. Run `python3 verify.py --workspace /path/on/large/volume` to verify the receipts without executing my compiler.

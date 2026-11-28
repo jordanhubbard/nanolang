@@ -1,0 +1,71 @@
+module "src_nano/nvm2c/binary64_c.nano" as scalar
+
+fn row(label: string, opcode: int, inputs: array<int>) -> string {
+    let result: scalar.Expression = (scalar.emit opcode inputs)
+    let mut slots: string = ""
+    for index in (range 0 (array_length inputs)) {
+        if (> index 0) { set slots (+ slots ",") }
+        set slots (+ slots (int_to_string (at inputs index)))
+    }
+    let mut valid: int = 0
+    let mut boolean: int = 0
+    if result.valid { set valid 1 }
+    if result.boolean { set boolean 1 }
+    return (+ "E|" (+ label (+ "|" (+ (int_to_string opcode) (+ "|" (+ slots
+        (+ "|" (+ (int_to_string valid) (+ "|" (+ (int_to_string result.arity)
+        (+ "|" (+ (int_to_string boolean) (+ "|" result.text)))))))))))))
+}
+shadow row {
+    assert (str_starts_with (row "shadow" 200 [0,1]) "E|shadow|200|0,1|1|2|0|")
+    assert (== (row "bad" 256 []) "E|bad|256||0|0|0|")
+}
+
+fn report() -> void {
+    (println "PRELUDE-BEGIN")
+    (print (scalar.prelude))
+    (println "PRELUDE-END")
+    for opcode in (range -1 257) {
+        let mut inputs: array<int> = [0,1]
+        if (or (== opcode 141) (or (== opcode 142) (== opcode 204))) { set inputs [0] }
+        (println (row "base" opcode inputs))
+    }
+    let operations: array<int> = [141,142,200,201,202,203,204,216,217,218,219,220,221]
+    for index in (range 0 (array_length operations)) {
+        let opcode: int = (at operations index)
+        let unary: bool = (or (== opcode 141) (or (== opcode 142) (== opcode 204)))
+        (println (row "arity-0" opcode []))
+        (println (row "arity-1" opcode [0]))
+        (println (row "arity-2" opcode [0,1]))
+        (println (row "arity-3" opcode [0,1,2]))
+        if unary {
+            (println (row "left-low" opcode [-1]))
+            (println (row "left-high" opcode [4294967296]))
+            (println (row "left-edge" opcode [4294967295]))
+        } else {
+            (println (row "left-low" opcode [-1,1]))
+            (println (row "left-high" opcode [4294967296,1]))
+            (println (row "left-edge" opcode [4294967295,1]))
+            (println (row "right-low" opcode [0,-1]))
+            (println (row "right-high" opcode [0,4294967296]))
+            (println (row "right-edge" opcode [0,4294967295]))
+            (println (row "alias" opcode [5,5]))
+        }
+    }
+}
+shadow report {
+    let result: scalar.Expression = (scalar.emit 204 [4294967295])
+    assert result.valid
+    assert (== result.arity 1)
+    assert (== result.boolean false)
+}
+
+fn main() -> int {
+    (report)
+    return 0
+}
+shadow main {
+    let result: scalar.Expression = (scalar.emit 216 [0,0])
+    assert result.valid
+    assert result.boolean
+    assert (== result.arity 2)
+}

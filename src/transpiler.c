@@ -1,11 +1,14 @@
 #include "nanolang.h"
+#include "native_local_names.h"
 #include "generic_bindings.h"
+#include "nanoisa/regex_host_contracts.h"
 #include "module_symbol.h"
 #include "module_builder.h"
 #include "stdlib_runtime.h"
 #include "builtins_registry.h"
 #include <stdarg.h>
 #include <libgen.h>
+#include <limits.h>
 
 /* String builder for C code generation - now defined in stdlib_runtime.h */
 
@@ -108,6 +111,13 @@ static bool build_monomorphized_name(char *dest, size_t dest_size,
     }
     
     return true;
+}
+
+static void append_native_parameter_name(StringBuilder *sb, const char *source_name) {
+    char *name = native_c_parameter_name(source_name);
+    if (!name) { fputs("I cannot allocate a native parameter name.\n", stderr); exit(1); }
+    sb_append(sb, name);
+    free(name);
 }
 
 /* Helper to build monomorphized name from TypeInfo parameters */
@@ -309,6 +319,75 @@ typedef struct {
 /* Global tuple registry - set during transpilation */
 static TupleTypeRegistry *g_tuple_registry = NULL;
 static FunctionTypeRegistry *g_function_registry = NULL;
+
+/* I retain one canonical import graph for native declarations and their types.
+ * Cached ASTs stay owned by the module loader; I own only this path inventory. */
+typedef struct {
+    ASTNode *program;
+    char *path;
+} TranspilerModuleEntry;
+typedef struct {
+    TranspilerModuleEntry *entries;
+    size_t count;
+    size_t capacity;
+} TranspilerModuleClosure;
+
+static void free_transpiler_module_closure(TranspilerModuleClosure *closure) {
+    for (size_t i = 0; i < closure->count; ++i) free(closure->entries[i].path);
+    free(closure->entries);
+    memset(closure, 0, sizeof *closure);
+}
+
+static TranspilerModuleClosure transpiler_module_closure(ASTNode *program, const char *source_file) {
+    TranspilerModuleClosure closure = {0};
+    closure.capacity = 16;
+    closure.entries = calloc(closure.capacity, sizeof *closure.entries);
+    char *root = source_file ? realpath(source_file, NULL) : NULL;
+    if (!root) root = strdup(source_file ? source_file : "");
+    if (!closure.entries || !root) {
+        fprintf(stderr, "I could not retain my native module declaration closure.\n");
+        exit(1);
+    }
+    closure.entries[closure.count++] = (TranspilerModuleEntry){program, root};
+    for (size_t i = 0; i < closure.count; ++i) {
+        ASTNode *current = closure.entries[i].program;
+        const char *current_file = closure.entries[i].path;
+        if (!current || current->type != AST_PROGRAM) continue;
+        for (int j = 0; j < current->as.program.count; ++j) {
+            ASTNode *item = current->as.program.items[j];
+            if (!item || item->type != AST_IMPORT) continue;
+            const char *resolved = resolve_module_path(item->as.import_stmt.module_path, current_file);
+            if (!resolved) continue;
+            char *canonical = realpath(resolved, NULL);
+            if (canonical) { free((char *)resolved); resolved = canonical; }
+            bool seen = false;
+            for (size_t k = 0; k < closure.count; ++k)
+                if (!strcmp(closure.entries[k].path, resolved)) { seen = true; break; }
+            if (seen) { free((char *)resolved); continue; }
+            ASTNode *imported = get_cached_module_ast(resolved);
+            if (!imported || imported->type != AST_PROGRAM || imported == program) {
+                free((char *)resolved);
+                continue;
+            }
+            if (closure.count == closure.capacity) {
+                if (closure.capacity > SIZE_MAX / (2 * sizeof *closure.entries)) {
+                    fprintf(stderr, "I cannot represent my native module declaration closure.\n");
+                    exit(1);
+                }
+                size_t capacity = closure.capacity * 2;
+                TranspilerModuleEntry *entries = realloc(closure.entries, capacity * sizeof *entries);
+                if (!entries) {
+                    fprintf(stderr, "I could not grow my native module declaration closure.\n");
+                    exit(1);
+                }
+                closure.entries = entries;
+                closure.capacity = capacity;
+            }
+            closure.entries[closure.count++] = (TranspilerModuleEntry){imported, (char *)resolved};
+        }
+    }
+    return closure;
+}
 
 /* Global header collection - gathered from imported modules */
 typedef struct {
@@ -918,7 +997,7 @@ static void emit_contextual_header(StringBuilder *sb, const ASTNode *orig,
         emit_contextual_type(sb, env, registry, sig->param_types[i],
             sig->param_struct_names ? sig->param_struct_names[i] : NULL,
             info, info ? info->fn_sig : NULL);
-        sb_appendf(sb, " %s", orig->as.function.params[i].name);
+        sb_append(sb, " "); append_native_parameter_name(sb, orig->as.function.params[i].name);
     }
     if (!sig->param_count) sb_append(sb, "void");
     sb_append(sb, ")");
@@ -961,8 +1040,8 @@ static void emit_generic_forward_decl(StringBuilder *sb, const ASTNode *orig,
         Type pt = orig->as.function.params[j].type;
         const char *ps = orig->as.function.params[j].struct_type_name;
         const char *pname = resolve_generic_param_c(pt, ps, inst);
-        if (pname) sb_appendf(sb, "%s %s", pname, orig->as.function.params[j].name);
-        else        sb_appendf(sb, "%s %s", type_to_c(pt), orig->as.function.params[j].name);
+        sb_appendf(sb, "%s ", pname ? pname : type_to_c(pt));
+        append_native_parameter_name(sb, orig->as.function.params[j].name);
     }
     sb_append(sb, ");\n");
     (void)env;
@@ -1045,6 +1124,13 @@ static const char *get_c_func_name_with_module(const char *nano_name, const char
 
     /* I keep allowed global declarations separate from retained runtime helpers. */
     if (builtin_is_known(nano_name)) {
+        snprintf(buffer, sizeof(buffer), "__nl_declared_%s", nano_name);
+        return buffer;
+    }
+
+    /* I keep ordinary declarations distinct from the exact regex host ABI. */
+    snprintf(buffer, sizeof(buffer), "nl_%s", nano_name);
+    if (nano_regex_host_contract(buffer)) {
         snprintf(buffer, sizeof(buffer), "__nl_declared_%s", nano_name);
         return buffer;
     }
@@ -1552,7 +1638,7 @@ static void generate_list_implementations(Environment *env, StringBuilder *sb) {
             sb_appendf(sb, "    int capacity;\n");
             sb_appendf(sb, "};\n\n");
 
-            sb_appendf(sb, "List_%s* nl_list_%s_new(void) {\n", type_name, type_name);
+            sb_appendf(sb, "static inline List_%s* nl_list_%s_new(void) {\n", type_name, type_name);
             sb_appendf(sb, "    %s *list = malloc(sizeof(%s));\n", specialized_name, specialized_name);
             sb_appendf(sb, "    if (!list) return NULL;\n");
             sb_appendf(sb, "    list->capacity = 4;\n");
@@ -1562,7 +1648,7 @@ static void generate_list_implementations(Environment *env, StringBuilder *sb) {
             sb_appendf(sb, "    return list;\n");
             sb_appendf(sb, "}\n\n");
 
-            sb_appendf(sb, "void nl_list_%s_push(List_%s *list, %s value) {\n",
+            sb_appendf(sb, "static inline void nl_list_%s_push(List_%s *list, %s value) {\n",
                       type_name, type_name, prefixed_elem_type);
             sb_appendf(sb, "    if (!list) return;\n");
             sb_appendf(sb, "    if (list->count >= list->capacity) {\n");
@@ -1576,20 +1662,33 @@ static void generate_list_implementations(Environment *env, StringBuilder *sb) {
             sb_appendf(sb, "    list->data[list->count++] = value;\n");
             sb_appendf(sb, "}\n\n");
 
-            sb_appendf(sb, "%s nl_list_%s_get(List_%s *list, int index) {\n",
+            sb_appendf(sb, "static inline %s nl_list_%s_get(List_%s *list, int index) {\n",
                       prefixed_elem_type, type_name, type_name);
             sb_appendf(sb, "    return list->data[index];\n");
             sb_appendf(sb, "}\n\n");
 
-            sb_appendf(sb, "void nl_list_%s_set(List_%s *list, int index, %s value) {\n",
+            sb_appendf(sb, "static inline void nl_list_%s_set(List_%s *list, int index, %s value) {\n",
                       type_name, type_name, prefixed_elem_type);
             sb_appendf(sb, "    if (!list) return;\n");
             sb_appendf(sb, "    if (index < 0 || index >= list->count) return;\n");
             sb_appendf(sb, "    list->data[index] = value;\n");
             sb_appendf(sb, "}\n\n");
 
-            sb_appendf(sb, "int nl_list_%s_length(List_%s *list) {\n", type_name, type_name);
+            sb_appendf(sb, "static inline int nl_list_%s_length(List_%s *list) {\n", type_name, type_name);
             sb_appendf(sb, "    return list ? list->count : 0;\n");
+            sb_appendf(sb, "}\n\n");
+
+            /* I copy the selected value before retiring its list storage.
+             * Record/STRING payload ownership remains with existing values. */
+            sb_appendf(sb, "static inline %s nl_list_%s_pop(List_%s *list) {\n",
+                      prefixed_elem_type, type_name, type_name);
+            sb_append(sb, "    if (!list || list->count == 0) { fputs(\"I cannot pop an empty list.\\n\", stderr); exit(1); }\n");
+            sb_appendf(sb, "    return list->data[--list->count];\n");
+            sb_appendf(sb, "}\n\n");
+            sb_appendf(sb, "static inline void nl_list_%s_free(List_%s *list) {\n", type_name, type_name);
+            sb_appendf(sb, "    if (!list) return;\n");
+            sb_appendf(sb, "    free(list->data);\n");
+            sb_appendf(sb, "    free(list);\n");
             sb_appendf(sb, "}\n\n");
 
             /* Emit unqualified aliases (without nl_ prefix) so user code that
@@ -1610,6 +1709,14 @@ static void generate_list_implementations(Environment *env, StringBuilder *sb) {
             sb_appendf(sb, "#ifndef list_%s_length\n", type_name);
             sb_appendf(sb, "#define list_%s_length nl_list_%s_length\n", type_name, type_name);
             sb_appendf(sb, "#endif\n\n");
+
+            const char *retirement_ops[] = {"pop", "free"};
+            for (int op = 0; op < 2; ++op) {
+                sb_appendf(sb, "#ifndef list_%s_%s\n", type_name, retirement_ops[op]);
+                sb_appendf(sb, "#define list_%s_%s nl_list_%s_%s\n",
+                           type_name, retirement_ops[op], type_name, retirement_ops[op]);
+                sb_append(sb, "#endif\n");
+            }
 
             free(prefixed_elem_type);
         }
@@ -1953,9 +2060,10 @@ static void generate_enum_definitions(Environment *env, StringBuilder *sb) {
         for (int j = 0; j < edef->variant_count; j++) {
             /* Prefix variants: nl_EnumName_VARIANT */
             const char *prefixed_variant = get_prefixed_variant_name(edef->name, edef->variant_names[j]);
-            sb_appendf(sb, "    %s = %d",
-                      prefixed_variant,
-                      edef->variant_values[j]);
+            sb_appendf(sb, "    %s = ", prefixed_variant);
+            if (edef->variant_values[j] == LLONG_MIN)
+                sb_append(sb, "(-9223372036854775807LL - 1LL)");
+            else sb_appendf(sb, "%lldLL", edef->variant_values[j]);
             if (j < edef->variant_count - 1) sb_append(sb, ",\n");
             else sb_append(sb, "\n");
         }
@@ -3337,19 +3445,9 @@ static void generate_module_function_declarations(StringBuilder *sb, ASTNode *pr
         exit(1);
     }
 
-    for (int i = 0; i < program->as.program.count; i++) {
-        ASTNode *item = program->as.program.items[i];
-        if (!item || item->type != AST_IMPORT) continue;
-
-        const char *resolved = resolve_module_path(item->as.import_stmt.module_path, current_file);
-        if (!resolved) continue;
-
-        /* I use the same target-file identity as the module loader. */
-        char *canonical = realpath(resolved, NULL);
-        if (canonical) {
-            free((char *)resolved);
-            resolved = canonical;
-        }
+    TranspilerModuleClosure closure = transpiler_module_closure(program, current_file);
+    for (size_t i = 1; i < closure.count; ++i) {
+        const char *resolved = closure.entries[i].path;
 
         /* Extract module name from file path BEFORE freeing resolved */
         char module_name_from_path[256];
@@ -3359,9 +3457,7 @@ static void generate_module_function_declarations(StringBuilder *sb, ASTNode *pr
         char *dot = strrchr(module_name_from_path, '.');
         if (dot) *dot = '\0';
 
-        ASTNode *module_ast = get_cached_module_ast(resolved);
-        free((char*)resolved);  /* Cast away const for free() */
-        if (!module_ast || module_ast->type != AST_PROGRAM) continue;
+        ASTNode *module_ast = closure.entries[i].program;
 
         /* Check if module has an explicit module declaration */
         const char *module_name = NULL;
@@ -3552,7 +3648,7 @@ static void generate_module_function_declarations(StringBuilder *sb, ASTNode *pr
                     sb_append(sb, type_to_c(param->type));
                 }
                 if (param->name) {
-                    sb_appendf(sb, " %s", param->name);
+                    sb_append(sb, " "); append_native_parameter_name(sb, param->name);
                 } else {
                     sb_appendf(sb, " param%d", p);
                 }
@@ -3560,6 +3656,8 @@ static void generate_module_function_declarations(StringBuilder *sb, ASTNode *pr
             sb_append(sb, ");\n");
         }
     }
+
+    free_transpiler_module_closure(&closure);
 
     for (int i = 0; i < emitted_count; i++) {
         free(emitted[i]);
@@ -3687,18 +3785,20 @@ static void generate_program_function_declarations(StringBuilder *sb, ASTNode *p
             
             /* Function parameters */
             for (int j = 0; j < item->as.function.param_count; j++) {
+                char *parameter_name = native_c_parameter_name(item->as.function.params[j].name);
+                if (!parameter_name) { fputs("I cannot allocate a native parameter name.\n", stderr); exit(1); }
                 if (j > 0) sb_append(sb, ", ");
                 
                 if (item->as.function.params[j].type == TYPE_FUNCTION && item->as.function.params[j].fn_sig) {
                     /* Function parameter: use typedef */
                     const char *typedef_name = register_function_signature(fn_registry, 
                                                                           item->as.function.params[j].fn_sig);
-                    sb_appendf(sb, "%s %s", typedef_name, item->as.function.params[j].name);
+                    sb_appendf(sb, "%s %s", typedef_name, parameter_name);
                 } else if (item->as.function.params[j].type == TYPE_LIST_GENERIC && item->as.function.params[j].struct_type_name) {
                     /* Generic list parameter: List<ElementType> -> List_ElementType* */
                     sb_appendf(sb, "List_%s* %s",
                               item->as.function.params[j].struct_type_name,
-                              item->as.function.params[j].name);
+                              parameter_name);
                 } else if (item->as.function.params[j].type == TYPE_HASHMAP) {
                     if (item->as.function.params[j].type_info &&
                         item->as.function.params[j].type_info->generic_name &&
@@ -3710,25 +3810,25 @@ static void generate_program_function_declarations(StringBuilder *sb, ASTNode *p
                                 item->as.function.params[j].type_info->generic_name,
                                 item->as.function.params[j].type_info->type_params,
                                 item->as.function.params[j].type_info->type_param_count)) {
-                            sb_appendf(sb, "%s* %s", monomorphized_name, item->as.function.params[j].name);
+                            sb_appendf(sb, "%s* %s", monomorphized_name, parameter_name);
                         } else {
-                            sb_appendf(sb, "void* %s", item->as.function.params[j].name);
+                            sb_appendf(sb, "void* %s", parameter_name);
                         }
                     } else {
-                        sb_appendf(sb, "void* %s", item->as.function.params[j].name);
+                        sb_appendf(sb, "void* %s", parameter_name);
                     }
                 } else if ((item->as.function.params[j].type == TYPE_BORROW_SHARED || item->as.function.params[j].type == TYPE_BORROW_MUT)) {
-                    sb_appendf(sb, "%s%s* %s", item->as.function.params[j].type == TYPE_BORROW_SHARED ? "const " : "", get_prefixed_type_name(item->as.function.params[j].struct_type_name), item->as.function.params[j].name);
+                    sb_appendf(sb, "%s%s* %s", item->as.function.params[j].type == TYPE_BORROW_SHARED ? "const " : "", get_prefixed_type_name(item->as.function.params[j].struct_type_name), parameter_name);
                 } else if ((item->as.function.params[j].type == TYPE_STRUCT || item->as.function.params[j].type == TYPE_ENUM) && item->as.function.params[j].struct_type_name) {
                     /* Check if this is an opaque type */
                     OpaqueTypeDef *opaque = env_get_opaque_type(env, item->as.function.params[j].struct_type_name);
                     if (opaque) {
                         /* Opaque types are stored as void* */
-                        sb_appendf(sb, "void* %s", item->as.function.params[j].name);
+                        sb_appendf(sb, "void* %s", parameter_name);
                     } else {
                         /* Use prefixed type name for regular structs */
                         const char *prefixed_name = get_prefixed_type_name(item->as.function.params[j].struct_type_name);
-                        sb_appendf(sb, "%s %s", prefixed_name, item->as.function.params[j].name);
+                        sb_appendf(sb, "%s %s", prefixed_name, parameter_name);
                     }
                 } else if (item->as.function.params[j].type == TYPE_UNION &&
                            item->as.function.params[j].type_info &&
@@ -3741,24 +3841,25 @@ static void generate_program_function_declarations(StringBuilder *sb, ASTNode *p
                             item->as.function.params[j].type_info->generic_name,
                             item->as.function.params[j].type_info->type_params,
                             item->as.function.params[j].type_info->type_param_count)) {
-                        sb_appendf(sb, "int64_t %s", item->as.function.params[j].name);
+                        sb_appendf(sb, "int64_t %s", parameter_name);
                     } else {
                         const char *prefixed_name = get_prefixed_type_name(monomorphized_name);
-                        sb_appendf(sb, "%s %s", prefixed_name, item->as.function.params[j].name);
+                        sb_appendf(sb, "%s %s", prefixed_name, parameter_name);
                     }
                 } else if (item->as.function.params[j].type == TYPE_UNION && item->as.function.params[j].struct_type_name) {
                     /* Use prefixed union name */
                     const char *prefixed_name = get_prefixed_type_name(item->as.function.params[j].struct_type_name);
-                    sb_appendf(sb, "%s %s", prefixed_name, item->as.function.params[j].name);
+                    sb_appendf(sb, "%s %s", prefixed_name, parameter_name);
                 } else if (item->as.function.params[j].type == TYPE_TUPLE && item->as.function.params[j].type_info) {
                     /* Tuple parameter: use typedef name */
                     const char *typedef_name = register_tuple_type(tuple_registry, item->as.function.params[j].type_info);
-                    sb_appendf(sb, "%s %s", typedef_name, item->as.function.params[j].name);
+                    sb_appendf(sb, "%s %s", typedef_name, parameter_name);
                 } else {
                     sb_appendf(sb, "%s %s",
                               type_to_c(item->as.function.params[j].type),
-                              item->as.function.params[j].name);
+                              parameter_name);
                 }
+                free(parameter_name);
             }
             sb_append(sb, ");\n");
         }
@@ -3873,8 +3974,8 @@ static void emit_generic_implementation(StringBuilder *sb, const ASTNode *orig,
         Type pt = orig->as.function.params[j].type;
         const char *ps = orig->as.function.params[j].struct_type_name;
         const char *pname = resolve_generic_param_c(pt, ps, inst);
-        if (pname) sb_appendf(sb, "%s %s", pname, orig->as.function.params[j].name);
-        else        sb_appendf(sb, "%s %s", type_to_c(pt), orig->as.function.params[j].name);
+        sb_appendf(sb, "%s ", pname ? pname : type_to_c(pt));
+        append_native_parameter_name(sb, orig->as.function.params[j].name);
     }
     sb_append(sb, ") ");
 
@@ -4015,18 +4116,20 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
             
             /* Function parameters */
             for (int j = 0; j < item->as.function.param_count; j++) {
+                char *parameter_name = native_c_parameter_name(item->as.function.params[j].name);
+                if (!parameter_name) { fputs("I cannot allocate a native parameter name.\n", stderr); exit(1); }
                 if (j > 0) sb_append(sb, ", ");
                 
                 if (item->as.function.params[j].type == TYPE_FUNCTION && item->as.function.params[j].fn_sig) {
                     /* Function parameter: use typedef */
                     const char *typedef_name = register_function_signature(fn_registry, 
                                                                           item->as.function.params[j].fn_sig);
-                    sb_appendf(sb, "%s %s", typedef_name, item->as.function.params[j].name);
+                    sb_appendf(sb, "%s %s", typedef_name, parameter_name);
                 } else if (item->as.function.params[j].type == TYPE_LIST_GENERIC && item->as.function.params[j].struct_type_name) {
                     /* Generic list parameter: List<ElementType> -> List_ElementType* */
                     sb_appendf(sb, "List_%s* %s",
                               item->as.function.params[j].struct_type_name,
-                              item->as.function.params[j].name);
+                              parameter_name);
                 } else if (item->as.function.params[j].type == TYPE_HASHMAP) {
                     if (item->as.function.params[j].type_info &&
                         item->as.function.params[j].type_info->generic_name &&
@@ -4038,25 +4141,25 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
                                 item->as.function.params[j].type_info->generic_name,
                                 item->as.function.params[j].type_info->type_params,
                                 item->as.function.params[j].type_info->type_param_count)) {
-                            sb_appendf(sb, "%s* %s", monomorphized_name, item->as.function.params[j].name);
+                            sb_appendf(sb, "%s* %s", monomorphized_name, parameter_name);
                         } else {
-                            sb_appendf(sb, "void* %s", item->as.function.params[j].name);
+                            sb_appendf(sb, "void* %s", parameter_name);
                         }
                     } else {
-                        sb_appendf(sb, "void* %s", item->as.function.params[j].name);
+                        sb_appendf(sb, "void* %s", parameter_name);
                     }
                 } else if ((item->as.function.params[j].type == TYPE_BORROW_SHARED || item->as.function.params[j].type == TYPE_BORROW_MUT)) {
-                    sb_appendf(sb, "%s%s* %s", item->as.function.params[j].type == TYPE_BORROW_SHARED ? "const " : "", get_prefixed_type_name(item->as.function.params[j].struct_type_name), item->as.function.params[j].name);
+                    sb_appendf(sb, "%s%s* %s", item->as.function.params[j].type == TYPE_BORROW_SHARED ? "const " : "", get_prefixed_type_name(item->as.function.params[j].struct_type_name), parameter_name);
                 } else if ((item->as.function.params[j].type == TYPE_STRUCT || item->as.function.params[j].type == TYPE_ENUM) && item->as.function.params[j].struct_type_name) {
                     /* Check if this is an opaque type */
                     OpaqueTypeDef *opaque = env_get_opaque_type(env, item->as.function.params[j].struct_type_name);
                     if (opaque) {
                         /* Opaque types are stored as void* */
-                        sb_appendf(sb, "void* %s", item->as.function.params[j].name);
+                        sb_appendf(sb, "void* %s", parameter_name);
                     } else {
                         /* Use prefixed type name for regular structs */
                         const char *prefixed_name = get_prefixed_type_name(item->as.function.params[j].struct_type_name);
-                        sb_appendf(sb, "%s %s", prefixed_name, item->as.function.params[j].name);
+                        sb_appendf(sb, "%s %s", prefixed_name, parameter_name);
                     }
                 } else if (item->as.function.params[j].type == TYPE_UNION &&
                            item->as.function.params[j].type_info &&
@@ -4069,24 +4172,25 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
                             item->as.function.params[j].type_info->generic_name,
                             item->as.function.params[j].type_info->type_params,
                             item->as.function.params[j].type_info->type_param_count)) {
-                        sb_appendf(sb, "int64_t %s", item->as.function.params[j].name);
+                        sb_appendf(sb, "int64_t %s", parameter_name);
                     } else {
                         const char *prefixed_name = get_prefixed_type_name(monomorphized_name);
-                        sb_appendf(sb, "%s %s", prefixed_name, item->as.function.params[j].name);
+                        sb_appendf(sb, "%s %s", prefixed_name, parameter_name);
                     }
                 } else if (item->as.function.params[j].type == TYPE_UNION && item->as.function.params[j].struct_type_name) {
                     /* Use prefixed union name */
                     const char *prefixed_name = get_prefixed_type_name(item->as.function.params[j].struct_type_name);
-                    sb_appendf(sb, "%s %s", prefixed_name, item->as.function.params[j].name);
+                    sb_appendf(sb, "%s %s", prefixed_name, parameter_name);
                 } else if (item->as.function.params[j].type == TYPE_TUPLE && item->as.function.params[j].type_info) {
                     /* Tuple parameter: use typedef name */
                     const char *typedef_name = register_tuple_type(tuple_registry, item->as.function.params[j].type_info);
-                    sb_appendf(sb, "%s %s", typedef_name, item->as.function.params[j].name);
+                    sb_appendf(sb, "%s %s", typedef_name, parameter_name);
                 } else {
                     sb_appendf(sb, "%s %s",
                               type_to_c(item->as.function.params[j].type),
-                              item->as.function.params[j].name);
+                              parameter_name);
                 }
+                free(parameter_name);
             }
             sb_append(sb, ") ");
 
@@ -4351,12 +4455,6 @@ static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Envir
         ASTNode *item = program->as.program.items[i];
         if (item->type != AST_LET) continue;
 
-        /* Skip constants that come from C headers - they're already defined in the headers */
-        Symbol *sym = env_get_var(env, item->as.let.name);
-        if (sym && sym->from_c_header) {
-            continue;
-        }
-
         bool is_const_init = is_c_constant_initializer(item->as.let.value);
 
         if (!item->as.let.is_mut && is_const_init) {
@@ -4384,7 +4482,9 @@ static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Envir
             } else if (item->as.let.var_type != TYPE_STRING) {
                 sb_append(sb, type_to_c(item->as.let.var_type));
             }
-            sb_appendf(sb, " %s = ", item->as.let.name);
+            char *storage = native_global_storage_name(env, item);
+            sb_appendf(sb, " %s_slot = ", storage);
+            free(storage);
             transpile_expression(sb, item->as.let.value, env);
             sb_append(sb, ";\n");
             continue;
@@ -4416,7 +4516,9 @@ static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Envir
                 item->as.let.type_info ? item->as.let.type_info :
                     item->as.let.var_type == TYPE_FUNCTION ? &function : NULL);
         }
-        sb_appendf(sb, " %s", item->as.let.name);
+        char *storage = native_global_storage_name(env, item);
+        sb_appendf(sb, " %s_slot", storage);
+        free(storage);
         if (is_const_init) {
             sb_append(sb, " = ");
             transpile_expression(sb, item->as.let.value, env);
@@ -4465,7 +4567,9 @@ static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Envir
         sb_append(sb, dependencies->buffer);
         for (int i = 0; i < runtime_init_count; i++) {
             ASTNode *item = runtime_inits[i];
-            sb_appendf(sb, "    %s = ", item->as.let.name);
+            char *storage = native_global_storage_name(env, item);
+            sb_appendf(sb, "    %s_slot = ", storage);
+            free(storage);
             transpile_expression(sb, item->as.let.value, env);
             sb_append(sb, ";\n");
         }
@@ -4489,7 +4593,9 @@ static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Envir
         emit_global_storage_signature(sb, env, item);
         sb_append(sb, " { ");
         sb_append(sb, "nl_init_toplevel(); ");
-        sb_appendf(sb, "return &%s; }\n", item->as.let.name);
+        char *storage = native_global_storage_name(env, item);
+        sb_appendf(sb, "return &%s_slot; }\n", storage);
+        free(storage);
     }
 
 }
@@ -4497,23 +4603,11 @@ static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Envir
 /* Collect module headers from all import statements */
 static void collect_module_headers_from_imports(ASTNode *program, const char *source_file) {
     clear_module_headers();
-    for (int i = 0; i < program->as.program.count; i++) {
-        ASTNode *item = program->as.program.items[i];
-        if (item->type == AST_IMPORT) {
-            /* Resolve module path and collect headers.
-             * Pass source_file so resolve_module_path can walk up from the
-             * source file's directory to find the project root.  Without
-             * this, the resolver falls back to CWD-relative probing which
-             * fails when the compiler runs with CWD=/tmp and no module
-             * headers are emitted, causing -Wimplicit-function-declaration
-             * for every SDL/UI helper called in the generated C. */
-            const char *module_path = resolve_module_path(item->as.import_stmt.module_path, source_file);
-            if (module_path) {
-                collect_headers_from_module(module_path);
-                free((char*)module_path);  /* Cast away const for free() */
-            }
-        }
-    }
+    TranspilerModuleClosure closure = transpiler_module_closure(program, source_file);
+    /* I include my own headers and only this invocation's actual import graph. */
+    for (size_t i = 0; i < closure.count; ++i)
+        collect_headers_from_module(closure.entries[i].path);
+    free_transpiler_module_closure(&closure);
 }
 
 /* I close and order tuple/callable dependencies before emitting their names. */
@@ -4632,16 +4726,9 @@ static void collect_function_and_tuple_types(ASTNode *program, FunctionTypeRegis
  * are available before emitting module forward declarations. */
 static void collect_module_function_types(ASTNode *program, FunctionTypeRegistry *fn_registry, const char *current_file) {
     if (!program || !fn_registry) return;
-    for (int i = 0; i < program->as.program.count; i++) {
-        ASTNode *item = program->as.program.items[i];
-        if (!item || item->type != AST_IMPORT) continue;
-
-        const char *resolved = resolve_module_path(item->as.import_stmt.module_path, current_file);
-        if (!resolved) continue;
-
-        ASTNode *module_ast = get_cached_module_ast(resolved);
-        free((char*)resolved);  /* Cast away const for free() */
-        if (!module_ast || module_ast->type != AST_PROGRAM) continue;
+    TranspilerModuleClosure closure = transpiler_module_closure(program, current_file);
+    for (size_t i = 1; i < closure.count; ++i) {
+        ASTNode *module_ast = closure.entries[i].program;
 
         bool module_has_main = false;
         for (int j = 0; j < module_ast->as.program.count; j++) {
@@ -4669,6 +4756,7 @@ static void collect_module_function_types(ASTNode *program, FunctionTypeRegistry
             }
         }
     }
+    free_transpiler_module_closure(&closure);
 }
 
 /* Generate module extern declarations (extern functions from imported modules) */
@@ -4788,7 +4876,7 @@ static void generate_module_extern_declarations(StringBuilder *sb, ASTNode *prog
                     sb_append(sb, type_to_c(func->params[j].type));
                 }
                 
-                sb_appendf(sb, " %s", func->params[j].name);
+                sb_append(sb, " "); append_native_parameter_name(sb, func->params[j].name);
             }
             sb_append(sb, ");\n");
         }

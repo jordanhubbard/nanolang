@@ -1,0 +1,181 @@
+module nvm2c_affine_aggregates
+module "src_nano/nvm2c/affine_frame.nano" as frame
+module "src_nano/nvm2c/affine_state.nano" as state
+module "src_nano/nvm2c/affine_facts.nano" as facts
+module "src_nano/nvm2c/affine_scalar.nano" as scalar
+module "src_nano/nvm2c/affine_value_contract.nano" as values
+module "src_nano/nvm2c/ownership_queries.nano" as queries
+module "src_nano/nvm2c/ownership.nano" as owner
+module "src_nano/nvm2c/reference_places.nano" as places
+
+# I consume decoded operands and facts; I do not admit an executable graph.
+pub fn handles(opcode: int) -> bool {
+    return (or (or (== opcode 97) (== opcode 107)) (or (== opcode 251) (or (== opcode 252) (== opcode 254))))
+}
+shadow handles {
+    assert (handles 97) assert (handles 107) assert (handles 251) assert (handles 252) assert (handles 254)
+    assert (not (handles 253)) assert (not (handles 255)) assert (not (handles 96))
+}
+
+fn reject(input: frame.Frame, message: string) -> scalar.Transition {
+    return scalar.Transition { handled: true, valid: false, frame: (frame.clone input), message: message }
+}
+shadow reject {
+    let input: frame.Frame = (frame.create (state.empty) 1)
+    let out: scalar.Transition = (reject input "refused")
+    (array_set out.frame.globals 0 15)
+    assert out.handled assert (not out.valid) assert (== out.message "refused")
+    assert (== (at input.globals 0) 9)
+}
+
+fn push_value(input: frame.Frame, consumed: int, item: frame.Value, message: string) -> scalar.Transition {
+    let reduced: frame.Frame = frame.Frame { locals: input.locals,
+        stack: (array_slice input.stack 0 (- (array_length input.stack) consumed)),
+        globals: input.globals, handlers: input.handlers, floor: input.floor, activation: input.activation }
+    let out: frame.Join = (frame.push reduced item)
+    if (not out.valid) { return (reject input message) }
+    return scalar.Transition { handled: true, valid: true, frame: out.frame, message: "" }
+}
+shadow push_value {
+    let input: frame.Frame = (frame.create (state.empty) 1)
+    let out: scalar.Transition = (push_value input 0 (frame.value 1 false 65535 false 4294967295 65535) "full")
+    assert out.valid assert (== (array_length out.frame.stack) 1) assert (== (array_length input.stack) 0)
+    (array_set (at out.frame.stack 0).excluded 0 true)
+    (array_set out.frame.globals 0 15)
+    assert (== (at input.globals 0) 9)
+}
+
+fn layout_has_variant(ownership: array<u8>, context: queries.Context, layout: int, variant: int) -> bool {
+    if (not context.present) { return false }
+    for ordinal in (range 0 context.model.unions) {
+        let found: queries.Query = (queries.union_variant ownership context ordinal variant true)
+        if (and (== found.status 0) (== found.variant.layout layout)) { return true }
+    }
+    return false
+}
+shadow layout_has_variant {
+    let context: queries.Context = queries.Context { present: false, ownership_present: false, layouts_present: false,
+        model: owner.Module { layouts: [], code: [], strings: [], functions: [], params: [], results: [], records: 0, enums: 0, unions: 0 } }
+    assert (not (layout_has_variant [] context 0 0))
+}
+
+pub fn transfer(input: frame.Frame, opcode: int, a: int, b: int, c: int, d: int,
+    value_graph: bool, ownership: array<u8>, context: queries.Context) -> scalar.Transition {
+    if (not (handles opcode)) {
+        return scalar.Transition { handled: false, valid: false, frame: (frame.clone input), message: "" }
+    }
+    let total: int = (array_length input.stack)
+    if (== opcode 251) {
+        if (== a 0) {
+            if (or (not value_graph) (or (!= c 0) (not (state.record_copyable input.locals b)))) {
+                return (reject input "I require an exact complete copyable record constructor")
+            }
+            let fields: state.Query = (state.record_fields input.locals b 256 true)
+            if (or (not fields.valid) (or (!= fields.number d) (> fields.number total))) {
+                return (reject input "I require an exact complete copyable record constructor")
+            }
+            for index in (range 0 fields.number) {
+                let item: frame.Value = (at input.stack (+ (- total fields.number) index))
+                let field: facts.Slot = (at fields.values index)
+                if (or item.observation (or item.owned (or (!= item.tag field.tag) (!= item.layout field.layout)))) {
+                    return (reject input "I require exact copyable record fields without owned authority")
+                }
+            }
+            return (push_value input fields.number (frame.value 8 false 65535 false b 65535) "I cannot retain a copyable record")
+        }
+        if (!= a 1) { return (reject input "I require explicit owned construction for records") }
+        let retained: queries.Query = (queries.union_variant ownership context b c true)
+        if (or (!= retained.status 0) (or (!= d retained.variant.count) (> d total))) {
+            return (reject input "I require an exact retained scalar-union constructor shape")
+        }
+        let fields: state.Query = (state.union_fields input.locals retained.variant.layout c 256 true)
+        if (or (not fields.valid) (!= fields.number d)) {
+            return (reject input "I require exact scalar-union payload facts")
+        }
+        for index in (range 0 fields.number) {
+            if (not (values.field_matches input.locals (at input.stack (+ (- total fields.number) index)) (at fields.values index))) {
+                return (reject input "I require exact scalar-union fields in declaration order")
+            }
+        }
+        let owned: bool = (state.type_owned input.locals (facts.slot 10 retained.variant.layout))
+        return (push_value input fields.number (frame.value 10 false 65535 owned retained.variant.layout c) "I cannot retain a checked scalar-union value")
+    }
+    if (== opcode 107) {
+        if (== total 0) { return (reject input "I require an exact scalar-union match source") }
+        let item: frame.Value = (at input.stack (- total 1))
+        if (or (!= item.tag 10) item.observation) { return (reject input "I require an exact scalar-union match source") }
+        if (not (layout_has_variant ownership context item.layout a)) {
+            return (reject input "I require a match variant within the concrete union")
+        }
+        return scalar.Transition { handled: true, valid: true, frame: (frame.clone input), message: "" }
+    }
+    if (== opcode 254) {
+        if (== total 0) { return (reject input "I require an exact scalar-union tag source") }
+        let item: frame.Value = (at input.stack (- total 1))
+        if (or (!= item.tag 10) (or item.observation item.owned)) {
+            return (reject input "I require an exact scalar-union tag source")
+        }
+        return (push_value input 1 (frame.value 1 false 65535 false 4294967295 65535) "I cannot extend my analysis stack")
+    }
+    if (and (== opcode 252) (> total 0)) {
+        let item: frame.Value = (at input.stack (- total 1))
+        if (and (== item.tag 8) (and (not item.observation) (not item.owned))) {
+            let fields: state.Query = (state.record_fields input.locals item.layout 256 true)
+            if (or (not (state.record_copyable input.locals item.layout)) (or (not fields.valid) (>= a fields.number))) {
+                return (reject input "I require an exact ordinary record projection")
+            }
+            let field: facts.Slot = (at fields.values a)
+            if (state.type_owned input.locals field) { return (reject input "I refuse an owned ordinary projection") }
+            return (push_value input 1 (frame.value field.tag false 65535 false field.layout 65535) "I cannot retain an ordinary projection")
+        }
+        if (and (== item.tag 10) (and (not item.observation) (not item.owned))) {
+            if (== item.variant 65535) { return (reject input "I require a proven scalar-union variant before projection") }
+            let fields: state.Query = (state.union_fields input.locals item.layout item.variant 256 true)
+            if (or (not fields.valid) (>= a fields.number)) { return (reject input "I require an exact scalar-union payload field") }
+            let field: facts.Slot = (at fields.values a)
+            if (and (not (facts.scalar field.tag)) (!= field.tag 5)) {
+                return (reject input "I require destructive unpack for aggregate payloads")
+            }
+            return (push_value input 1 (frame.value field.tag false 65535 false 4294967295 65535) "I cannot extend my analysis stack")
+        }
+    }
+    if (== total 0) { return (reject input "I require a checked scalar field observation") }
+    let item: frame.Value = (at input.stack (- total 1))
+    if (or (not item.observation) item.owned) { return (reject input "I require a checked scalar field observation") }
+    let mut field: state.Query = (state.scalar_field input.locals item.root a)
+    if (and (not field.valid) value_graph) { set field (state.string_field input.locals item.root a) }
+    if (not field.valid) { return (reject input "I require a checked scalar field observation") }
+    return (push_value input 1 (frame.value field.value.tag false 65535 false 4294967295 65535) "I cannot extend my analysis stack")
+}
+
+fn sample() -> frame.Frame {
+    let f: facts.Facts = facts.Facts { valid: true, analysis: 1, module_identity: 1, function: 0,
+        rows: [places.Layout { kind: 0, fields_present: true, fields: [places.Field { tag: 1, nested: 4294967295 }] }],
+        flags: [1], locals: [(facts.slot 8 0)], result: (facts.slot 0 4294967295),
+        parameters: 1, result_count: 0, result_tag: 0, arrays: [], variants: [], effects: [] }
+    return (frame.create (state.create f 1) 1)
+}
+shadow sample { assert (state.record_copyable (sample).locals 0) assert (at (sample).locals.live 0) }
+shadow transfer {
+    let input: frame.Frame = (sample)
+    let context: queries.Context = queries.Context { present: false, ownership_present: false, layouts_present: false,
+        model: owner.Module { layouts: [], code: [], strings: [], functions: [], params: [], results: [], records: 0, enums: 0, unions: 0 } }
+    let scalar_input: frame.Frame = (frame.push input (frame.value 1 false 65535 false 4294967295 65535)).frame
+    let packed: scalar.Transition = (transfer scalar_input 251 0 0 0 1 true [] context)
+    assert packed.valid assert (== (at packed.frame.stack 0).tag 8)
+    assert (== (at scalar_input.stack 0).tag 1)
+    let projected: scalar.Transition = (transfer packed.frame 252 0 0 0 0 false [] context)
+    assert projected.valid assert (== (at projected.frame.stack 0).tag 1)
+    let observed_input: frame.Frame = (frame.push input (frame.value 8 true 0 false 0 65535)).frame
+    let observed: scalar.Transition = (transfer observed_input 97 0 0 0 0 false [] context)
+    assert observed.valid assert (not (at observed.frame.stack 0).observation)
+    let refused: scalar.Transition = (transfer scalar_input 251 0 0 0 1 false [] context)
+    assert (not refused.valid) assert (== (at refused.frame.stack 0).tag 1)
+    let union_input: frame.Frame = (frame.push input (frame.value 10 false 0 false 0 65535)).frame
+    let tagged: scalar.Transition = (transfer union_input 254 0 0 0 0 false [] context)
+    assert tagged.valid assert (== (at tagged.frame.stack 0).tag 1)
+    assert (not (transfer union_input 107 0 0 0 0 false [] context).valid)
+    assert (not (transfer input 253 0 0 0 0 false [] context).handled)
+    (array_set packed.frame.globals 0 15)
+    assert (== (at input.globals 0) 9)
+}

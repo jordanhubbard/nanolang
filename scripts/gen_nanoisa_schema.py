@@ -214,8 +214,10 @@ def generate_nanolang(schema: dict) -> str:
     tables = {"widths": [0] * 256, "counts": [-1] * 256,
               "pops": [-1] * 256, "pushes": [-1] * 256,
               "kinds": [0] * 1024}
+    names = ["UNKNOWN"] * 256
     for opcode in schema["legacy_opcodes"]:
         code = _as_int(opcode["code"])
+        names[code] = opcode["name"]
         operands = opcode.get("operands", [])
         if len(operands) > 4 or any(kind not in kinds for kind in operands):
             raise ValueError("I require at most four known primary operands")
@@ -233,6 +235,19 @@ def generate_nanolang(schema: dict) -> str:
             lines.append("    " + ", ".join(map(str, values[index:index+16])) +
                          ("," if index + 16 < len(values) else ""))
         lines += ["]", ""]
+    lines += ["let nvm2c_primary_names: array<string> = ["]
+    for index in range(0, len(names), 8):
+        lines.append("    " + ", ".join(json.dumps(name) for name in names[index:index+8]) +
+                     ("," if index + 8 < len(names) else ""))
+    lines += ["]", "", "pub fn primary_name(opcode: int) -> string {",
+              '    if (or (< opcode 0) (> opcode 255)) { return "UNKNOWN" }',
+              "    return (at nvm2c_primary_names opcode)", "}", "",
+              "shadow primary_name {",
+              '    assert (== (primary_name 1) "PUSH_I64")',
+              '    assert (== (primary_name 32) "ADD")',
+              '    assert (== (primary_name 192) "I64_ADD")',
+              '    assert (== (primary_name 255) "UNKNOWN")',
+              '    assert (== (primary_name -1) "UNKNOWN")', "}", ""]
     for name, table, missing, controls in [
         ("primary_width", "widths", 0, [(0, 1), (1, 9), (255, 0), (-1, 0), (256, 0)]),
         ("primary_operands", "counts", -1, [(0, 0), (15, 2), (255, -1), (-1, -1)]),

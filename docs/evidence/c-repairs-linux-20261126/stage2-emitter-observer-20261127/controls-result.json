@@ -1,0 +1,13 @@
+{
+  "qualification": false,
+  "exit": 0,
+  "tests_run": 16,
+  "copied_controller_sources_match": {
+    "scripts/ci_stage2_emitter_diagnostic.py": "cbc07bd99f615c428b9533a77ad7344197993330bdca4339e59d03ee1929a140",
+    "tests/test_stage2_emitter_diagnostic.py": "c3b464bdb92d8ba7b09b0f8313be267df3ac0113098cd7d51535a58ef1ead4b7"
+  },
+  "restorer_revision": "51c82debb858145371cd9f28005d683e0e79184f",
+  "product_revision": "d18fed86140b6a4cf983898ac32a079002f6b784",
+  "product_execution": false,
+  "native_process_controls_executed": true
+}

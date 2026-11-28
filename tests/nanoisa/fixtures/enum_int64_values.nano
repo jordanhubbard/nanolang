@@ -1,0 +1,21 @@
+enum Edge { Min = -9223372036854775808, MinNext, Wide = 4294967297, LowWide = -4294967297, Next, Max = 9223372036854775807 }
+enum Positive { Value = 4294967297 }
+fn low() -> Edge { return Edge.Min }
+shadow low { assert (== (low) -9223372036854775808) }
+fn high() -> Edge { return Edge.Max }
+shadow high { assert (== (high) 9223372036854775807) }
+fn forward(value: Edge) -> Edge { return value }
+shadow forward { assert (== (forward Edge.Wide) 4294967297) }
+fn greater(value: Positive) -> bool { return (> value -1) }
+shadow greater { assert (greater Positive.Value) }
+fn main() -> int {
+    assert (== (low) -9223372036854775808)
+    assert (== (high) 9223372036854775807)
+    assert (== Edge.MinNext -9223372036854775807)
+    assert (== Edge.Next -4294967296)
+    assert (== (forward Edge.Wide) 4294967297)
+    assert (greater Positive.Value)
+    assert (== (< Positive.Value -1) false)
+    return 0
+}
+shadow main { assert (== (main) 0) }

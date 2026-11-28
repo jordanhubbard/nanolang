@@ -494,7 +494,8 @@ shadow main {{ assert (== (main) 42) }}
             directory = Path(tmp)
             module, source, env = self.support.foreign_build_fixture(directory)
             c_source = module / "answer.c"
-            c_source.write_text('''#include <stdint.h>
+            c_source.write_text('''#define _DEFAULT_SOURCE 1
+#include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>

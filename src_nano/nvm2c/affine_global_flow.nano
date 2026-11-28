@@ -1,0 +1,87 @@
+module nvm2c_affine_global_flow
+
+# I retain bit (2 * input + output) for uninitialized/initialized states.
+pub struct Flow { allowed: int, normal: int, lexical_return: int }
+
+fn bit(value: int, index: int) -> bool {
+    let powers: array<int> = [1,2,4,8]
+    return (== (% (/ value (at powers index)) 2) 1)
+}
+shadow bit { assert (bit 9 0) assert (not (bit 9 1)) assert (bit 9 3) }
+
+pub fn intersect(a: int, b: int) -> int {
+    let mut result: int = 0
+    for position in (range 0 4) {
+        if (and (bit a position) (bit b position)) { set result (+ result (at [1,2,4,8] position)) }
+    }
+    return result
+}
+shadow intersect { assert (== (intersect 9 3) 1) assert (== (intersect 15 6) 6) }
+
+pub fn unite(a: int, b: int) -> int {
+    let mut result: int = 0
+    for position in (range 0 4) {
+        if (or (bit a position) (bit b position)) { set result (+ result (at [1,2,4,8] position)) }
+    }
+    return result
+}
+shadow unite { assert (== (unite 9 3) 11) assert (== (unite 0 6) 6) }
+
+pub fn require(relation: int, permitted: int) -> int {
+    let mut allowed: int = 3
+    for input in (range 0 2) {
+        for output in (range 0 2) {
+            if (and (bit relation (+ (* input 2) output)) (not (bit permitted output))) {
+                if (bit allowed input) { set allowed (- allowed (at [1,2] input)) }
+            }
+        }
+    }
+    return allowed
+}
+shadow require { assert (== (require 9 2) 2) assert (== (require 0 0) 3) }
+
+pub fn compose(before: int, after: int) -> int {
+    let mut result: int = 0
+    for input in (range 0 2) {
+        for middle in (range 0 2) {
+            for output in (range 0 2) {
+                if (and (bit before (+ (* input 2) middle)) (bit after (+ (* middle 2) output))) {
+                    let position: int = (+ (* input 2) output)
+                    if (not (bit result position)) { set result (+ result (at [1,2,4,8] position)) }
+                }
+            }
+        }
+    }
+    return result
+}
+shadow compose { assert (== (compose 9 10) 10) assert (== (compose 0 15) 0) }
+
+pub fn flow(allowed: int, normal: int, lexical_return: int) -> Flow {
+    let inputs: int = (% allowed 4)
+    let mut rows: int = 0
+    if (bit inputs 0) { set rows (+ rows 3) }
+    if (bit inputs 1) { set rows (+ rows 12) }
+    return Flow { allowed: inputs, normal: (intersect normal rows), lexical_return: (intersect lexical_return rows) }
+}
+shadow flow { let item: Flow = (flow 5 15 9) assert (== item.allowed 1) assert (== item.normal 3) assert (== item.lexical_return 1) }
+
+pub fn then(first: Flow, second: Flow) -> Flow {
+    return (flow (intersect first.allowed (require first.normal second.allowed))
+        (compose first.normal second.normal)
+        (unite first.lexical_return (compose first.normal second.lexical_return)))
+}
+shadow then {
+    let returned: Flow = (flow 3 0 9)
+    let invalid_next: Flow = (flow 0 0 0)
+    assert (== (then returned invalid_next).allowed 3)
+    assert (== (then returned invalid_next).lexical_return 9)
+}
+
+pub fn join(left: Flow, right: Flow) -> Flow {
+    return (flow (intersect left.allowed right.allowed) (unite left.normal right.normal)
+        (unite left.lexical_return right.lexical_return))
+}
+shadow join {
+    let item: Flow = (join (flow 3 9 0) (flow 1 0 2))
+    assert (== item.allowed 1) assert (== item.normal 1) assert (== item.lexical_return 2)
+}

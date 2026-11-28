@@ -582,22 +582,13 @@ char *module_program_name(ASTNode *program, const char *module_path) {
 }
 
 static Function *find_module_function(Environment *env, const char *module_name, const char *func_name) {
-    if (!env || !func_name) {
-        return NULL;
-    }
-    for (int i = 0; i < env->function_count; i++) {
-        if (safe_strcmp(env->functions[i].name, func_name) == 0) {
-            if (!module_name || !env->functions[i].module_name ||
-                strcmp(env->functions[i].module_name, module_name) == 0) {
-                return &env->functions[i];
-            }
-        }
-    }
-    return NULL;
+    return env && func_name ? env_get_function_owned(env, func_name, module_name) : NULL;
 }
 
+static ASTNode *load_module_internal(const char *module_path, Environment *env, bool use_cache, ModuleList *modules_to_track);
+
 /* Load and parse a module file */
-static ASTNode *load_module_internal(const char *module_path, Environment *env, bool use_cache, ModuleList *modules_to_track) {
+static ASTNode *load_module_body(const char *module_path, Environment *env, bool use_cache, ModuleList *modules_to_track) {
     if (!module_path) return NULL;
     
     /* Check if module is already loaded (only if using cache) */
@@ -658,6 +649,15 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
         free(source);
         return NULL;
     }
+
+    char *owner = module_program_name(module_ast, module_path);
+    struct EnvModuleCheckpoint *checkpoint = owner ? env_module_checkpoint(env, owner, module_path) : NULL;
+    free(owner);
+    if (!checkpoint) {
+        fprintf(stderr, "I cannot retain module declaration rollback state.\n");
+        free_ast(module_ast); free_tokens(tokens, token_count); free(source);
+        return NULL;
+    }
     
     /* I register aliases in their importer's context, before checking its body. */
     char *saved_current_module = env->current_module;
@@ -669,6 +669,7 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
         fprintf(stderr, "Error: Failed to process imports for module '%s'\n", module_path);
         env->current_module = saved_current_module;
         free(module_name);
+        env_module_rollback(env, checkpoint);
         free_ast(module_ast);
         free_tokens(tokens, token_count);
         free(source);
@@ -682,6 +683,7 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
         free(module_name);
         free_tokens(tokens, token_count);
         free(source);
+        env_module_commit(checkpoint);
         if (use_cache) cache_module_with_ast(module_path, module_ast);
         return module_ast;
     }
@@ -702,11 +704,19 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
             free(identity);
             env->current_module = saved_current_module;
             free(module_name);
+            env_module_rollback(env, checkpoint);
             free_ast(module_ast);
             free_tokens(tokens, token_count);
             free(source);
             return NULL;
         }
+    }
+    if (!env_module_checkpoint_declarations(env, checkpoint)) {
+        fprintf(stderr, "I cannot retain module declaration rollback state.\n");
+        free(identity); free(module_name); env->current_module = saved_current_module;
+        env_module_rollback(env, checkpoint);
+        free_ast(module_ast); free_tokens(tokens, token_count); free(source);
+        return NULL;
     }
     /* I retain the same physical source under its declared introspection name. */
     if (identity && strcmp(identity, module_name) != 0)
@@ -729,25 +739,20 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
     env->suppress_shadow_warnings = saved_suppress_shadow_warnings;
     if (!module_typecheck_ok) {
         fprintf(stderr, "Error: Type checking failed for module '%s'\n", module_path);
-        /* NOTE: module_name may have been freed/overwritten by the module's own
-         * `module <name>` declaration handler in the typechecker, so we must not
-         * free it here.
-         */
-        env->current_module = saved_current_module;  /* Restore context */
+        /* I retire only my local stem; declared context names belong to metadata. */
+        free(module_name);
+        env->current_module = saved_current_module;
+        env_module_rollback(env, checkpoint);
         free_ast(module_ast);
         free_tokens(tokens, token_count);
         free(source);
         return NULL;
     }
     
-    /* Restore original module context */
-    /* NOTE: We intentionally DON'T free module_name here because:
-     * 1. Functions registered during type_check have module_name pointers that reference it
-     * 2. Those pointers are just shallow copies from the struct assignment
-     * 3. Freeing would create dangling pointers
-     * 4. This is a short-lived compiler process, so the memory leak is acceptable
-     */
+    /* The cursor borrows metadata or my local stem. I retire only the latter. */
+    free(module_name);
     env->current_module = saved_current_module;
+    env_module_commit(checkpoint);
     
     /* Load constants from C headers if module has module.json */
     char *module_dir_copy = strdup(module_path);
@@ -842,6 +847,25 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
     }
     
     return module_ast;
+}
+
+static ASTNode *load_module_internal(const char *module_path, Environment *env, bool use_cache, ModuleList *modules_to_track) {
+    bool existing = module_path && use_cache && is_module_cached(module_path);
+    ASTNode *program = load_module_body(module_path, env, use_cache, modules_to_track);
+    /* An inner circular-import observation must not remove its caller's live
+     * marker. The load which inserted a failed marker owns its removal. */
+    if (!program && use_cache && !existing) {
+        int index = cached_module_index(module_path);
+        if (index >= 0 && !module_cache->loaded_asts[index]) {
+            free(module_cache->loaded_paths[index]);
+            size_t tail = (size_t)(--module_cache->count - index);
+            memmove(module_cache->loaded_paths + index, module_cache->loaded_paths + index + 1,
+                    tail * sizeof *module_cache->loaded_paths);
+            memmove(module_cache->loaded_asts + index, module_cache->loaded_asts + index + 1,
+                    tail * sizeof *module_cache->loaded_asts);
+        }
+    }
+    return program;
 }
 
 /* Public wrapper for load_module that uses cache */
@@ -1303,10 +1327,25 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
                         if (value->type == AST_NUMBER) constant->value = create_int(value->as.number);
                         else if (value->type == AST_FLOAT) constant->value = create_float(value->as.float_val);
                         else if (value->type == AST_BOOL) constant->value = create_bool(value->as.bool_val);
-                        else if (value->type == AST_STRING) constant->value = create_string(value->as.string_val);
+                        else if (value->type == AST_STRING) {
+                            constant->value = create_string(value->as.string_val);
+                            env_note_string_binding(constant->value);
+                        }
                     }
                     free(qualified);
                     if (!bound) { fprintf(stderr, "I cannot bind a conflicting public global import.\n"); free(module_path); return false; }
+                }
+            }
+
+            if (!module_alias && (!item->as.import_stmt.is_selective || item->as.import_stmt.is_wildcard)) {
+                char *owner = orig_module_name ? strdup(orig_module_name) : module_name_from_path(module_path);
+                bool bound = env_import_module_functions(env, owner);
+                free(owner);
+                if (!bound) {
+                    fprintf(stderr, "I cannot retain my module callable imports.\n");
+                    free(module_path);
+                    for (int k = 0; k < unpacked_count; ++k) free(unpacked_dirs[k]);
+                    free(unpacked_dirs); return false;
                 }
             }
 
@@ -1327,14 +1366,23 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
                         ? item->as.import_stmt.import_aliases[j]
                         : NULL;
                     
-                    if (!alias || alias[0] == '\0' || strcmp(alias, symbol) == 0) {
+                    bool renamed = alias && *alias && strcmp(alias, symbol);
+                    if (!renamed) alias = symbol;
+                    Function *selected = find_module_function(env, module_name_for_alias, symbol);
+                    if (!renamed) {
+                        if (selected && !env_import_function(env, alias, selected)) {
+                            fprintf(stderr, "I cannot bind a conflicting callable import: %s\n", alias);
+                            free(module_name_for_alias); free(module_path);
+                            for (int k = 0; k < unpacked_count; ++k) free(unpacked_dirs[k]);
+                            free(unpacked_dirs); return false;
+                        }
                         continue;
                     }
-                    
+
                     EffectDef *effect_alias = env_get_effect_owned(env, symbol, module_name_for_alias);
                     if (effect_alias && effect_alias->is_pub) continue;
 
-                    if (env_get_function(env, alias)) {
+                    if (env_get_function_owned(env, alias, env->current_module)) {
                         fprintf(stderr, "Error at line %d, column %d: Import alias '%s' conflicts with existing function\n",
                                 item->line, item->column, alias);
                         free(module_name_for_alias);
@@ -1376,11 +1424,12 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
                         return false;
                     }
                     
-                    Function alias_func = *func;
-                    alias_func.name = strdup(alias);
-                    const char *orig_name = func->alias_of ? func->alias_of : func->name;
-                    alias_func.alias_of = orig_name ? strdup(orig_name) : NULL;
-                    env_define_function(env, alias_func);
+                    if (!env_import_function(env, alias, func)) {
+                        fprintf(stderr, "I cannot retain my callable import: %s\n", alias);
+                        free(module_name_for_alias); free(module_path);
+                        for (int k = 0; k < unpacked_count; ++k) free(unpacked_dirs[k]);
+                        free(unpacked_dirs); return false;
+                    }
                 }
                 
                 if (module_name_for_alias) {
@@ -1600,71 +1649,8 @@ static bool compile_module_object(const char *module_path,
         printf("✓ Generated module C code: %s\n", temp_c_file);
     }
 
-    /* Ensure any generic list headers needed by this module exist before compilation.
-     * (The top-level compilation generates list runtimes later, but module objects
-     * must be able to include the headers during their own cc -c step.)
-     */
-    {
-        const char *scan_ptr = c_code;
-        char detected_types[64][64];
-        int detected_count = 0;
-
-        while ((scan_ptr = strstr(scan_ptr, "List_")) != NULL) {
-            scan_ptr += 5;
-            const char *end_ptr = scan_ptr;
-
-            while ((*end_ptr >= 'A' && *end_ptr <= 'Z') ||
-                   (*end_ptr >= 'a' && *end_ptr <= 'z') ||
-                   (*end_ptr >= '0' && *end_ptr <= '9') ||
-                   *end_ptr == '_') {
-                end_ptr++;
-            }
-
-            if (*end_ptr == '*' || *end_ptr == ' ' || *end_ptr == '\n') {
-                int len = (int)(end_ptr - scan_ptr);
-                if (len <= 0 || len >= 63) continue;
-
-                char type_name[64];
-                strncpy(type_name, scan_ptr, (size_t)len);
-                type_name[len] = '\0';
-
-                if (strcmp(type_name, "int") == 0 ||
-                    strcmp(type_name, "string") == 0 ||
-                    strcmp(type_name, "token") == 0) {
-                    continue;
-                }
-
-                bool already_detected = false;
-                for (int i = 0; i < detected_count; i++) {
-                    if (strcmp(detected_types[i], type_name) == 0) {
-                        already_detected = true;
-                        break;
-                    }
-                }
-
-                if (!already_detected && detected_count < 64) {
-                    snprintf(detected_types[detected_count], 64, "%s", type_name);
-                    detected_count++;
-
-                    const char *c_type = type_name;
-                    if (strcmp(type_name, "LexerToken") == 0) c_type = "Token";
-                    else if (strcmp(type_name, "NSType") == 0) c_type = "NSType";
-
-                    char gen_cmd[512];
-                    snprintf(gen_cmd, sizeof(gen_cmd),
-                             "./scripts/generate_list.sh %s /tmp %s > /dev/null 2>&1",
-                             type_name, c_type);
-                    if (verbose) {
-                        printf("[Modules] Generating List<%s> runtime...\n", type_name);
-                    }
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-result"
-                    system(gen_cmd);
-#pragma GCC diagnostic pop
-                }
-            }
-        }
-    }
+    /* I use this unit's schema runtime headers and inline list definitions.
+     * Unused global /tmp files do not supply either kind of declaration. */
 
     /* Compile C code to object file */
     /* Note: Runtime files are linked separately, not compiled into module objects */
@@ -2395,7 +2381,7 @@ ModuleMetadata *extract_module_metadata(Environment *env, const char *module_nam
             }
             if (env->enums[i].variant_count > 0) {
                 meta->enums[i].variant_names = malloc(sizeof(char*) * env->enums[i].variant_count);
-                meta->enums[i].variant_values = malloc(sizeof(int) * env->enums[i].variant_count);
+                meta->enums[i].variant_values = malloc(sizeof *meta->enums[i].variant_values * env->enums[i].variant_count);
                 for (int j = 0; j < env->enums[i].variant_count; j++) {
                     if (env->enums[i].variant_names[j]) {
                         meta->enums[i].variant_names[j] = strdup(env->enums[i].variant_names[j]);

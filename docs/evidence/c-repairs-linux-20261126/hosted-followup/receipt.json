@@ -1,0 +1,9 @@
+{
+  "darwin-cache-second.log": "b2bb45dc7ab0c4cbd50bb51c4ad539e96b1cbaccd1d2907869fac700a5d9c9e5",
+  "linux-cache-second.log": "3c3a64c74286c6927549deba97c266ba19e4a4840a48a391d746ec2ce2109566",
+  "madmax-controlled-boundary.stdout": "565aedd2cee5ef81bf097a5e58b4e2f3631522d15606b9ad786bb7a96632ba29",
+  "madmax-controlled-boundary.stderr": "0bcab7f067702e6e4077d64c94490569ffeb20e46b10ea5c012b7c00fbfebd5c",
+  "madmax-corrected-boundary.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "madmax-corrected-boundary.stderr": "f9d1c43df8844f3e4fca3c77a0ecebf8e7d2c45359af6f5e2e8ba961a07ceeb6",
+  "selected_assembler_sha256": "7e9edb4b7fc0c7ce97fbcdd4ecb63e3eb1c1663e2452cd32ce0249110b253bf5"
+}

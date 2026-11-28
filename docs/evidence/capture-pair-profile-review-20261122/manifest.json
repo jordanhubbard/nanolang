@@ -1,0 +1,184 @@
+{
+  "scope": "I review the exact919b/818d observer sources and execute their unmodified CHILD strings with a synthetic Python timeout. I run no native profile or original method. A sidecar proves stdout was emitted before timeout; observer records omit partial stdout/stderr fields.",
+  "sources": [
+    "919b001b5b7611395b432175d66fd4270cd41b18",
+    "818d0126b308a0cdb5c3ac44053ea396e2fd6f0a"
+  ],
+  "files": [
+    {
+      "path": "/tmp/nanolang-ci-profile-capture-pair-818-review.py",
+      "artifact": "inputs/000-nanolang-ci-profile-capture-pair-818-review.py.gz",
+      "bytes": 14430,
+      "sha256": "8ad6df12a4532a5aad2bb56db7c819915504f22361ee7b32daca040a5e20d635",
+      "compressed_sha256": "eb8809337e7143b58dfa3f3f3ac0a3afa8898fabd206532880f87578fb394cdd"
+    },
+    {
+      "path": "/tmp/nanolang-ci-profile-capture-pair-review.py",
+      "artifact": "inputs/001-nanolang-ci-profile-capture-pair-review.py.gz",
+      "bytes": 13368,
+      "sha256": "00b96fb35712efbcb5143a678470062f71766b5a845f831379101d281b49af95",
+      "compressed_sha256": "3541acf768b431562a688ae1e2b7986e41f1901c3f2b7adf86d5027765ee6fb3"
+    },
+    {
+      "path": ".test_output/capture-pair-review-20261122/818d0126b-partial-proof/child.py",
+      "artifact": "inputs/002-child.py.gz",
+      "bytes": 2729,
+      "sha256": "fd570c6d6c7b158a666f39fac74697654f9fd1175c1294e3afa0143243991aca",
+      "compressed_sha256": "74f55ba9aba92a6f8465267c07eef2cfd8ceec3a725d1ebad5e189cde9b45733"
+    },
+    {
+      "path": ".test_output/capture-pair-review-20261122/818d0126b-partial-proof/config.json",
+      "artifact": "inputs/003-config.json.gz",
+      "bytes": 357,
+      "sha256": "610b721ad5d7ed63fb027e11a2dd708ee71604e467aa4c1ae778a75cb8067228",
+      "compressed_sha256": "c5c6a5ce11f746c46b4797fac7bee5e33997652bbc055d20325b69e882055e4c"
+    },
+    {
+      "path": ".test_output/capture-pair-review-20261122/818d0126b-partial-proof/observation/commands.json",
+      "artifact": "inputs/004-commands.json.gz",
+      "bytes": 938,
+      "sha256": "32d5ecf38d9368170607b9f95c407b2d269c7d0a4ded4c622e75cc5e30f9b34f",
+      "compressed_sha256": "935060f380db615bfd0c5934516a16ac3efa4528e43bc3749c1926352c9327c2"
+    },
+    {
+      "path": ".test_output/capture-pair-review-20261122/818d0126b-partial-proof/observation/commands.jsonl",
+      "artifact": "inputs/005-commands.jsonl.gz",
+      "bytes": 1338,
+      "sha256": "ff447aedca40b1502e74fc2ab2c33e9abb94c23635ddcb4e9d5f75e11512c52a",
+      "compressed_sha256": "d156b1a67e0d134a753577b8c1b0d57e8e5ba9a9a24fbdc6365bcbd1b28a758e"
+    },
+    {
+      "path": ".test_output/capture-pair-review-20261122/818d0126b-partial-proof/observation/result.json",
+      "artifact": "inputs/006-result.json.gz",
+      "bytes": 592,
+      "sha256": "55d7a01fbf0206f6fb7ac8e3291cc85ec05cc889f3e459a8cf75d83676b5e84e",
+      "compressed_sha256": "cbdf5d638c3d1d43dbb00a7e2cec52e17ec34826c2016246c8159e228ddc6272"
+    },
+    {
+      "path": ".test_output/capture-pair-review-20261122/818d0126b-partial-proof/observation/unittest.log",
+      "artifact": "inputs/007-unittest.log.gz",
+      "bytes": 2598,
+      "sha256": "fc014c3e960f20947ea0be34ca7ad5377b14aa15f4d6cf4d93aec38556054ee2",
+      "compressed_sha256": "d6dbefea32cc34cb94df769d83daadb0013933a449d11b3896e077cccaeadd82"
+    },
+    {
+      "path": ".test_output/capture-pair-review-20261122/818d0126b-partial-proof/parent.stderr",
+      "artifact": "inputs/008-parent.stderr.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "path": ".test_output/capture-pair-review-20261122/818d0126b-partial-proof/parent.stdout",
+      "artifact": "inputs/009-parent.stdout.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "path": ".test_output/capture-pair-review-20261122/818d0126b-partial-proof/root/emitted.bin",
+      "artifact": "inputs/010-emitted.bin.gz",
+      "bytes": 16,
+      "sha256": "59892c1f2c4d6064d772874936006061bbe9923cd730f05d727b2f6c8289dde3",
+      "compressed_sha256": "4f5f410d07b126d58686f45d6ee008058e946ce3dce671a85a1720ee117fb1c4"
+    },
+    {
+      "path": ".test_output/capture-pair-review-20261122/818d0126b-partial-proof/root/tests/__init__.py",
+      "artifact": "inputs/011-__init__.py.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "path": ".test_output/capture-pair-review-20261122/818d0126b-partial-proof/root/tests/test_source_snapshots.py",
+      "artifact": "inputs/012-test_source_snapshots.py.gz",
+      "bytes": 489,
+      "sha256": "cb3a4a31e18f3c002a9fcca4c4dee4be37f1133dda407a3a7409b14e26513f9e",
+      "compressed_sha256": "2b54764b2f5f050a9be99b5aecb2e7aad03bce107cdead0384da8b26e8463b9e"
+    },
+    {
+      "path": ".test_output/capture-pair-review-20261122/919b001b5-partial-proof/child.py",
+      "artifact": "inputs/013-child.py.gz",
+      "bytes": 2263,
+      "sha256": "98030813bbdb9b7944936bbdfade06eca9f45fafd116d2dc7976a7e6b4c38d4b",
+      "compressed_sha256": "c90bbce99fe292130396e9a505533dde4402b5097b3c83b683090186e95d5701"
+    },
+    {
+      "path": ".test_output/capture-pair-review-20261122/919b001b5-partial-proof/config.json",
+      "artifact": "inputs/014-config.json.gz",
+      "bytes": 357,
+      "sha256": "a9f6d82469a5ee40a65d1acc8a083a78392a1b9a9f116abb5389a1637251107b",
+      "compressed_sha256": "8c6f1b7d8d7d74c125ce3618f53f96a0f0fa73d10b1c2a7c4316a613ecc5ce84"
+    },
+    {
+      "path": ".test_output/capture-pair-review-20261122/919b001b5-partial-proof/observation/commands.json",
+      "artifact": "inputs/015-commands.json.gz",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "compressed_sha256": "2ca4529576310b626c1bd48352d283b521d029d54f195d8416536872d826e4c6"
+    },
+    {
+      "path": ".test_output/capture-pair-review-20261122/919b001b5-partial-proof/observation/result.json",
+      "artifact": "inputs/016-result.json.gz",
+      "bytes": 579,
+      "sha256": "4fc130d209614a2268a1a4f8899eb436ade6cb4006fec1cea3616ccf39d36658",
+      "compressed_sha256": "b304a8c3af4277b2752a5e3ab11b2716138db65d3eaad3f947532a7f9546d157"
+    },
+    {
+      "path": ".test_output/capture-pair-review-20261122/919b001b5-partial-proof/observation/unittest.log",
+      "artifact": "inputs/017-unittest.log.gz",
+      "bytes": 2598,
+      "sha256": "741a0dcf476b0cc9d38bda2faa2e9f5cf2d71d2b210766cf06d62ef88ce37658",
+      "compressed_sha256": "d1bd43287c00435ff1f1966bd7259f64fab9d12c92fa44b3e902ead6858abdc6"
+    },
+    {
+      "path": ".test_output/capture-pair-review-20261122/919b001b5-partial-proof/parent.stderr",
+      "artifact": "inputs/018-parent.stderr.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "path": ".test_output/capture-pair-review-20261122/919b001b5-partial-proof/parent.stdout",
+      "artifact": "inputs/019-parent.stdout.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "path": ".test_output/capture-pair-review-20261122/919b001b5-partial-proof/root/emitted.bin",
+      "artifact": "inputs/020-emitted.bin.gz",
+      "bytes": 16,
+      "sha256": "59892c1f2c4d6064d772874936006061bbe9923cd730f05d727b2f6c8289dde3",
+      "compressed_sha256": "4f5f410d07b126d58686f45d6ee008058e946ce3dce671a85a1720ee117fb1c4"
+    },
+    {
+      "path": ".test_output/capture-pair-review-20261122/919b001b5-partial-proof/root/tests/__init__.py",
+      "artifact": "inputs/021-__init__.py.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "path": ".test_output/capture-pair-review-20261122/919b001b5-partial-proof/root/tests/test_source_snapshots.py",
+      "artifact": "inputs/022-test_source_snapshots.py.gz",
+      "bytes": 489,
+      "sha256": "a18a332140a0f547a16580b6e7aef506e529430c8d69a7a01d64bbb4943dfc35",
+      "compressed_sha256": "06f837f129248fc117b8106624d0591616f34d785a22cd70e8602b27a78addaa"
+    },
+    {
+      "path": ".test_output/capture-pair-review-20261122/check-timeout-retention.py",
+      "artifact": "inputs/023-check-timeout-retention.py.gz",
+      "bytes": 2600,
+      "sha256": "4f9f5ab188ade3ae5ed25e1cfbe99087b85fea268a29dddb498ec4084cf5daa4",
+      "compressed_sha256": "2244938668b4daddf4b45d3232eca0958fc5115b3b48458072112d1e24f023cd"
+    },
+    {
+      "path": ".test_output/capture-pair-review-20261122/timeout-retention.json",
+      "artifact": "inputs/024-timeout-retention.json.gz",
+      "bytes": 3005,
+      "sha256": "1c6b736eff1c20c7b36ef3e0fe04cb2d96f992cbf296ce82858312d2ec34cd62",
+      "compressed_sha256": "62f52e5f7c4154e8a84a251bf5654f669d3d47e127187eae80bfb209f522bc59"
+    }
+  ]
+}

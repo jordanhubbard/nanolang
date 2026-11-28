@@ -1,0 +1,251 @@
+module "src_nano/nvm2c/affine_state.nano" as affine
+module "src_nano/nvm2c/affine_facts.nano" as facts
+module "src_nano/nvm2c/reference_places.nano" as places
+module "src_nano/nvm2c/ownership_wire.nano" as read
+module "tests/nvm2c_affine_fixture.nano" as fixture
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+fn flag(value: bool) -> string { if value { return "1" } return "0" }
+shadow flag { assert (== (flag true) "1") assert (== (flag false) "0") }
+fn integer(value: int) -> string { return (+ (int_to_string value) ",") }
+shadow integer { assert (== (integer 4294967295) "4294967295,") }
+fn slot(value: facts.Slot) -> string { return (+ (+ (integer value.tag) (integer value.mode)) (integer value.layout)) }
+shadow slot { assert (== (slot (facts.slot 1 4294967295)) "1,0,4294967295,") }
+
+fn snapshot(s: affine.State) -> string {
+    if (not s.valid) { return "N" }
+    let mut text: string = (+ "S" (integer s.facts.analysis))
+    let mut i: int = 0
+    while (< i (array_length s.control)) { set text (+ text (integer (at s.control i))) set i (+ i 1) }
+    set text (+ text ":")
+    set i 0
+    while (< i (array_length s.live)) {
+        set text (+ text (+ (flag (at s.live i)) (integer (at s.variants i))))
+        set i (+ i 1)
+    }
+    set text (+ text ":")
+    set i 0
+    while (< i (array_length s.references)) {
+        let ref: affine.Reference = (at s.references i)
+        if ref.live {
+            let p: places.Place = ref.place
+            set text (+ text (+ "R" (+ (integer ref.region) (integer ref.parent))))
+            set text (+ text (+ (integer p.invocation_low) (integer p.invocation_high)))
+            set text (+ text (+ (integer p.local) (integer p.root_layout)))
+            set text (+ text (+ (integer p.referent_layout) (integer p.mode)))
+            let mut j: int = 0
+            set text (+ text "[")
+            while (< j (array_length p.fields)) { set text (+ text (integer (at p.fields j))) set j (+ j 1) }
+            set text (+ text "]")
+        } else { set text (+ text "-") }
+        set i (+ i 1)
+    }
+    set text (+ text ":")
+    set i 0
+    while (< i (array_length s.origins)) {
+        let item: affine.Origin = (at s.origins i)
+        set text (+ text (+ (+ (integer item.low) (integer item.high)) (+ (integer item.local) (integer item.layout))))
+        set i (+ i 1)
+    }
+    return text
+}
+shadow snapshot { assert (== (snapshot (affine.empty)) "N") }
+
+fn assert_isolated(held: affine.State, source: array<affine.Reference>) -> void {
+    let before: string = (snapshot held)
+    let mut i: int = 0
+    while (< i (array_length source)) {
+        let ref: affine.Reference = (at source i)
+        if (and ref.live (> (array_length ref.place.fields) 0)) {
+            let original: int = (at ref.place.fields 0)
+            (array_set ref.place.fields 0 (% (+ original 1) 65536))
+            assert (== (snapshot held) before)
+            (array_set ref.place.fields 0 original)
+        }
+        set i (+ i 1)
+    }
+}
+shadow assert_isolated {
+    let held: affine.State = (affine.empty)
+    (assert_isolated held [])
+    assert (== (snapshot held) "N")
+}
+
+fn query_report(q: affine.Query) -> string {
+    if (not q.valid) { return "" }
+    let mut text: string = (+ ":" (+ (slot q.value) (integer q.number)))
+    let mut i: int = 0
+    while (< i (array_length q.values)) { set text (+ text (slot (at q.values i))) set i (+ i 1) }
+    return text
+}
+shadow query_report { assert (== (query_report affine.Query { valid: false, value: (facts.slot 0 0), number: 0, values: [] }) "") }
+
+fn step(states: array<affine.State>, image: fixture.Fixture, serial: array<int>, op: int, source: int,
+        a: int, b: int, c: int, d: int, fields: array<int>) -> string {
+    let s: affine.State = (at states source)
+    let mut target: int = source
+    let mut out: affine.Transition = affine.Transition { valid: false, changed: false, state: s }
+    let mut q: affine.Query = affine.Query { valid: false, value: (facts.slot 0 0), number: 0, values: [] }
+    if (== op 0) {
+        (array_set serial 0 (+ (at serial 0) 1))
+        let prepared: facts.Facts = (facts.prepare image.ownership image.model a (+ 1 c) (at serial 0))
+        let created: affine.State = (affine.create prepared b)
+        set out affine.Transition { valid: created.valid, changed: false, state: created }
+    } else if (== op 1) {
+        set target a
+        let cloned: affine.State = (affine.clone s)
+        if cloned.valid { (assert_isolated cloned s.references) }
+        set out affine.Transition { valid: cloned.valid, changed: false, state: cloned }
+    } else if (== op 2) { set out (affine.define_scalar s a) }
+    else if (== op 3) { set out (affine.define_string s a) }
+    else if (== op 4) { set out (affine.define_record s a b) }
+    else if (== op 5) { set out (affine.define_array s a b) }
+    else if (== op 6) { set out (affine.define_union s a b c) }
+    else if (== op 7) { set out (affine.refine_union s a b) }
+    else if (== op 8) { set out (affine.move_local s a b) }
+    else if (== op 9) { set out (affine.record_transfer s a fields false) }
+    else if (== op 10) { set out (affine.record_transfer s a fields true) }
+    else if (== op 11) { set out (affine.union_transfer s a b fields false) }
+    else if (== op 12) { set out (affine.union_transfer s a b fields true) }
+    else if (== op 13) { set out (affine.region_begin s) }
+    else if (== op 14) { set out (affine.region_end s) }
+    else if (== op 15) {
+        set out (affine.borrow_local s a b fields c)
+        if (and out.valid (> (array_length fields) 0)) {
+            let before: string = (snapshot out.state)
+            let original: int = (at fields 0)
+            (array_set fields 0 (% (+ original 1) 65536))
+            assert (== (snapshot out.state) before)
+            (array_set fields 0 original)
+        }
+    }
+    else if (== op 16) { set out (affine.reborrow s a b c) }
+    else if (== op 17) { set out affine.Transition { valid: (affine.owner_access s a fields (!= b 0)), changed: false, state: s } }
+    else if (== op 18) { set out affine.Transition { valid: (affine.reference_access s a b (!= c 0)), changed: false, state: s } }
+    else if (== op 19) { set out affine.Transition { valid: (affine.can_exit s a), changed: false, state: s } }
+    else if (== op 20) { set q (affine.local_info s a) }
+    else if (== op 21) { set q (affine.local_type s a) }
+    else if (== op 22) { set q (affine.scalar_field s a b) }
+    else if (== op 23) { set q (affine.string_field s a b) }
+    else if (== op 24) { set out affine.Transition { valid: (affine.can_exit_scalar s a), changed: false, state: s } }
+    else if (== op 25) { set out affine.Transition { valid: (affine.can_exit_type s (facts.slot a b)), changed: false, state: s } }
+    else if (== op 26) { set out affine.Transition { valid: (affine.can_suspend s), changed: false, state: s } }
+    else if (== op 27) { set out affine.Transition { valid: (affine.can_resume s (facts.slot a b)), changed: false, state: s } }
+    else if (== op 28) { set q (affine.union_variant s a) }
+    else if (== op 29) { set out affine.Transition { valid: (affine.types_equal s (facts.slot a b) (facts.slot c d)), changed: false, state: s } }
+    else if (== op 30) { set out affine.Transition { valid: (affine.type_owned s (facts.slot a b)), changed: false, state: s } }
+    else if (== op 31) {
+        let found: affine.Query = (affine.local_type s a)
+        set out (affine.take_local s a)
+        if out.valid { set q found }
+    } else if (== op 32) { set out (affine.put_local s a (facts.slot b c)) }
+    else if (== op 33) { set q (affine.record_fields s a b (!= c 0)) }
+    else if (== op 34) { set q (affine.union_fields s a b c (!= d 0)) }
+    else if (== op 35) { set q (affine.owned_local_fields s a b (!= c 0)) }
+    else if (== op 36) { set q (affine.array_element s (facts.slot a b)) }
+    else if (== op 37) { set q (affine.array_type s (facts.slot a b)) }
+    else if (== op 38) { set q (affine.array_tag_type s a) }
+    else if (== op 39) { set out affine.Transition { valid: (affine.has_complete_unions s), changed: false, state: s } }
+    else if (== op 40) { set out affine.Transition { valid: (affine.has_array_types s), changed: false, state: s } }
+    else if (== op 41) { set out affine.Transition { valid: (affine.equal s (at states a)), changed: false, state: s } }
+    else if (== op 42) { set out (affine.meet_initialization s (at states a)) }
+    else if (== op 43) {
+        set target a
+        let entered: affine.Transition = (affine.handler_enter s b c)
+        let mut state: affine.State = (affine.empty)
+        if entered.valid { set state entered.state }
+        set out affine.Transition { valid: entered.valid, changed: false, state: state }
+    } else if (== op 44) {
+        let caller: affine.State = (at states a)
+        set out (affine.bind_caller s caller b)
+        if out.valid { (assert_isolated out.state caller.references) }
+    }
+    else if (== op 45) { set q (affine.parameter_at s a) }
+    else if (== op 46) { set q (affine.parameter_type s) }
+    else if (== op 47) { set q (affine.owned_parameter_type s) }
+    else if (== op 48) { set q (affine.value_result s) }
+    else if (== op 49) { set q (affine.value_parameters s a (!= b 0) false) }
+    else if (== op 50) { set q (affine.value_parameters s a (!= b 0) true) }
+    else if (== op 51) { set q (affine.reference_field s a b (!= c 0)) }
+    let query: bool = (or (and (>= op 20) (<= op 23)) (or (== op 28)
+        (or (and (>= op 33) (<= op 38)) (and (>= op 45) (<= op 51)))))
+    if query { set out affine.Transition { valid: q.valid, changed: false, state: s } }
+    (array_set states target out.state)
+    return (+ (+ (+ (flag out.valid) (flag out.changed)) (query_report q)) (+ "@" (snapshot out.state)))
+}
+shadow step {
+    let states: array<affine.State> = [(affine.empty)]
+    let image: fixture.Fixture = (fixture.parse [])
+    assert (== (step states image [0] 39 0 0 0 0 0 []) "00@N")
+}
+
+fn native_widths(op: int, a: int, b: int, c: int) -> bool {
+    let locals: array<int> = [2,3,4,5,6,7,8,9,10,11,12,17,19,20,21,22,23,31,32,35,45,49,50]
+    let second: array<int> = [7,8,11,12,15,18,22,23,33,34,35,51]
+    let third: array<int> = [6,34,43]
+    let tags: array<int> = [24,25,27,29,30,36,37,38]
+    let mut i: int = 0
+    while (< i (array_length locals)) { if (and (== op (at locals i)) (> a 65535)) { return false } set i (+ i 1) }
+    set i 0
+    while (< i (array_length second)) { if (and (== op (at second i)) (> b 65535)) { return false } set i (+ i 1) }
+    set i 0
+    while (< i (array_length third)) { if (and (== op (at third i)) (> c 65535)) { return false } set i (+ i 1) }
+    set i 0
+    while (< i (array_length tags)) { if (and (== op (at tags i)) (> a 255)) { return false } set i (+ i 1) }
+    if (and (== op 32) (> b 255)) { return false }
+    if (and (== op 29) (> c 255)) { return false }
+    return true
+}
+shadow native_widths { assert (native_widths 2 65535 0 0) assert (not (native_widths 2 65536 0 0)) assert (not (native_widths 29 1 0 256)) }
+
+fn describe(bytes: array<u8>) -> string {
+    let input: read.Cursor = (read.open bytes)
+    let size: int = (read.read_u32 input)
+    let count: int = (read.read_u32 input)
+    let start: int = (read.skip input size)
+    if (or (!= (read.status input) 0) (> count 65536)) { return "D" }
+    let image: fixture.Fixture = (fixture.parse (array_slice bytes start size))
+    if (not image.valid) { return "D" }
+    let mut states: array<affine.State> = []
+    let mut i: int = 0
+    while (< i 16) { set states (array_push states (affine.empty)) set i (+ i 1) }
+    let serial: array<int> = [0]
+    let mut text: string = ""
+    set i 0
+    while (< i count) {
+        let op: int = (read.read_u32 input)
+        let source: int = (read.read_u32 input)
+        let a: int = (read.read_u32 input)
+        let b: int = (read.read_u32 input)
+        let c: int = (read.read_u32 input)
+        let d: int = (read.read_u32 input)
+        let fields_count: int = (read.read_u32 input)
+        if (or (!= (read.status input) 0) (or (> op 51) (or (>= source 16) (> fields_count 65535)))) { return "D" }
+        if (not (native_widths op a b c)) { return "D" }
+        if (and (or (== op 1) (or (== op 41) (or (== op 42) (or (== op 43) (== op 44))))) (>= a 16)) { return "D" }
+        if (and (== op 0) (or (> b 65536) (> c 1))) { return "D" }
+        let mut fields: array<int> = []
+        let mut j: int = 0
+        while (< j fields_count) {
+            let field: int = (read.read_u32 input)
+            if (or (!= (read.status input) 0) (> field 65535)) { return "D" }
+            set fields (array_push fields field)
+            set j (+ j 1)
+        }
+        if (> i 0) { set text (+ text "|") }
+        set text (+ text (step states image serial op source a b c d fields))
+        set i (+ i 1)
+    }
+    if (!= (read.position input) (array_length bytes)) { return "D" }
+    return text
+}
+shadow describe { assert (== (describe []) "D") }
+
+fn main() -> int {
+    unsafe {
+        let mut i: int = 1
+        while (< i (get_argc)) { (println (describe (file_read_bytes (get_argv i)))) set i (+ i 1) }
+    }
+    return 0
+}

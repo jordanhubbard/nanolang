@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/var/tmp/nanolang-darwin-publication-qkk55gi3/docs/evidence/c-repairs-linux-20261126/current-components-20261127/read_current_components.py", line 6, in <module>
+    encoded=(a.archive/'manifest.json').read_bytes();assert sha(encoded)=='d0238220daab4d89488543b8b55e215b22064f07ccc6229b24e5a544a0ff3ada';m=json.loads(encoded)
+                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

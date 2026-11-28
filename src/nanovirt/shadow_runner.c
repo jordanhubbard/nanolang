@@ -1,4 +1,5 @@
 #include "math_host_contracts.h"
+#include "nanoisa/regex_host_contracts.h"
 #include "runtime/shadow_timeout.h"
 #include "nanolang.h"
 #include "module_builder.h"
@@ -36,6 +37,40 @@ void free_ffi_bindings(FfiBinding *bindings, int count) {
     free(bindings);
 }
 
+/* I compare the source annotation as well as its erased wire tag. */
+static bool regex_source_type(Type type, const char *name, uint8_t tag) {
+    if (tag == TAG_OPAQUE)
+        return (type == TYPE_STRUCT || type == TYPE_OPAQUE) && name && !strcmp(name, "Regex");
+    return (tag == TAG_STRING && type == TYPE_STRING) ||
+           (tag == TAG_INT && type == TYPE_INT) ||
+           (tag == TAG_ARRAY && type == TYPE_ARRAY) ||
+           (tag == TAG_VOID && type == TYPE_VOID);
+}
+
+static bool regex_source_contract(ASTNode *ast, const NanoRegexHostContract *contract) {
+    if (!ast || !contract) return false;
+    ASTNode *declaration = NULL;
+    bool opaque = false;
+    for (int i = 0; i < ast->as.program.count; ++i) {
+        ASTNode *item = ast->as.program.items[i];
+        if (item->type == AST_OPAQUE_TYPE && !strcmp(item->as.opaque_type.name, "Regex")) opaque = true;
+        if (item->type != AST_FUNCTION || !item->as.function.is_extern ||
+            strcmp(item->as.function.name, contract->name)) continue;
+        if (declaration) return false;
+        declaration = item;
+    }
+    if (!opaque || !declaration || declaration->as.function.param_count != contract->argc ||
+        !regex_source_type(declaration->as.function.return_type,
+                           declaration->as.function.return_struct_type_name, contract->result)) return false;
+    if (contract->result == TAG_ARRAY && declaration->as.function.return_element_type !=
+        (contract->array_element == TAG_INT ? TYPE_INT : TYPE_STRING)) return false;
+    for (int i = 0; i < contract->argc; ++i) {
+        Parameter *parameter = &declaration->as.function.params[i];
+        if (!regex_source_type(parameter->type, parameter->struct_type_name, contract->parameters[i])) return false;
+    }
+    return true;
+}
+
 bool bind_ffi_imports(NvmModule *module, ModuleList *modules,
                              FfiBinding *bindings, const char *input, Environment *env) {
     for (uint32_t i = 0; i < module->import_count; i++) {
@@ -46,15 +81,22 @@ bool bind_ffi_imports(NvmModule *module, ModuleList *modules,
         char *canonical = realpath(resolved ? resolved : name, NULL);
         free((void *)resolved);
         unsigned math_arity = nano_math_host_arity(nvm_get_string(module, imp->function_name_idx));
+        const NanoRegexHostContract *regex = nano_regex_host_contract(
+            nvm_get_string(module, imp->function_name_idx));
         bool source_seen = false;
+        bool regex_source = false;
         for (int j = 0; j < modules->count; j++) {
-            if (!bindings[j].artifact && !math_arity) continue;
+            if (!bindings[j].artifact && !math_arity && !regex) continue;
             char *candidate = realpath(modules->module_paths[j], NULL);
             bool match = strcmp(name, modules->module_paths[j]) == 0 ||
                          (canonical && candidate && strcmp(canonical, candidate) == 0);
             free(candidate);
             if (!match) continue;
             source_seen = true;
+            /* I retain explicit metadata as a provider choice, including a
+             * library-only manifest that does not produce a native artifact. */
+            if (regex && !bindings[j].metadata &&
+                regex_source_contract(get_cached_module_ast(modules->module_paths[j]), regex)) regex_source = true;
             if (!bindings[j].artifact) continue;
             ModuleBuildMetadata *metadata = bindings[j].metadata;
             const char *symbol = nvm_get_string(module, imp->function_name_idx);
@@ -92,6 +134,12 @@ bool bind_ffi_imports(NvmModule *module, ModuleList *modules,
                 module->import_param_types && module->import_param_types[i];
             for (uint16_t p = 0; exact && p < imp->param_count; ++p)
                 if (module->import_param_types[i][p] != TAG_FLOAT) exact = false;
+            if (!exact && regex_source && regex) {
+                exact = imp->param_count == regex->argc && imp->return_type == regex->result &&
+                    module->import_param_types && module->import_param_types[i];
+                for (uint16_t p = 0; exact && p < imp->param_count; ++p)
+                    if (module->import_param_types[i][p] != regex->parameters[p]) exact = false;
+            }
             if (exact) {
                 uint32_t empty = nvm_add_string(module, "", 0);
                 if (empty == UINT32_MAX) { free(canonical); return false; }
@@ -262,10 +310,11 @@ bool check_shadows(ASTNode *program, Environment *env, ModuleList *modules,
         bool clock_ok = clock_gettime(CLOCK_MONOTONIC, &start) == 0;
         for (;;) {
             waited = waitpid(child, &status, WNOHANG);
-            if (waited == child || (waited < 0 && errno != EINTR)) break;
+            if (waited < 0 && errno != EINTR) break;
             clock_failed = !clock_ok || clock_gettime(CLOCK_MONOTONIC, &now) != 0;
             timed_out = !clock_failed && (now.tv_sec - start.tv_sec > shadow_seconds ||
                 (now.tv_sec - start.tv_sec == shadow_seconds && now.tv_nsec >= start.tv_nsec));
+            if (waited == child) break;
             if (clock_failed || timed_out) {
                 kill(child, SIGKILL);
                 do { waited = waitpid(child, &status, 0); } while (waited < 0 && errno == EINTR);

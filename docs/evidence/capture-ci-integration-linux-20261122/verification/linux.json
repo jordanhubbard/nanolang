@@ -1,0 +1,16 @@
+{
+  "status": "INTEGRITY_PASS",
+  "source_pin": "c0bede240d8974c156cc8d190ed43976902102c7",
+  "records": 1514,
+  "controls": 38,
+  "gnu_queries": 3,
+  "source_methods": 128,
+  "source_conditional_skips": 24,
+  "response_equivalences": 600,
+  "ordinary_guide_snippets": 40,
+  "shadow_override": null,
+  "hosted_completion": true,
+  "later_source_bootstrap": false,
+  "current_darwin": false,
+  "release_acceptance": false
+}

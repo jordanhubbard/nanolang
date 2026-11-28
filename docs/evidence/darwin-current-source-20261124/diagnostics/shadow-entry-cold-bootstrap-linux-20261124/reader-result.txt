@@ -1,0 +1,1 @@
+PASS integrity: 6543 records; original Make exit=0, native acceptance=False, bounded artifact observation=True. No complete sanitizer, paired, pure-translator or release acceptance.

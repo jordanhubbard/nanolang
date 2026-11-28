@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "source_commit": "4796a92bf8ad1c3fbfae1666292093e25affdcd1",
+  "records": 4065,
+  "methods_per_producer": 13,
+  "producers": [
+    "C",
+    "pure",
+    "targeted-parser-typechecker-ASan"
+  ],
+  "direct_native_controls": 7,
+  "retained_C_failures": 3,
+  "raw_bytes": 1044920196
+}

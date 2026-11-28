@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/private/var/tmp/nanolang-5.1-current-20261126-xa_jgr1d/control.py", line 79, in <module>
+    admission('before-reservation')
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/var/tmp/nanolang-5.1-current-20261126-xa_jgr1d/control.py", line 54, in admission
+    q['admissions'].append(record);save();assert record['filesystem']=='apfs' and record['free_bytes']>15*1024**3 and not rows,record
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'label': 'before-reservation', 'utc': '2026-11-26T18:58:11Z', 'other_nanolang_jobs': [], 'free_bytes': 104602312704, 'filesystem': '/', 'loadavg': (47.220703125, 36.310546875, 33.21240234375), 'cpu': []}

@@ -1,0 +1,382 @@
+module nvm2c_module_verifier
+module "src_nano/nvm2c/module.nano" as reader
+module "src_nano/nvm2c/container.nano" as wire
+module "src_nano/nvm2c/payloads.nano" as payload
+module "src_nano/nvm2c/ownership.nano" as owned
+module "src_nano/nvm2c/routes.nano" as routes
+module "src_nano/nvm2c/function_body.nano" as body
+module "src_nano/nvm2c/stack_heights.nano" as heights
+module "src_nano/nvm2c/instructions.nano" as primary
+
+# I compose ordinary module verification. A declaration-only success has
+# complete=false. Owned/private admission remains separate required work;
+# no executable selector uses this component.
+pub struct Result {
+    status: int, valid: bool, complete: bool, deferred: bool, malformed: bool,
+    depths: array<int>, message: string
+}
+
+fn rejected(status: int) -> Result {
+    return Result { status: status, valid: false, complete: false, deferred: (== status -1), malformed: false, depths: [], message: "" }
+}
+shadow rejected { assert (rejected -1).deferred assert (not (rejected 13).valid) assert (== (rejected 13).status 13) }
+fn refused(message: string) -> Result {
+    return Result { status: 0, valid: false, complete: false, deferred: false, malformed: false, depths: [], message: message }
+}
+shadow refused { assert (== (refused "x").message "x") assert (not (refused "x").complete) }
+fn pending() -> Result {
+    return Result { status: 0, valid: false, complete: false, deferred: true, malformed: false, depths: [], message: "" }
+}
+shadow pending { assert (pending).deferred assert (not (pending).valid) }
+fn malformed() -> Result {
+    return Result { status: 0, valid: false, complete: false, deferred: false, malformed: true, depths: [], message: "" }
+}
+shadow malformed { assert (malformed).malformed assert (not (malformed).deferred) }
+fn accepted(depths: array<int>, complete: bool) -> Result {
+    return Result { status: 0, valid: true, complete: complete, deferred: false, malformed: false, depths: depths, message: "" }
+}
+shadow accepted { assert (accepted [2] true).complete assert (not (accepted [0] false).complete) assert (== (at (accepted [2] true).depths 0) 2) }
+fn zeros(count: int) -> array<int> {
+    let mut values: array<int> = []
+    let mut i: int = 0
+    while (< i count) { set values (array_push values 0) set i (+ i 1) }
+    return values
+}
+shadow zeros { assert (== (array_length (zeros 0)) 0) assert (== (at (zeros 2) 1) 0) }
+
+fn empty_bytes() -> array<u8> {
+    return [78,86,77,2,1,0,2,0,0,0,0,0,40,0,0,0,0,0,0,0,40,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0]
+}
+shadow empty_bytes { assert (== (reader.decode_core (empty_bytes)).status 0) }
+
+fn entry_field(view: reader.ModuleView, kind: int, index: int, offset: int, wide: bool) -> int {
+    let table: payload.PayloadTable = (reader.table view kind)
+    if (or (< index 0) (>= index (array_length table.starts))) { return -1 }
+    let position: int = (+ (at table.starts index) offset)
+    if wide { return (wire.read_u32 table.data position) }
+    return (wire.read_u16 table.data position)
+}
+shadow entry_field { assert (== (entry_field (reader.decode_core (empty_bytes)) 5 0 0 true) -1) }
+fn first_result(signatures: payload.PayloadTable, index: int) -> int {
+    let start: int = (at signatures.starts index)
+    let arity: int = (wire.read_u16 signatures.data start)
+    if (== (wire.read_u16 signatures.data (+ start 2)) 0) { return 0 }
+    let position: int = (+ (+ (+ start 4) arity) (% (- 4 (% arity 4)) 4))
+    return (cast_int (at signatures.data position))
+}
+shadow first_result {
+    let table: payload.PayloadTable = (payload.decode [1,0,0,0,1,0,1,0,1,0,0,0,2,0,0,0] 3)
+    assert (== (first_result table 0) 2)
+}
+fn context(view: reader.ModuleView, model: owned.Module) -> body.Context {
+    let mut functions: array<body.Function> = []
+    let mut i: int = 0
+    while (< i (array_length model.functions)) {
+        let item = (at model.functions i)
+        set functions (array_push functions body.Function { arity: item.arity, results: item.results, result_tag: (at model.results i), locals: item.locals, upvalues: item.upvalues })
+        set i (+ i 1)
+    }
+    let table: payload.PayloadTable = (reader.table view 8)
+    let signatures: payload.PayloadTable = (reader.table view 3)
+    let mut imports: array<heights.Import> = []
+    set i 0
+    while (< i (array_length table.starts)) {
+        let index: int = (entry_field view 8 i 8 true)
+        let start: int = (at signatures.starts index)
+        set imports (array_push imports heights.Import { parameters: (wire.read_u16 signatures.data start), return_tag: (first_result signatures index) })
+        set i (+ i 1)
+    }
+    return body.Context { functions: functions, imports: imports, linked: [], strings: (array_length model.strings), records: model.records, enums: model.enums, unions: model.unions }
+}
+shadow context {
+    let view: reader.ModuleView = (reader.decode_core (empty_bytes))
+    assert (== (array_length (context view (reader.convert view).model).functions) 0)
+}
+
+# Wire references and conversion have already run. I retain the C structural
+# order, including every function's metadata before any function body.
+fn structure(view: reader.ModuleView, model: owned.Module) -> Result {
+    let count: int = (array_length model.functions)
+    let size: int = (array_length model.code)
+    if (and (!= view.entry 4294967295) (>= view.entry count)) {
+        return (refused (+ "entry_point " (+ (int_to_string view.entry) (+ " >= function_count " (int_to_string count)))))
+    }
+    let mut i: int = 0
+    while (< i count) {
+        let item = (at model.functions i)
+        let prefix: string = (+ "function[" (+ (int_to_string i) "] "))
+        if (> item.start size) { return (refused (+ prefix (+ "code_offset " (+ (int_to_string item.start) (+ " > code_size " (int_to_string size)))))) }
+        if (> item.length (- size item.start)) { return (refused (+ prefix (+ "code range exceeds code_size: offset " (+ (int_to_string item.start) (+ ", length " (+ (int_to_string item.length) (+ ", code_size " (int_to_string size)))))))) }
+        let name: int = (entry_field view 5 i 0 true)
+        if (>= name (array_length model.strings)) { return (refused (+ prefix (+ "name_idx " (+ (int_to_string name) (+ " >= string_count " (int_to_string (array_length model.strings))))))) }
+        let tag: int = (at model.results i)
+        if (>= tag 16) { return (refused (+ prefix (+ "result_tag " (+ (int_to_string tag) " is invalid")))) }
+        let params: array<int> = (at model.params i)
+        let mut p: int = 0
+        while (< p item.arity) {
+            if (>= (at params p) 16) { return (refused (+ "I found an invalid parameter tag in function[" (+ (int_to_string i) (+ "] parameter[" (+ (int_to_string p) "]"))))) }
+            set p (+ p 1)
+        }
+        if (!= (== item.results 0) (== tag 0)) { return (refused (+ prefix "result signature must be void/0 or non-void/nonzero")) }
+        if (< item.locals item.arity) { return (refused (+ prefix (+ "local_count " (+ (int_to_string item.locals) (+ " is smaller than arity " (int_to_string item.arity)))))) }
+        if (and (== item.length 0) (!= item.results 0)) { return (refused (+ "I require a body for function[" (+ (int_to_string i) (+ "] with " (+ (int_to_string item.results) " declared result(s)."))))) }
+        if (> item.length 0) {
+            let mut j: int = 0
+            while (< j i) {
+                let other = (at model.functions j)
+                if (and (> other.length 0) (and (< item.start (+ other.start other.length)) (< other.start (+ item.start item.length)))) {
+                    return (refused (+ prefix (+ "code range overlaps function[" (+ (int_to_string j) "]"))))
+                }
+                set j (+ j 1)
+            }
+        }
+        set i (+ i 1)
+    }
+    # With no functions and no required ownership walk, the C module loop
+    # performs no owned execution query. I preserve that inert metadata case.
+    # A nonempty function table can select owned execution even when the
+    # declaration alone requires no affine walk; I still defer that admission.
+    if (> (array_length view.ownership) 0) {
+        let declaration: owned.Declaration = (owned.validate view.ownership model)
+        if (!= declaration.status 0) { return (refused "I found invalid ownership declarations") }
+        if (or (> count 0) declaration.requires_verifier) { return (pending) }
+    }
+    let table: payload.PayloadTable = (reader.table view 8)
+    let signatures: payload.PayloadTable = (reader.table view 3)
+    set i 0
+    while (< i (array_length table.starts)) {
+        let index: int = (entry_field view 8 i 8 true)
+        let start: int = (at signatures.starts index)
+        let arity: int = (wire.read_u16 signatures.data start)
+        if (> arity 16) { return (refused (+ "import[" (+ (int_to_string i) (+ "] param_count " (+ (int_to_string arity) " exceeds the foreign-call argument limit of 16"))))) }
+        set i (+ i 1)
+    }
+    return (accepted [] false)
+}
+shadow structure {
+    let view: reader.ModuleView = (reader.decode_core (empty_bytes))
+    assert (structure view (reader.convert view).model).valid
+}
+
+fn run_with_links(view: reader.ModuleView, model: owned.Module, declared: bool, links: array<body.Linked>) -> Result {
+    if (routes.service_pending model (> (array_length view.services) 0) false) {
+        return (refused "I refuse service contracts before mixed execution selection")
+    }
+    let checked: Result = (structure view model)
+    if (not checked.valid) { return checked }
+    let base: body.Context = (context view model)
+    let facts: body.Context = body.Context { functions: base.functions, imports: base.imports, linked: links, strings: base.strings, records: base.records, enums: base.enums, unions: base.unions }
+    let mut depths: array<int> = (zeros (array_length model.functions))
+    let mut i: int = 0
+    while (< i (array_length model.functions)) {
+        let limit: int = (entry_field view 5 i 28 false)
+        if (or (not declared) (> limit 0)) {
+            let item = (at model.functions i)
+            let result: body.Result = (body.verify model.code item.start item.length facts i)
+            if (not result.decoded) { return (malformed) }
+            if (not result.supported) { return (pending) }
+            if (not result.valid) { return (refused result.message) }
+            if (and declared (< limit result.maximum)) {
+                return (refused (+ "function " (+ (int_to_string i) (+ " declares max_stack " (+ (int_to_string limit) (+ " but reaches " (int_to_string result.maximum)))))))
+            }
+            (array_set depths i result.maximum)
+        }
+        set i (+ i 1)
+    }
+    return (accepted depths (not declared))
+}
+shadow run_with_links {
+    let view: reader.ModuleView = (reader.decode_core (empty_bytes))
+    assert (run_with_links view (reader.convert view).model false []).complete
+}
+fn run(view: reader.ModuleView, model: owned.Module, declared: bool) -> Result {
+    return (run_with_links view model declared [])
+}
+shadow run {
+    let view: reader.ModuleView = (reader.decode_core (empty_bytes))
+    assert (run view (reader.convert view).model false).complete
+    assert (not (run view (reader.convert view).model true).complete)
+}
+pub struct LinkedModule { resolved: bool, bytes: array<u8> }
+pub struct GraphResult { module_index: int, result: Result }
+struct Prepared { view: reader.ModuleView, model: owned.Module, proof: Result }
+
+# I load declarations before graph policy, in the caller's source order.
+fn prepare(bytes: array<u8>) -> Prepared {
+    let view: reader.ModuleView = (reader.decode_core bytes)
+    let converted: reader.Conversion = (reader.convert view)
+    let mut proof: Result = (accepted [] false)
+    if (!= view.status 0) { set proof (rejected view.status) }
+    else if (!= converted.status 0) { set proof (rejected converted.status) }
+    else {
+        let count: int = (array_length converted.model.functions)
+        let mut selected: bool = false
+        let mut i: int = 0
+        while (< i count) {
+            if (> (entry_field view 5 i 28 false) 0) { set selected true }
+            set i (+ i 1)
+        }
+        set proof (accepted (zeros count) false)
+        if selected { set proof (run view converted.model true) }
+    }
+    return Prepared { view: view, model: converted.model, proof: proof }
+}
+shadow prepare {
+    assert (== (prepare []).proof.status 1)
+    assert (prepare (empty_bytes)).proof.valid
+    assert (not (prepare (empty_bytes)).proof.complete)
+}
+fn evaluate(bytes: array<u8>, declared_only: bool) -> Result {
+    let loaded: Prepared = (prepare bytes)
+    if (or (not loaded.proof.valid) declared_only) { return loaded.proof }
+    return (run loaded.view loaded.model false)
+}
+shadow evaluate {
+    assert (== (evaluate [] false).status 1)
+    assert (evaluate (empty_bytes) false).complete
+    assert (not (evaluate (empty_bytes) true).complete)
+}
+
+pub fn verify(bytes: array<u8>) -> Result { return (evaluate bytes false) }
+shadow verify { assert (verify (empty_bytes)).valid assert (verify (empty_bytes)).complete assert (not (verify []).valid) }
+pub fn verify_declared(bytes: array<u8>) -> Result { return (evaluate bytes true) }
+shadow verify_declared { assert (verify_declared (empty_bytes)).valid assert (not (verify_declared (empty_bytes)).complete) }
+
+# I match the C policy scanner: undecodable bytes stop this scan. They remain
+# the body decoder's responsibility; I do not scan operands as opcodes.
+fn code_uses_owned(code: array<u8>, start: int, length: int) -> bool {
+    if (not (wire.contains code start length)) { return true }
+    let mut offset: int = 0
+    while (< offset length) {
+        let item: primary.Instruction = (primary.decode code (+ start offset) (- length offset))
+        if (== item.length 0) { return false }
+        if (or (and (>= item.opcode 11) (<= item.opcode 14)) (and (>= item.opcode 22) (<= item.opcode 31))) { return true }
+        set offset (+ offset item.length)
+    }
+    return false
+}
+shadow code_uses_owned {
+    assert (not (code_uses_owned [] 0 0))
+    assert (code_uses_owned [] 1 0)
+    assert (code_uses_owned [22,0,0] 0 3)
+    assert (not (code_uses_owned [11] 0 1))
+    assert (not (code_uses_owned [255,22,0,0] 0 4))
+    assert (code_uses_owned [0,22,0,0] 0 4)
+}
+fn uses_owned(loaded: Prepared) -> bool {
+    let declaration: owned.Declaration = (owned.validate loaded.view.ownership loaded.model)
+    if (and (== declaration.status 0) declaration.requires_verifier) { return true }
+    let mut i: int = 0
+    while (< i (array_length loaded.model.functions)) {
+        let item = (at loaded.model.functions i)
+        if (code_uses_owned loaded.model.code item.start item.length) { return true }
+        set i (+ i 1)
+    }
+    return false
+}
+shadow uses_owned { assert (not (uses_owned (prepare (empty_bytes)))) }
+fn signatures(loaded: Prepared, resolved: bool) -> body.Linked {
+    let mut functions: array<heights.Signature> = []
+    let mut i: int = 0
+    if resolved {
+        while (< i (array_length loaded.model.functions)) {
+            let item = (at loaded.model.functions i)
+            set functions (array_push functions heights.Signature { arity: item.arity, results: item.results })
+            set i (+ i 1)
+        }
+    }
+    return body.Linked { resolved: resolved, functions: functions }
+}
+shadow signatures {
+    assert (signatures (prepare (empty_bytes)) true).resolved
+    assert (not (signatures (prepare []) false).resolved)
+}
+fn linked_policy(root: Prepared, sources: array<LinkedModule>, loaded: array<Prepared>) -> Result {
+    let mut i: int = 0
+    while (< i (array_length sources)) {
+        if (at sources i).resolved {
+            let item: Prepared = (at loaded i)
+            if (routes.service_pending item.model (> (array_length item.view.services) 0) false) {
+                return (refused "I refuse linked service contracts before reviewed dispatch admission")
+            }
+        }
+        set i (+ i 1)
+    }
+    if (routes.service_pending root.model (> (array_length root.view.services) 0) false) {
+        return (refused "I refuse service contracts before mixed execution selection")
+    }
+    # Private layout routes have already deferred during checked preparation.
+    if (> (array_length sources) 0) {
+        if (uses_owned root) { return (refused "I refuse linked ownership execution contracts") }
+        set i 0
+        while (< i (array_length sources)) {
+            if (and (at sources i).resolved (uses_owned (at loaded i))) {
+                return (refused "I refuse linked ownership execution contracts")
+            }
+            set i (+ i 1)
+        }
+    }
+    return (accepted [] false)
+}
+shadow linked_policy {
+    let empty: Prepared = (prepare (empty_bytes))
+    assert (linked_policy empty [] []).valid
+    assert (linked_policy empty [LinkedModule { resolved: false, bytes: [] }] [(prepare [])]).valid
+}
+fn graph_evaluate(bytes: array<u8>, sources: array<LinkedModule>, whole: bool) -> GraphResult {
+    let root: Prepared = (prepare bytes)
+    if (not root.proof.valid) { return GraphResult { module_index: 0, result: root.proof } }
+    let mut loaded: array<Prepared> = []
+    let mut links: array<body.Linked> = []
+    let mut i: int = 0
+    while (< i (array_length sources)) {
+        let source: LinkedModule = (at sources i)
+        let mut item: Prepared = (prepare (empty_bytes))
+        if source.resolved {
+            set item (prepare source.bytes)
+            if (not item.proof.valid) { return GraphResult { module_index: (+ i 1), result: item.proof } }
+        }
+        set loaded (array_push loaded item)
+        set links (array_push links (signatures item source.resolved))
+        set i (+ i 1)
+    }
+    let policy: Result = (linked_policy root sources loaded)
+    if (not policy.valid) { return GraphResult { module_index: 0, result: policy } }
+    let result: Result = (run_with_links root.view root.model false links)
+    if (not result.valid) { return GraphResult { module_index: 0, result: result } }
+    if whole {
+        set i 0
+        while (< i (array_length sources)) {
+            if (at sources i).resolved {
+                let item: Prepared = (at loaded i)
+                let target_policy: Result = (linked_policy item sources loaded)
+                if (not target_policy.valid) { return GraphResult { module_index: (+ i 1), result: target_policy } }
+                let target: Result = (run_with_links item.view item.model false links)
+                if (not target.valid) { return GraphResult { module_index: (+ i 1), result: target } }
+            }
+            set i (+ i 1)
+        }
+    }
+    return GraphResult { module_index: -1, result: result }
+}
+shadow graph_evaluate {
+    assert (== (graph_evaluate [] [] false).module_index 0)
+    assert (== (graph_evaluate (empty_bytes) [] true).module_index -1)
+    assert (== (graph_evaluate (empty_bytes) [LinkedModule { resolved: true, bytes: [] }] false).module_index 1)
+}
+pub fn verify_linked(bytes: array<u8>, links: array<LinkedModule>) -> Result {
+    return (graph_evaluate bytes links false).result
+}
+shadow verify_linked {
+    assert (verify_linked (empty_bytes) []).complete
+    assert (verify_linked (empty_bytes) [LinkedModule { resolved: false, bytes: [255] }]).valid
+    assert (not (verify_linked (empty_bytes) [LinkedModule { resolved: true, bytes: [] }]).valid)
+}
+pub fn verify_graph(bytes: array<u8>, links: array<LinkedModule>) -> GraphResult {
+    return (graph_evaluate bytes links true)
+}
+shadow verify_graph {
+    assert (== (verify_graph (empty_bytes) []).module_index -1)
+    assert (verify_graph (empty_bytes) []).result.complete
+    assert (== (verify_graph [] []).module_index 0)
+}

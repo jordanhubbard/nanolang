@@ -1,0 +1,64 @@
+module nvm2c_affine_call_context
+module "src_nano/nvm2c/ownership.nano" as owner
+module "src_nano/nvm2c/ownership_queries.nano" as queries
+module "src_nano/nvm2c/affine_graph.nano" as graph
+module "src_nano/nvm2c/functions.nano" as bodies
+module "src_nano/nvm2c/instructions.nano" as instructions
+module "src_nano/nvm2c/passive_calls.nano" as calls
+
+# I initialize private analysis data; these flags prove no callee body.
+pub struct Context { globals_valid: bool, value_graph: bool, effect_globals: bool, globals: array<queries.Global> }
+
+pub fn effect_control(opcode: int) -> bool {
+    return (or (== opcode 165) (or (== opcode 166) (or (== opcode 167) (== opcode 168))))
+}
+shadow effect_control {
+    assert (effect_control 165) assert (effect_control 166)
+    assert (effect_control 167) assert (effect_control 168)
+    assert (not (effect_control 164)) assert (not (effect_control 169))
+}
+
+pub fn create(ownership: array<u8>, model: owner.Module, entry: int, present: bool) -> Context {
+    let query_context: queries.Context = queries.Context { present: present, ownership_present: (> (array_length ownership) 0),
+        layouts_present: true, model: model }
+    let declared: queries.Query = (queries.globals ownership query_context 256 true true)
+    let globals_valid: bool = (== declared.status 0)
+    let value_graph: bool = (and globals_valid (graph.value_call_graph ownership graph.Context {
+        present: present, functions_present: true, entry: entry, model: model }))
+    let mut effect_globals: bool = false
+    if (and value_graph (> declared.number 0)) {
+        for function in (range 0 (array_length model.functions)) {
+            let declaration: calls.Function = (at model.functions function)
+            let decoded: bodies.Function = (bodies.decode model.code declaration.start declaration.length (array_length model.functions))
+            if (not decoded.valid) {
+                return Context { globals_valid: false, value_graph: value_graph, effect_globals: effect_globals, globals: declared.globals }
+            }
+            for index in (range 0 (array_length decoded.instructions)) {
+                let instruction: instructions.Instruction = (at decoded.instructions index)
+                if (effect_control instruction.opcode) { set effect_globals true }
+            }
+        }
+    }
+    return Context { globals_valid: globals_valid, value_graph: value_graph, effect_globals: effect_globals, globals: declared.globals }
+}
+shadow create {
+    let model: owner.Module = owner.Module { layouts: [0,0,0,0], code: [166,0,0,61], strings: [],
+        functions: [calls.Function { start: 0, length: 4, arity: 0, locals: 0, upvalues: 0, results: 1 }],
+        params: [[]], results: [1], records: 0, enums: 0, unions: 0 }
+    let ownership: array<u8> = [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,255,255,255,255]
+    let zero: Context = (create ownership model 0 true)
+    assert zero.globals_valid assert zero.value_graph assert (not zero.effect_globals) assert (== (array_length zero.globals) 0)
+    let absent: Context = (create ownership model 0 false)
+    assert (not absent.globals_valid) assert (not absent.value_graph) assert (not absent.effect_globals)
+    let bad_graph: Context = (create ownership model 1 true)
+    assert bad_graph.globals_valid assert (not bad_graph.value_graph) assert (not bad_graph.effect_globals)
+    let global_ownership: array<u8> = [3,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,255,255,255,255,4,0,0,0,0,0,0,0,1,0,0,0,3,0,1,0,12,0,0,0,1,0,0,0,1,1,0,0,255,255,255,255]
+    let selected: Context = (create global_ownership model 0 true)
+    assert selected.globals_valid assert selected.value_graph assert selected.effect_globals
+    assert (== (array_length selected.globals) 1) assert (== (at selected.globals 0).tag 1)
+    (array_set selected.globals 0 queries.Global { tag: 4, mutable: false, layout: 4294967295 })
+    let repeated: Context = (create global_ownership model 0 true)
+    assert (== (at repeated.globals 0).tag 1) assert (at repeated.globals 0).mutable
+    let invalid: Context = (create [255] model 0 true)
+    assert (not invalid.globals_valid) assert (not invalid.value_graph)
+}

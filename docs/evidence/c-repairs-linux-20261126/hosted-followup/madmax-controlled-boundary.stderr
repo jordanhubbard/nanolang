@@ -1,0 +1,19 @@
+test_shadow_and_production_share_retained_generation (tests.test_module_cache_publication.ModuleCachePublication.test_shadow_and_production_share_retained_generation) ... FAIL
+
+======================================================================
+FAIL: test_shadow_and_production_share_retained_generation (tests.test_module_cache_publication.ModuleCachePublication.test_shadow_and_production_share_retained_generation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/.worktrees/nanolang/c-repairs-gcc15-20261126/tests/test_module_cache_publication.py", line 519, in test_shadow_and_production_share_retained_generation
+    self.wait_ready(ready, process)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "<stdin>", line 5, in diagnose
+  File "/home/jkh/.worktrees/nanolang/c-repairs-gcc15-20261126/tests/test_module_cache_publication.py", line 397, in wait_ready
+    self.assertTrue(ready.exists(), "I did not reach the controlled compiler boundary")
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : I did not reach the controlled compiler boundary
+
+----------------------------------------------------------------------
+Ran 1 test in 0.034s
+
+FAILED (failures=1)

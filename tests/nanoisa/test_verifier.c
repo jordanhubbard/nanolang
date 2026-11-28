@@ -371,6 +371,89 @@ static void test_implicit_return_with_matching_shape_passes(void) {
  * module carries is one the verifier has agreed to rather than one it trusts.
  */
 
+static void test_empty_results_public_verification(void) {
+    const char *test_name = "return shape: empty result bodies fail all full public verifiers";
+    const uint8_t counts[] = {1, 2, UINT8_MAX};
+    for (uint8_t tag = TAG_INT; tag < TAG_COUNT; ++tag) {
+        for (size_t c = 0; c < sizeof counts; ++c) {
+            NvmModule *mod = make_simple_module(NULL, 0, 0, 0);
+            NvmModule *external = make_simple_module(NULL, 0, 0, 0);
+            const NvmModule *linked[] = {external};
+            mod->functions[0].result_tag = tag;
+            mod->functions[0].result_count = counts[c];
+            uint16_t maximum = 0xabcd, absent[] = {0}, declared[] = {1};
+            NvmVerifyResult checks[] = {
+                nvm_verify(mod), nvm_verify_function(mod, 0),
+                nvm_verify_function_max_stack(mod, 0, &maximum),
+                nvm_verify_linked(mod, linked, 1),
+                nvm_verify_declared_max_stacks(mod, declared, 1)
+            };
+            char expected[128];
+            snprintf(expected, sizeof expected,
+                "I require a body for function[0] with %u declared result(s).", (unsigned)counts[c]);
+            for (size_t i = 0; i < sizeof checks / sizeof checks[0]; ++i) {
+                ASSERT(!checks[i].ok, "an empty function cannot produce its declared results");
+                ASSERT(!strcmp(checks[i].error_msg, expected), checks[i].error_msg);
+            }
+            ASSERT(maximum == 0xabcd, "a refusal must not publish a maximum");
+            /* Zero declares no depth obligation; it is not full verification. */
+            ASSERT(nvm_verify_declared_max_stacks(mod, absent, 1).ok,
+                   "I preserve the separate zero-declaration boundary");
+            nvm_module_free(external); nvm_module_free(mod);
+        }
+    }
+    PASS(test_name);
+}
+
+static void test_empty_results_nonentry(void) {
+    const char *test_name = "return shape: an empty non-entry result body also fails";
+    uint8_t code[] = {OP_HALT};
+    NvmModule *mod = make_simple_module(code, sizeof code, 0, 0);
+    NvmFunctionEntry fn = {.name_idx=0, .code_offset=1, .code_length=0,
+                          .result_tag=TAG_INT, .result_count=1};
+    ASSERT(nvm_add_function(mod, &fn) == 1, "I retain the second function");
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "unreached functions still need consistent result bodies");
+    ASSERT(!strcmp(r.error_msg, "I require a body for function[1] with 1 declared result(s)."), r.error_msg);
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_empty_results_metadata_priority(void) {
+    const char *test_name = "return shape: existing metadata errors keep their priority";
+    const char *expected[] = {"code_offset", "name_idx", "result_tag", "result signature", "local_count"};
+    for (unsigned i=0;i<5;i++) {
+        NvmModule *mod = make_simple_module(NULL, 0, 0, 0);
+        declares_one_result(mod);
+        if (i==0) mod->functions[0].code_offset=1;
+        if (i==1) mod->functions[0].name_idx=1;
+        if (i==2) mod->functions[0].result_tag=TAG_COUNT;
+        if (i==3) mod->functions[0].result_tag=TAG_VOID;
+        if (i==4) mod->functions[0].arity=1;
+        NvmVerifyResult r=nvm_verify(mod);
+        ASSERT(!r.ok && strstr(r.error_msg,expected[i]), r.error_msg);
+        nvm_module_free(mod);
+    }
+    PASS(test_name);
+}
+
+static void test_empty_void_parameters_and_spans(void) {
+    const char *test_name = "return shape: empty void bodies retain parameters and shared boundaries";
+    uint8_t code[] = {OP_HALT};
+    NvmModule *mod = make_simple_module(code, sizeof code, 0, 0);
+    NvmFunctionEntry fn={.name_idx=0, .arity=1, .local_count=1};
+    ASSERT(nvm_add_function(mod,&fn)==1, "I retain an empty parameterized void function");
+    fn.code_offset=1;
+    ASSERT(nvm_add_function(mod,&fn)==2, "I retain an empty terminal span");
+    NvmVerifyResult r=nvm_verify(mod);
+    ASSERT(r.ok,r.error_msg);
+    uint16_t maximum=0xabcd;
+    r=nvm_verify_function_max_stack(mod,2,&maximum);
+    ASSERT(r.ok && maximum==0,r.error_msg);
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
 static void test_max_stack_of_an_empty_function(void) {
     const char *test_name = "max_stack: a function with no instructions is 0";
     NvmModule *mod = make_simple_module(NULL, 0, 0, 0);
@@ -1815,6 +1898,10 @@ int main(void) {
     test_implicit_return_shape_releases_ownership_state();
     test_implicit_return_with_matching_shape_passes();
     test_batch_depths_recheck_mutation_and_late_functions();
+    test_empty_results_public_verification();
+    test_empty_results_nonentry();
+    test_empty_results_metadata_priority();
+    test_empty_void_parameters_and_spans();
     test_max_stack_of_an_empty_function();
     test_max_stack_counts_the_deepest_point();
     test_max_stack_is_refused_for_an_unverifiable_function();

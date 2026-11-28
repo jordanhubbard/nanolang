@@ -1,0 +1,49 @@
+{
+  "terminal": true,
+  "controls_passed": true,
+  "qualification": false,
+  "whole_release": false,
+  "source_revision": "5ca56494a9dc8eb84c66da61402343a2a34994f2",
+  "root": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nanolang-lifecycle-controls-1y4ayb67",
+  "build_timeout_seconds": 120,
+  "control_timeout_seconds": 5,
+  "compiler_product_invoked": false,
+  "source_before": {
+    "scripts/ci_darwin_shadow_lifecycle.c": "f91ed11f33e7cd886d31c6c89d7b47b8ed62f167d3f2fe6d40e42cfa7c21cd12",
+    "scripts/ci_darwin_shadow_lifecycle.py": "10211a25dbacb409dd06061d55ef4a2b2fdd64d5a3fa5d898f466d1a0a36f9fc",
+    ".github/workflows/cseed-shadow-lifecycle.yml": "901ee217acc676281d44a2abb5e5fbb932905fde99b1d3890e1cd0b96fe0531a"
+  },
+  "services": {
+    "mac_control_plane_state": "running",
+    "mac_control_plane_pid": 50877,
+    "webmux": {
+      "name": "webmux",
+      "status": "ok"
+    }
+  },
+  "build": {
+    "argv": [
+      "/usr/bin/xcrun",
+      "clang",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-O2",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nanolang-lifecycle-controls-1y4ayb67/ci_darwin_shadow_lifecycle.c",
+      "-lproc",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nanolang-lifecycle-controls-1y4ayb67/lifecycle-observer"
+    ],
+    "seconds": 1.521893875,
+    "sha256": "b6e550be03005aeb202ff9fb70e9ef94d5b788085fc7b72b42941839a7e58477",
+    "source_sha256": "f91ed11f33e7cd886d31c6c89d7b47b8ed62f167d3f2fe6d40e42cfa7c21cd12"
+  },
+  "source_after": {
+    "scripts/ci_darwin_shadow_lifecycle.c": "f91ed11f33e7cd886d31c6c89d7b47b8ed62f167d3f2fe6d40e42cfa7c21cd12",
+    "scripts/ci_darwin_shadow_lifecycle.py": "10211a25dbacb409dd06061d55ef4a2b2fdd64d5a3fa5d898f466d1a0a36f9fc",
+    ".github/workflows/cseed-shadow-lifecycle.yml": "901ee217acc676281d44a2abb5e5fbb932905fde99b1d3890e1cd0b96fe0531a"
+  },
+  "source_guards_match": true,
+  "seconds": 3.098421584
+}

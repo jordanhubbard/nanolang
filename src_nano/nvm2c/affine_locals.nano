@@ -1,0 +1,115 @@
+module nvm2c_affine_locals
+module "src_nano/nvm2c/affine_frame.nano" as frame
+module "src_nano/nvm2c/affine_facts.nano" as facts
+module "src_nano/nvm2c/affine_state.nano" as state
+module "src_nano/nvm2c/affine_scalar.nano" as scalar
+
+# I consume decoded local operands and checked state, not function admission.
+pub fn handles(opcode: int) -> bool { return (or (== opcode 16) (== opcode 17)) }
+shadow handles {
+    assert (handles 16) assert (handles 17)
+    assert (not (handles 15)) assert (not (handles 18))
+}
+
+fn refuse(input: frame.Frame, message: string) -> scalar.Transition {
+    return scalar.Transition { handled: true, valid: false, frame: (frame.clone input), message: message }
+}
+shadow refuse {
+    let input: frame.Frame = (frame.create (state.empty) 1)
+    let output: scalar.Transition = (refuse input "missing")
+    (array_set output.frame.globals 0 15)
+    assert (not output.valid) assert output.handled
+    assert (== output.message "missing") assert (== (at input.globals 0) 9)
+}
+
+fn define(input: state.State, local: int, item: frame.Value, value_graph: bool) -> state.Transition {
+    if (facts.scalar item.tag) { return (state.define_scalar input local) }
+    if value_graph {
+        if (== item.tag 5) { return (state.define_string input local) }
+        if (== item.tag 10) { return (state.define_union input local item.layout item.variant) }
+        if (== item.tag 8) { return (state.define_record input local item.layout) }
+        if (== item.tag 7) { return (state.define_array input local item.layout) }
+    }
+    return state.Transition { valid: false, changed: false, state: input }
+}
+shadow define {
+    assert (not (define (state.empty) 0 (frame.value 1 false 0 false 0 0) false).valid)
+    assert (not (define (state.empty) 0 (frame.value 5 false 0 false 0 0) false).valid)
+}
+
+pub fn transfer(input: frame.Frame, opcode: int, local: int, local_count: int, value_graph: bool) -> scalar.Transition {
+    if (not (handles opcode)) {
+        return scalar.Transition { handled: false, valid: false, frame: (frame.clone input), message: "" }
+    }
+    if (== opcode 16) {
+        let info: state.Query = (state.local_info input.locals local)
+        if (not info.valid) { return (refuse input "I require a live checked local") }
+        let tag: int = info.value.tag
+        let mut layout: int = 4294967295
+        let mut variant: int = 65535
+        let mut observation: bool = (== tag 8)
+        if (and (== tag 8) (== info.value.mode 0)) {
+            let exact: state.Query = (state.local_type input.locals local)
+            if (not exact.valid) { return (refuse input "I require an exact record local") }
+            set layout exact.value.layout
+            if (state.record_copyable input.locals layout) { set observation false }
+        }
+        if (== tag 7) {
+            let exact: state.Query = (state.local_type input.locals local)
+            if (not exact.valid) { return (refuse input "I require an exact array local") }
+            set layout exact.value.layout
+            set observation (state.type_owned input.locals exact.value)
+        }
+        if (== tag 10) {
+            let exact: state.Query = (state.local_type input.locals local)
+            if (not exact.valid) { return (refuse input "I require an exact scalar-union local") }
+            if (state.type_owned input.locals exact.value) { return (refuse input "I require an explicit move of a resource union") }
+            set layout exact.value.layout
+            let arm: state.Query = (state.union_variant input.locals local)
+            if arm.valid { set variant arm.number }
+        }
+        let result: frame.Join = (frame.push input (frame.value tag observation local false layout variant))
+        if (not result.valid) { return (refuse input "I cannot extend my analysis stack") }
+        return scalar.Transition { handled: true, valid: true, frame: result.frame, message: "" }
+    }
+    let count: int = (array_length input.stack)
+    if (or (>= local local_count) (== count 0)) { return (refuse input "I refuse an observation escape or missing scalar store") }
+    let item: frame.Value = (at input.stack (- count 1))
+    if (or item.observation item.owned) { return (refuse input "I refuse an observation escape or missing scalar store") }
+    let updated: state.Transition = (define input.locals local item value_graph)
+    if (not updated.valid) { return (refuse input "I require the exact scalar local type") }
+    let info: state.Query = (state.local_info updated.state local)
+    if (or (not info.valid) (!= info.value.tag item.tag)) { return (refuse input "I require the exact scalar local type") }
+    let copied: frame.Frame = (frame.clone input)
+    return scalar.Transition { handled: true, valid: true, message: "", frame: frame.Frame {
+        locals: updated.state, stack: (array_slice copied.stack 0 (- count 1)),
+        globals: copied.globals, handlers: copied.handlers, floor: copied.floor, activation: copied.activation } }
+}
+shadow transfer {
+    let declarations: facts.Facts = facts.Facts { valid: true, analysis: 1, module_identity: 1, function: 0,
+        rows: [], flags: [], locals: [(facts.slot 1 4294967295), (facts.slot 3 4294967295)],
+        result: (facts.slot 0 4294967295), parameters: 1, result_count: 0, result_tag: 0,
+        arrays: [], variants: [], effects: [] }
+    let input: frame.Frame = (frame.create (state.create declarations 0) 1)
+    assert (not (transfer input 15 0 2 false).handled)
+    assert (not (transfer input 16 1 2 false).valid)
+    assert (== (transfer input 17 0 2 false).message "I refuse an observation escape or missing scalar store")
+    let loaded: scalar.Transition = (transfer input 16 0 2 false)
+    assert loaded.valid assert (== (at loaded.frame.stack 0).tag 1)
+    assert (== (at loaded.frame.stack 0).root 0)
+    assert (== (at loaded.frame.stack 0).layout 4294967295)
+    assert (== (array_length input.stack) 0)
+    let mismatch: scalar.Transition = (transfer loaded.frame 17 1 2 false)
+    assert (not mismatch.valid) assert (== mismatch.message "I require the exact scalar local type")
+    let prior_info: state.Query = (state.local_info loaded.frame.locals 1)
+    assert (not prior_info.valid)
+    let floating: frame.Frame = (scalar.transfer input 2 0 false).frame
+    let stored: scalar.Transition = (transfer floating 17 1 2 false)
+    let stored_info: state.Query = (state.local_info stored.frame.locals 1)
+    assert stored.valid assert stored_info.valid
+    assert (== (array_length stored.frame.stack) 0)
+    let floating_info: state.Query = (state.local_info floating.locals 1)
+    assert (not floating_info.valid)
+    (array_set stored.frame.globals 0 15)
+    assert (== (at floating.globals 0) 9)
+}

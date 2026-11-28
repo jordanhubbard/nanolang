@@ -1,0 +1,16 @@
+{
+  "root": "/var/tmp/nanolang-combined-typed-admission-refusal-20261125-4e4ou3es",
+  "terminal": true,
+  "argv": [
+    "python3",
+    "/var/tmp/nanolang-combined-typed-admission-refusal-20261125-4e4ou3es/setup.py"
+  ],
+  "timeout": 60,
+  "seconds": 0.055091272999561625,
+  "exit": 1,
+  "source_sha256": "66598a97045d55e6a9f1090fb4384df6171c3d64d75ceeb34911945e707279d9",
+  "matches_preparation": true,
+  "source_checkout_exists": false,
+  "commands": 0,
+  "accepted": true
+}

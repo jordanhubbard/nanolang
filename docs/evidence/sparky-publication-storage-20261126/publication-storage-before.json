@@ -1,0 +1,8 @@
+{
+  "source": "/var/tmp/nanolang-darwin-publication-qkk55gi3",
+  "destination": "/home/jkh/.local/share/fleet-migration/puck-volume/nanolang/worktrees/darwin-publication-qkk55gi3",
+  "head": "cdbb2dfafb9f8131abfb5f332814fab82a755edf",
+  "status": " M docs/ROADMAP.md\n",
+  "patch_sha256": "9f0274487f25469954ea2de795e9ab406da2d388289fe9058ef1dea710533be9",
+  "source_gitfile": "gitdir: /home/jkh/Src/nanolang/.git/worktrees/nanolang-darwin-publication-qkk55gi3\n"
+}

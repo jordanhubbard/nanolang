@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/home/jkh/.local/share/fleet-migration/puck-volume/nanolang/tmp/c-repairs-followups-20261126/check_hosted_bootstrap.py", line 33, in <module>
+    end=data.index(b'\n',offset);header=data[offset:end].split();assert len(header)==3,(name,header)
+                                                                        ^^^^^^^^^^^^^^
+AssertionError: ('modules/index.json', [b'ee5d38a4b401249ecb7dcfaa0b7b04001fdc8dc1:modules/index.json', b'missing'])

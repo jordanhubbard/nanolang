@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/home/jkh/.local/share/fleet-migration/puck-volume/nanolang/worktrees/darwin-publication-qkk55gi3/docs/evidence/c-repairs-linux-20261126/representation-shapes-20261127/read_representation_shapes.py", line 7, in <module>
+    raw=(a.archive/'manifest.json').read_bytes();assert sha(raw)=='e3f330020eac23b15cec126d9d3eef0ca0e2195d35b4e58f388b7280b85fb85f'
+                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

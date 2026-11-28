@@ -1,0 +1,97 @@
+{
+  "source_head": "f8e7b78334281485c3b48765c835b8bda218c975",
+  "whole_release": false,
+  "capsules": [
+    {
+      "capsule": "original-cohorts-46111643993/linux-cache",
+      "manifest_sha256": "7941902df78279894b4280d16e87d15cba2bcb03a9a76f9b8824fcf5c236fafb",
+      "independent_reader_passed": true,
+      "changed_manifest_refused": true,
+      "product_gate_passed": true
+    },
+    {
+      "capsule": "original-cohorts-46111643993/darwin-bootstrap",
+      "manifest_sha256": "b1aa3c7704a0ee8564a92e3e554650ecc1de81d374d17f4601d8aed02b1ce319",
+      "independent_reader_passed": true,
+      "changed_manifest_refused": true,
+      "product_gate_passed": true
+    },
+    {
+      "capsule": "original-cohorts-46111643993/linux-bootstrap",
+      "manifest_sha256": "2646f68dcc4083266df261608f308cc73357f8466f7f61e67f0fc8e6ec41f6ef",
+      "independent_reader_passed": true,
+      "changed_manifest_refused": true,
+      "product_gate_passed": false
+    },
+    {
+      "capsule": "current-arm-original-qualification",
+      "manifest_sha256": "313f5e2606636d9074adafabf31d37f7ac80645c7f3d855879a9ebba266e45fc",
+      "independent_reader_passed": true,
+      "changed_manifest_refused": true,
+      "product_gate_passed": true,
+      "scope": "I accept17/36/12 and final regressions; the separate original20 consumer invocation also passes."
+    },
+    {
+      "capsule": "current-arm-consumer20",
+      "manifest_sha256": "bc753622c0606def77b566a8a067956b242035a3995c4803013c8546fe4d583a",
+      "independent_reader_passed": true,
+      "changed_manifest_refused": true,
+      "product_gate_passed": true,
+      "scope": "I accept the original20 discovered/run methods with zero skips and unchanged guards; this does not clear the failed Linux emitter gate."
+    },
+    {
+      "capsule": "original-cohorts-46111643993/darwin-cache",
+      "manifest_sha256": "24e653c155a53672d8604cfe4c289c1bb3677bfc99f9f8930902f5f7accbf69a",
+      "independent_reader_passed": true,
+      "changed_manifest_refused": true,
+      "product_gate_passed": true
+    }
+  ],
+  "pending": [
+    "corrected shape-flow candidate original qualification",
+    "default custody and all69 release requirements"
+  ],
+  "candidate_accepted": false,
+  "arm_prerequisite": "I publish independently verified17/36/12, two line methods, four root methods, all final regressions and the separate complete20 consumers. Controller and guardian terminate before fence28 release.",
+  "failures": [
+    {
+      "gate": "hosted Linux original native/emitter",
+      "passed_bootstrap_phases": 17,
+      "passed_native_methods": 36,
+      "emitter_methods": 0,
+      "setup_timeout_seconds": 300,
+      "required": "I require a measured correction and fresh full original acceptance. This failed candidate is not qualified."
+    }
+  ],
+  "diagnostic": {
+    "capsule": "stage2-diagnostic-46115582023",
+    "manifest_sha256": "09d2d0385453e5c273d70ee193b899abb2ee5d2bde07f1a6c2a57ad08ff541db",
+    "observer": "5738042adeab1b63675d1d3b4fa25a1ad575554c",
+    "restored_cache_readiness_product_exit": 0,
+    "elapsed_seconds": 236.802539551,
+    "qualification": false,
+    "original_precommand_state_reconstructed": false
+  },
+  "prefix_diagnostic": {
+    "capsule": "stage2-prefix-diagnostic-46117366121",
+    "manifest_sha256": "3b5cfd761c3d8bba8f278c1583c3f051692a54848da1f6f34ce7bedcff239a80",
+    "observer": "c7fe823efc1b582a3d01cf25a2baa610d77e6a48",
+    "product_exit": 0,
+    "elapsed_seconds": 296.598013032,
+    "qualification": false,
+    "original_precommand_state_reconstructed": false
+  },
+  "follow_on_candidate": {
+    "source_head": "ddd3b5a4ff35678d1906c07c08fc6bbc39b041de",
+    "focused_linux_darwin_passed": true,
+    "original_run": 46119624230,
+    "original_gates_passed": false,
+    "arm_native_consumer_invocation_started": true,
+    "candidate_accepted": false,
+    "hosted_arm_run": 46121202196,
+    "hosted_arm_job": 140905887981,
+    "hosted_arm_observer": "2f748c7df01b4521ba4b579a14f4863c5cef4cc4",
+    "local_arm_invocation_started": false,
+    "hosted_arm_terminal_qualification_passed": false
+  }
+}

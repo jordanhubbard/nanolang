@@ -1,0 +1,750 @@
+[
+  {
+    "pr": 1176,
+    "target": "integration",
+    "target_commit": "4a1d4e24eeeb134addfc362411ef3bec844e743e",
+    "head": "e07b984a75d36e1401b29b02d5d310e0a1b10e98",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "e07b984a75d36e1401b29b02d5d310e0a1b10e98",
+      "4a1d4e24eeeb134addfc362411ef3bec844e743e"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": false
+  },
+  {
+    "pr": 1176,
+    "target": "main",
+    "target_commit": "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4",
+    "head": "e07b984a75d36e1401b29b02d5d310e0a1b10e98",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "e07b984a75d36e1401b29b02d5d310e0a1b10e98",
+      "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": false
+  },
+  {
+    "pr": 1168,
+    "target": "integration",
+    "target_commit": "4a1d4e24eeeb134addfc362411ef3bec844e743e",
+    "head": "4a1d4e24eeeb134addfc362411ef3bec844e743e",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "4a1d4e24eeeb134addfc362411ef3bec844e743e",
+      "4a1d4e24eeeb134addfc362411ef3bec844e743e"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": true
+  },
+  {
+    "pr": 1168,
+    "target": "main",
+    "target_commit": "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4",
+    "head": "4a1d4e24eeeb134addfc362411ef3bec844e743e",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "4a1d4e24eeeb134addfc362411ef3bec844e743e",
+      "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": false
+  },
+  {
+    "pr": 1144,
+    "target": "integration",
+    "target_commit": "4a1d4e24eeeb134addfc362411ef3bec844e743e",
+    "head": "74644c29fb62b54fc3b1b519cfa91144cec0caaa",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "74644c29fb62b54fc3b1b519cfa91144cec0caaa",
+      "4a1d4e24eeeb134addfc362411ef3bec844e743e"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": true
+  },
+  {
+    "pr": 1144,
+    "target": "main",
+    "target_commit": "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4",
+    "head": "74644c29fb62b54fc3b1b519cfa91144cec0caaa",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "74644c29fb62b54fc3b1b519cfa91144cec0caaa",
+      "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": false
+  },
+  {
+    "pr": 1143,
+    "target": "integration",
+    "target_commit": "4a1d4e24eeeb134addfc362411ef3bec844e743e",
+    "head": "02a4f6501f724c9b2b7df964fa347c8af1b7a60e",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "02a4f6501f724c9b2b7df964fa347c8af1b7a60e",
+      "4a1d4e24eeeb134addfc362411ef3bec844e743e"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": true
+  },
+  {
+    "pr": 1143,
+    "target": "main",
+    "target_commit": "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4",
+    "head": "02a4f6501f724c9b2b7df964fa347c8af1b7a60e",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "02a4f6501f724c9b2b7df964fa347c8af1b7a60e",
+      "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": false
+  },
+  {
+    "pr": 1141,
+    "target": "integration",
+    "target_commit": "4a1d4e24eeeb134addfc362411ef3bec844e743e",
+    "head": "3405117b9a9d62fb84db3cb6da03d3a7b4a29d9b",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "3405117b9a9d62fb84db3cb6da03d3a7b4a29d9b",
+      "4a1d4e24eeeb134addfc362411ef3bec844e743e"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": true
+  },
+  {
+    "pr": 1141,
+    "target": "main",
+    "target_commit": "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4",
+    "head": "3405117b9a9d62fb84db3cb6da03d3a7b4a29d9b",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "3405117b9a9d62fb84db3cb6da03d3a7b4a29d9b",
+      "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": false
+  },
+  {
+    "pr": 1132,
+    "target": "integration",
+    "target_commit": "4a1d4e24eeeb134addfc362411ef3bec844e743e",
+    "head": "391ddafa0b3ffb7bf0ab5a97e950d737896b04c7",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "391ddafa0b3ffb7bf0ab5a97e950d737896b04c7",
+      "4a1d4e24eeeb134addfc362411ef3bec844e743e"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": true
+  },
+  {
+    "pr": 1132,
+    "target": "main",
+    "target_commit": "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4",
+    "head": "391ddafa0b3ffb7bf0ab5a97e950d737896b04c7",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "391ddafa0b3ffb7bf0ab5a97e950d737896b04c7",
+      "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": false
+  },
+  {
+    "pr": 1126,
+    "target": "integration",
+    "target_commit": "4a1d4e24eeeb134addfc362411ef3bec844e743e",
+    "head": "cc77b2d41a5189b712bb29d4d3cf5f818e94fa63",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "cc77b2d41a5189b712bb29d4d3cf5f818e94fa63",
+      "4a1d4e24eeeb134addfc362411ef3bec844e743e"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": true
+  },
+  {
+    "pr": 1126,
+    "target": "main",
+    "target_commit": "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4",
+    "head": "cc77b2d41a5189b712bb29d4d3cf5f818e94fa63",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "cc77b2d41a5189b712bb29d4d3cf5f818e94fa63",
+      "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": false
+  },
+  {
+    "pr": 1124,
+    "target": "integration",
+    "target_commit": "4a1d4e24eeeb134addfc362411ef3bec844e743e",
+    "head": "48016fec4bc56daffa2d90a60de36399c4f9b453",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "48016fec4bc56daffa2d90a60de36399c4f9b453",
+      "4a1d4e24eeeb134addfc362411ef3bec844e743e"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": true
+  },
+  {
+    "pr": 1124,
+    "target": "main",
+    "target_commit": "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4",
+    "head": "48016fec4bc56daffa2d90a60de36399c4f9b453",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "48016fec4bc56daffa2d90a60de36399c4f9b453",
+      "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": false
+  },
+  {
+    "pr": 1122,
+    "target": "integration",
+    "target_commit": "4a1d4e24eeeb134addfc362411ef3bec844e743e",
+    "head": "d896dff6b33eea74f0739a9337562559b95dcee7",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "d896dff6b33eea74f0739a9337562559b95dcee7",
+      "4a1d4e24eeeb134addfc362411ef3bec844e743e"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": false
+  },
+  {
+    "pr": 1122,
+    "target": "main",
+    "target_commit": "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4",
+    "head": "d896dff6b33eea74f0739a9337562559b95dcee7",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "d896dff6b33eea74f0739a9337562559b95dcee7",
+      "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": false
+  },
+  {
+    "pr": 1120,
+    "target": "integration",
+    "target_commit": "4a1d4e24eeeb134addfc362411ef3bec844e743e",
+    "head": "ce338d09913074f19aa9bf95bce061b528eb2fd0",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "ce338d09913074f19aa9bf95bce061b528eb2fd0",
+      "4a1d4e24eeeb134addfc362411ef3bec844e743e"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": true
+  },
+  {
+    "pr": 1120,
+    "target": "main",
+    "target_commit": "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4",
+    "head": "ce338d09913074f19aa9bf95bce061b528eb2fd0",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "ce338d09913074f19aa9bf95bce061b528eb2fd0",
+      "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": false
+  },
+  {
+    "pr": 1111,
+    "target": "integration",
+    "target_commit": "4a1d4e24eeeb134addfc362411ef3bec844e743e",
+    "head": "7a709ee6b6c49d3e0680efd7077164072b96a380",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "7a709ee6b6c49d3e0680efd7077164072b96a380",
+      "4a1d4e24eeeb134addfc362411ef3bec844e743e"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": true
+  },
+  {
+    "pr": 1111,
+    "target": "main",
+    "target_commit": "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4",
+    "head": "7a709ee6b6c49d3e0680efd7077164072b96a380",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "7a709ee6b6c49d3e0680efd7077164072b96a380",
+      "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": false
+  },
+  {
+    "pr": 1080,
+    "target": "integration",
+    "target_commit": "4a1d4e24eeeb134addfc362411ef3bec844e743e",
+    "head": "7c4c015b4c3214dd659236958cb3a50fc05b1e0a",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "7c4c015b4c3214dd659236958cb3a50fc05b1e0a",
+      "4a1d4e24eeeb134addfc362411ef3bec844e743e"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": true
+  },
+  {
+    "pr": 1080,
+    "target": "main",
+    "target_commit": "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4",
+    "head": "7c4c015b4c3214dd659236958cb3a50fc05b1e0a",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "7c4c015b4c3214dd659236958cb3a50fc05b1e0a",
+      "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": false
+  },
+  {
+    "pr": 1074,
+    "target": "integration",
+    "target_commit": "4a1d4e24eeeb134addfc362411ef3bec844e743e",
+    "head": "35dca0dc02f6fd27320cd610295d924b7c7c2133",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "35dca0dc02f6fd27320cd610295d924b7c7c2133",
+      "4a1d4e24eeeb134addfc362411ef3bec844e743e"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": true
+  },
+  {
+    "pr": 1074,
+    "target": "main",
+    "target_commit": "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4",
+    "head": "35dca0dc02f6fd27320cd610295d924b7c7c2133",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "35dca0dc02f6fd27320cd610295d924b7c7c2133",
+      "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": false
+  },
+  {
+    "pr": 1072,
+    "target": "integration",
+    "target_commit": "4a1d4e24eeeb134addfc362411ef3bec844e743e",
+    "head": "c4a75a230bdf006ee169e6000db6f3972a928960",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "c4a75a230bdf006ee169e6000db6f3972a928960",
+      "4a1d4e24eeeb134addfc362411ef3bec844e743e"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": true
+  },
+  {
+    "pr": 1072,
+    "target": "main",
+    "target_commit": "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4",
+    "head": "c4a75a230bdf006ee169e6000db6f3972a928960",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "c4a75a230bdf006ee169e6000db6f3972a928960",
+      "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": false
+  },
+  {
+    "pr": 1071,
+    "target": "integration",
+    "target_commit": "4a1d4e24eeeb134addfc362411ef3bec844e743e",
+    "head": "e9499fcfc1a21143820f0b68d8d676543cee21e2",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "e9499fcfc1a21143820f0b68d8d676543cee21e2",
+      "4a1d4e24eeeb134addfc362411ef3bec844e743e"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": true
+  },
+  {
+    "pr": 1071,
+    "target": "main",
+    "target_commit": "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4",
+    "head": "e9499fcfc1a21143820f0b68d8d676543cee21e2",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "e9499fcfc1a21143820f0b68d8d676543cee21e2",
+      "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": false
+  },
+  {
+    "pr": 1070,
+    "target": "integration",
+    "target_commit": "4a1d4e24eeeb134addfc362411ef3bec844e743e",
+    "head": "fcc114ea7fde14eed22ff8a1031033fc6df90d92",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "fcc114ea7fde14eed22ff8a1031033fc6df90d92",
+      "4a1d4e24eeeb134addfc362411ef3bec844e743e"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": true
+  },
+  {
+    "pr": 1070,
+    "target": "main",
+    "target_commit": "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4",
+    "head": "fcc114ea7fde14eed22ff8a1031033fc6df90d92",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "fcc114ea7fde14eed22ff8a1031033fc6df90d92",
+      "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": false
+  },
+  {
+    "pr": 1069,
+    "target": "integration",
+    "target_commit": "4a1d4e24eeeb134addfc362411ef3bec844e743e",
+    "head": "fbbe94cc4dc21bc7759e22f6dfc8abd3b5fb9282",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "fbbe94cc4dc21bc7759e22f6dfc8abd3b5fb9282",
+      "4a1d4e24eeeb134addfc362411ef3bec844e743e"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": true
+  },
+  {
+    "pr": 1069,
+    "target": "main",
+    "target_commit": "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4",
+    "head": "fbbe94cc4dc21bc7759e22f6dfc8abd3b5fb9282",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "fbbe94cc4dc21bc7759e22f6dfc8abd3b5fb9282",
+      "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": false
+  },
+  {
+    "pr": 1068,
+    "target": "integration",
+    "target_commit": "4a1d4e24eeeb134addfc362411ef3bec844e743e",
+    "head": "435dae34cc2ce74d5210806d26ef1ebb9f9e4b7a",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "435dae34cc2ce74d5210806d26ef1ebb9f9e4b7a",
+      "4a1d4e24eeeb134addfc362411ef3bec844e743e"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": true
+  },
+  {
+    "pr": 1068,
+    "target": "main",
+    "target_commit": "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4",
+    "head": "435dae34cc2ce74d5210806d26ef1ebb9f9e4b7a",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "435dae34cc2ce74d5210806d26ef1ebb9f9e4b7a",
+      "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": false
+  },
+  {
+    "pr": 1066,
+    "target": "integration",
+    "target_commit": "4a1d4e24eeeb134addfc362411ef3bec844e743e",
+    "head": "e952ed9b375922cb36233a187e5898c82e383314",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "e952ed9b375922cb36233a187e5898c82e383314",
+      "4a1d4e24eeeb134addfc362411ef3bec844e743e"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": true
+  },
+  {
+    "pr": 1066,
+    "target": "main",
+    "target_commit": "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4",
+    "head": "e952ed9b375922cb36233a187e5898c82e383314",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "e952ed9b375922cb36233a187e5898c82e383314",
+      "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": false
+  },
+  {
+    "pr": 1052,
+    "target": "integration",
+    "target_commit": "4a1d4e24eeeb134addfc362411ef3bec844e743e",
+    "head": "c23f90213a9a5946198f736d0e22833b50a209d6",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "c23f90213a9a5946198f736d0e22833b50a209d6",
+      "4a1d4e24eeeb134addfc362411ef3bec844e743e"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": false
+  },
+  {
+    "pr": 1052,
+    "target": "main",
+    "target_commit": "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4",
+    "head": "c23f90213a9a5946198f736d0e22833b50a209d6",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "c23f90213a9a5946198f736d0e22833b50a209d6",
+      "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": false
+  },
+  {
+    "pr": 1040,
+    "target": "integration",
+    "target_commit": "4a1d4e24eeeb134addfc362411ef3bec844e743e",
+    "head": "4374043878a89549755e694fbc1db762170240d4",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "4374043878a89549755e694fbc1db762170240d4",
+      "4a1d4e24eeeb134addfc362411ef3bec844e743e"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": true
+  },
+  {
+    "pr": 1040,
+    "target": "main",
+    "target_commit": "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4",
+    "head": "4374043878a89549755e694fbc1db762170240d4",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "4374043878a89549755e694fbc1db762170240d4",
+      "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": false
+  },
+  {
+    "pr": 1035,
+    "target": "integration",
+    "target_commit": "4a1d4e24eeeb134addfc362411ef3bec844e743e",
+    "head": "bf2fb83492d0b32e0afe930f1126009417708466",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "bf2fb83492d0b32e0afe930f1126009417708466",
+      "4a1d4e24eeeb134addfc362411ef3bec844e743e"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": false
+  },
+  {
+    "pr": 1035,
+    "target": "main",
+    "target_commit": "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4",
+    "head": "bf2fb83492d0b32e0afe930f1126009417708466",
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "bf2fb83492d0b32e0afe930f1126009417708466",
+      "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "is_ancestor": false
+  }
+]

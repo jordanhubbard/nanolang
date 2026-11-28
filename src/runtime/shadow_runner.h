@@ -52,7 +52,6 @@ static inline int nl_run_shadow_entry(int (*entry)(void), int seconds) {
     int clock_ok = clock_gettime(CLOCK_MONOTONIC, &start) == 0;
     for (;;) {
         pid_t waited = waitpid(child, &status, WNOHANG);
-        if (waited == child) break;
         if (waited < 0 && errno != EINTR) {
             close(completion[0]);
             fprintf(stderr, "I could not wait for shadow execution\n");
@@ -62,13 +61,16 @@ static inline int nl_run_shadow_entry(int (*entry)(void), int seconds) {
         int expired = !clock_failed && (now.tv_sec - start.tv_sec > seconds ||
             (now.tv_sec - start.tv_sec == seconds && now.tv_nsec >= start.tv_nsec));
         if (clock_failed || expired) {
-            kill(child, SIGKILL);
-            while (waitpid(child, &status, 0) < 0 && errno == EINTR) {}
+            if (waited != child) {
+                kill(child, SIGKILL);
+                while (waitpid(child, &status, 0) < 0 && errno == EINTR) {}
+            }
             close(completion[0]);
             if (clock_failed) fprintf(stderr, "I could not measure the shadow deadline\n");
             else fprintf(stderr, "I stopped shadow execution after %d seconds\n", seconds);
             return 1;
         }
+        if (waited == child) break;
         nanosleep(&pause, NULL);
     }
     unsigned char done = 0;

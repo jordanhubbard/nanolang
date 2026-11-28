@@ -18,7 +18,7 @@ import "src_nano/compiler/lexer.nano"
 import "src_nano/parser.nano"
 import "src_nano/typecheck.nano"
 from "src_nano/compiler/effect_bindings.nano" import eb_register, eb_import, eb_rewrite
-from "src_nano/compiler/native_product.nano" import publish_native_module, native_phase_marker
+from "src_nano/compiler/native_product.nano" import publish_native_module, native_phase_marker, native_shadow_build, native_shadow_cleanup
 import "src_nano/compiler/nanoisa_codegen.nano"
 module "modules/nanoisa/nanoisa.nano" as Nanoisa
 module "modules/compiler_support/compiler_support.nano" as DriverSupport
@@ -581,6 +581,11 @@ fn compiler_tool_root() -> string {
         if (!= located "") { set executable (canonical located) }
     }
     if (!= executable "") {
+        # I discover an installed tool closure without checkout markers.
+        let prefix: string = (nl_path_dirname (nl_path_dirname executable))
+        if (and (file_exists (nl_path_join prefix "bin/nano_vm")) (file_exists (nl_path_join prefix "bin/nvm2c"))) {
+            return prefix
+        }
         let installed: string = (find_repo_root (nl_path_dirname executable))
         if (!= installed "") { return installed }
     }
@@ -590,33 +595,39 @@ shadow compiler_tool_root {
     let root: string = (compiler_tool_root)
     if (== (getenv "NANOLANG_ROOT") "") {
         assert (!= root "")
+        assert (file_exists (nl_path_join root "bin/nano_vm"))
+        assert (file_exists (nl_path_join root "bin/nvm2c"))
     } else { assert (== root (getenv "NANOLANG_ROOT")) }
 }
 
 fn split_lines(s: string) -> array<string> {
-    let len: int = (str_length s)
-    let mut out: array<string> = []
-    let mut start: int = 0
-    let mut i: int = 0
-
-    while (< i len) {
-        if (== (str_substring s i 1) "\n") {
-            set out (array_push out (str_substring s start (- i start)))
-            set start (+ i 1)
-        } else { (print "") }
-        set i (+ i 1)
-    }
-
-    if (<= start len) {
-        set out (array_push out (str_substring s start (- len start)))
-    } else { (print "") }
-    return out
+    return (str_split s "\n")
 }
 
 shadow split_lines {
     let lines: array<string> = (split_lines "hello")
     assert (== (array_length lines) 1)
     assert (== (at lines 0) "hello")
+    let empty: array<string> = (split_lines "")
+    assert (== (array_length empty) 1)
+    assert (== (at empty 0) "")
+    let boundaries: array<string> = (split_lines "\na\n\nb\n")
+    assert (== (array_length boundaries) 5)
+    assert (== (at boundaries 0) "")
+    assert (== (at boundaries 1) "a")
+    assert (== (at boundaries 2) "")
+    assert (== (at boundaries 3) "b")
+    assert (== (at boundaries 4) "")
+    let crlf: array<string> = (split_lines "a\r\nb\r\n")
+    assert (== (array_length crlf) 3)
+    assert (== (at crlf 0) "a\r")
+    assert (== (at crlf 1) "b\r")
+    assert (== (at crlf 2) "")
+    let utf8: array<string> = (split_lines "café\n茶\n")
+    assert (== (array_length utf8) 3)
+    assert (== (at utf8 0) "café")
+    assert (== (at utf8 1) "茶")
+    assert (== (at utf8 2) "")
 }
 
 fn parse_import_path_from_line(line: string) -> string {
@@ -1172,9 +1183,104 @@ shadow bind_header_lines {
     (mb_reset [])
 }
 
+fn merged_import_callable_name(imp: ASTImport, original: string) -> string {
+    if (and imp.is_selective (not imp.is_wildcard)) {
+        for i in (range 0 imp.import_symbol_count) {
+            if (== (at imp.import_symbols i) original) {
+                if (< i (array_length imp.import_aliases)) {
+                    let alias: string = (at imp.import_aliases i)
+                    if (!= alias "") { return alias }
+                }
+                return original
+            }
+        }
+        return ""
+    }
+    if (!= imp.module_name "") { return (+ imp.module_name (+ "." original)) }
+    return original
+}
+shadow merged_import_callable_name {
+    let tokens: List<LexerToken> = (tokenize_string "from \"leaf.nano\" import answer as chosen" "imports.nano" (diag_list_new))
+    let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "imports.nano")
+    let imp: ASTImport = (parser_get_import parsed 0)
+    assert (== (merged_import_callable_name imp "answer") "chosen")
+    assert (== (merged_import_callable_name imp "other") "")
+    let qualified_tokens: List<LexerToken> = (tokenize_string "module \"leaf.nano\" as leaf" "imports.nano" (diag_list_new))
+    let qualified: Parser = (parse_program qualified_tokens (list_LexerToken_length qualified_tokens) "imports.nano")
+    assert (== (merged_import_callable_name (parser_get_import qualified 0) "answer") "leaf.answer")
+}
+
+# I forward only retained public callable identities, never a builtin spelling
+# or an unrelated globally flattened declaration. Local bindings keep priority.
+fn bind_public_reexports(parser: Parser, merge: MergeResult, originals: array<string>, owners: array<int>, targets: array<int>) -> bool {
+    if (or (!= (array_length targets) (parser_get_import_count parser)) (or (!= (array_length originals) (parser_get_function_count parser)) (!= (array_length owners) (parser_get_function_count parser)))) { return false }
+    let allowed: HashMap<string,int> = (map_new)
+    for i in (range 0 (parser_get_function_count parser)) {
+        let owner: int = (at owners i)
+        if (or (< owner 0) (>= owner (array_length merge.files))) { return false }
+        if (mi_public_function (at merge.files owner) (at originals i)) {
+            (map_put allowed (mb_binding_key owner (parser_get_function parser i).name) 1)
+        }
+    }
+    let entries: array<ModuleBindingEntry> = (mb_entries)
+    let mut exported: array<ModuleBindingEntry> = []
+    for i in (range 0 (array_length entries)) {
+        let entry: ModuleBindingEntry = (at entries i)
+        if (and (not (str_contains entry.name ".")) (map_has allowed (mb_binding_key entry.definition_owner entry.target))) {
+            set exported (array_push exported entry)
+        }
+    }
+    let mut changed: bool = true
+    while changed {
+        set changed false
+        let count: int = (array_length exported)
+        for i in (range 0 (parser_get_import_count parser)) {
+            let imp: ASTImport = (parser_get_import parser i)
+            let owner: int = (mb_owner imp.line)
+            let target: int = (at targets i)
+            if (or (or (< owner 0) (>= owner (array_length merge.files))) (or (< target 0) (>= target (array_length merge.files)))) { return false }
+            for j in (range 0 count) {
+                let entry: ModuleBindingEntry = (at exported j)
+                if (== entry.owner target) {
+                    let alias: string = (merged_import_callable_name imp entry.name)
+                    if (and (!= alias "") (not (mb_has owner alias))) {
+                        (mb_add_target owner alias entry.target entry.definition_owner)
+                        if (not (str_contains alias ".")) {
+                            set exported (array_push exported ModuleBindingEntry { owner: owner, name: alias, target: entry.target, definition_owner: entry.definition_owner })
+                        }
+                        set changed true
+                    }
+                }
+            }
+        }
+    }
+    return true
+}
+shadow bind_public_reexports {
+    let source: string = "pub fn leaf_answer()->int{return 41}\nfn leaf_hidden()->int{return 9}\nimport \"leaf.nano\"\nfrom \"barrel.nano\" import answer as chosen,hidden as leaked\nfn main()->int{return 0}\n"
+    let tokens: List<LexerToken> = (tokenize_string source "binding.nano" (diag_list_new))
+    let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "binding.nano")
+    let merge: MergeResult = MergeResult { source: source, files: ["leaf.nano", "barrel.nano", "root.nano"], file_starts: [1, 3, 4], source_files: [], source_lines: [], repo_root: "", root_line: 4 }
+    (mi_reset)
+    assert (mi_capture "pub fn answer()->int{return 41} fn hidden()->int{return 9}" "leaf.nano")
+    (mb_reset merge.file_starts)
+    (mb_set_sources merge.files)
+    (mb_add_target 0 "answer" "leaf_answer" 0)
+    (mb_add_target 0 "hidden" "leaf_hidden" 0)
+    (mb_add_target 1 "answer" "leaf_answer" 0)
+    (mb_add_target 1 "hidden" "leaf_hidden" 0)
+    assert (bind_public_reexports parsed merge ["answer", "hidden", "main"] [0, 0, 2] [0, 1])
+    assert (== (mb_lookup 2 "chosen") "leaf_answer")
+    assert (== (mb_target_owner 2 "chosen") 0)
+    assert (== (mb_lookup 2 "leaked") "leaked")
+    (mb_reset [])
+    (mi_reset)
+}
+
 fn bind_merged_functions(parser: Parser, merge: MergeResult) -> bool {
     (mb_reset merge.file_starts)
     (mb_set_sources merge.files)
+    (mb_set_tool_root (canonical (compiler_tool_root)))
     let prefix: string = (merged_binding_prefix parser)
     if (not (nb_register parser prefix)) { return false }
     if (not (eb_register parser prefix)) { (println "I require distinct effects within each module") return false }
@@ -1213,6 +1319,7 @@ fn bind_merged_functions(parser: Parser, merge: MergeResult) -> bool {
         (bind_header_lines i (DriverSupport.module_header_constants (at merge.files i)) originals owners)
         set i (+ i 1)
     }
+    let mut import_targets: array<int> = []
     set i 0
     while (< i (parser_get_import_count parser)) {
         let imp: ASTImport = (parser_get_import parser i)
@@ -1226,6 +1333,7 @@ fn bind_merged_functions(parser: Parser, merge: MergeResult) -> bool {
             (println (+ "I cannot bind an import outside the merged source set: " path))
             return false
         }
+        set import_targets (array_push import_targets target_owner)
         (nb_import parser imp target_owner)
         if (not (eb_import parser imp target_owner)) { (println "I cannot import a private or conflicting effect") return false }
         set global 0
@@ -1287,6 +1395,7 @@ fn bind_merged_functions(parser: Parser, merge: MergeResult) -> bool {
         }
         set i (+ i 1)
     }
+    if (not (bind_public_reexports parser merge originals owners import_targets)) { return false }
     (nb_rewrite parser)
     if (not (eb_rewrite parser)) { return false }
     set i 0
@@ -1412,10 +1521,14 @@ fn merge_with_imports(input_file: string) -> MergeResult {
         set file_starts (array_push file_starts (+ merged_lines 1))
         if (== i (- (array_length files) 1)) { set root_line (+ merged_lines 1) }
         let src: string = (file_read (at files i))
+        let mut captured: bool = true
         if (< i (- (array_length files) 1)) {
-            if (not (mi_capture src (at files i))) {
-                return MergeResult { source: "", files: [], file_starts: [], source_files: [], source_lines: [], repo_root: repo_root, root_line: 0 }
-            }
+            set captured (mi_capture src (at files i))
+        } else {
+            set captured (mi_capture_root src (at files i))
+        }
+        if (not captured) {
+            return MergeResult { source: "", files: [], file_starts: [], source_files: [], source_lines: [], repo_root: repo_root, root_line: 0 }
         }
         let lines: array<string> = (split_lines src)
         let mut j: int = 0
@@ -1439,6 +1552,10 @@ fn merge_with_imports(input_file: string) -> MergeResult {
 }
 
 shadow merge_with_imports {
+    let declared_root: MergeResult = (merge_with_imports "tests/test_module_introspection.nano")
+    assert (> (str_length declared_root.source) 0)
+    assert (== (array_length (mi_fact "test_math").functions) 3)
+    assert (== (array_length (mi_fact "test_math").structs) 2)
     let rejected: MergeResult = (merge_with_imports "tests/negative/neg_module_introspection_identity.nano")
     assert (== rejected.source "")
     assert (== (array_length rejected.files) 0)
@@ -1981,7 +2098,20 @@ fn compile_program_inputs(input_file: string, output_file: string, verbose: bool
             if (not test_imports) { set first_shadow (native_shadow_start parser merge_result.root_line) }
             let has_shadows: bool = (< first_shadow parser.shadows_count)
             (native_phase_marker "checked-emit-start")
-            let emitted: NanoisaCheckedText = (nanoisa_check_and_emit parser source_to_compile first_shadow (and has_shadows (not emit_c)))
+            let check_shadows: bool = (and has_shadows (not emit_c))
+            let mut helper_owner: int = -1
+            if (and check_shadows (or (!= (getenv "NANO_CFLAGS") "") (!= (getenv "NANO_LDFLAGS") ""))) {
+                set helper_owner (mb_owner merge_result.root_line)
+            }
+            let mut helper_directory: string = ""
+            let mut emitted: NanoisaCheckedText = (nanoisa_check_and_emit_native parser source_to_compile first_shadow check_shadows helper_owner "")
+            if emitted.native_pending {
+                set helper_directory (mktemp_dir "nano_native_helpers_")
+                if (== helper_directory "") { (println "I could not create native shadow storage") (native_shadow_cleanup helper_directory)
+                        return 1 }
+                # I recheck synchronously; I never reuse the first pass's advisory facts.
+                set emitted (nanoisa_check_and_emit_native parser source_to_compile first_shadow check_shadows helper_owner (+ helper_directory "/helpers.so"))
+            }
             (native_phase_marker "checked-emit-done")
             let tc: TypecheckPhaseOutput = emitted.phase
             if tc.had_error {
@@ -2008,7 +2138,8 @@ fn compile_program_inputs(input_file: string, output_file: string, verbose: bool
                 if (not (== llm_diags_json_path "")) {
                     (llm_write_diags_json llm_diags_json_path input_file output_file 1 tc.diagnostics)
                 } else { (print "") }
-                return 1
+                (native_shadow_cleanup helper_directory)
+                        return 1
             } else { (print "") }
             
             if verbose {
@@ -2031,21 +2162,25 @@ fn compile_program_inputs(input_file: string, output_file: string, verbose: bool
                 let assembly: string = emitted.program
                 if (== emitted.lowering_stage 2) {
                     (println (+ "I cannot lower the selected shadows: " emitted.lowering_error))
-                    return 1
+                    (native_shadow_cleanup helper_directory)
+                        return 1
                 }
                 if (== assembly "") {
                     (println (+ "I cannot lower this checked program: " emitted.lowering_error))
-                    return 1
+                    (native_shadow_cleanup helper_directory)
+                        return 1
                 }
                 if (and has_shadows (not emit_c)) {
                     let shadow_assembly: string = emitted.shadows
                     if (== shadow_assembly "") {
                         (println (+ "I cannot lower the selected shadows: " emitted.lowering_error))
+                        (native_shadow_cleanup helper_directory)
                         return 1
                     }
                     let directory: string = (mktemp_dir "nano_bytecode_shadows_")
                     if (== directory "") {
                         (println "I could not create bytecode shadow storage")
+                        (native_shadow_cleanup helper_directory)
                         return 1
                     }
                     let shadow_file: string = (+ directory "/shadows.nvm")
@@ -2055,7 +2190,17 @@ fn compile_program_inputs(input_file: string, output_file: string, verbose: bool
                     if (!= staged 0) {
                         (println (+ "I could not verify the shadow module: " (Nanoisa.last_error)))
                         (bytecode_shadow_cleanup directory)
+                        (native_shadow_cleanup helper_directory)
                         return 1
+                    }
+                    if (!= helper_directory "") {
+                        if (or (== emitted.native_c "") (!= (native_shadow_build helper_directory emitted.native_c (resolve_cc_binary)
+                            (native_product_cflags (getenv "NANO_CFLAGS"))
+                            (native_product_ldflags (getenv "NANO_LDFLAGS") (getenv "LDFLAGS")) verbose) 0)) {
+                            (bytecode_shadow_cleanup directory)
+                            (native_shadow_cleanup helper_directory)
+                            return 1
+                        }
                     }
                     let mut vm: string = (getenv "NANO_VM")
                     if (== vm "") { set vm (nl_path_join repo_root "bin/nano_vm") }
@@ -2064,8 +2209,12 @@ fn compile_program_inputs(input_file: string, output_file: string, verbose: bool
                     let checked: int = (nl_exec_shell command)
                     (native_phase_marker "shadow-execution-done")
                     (bytecode_shadow_cleanup directory)
+                    let helper_cleaned: int = (native_shadow_cleanup helper_directory)
+                    set helper_directory ""
+                    if (!= helper_cleaned 0) { return 1 }
                     if (!= checked 0) {
                         (println "I will not publish bytecode after failed shadows")
+                        (native_shadow_cleanup helper_directory)
                         return 1
                     }
                 }
@@ -2092,6 +2241,7 @@ fn compile_program_inputs(input_file: string, output_file: string, verbose: bool
                     (println (+ "I could not publish the requested product: " (Nanoisa.last_error)))
                     return 1
                 }
+                if emit_c { (println "I emit C without executing shadows.") }
                 if (!= llm_diags_json_path "") {
                     (llm_write_diags_json llm_diags_json_path input_file output_file 0 diags)
                 }

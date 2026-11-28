@@ -1,0 +1,289 @@
+{
+  "pin": "bdffa4cccff93ed5b6870aa2f74289f94f2643ee",
+  "steps": [
+    {
+      "label": "seed",
+      "argv": [
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/bin/nano_virt",
+        "src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "--strip-debug",
+        "-o",
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/obj/bootstrap-nanoisa/run-_hkwbw7g/seed.nvm"
+      ],
+      "log": "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/obj/bootstrap-nanoisa/run-_hkwbw7g/00-seed.log",
+      "exit_code": 0,
+      "elapsed_seconds": 52.60299133300032,
+      "log_sha256": "e6805553f20185b78acdfdffb4d5a6683d5c5e8ced640eece40e7b6a23b79d81"
+    },
+    {
+      "label": "seed-verify",
+      "argv": [
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/bin/nano_vm",
+        "--verify-only",
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/obj/bootstrap-nanoisa/run-_hkwbw7g/seed.nvm"
+      ],
+      "log": "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/obj/bootstrap-nanoisa/run-_hkwbw7g/01-seed-verify.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.44777787499970145,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "stage1",
+      "argv": [
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/bin/nano_vm",
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/bin/nanoc_seed.nvm",
+        "--",
+        "src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "-o",
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/obj/bootstrap-nanoisa/run-_hkwbw7g/stage1.nvm"
+      ],
+      "log": "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/obj/bootstrap-nanoisa/run-_hkwbw7g/02-stage1.log",
+      "exit_code": 0,
+      "elapsed_seconds": 539.3040874999997,
+      "log_sha256": "d3aab7d66c5dbf9947a502a3a045cc31b447d790db4fe15dcc124c6c3370e82f"
+    },
+    {
+      "label": "stage1-verify",
+      "argv": [
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/bin/nano_vm",
+        "--verify-only",
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/obj/bootstrap-nanoisa/run-_hkwbw7g/stage1.nvm"
+      ],
+      "log": "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/obj/bootstrap-nanoisa/run-_hkwbw7g/03-stage1-verify.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.18751329200040345,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "stage1-translate",
+      "argv": [
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/bin/nvm2c",
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/bin/nanoc_stage1.nvm",
+        "-o",
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/obj/bootstrap-nanoisa/run-_hkwbw7g/stage1.c"
+      ],
+      "log": "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/obj/bootstrap-nanoisa/run-_hkwbw7g/04-stage1-translate.log",
+      "exit_code": 0,
+      "elapsed_seconds": 29.349876249999397,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "stage1-native",
+      "argv": [
+        "/usr/bin/cc",
+        "-std=c11",
+        "-O1",
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/obj/bootstrap-nanoisa/run-_hkwbw7g/stage1.c",
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/bin/nano_aot_runtime.o",
+        "-lm",
+        "-lm",
+        "-lcrypto",
+        "-lffi",
+        "-L/opt/homebrew/Cellar/openssl@4/4.1.0/lib",
+        "-o",
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/obj/bootstrap-nanoisa/run-_hkwbw7g/stage1"
+      ],
+      "log": "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/obj/bootstrap-nanoisa/run-_hkwbw7g/05-stage1-native.log",
+      "exit_code": 0,
+      "elapsed_seconds": 31.986330000000635,
+      "log_sha256": "1ea04da0efb6a07c8ee77de34bde8529953a1714bd7851a4fccf6fc35bd674e3"
+    },
+    {
+      "label": "stage1-hello-compile",
+      "argv": [
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/obj/bootstrap-nanoisa/run-_hkwbw7g/stage1",
+        "examples/language/nl_hello.nano",
+        "-o",
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/obj/bootstrap-nanoisa/run-_hkwbw7g/stage1-hello"
+      ],
+      "log": "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/obj/bootstrap-nanoisa/run-_hkwbw7g/06-stage1-hello-compile.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.5960990000003221,
+      "log_sha256": "dc7fa7a02885bb10463608f0ad1bc16a3b0ecdeb24dd2c9bd8a27a9c1c576322"
+    },
+    {
+      "label": "stage1-hello-execute",
+      "argv": [
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/obj/bootstrap-nanoisa/run-_hkwbw7g/stage1-hello"
+      ],
+      "log": "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/obj/bootstrap-nanoisa/run-_hkwbw7g/07-stage1-hello-execute.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.2519269169997642,
+      "log_sha256": "2f18cf6d69e1480be1a8ee33d142197a2e5d90c2c17325c7de6546034102ab55"
+    },
+    {
+      "label": "stage2",
+      "argv": [
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/bin/nano_vm",
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/bin/nanoc_stage1.nvm",
+        "--",
+        "src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "-o",
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/obj/bootstrap-nanoisa/run-_hkwbw7g/stage2.nvm"
+      ],
+      "log": "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/obj/bootstrap-nanoisa/run-_hkwbw7g/08-stage2.log",
+      "exit_code": 0,
+      "elapsed_seconds": 542.2300708330004,
+      "log_sha256": "d303137b9a4f16dc42bb5739b0bf8da70a1c42ecda5c5154ca54160555f5f644"
+    },
+    {
+      "label": "stage2-verify",
+      "argv": [
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/bin/nano_vm",
+        "--verify-only",
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/obj/bootstrap-nanoisa/run-_hkwbw7g/stage2.nvm"
+      ],
+      "log": "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/obj/bootstrap-nanoisa/run-_hkwbw7g/09-stage2-verify.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.21032716600075219,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "stage2-translate",
+      "argv": [
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/bin/nvm2c",
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/bin/nanoc_stage2.nvm",
+        "-o",
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/obj/bootstrap-nanoisa/run-_hkwbw7g/stage2.c"
+      ],
+      "log": "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/obj/bootstrap-nanoisa/run-_hkwbw7g/10-stage2-translate.log",
+      "exit_code": 0,
+      "elapsed_seconds": 29.078027667000242,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "stage2-native",
+      "argv": [
+        "/usr/bin/cc",
+        "-std=c11",
+        "-O1",
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/obj/bootstrap-nanoisa/run-_hkwbw7g/stage2.c",
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/bin/nano_aot_runtime.o",
+        "-lm",
+        "-lm",
+        "-lcrypto",
+        "-lffi",
+        "-L/opt/homebrew/Cellar/openssl@4/4.1.0/lib",
+        "-o",
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/obj/bootstrap-nanoisa/run-_hkwbw7g/stage2"
+      ],
+      "log": "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/obj/bootstrap-nanoisa/run-_hkwbw7g/11-stage2-native.log",
+      "exit_code": 0,
+      "elapsed_seconds": 31.786565999999766,
+      "log_sha256": "1ea04da0efb6a07c8ee77de34bde8529953a1714bd7851a4fccf6fc35bd674e3"
+    },
+    {
+      "label": "stage2-hello-compile",
+      "argv": [
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/obj/bootstrap-nanoisa/run-_hkwbw7g/stage2",
+        "examples/language/nl_hello.nano",
+        "-o",
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/obj/bootstrap-nanoisa/run-_hkwbw7g/stage2-hello"
+      ],
+      "log": "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/obj/bootstrap-nanoisa/run-_hkwbw7g/12-stage2-hello-compile.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.4852341659998274,
+      "log_sha256": "dc7fa7a02885bb10463608f0ad1bc16a3b0ecdeb24dd2c9bd8a27a9c1c576322"
+    },
+    {
+      "label": "stage2-hello-execute",
+      "argv": [
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/obj/bootstrap-nanoisa/run-_hkwbw7g/stage2-hello"
+      ],
+      "log": "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/obj/bootstrap-nanoisa/run-_hkwbw7g/13-stage2-hello-execute.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.21044954100034374,
+      "log_sha256": "2f18cf6d69e1480be1a8ee33d142197a2e5d90c2c17325c7de6546034102ab55"
+    },
+    {
+      "label": "seed-final-verify",
+      "argv": [
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/bin/nano_vm",
+        "--verify-only",
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/bin/nanoc_seed.nvm"
+      ],
+      "log": "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/obj/bootstrap-nanoisa/run-_hkwbw7g/14-seed-final-verify.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.20371308400081034,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "stage1-final-verify",
+      "argv": [
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/bin/nano_vm",
+        "--verify-only",
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/bin/nanoc_stage1.nvm"
+      ],
+      "log": "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/obj/bootstrap-nanoisa/run-_hkwbw7g/15-stage1-final-verify.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.1441147080004157,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "stage2-final-verify",
+      "argv": [
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/bin/nano_vm",
+        "--verify-only",
+        "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/bin/nanoc_stage2.nvm"
+      ],
+      "log": "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/obj/bootstrap-nanoisa/run-_hkwbw7g/16-stage2-final-verify.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.14268600000013976,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "original_commands": [
+    {
+      "label": "original-vm-heap-controls",
+      "argv": [
+        "make",
+        "CC=/usr/bin/cc",
+        "test-nanovm",
+        "test-vm-heap-allocation-sanitizers",
+        "test-record-map-heap",
+        "test-record-map-ordinary-heap",
+        "test-record-map-string-heap"
+      ],
+      "pid": 3688,
+      "returncode": 0,
+      "elapsed_seconds": 38.476013083
+    },
+    {
+      "label": "original-bootstrap3",
+      "argv": [
+        "make",
+        "CC=/usr/bin/cc",
+        "BOOTSTRAP_NANOISA_TIMEOUT=1800",
+        "bootstrap3"
+      ],
+      "pid": 12340,
+      "returncode": 0,
+      "elapsed_seconds": 1277.80237175
+    }
+  ],
+  "guards_unchanged": true,
+  "raw_equal": true,
+  "raw_sha256": "bcb9f3d52abf53eea08835ac9d0c04cb9a360b03b62bec38509cfb2212ff94d9",
+  "raw_bytes": 1033548,
+  "hosts": {
+    "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/.test_output/current-darwin-bootstrap/module-cache/v2-003a4900c9948151ef88fbf2fcfe764644eafeced799acc3f11eae4a65b507f8/.nano-gen-paKHGd/libfile_source_catalog.dylib": "6e658da2da9321665eec38366aee80070204e5fcc96bfbeb869de2ab1d4637ff",
+    "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/.test_output/current-darwin-bootstrap/module-cache/v2-55c6ed63c8ad5f19edf8469c83d13f9bb0ec37129c573404b7318777274c903d/.nano-gen-WrAGHW/libcompiler_support.dylib": "95ba253e5ac820dd08d4964d264d6145be1cc74ac06ffbc14aacedebbc329dee",
+    "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/.test_output/current-darwin-bootstrap/module-cache/v2-6411c984443ce1499fa6c3197308d1481b1997eb7c4f411a46492a515f41f138/.nano-gen-k7rdRn/libstd.dylib": "936e89f2495de8bc745037b5e30c8f82e67b7377b1cd25d6624f827fa97c4520",
+    "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/.test_output/current-darwin-bootstrap/module-cache/v2-76d6b1420000da1682812e721603b35d54f5db4655347ebda1979a3da512c006/.nano-gen-jOenzo/libfile_product.dylib": "6ca018591a886903c868c9ef08c1d03a05a8fc97a622845b36567463c72b036d",
+    "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/.test_output/current-darwin-bootstrap/module-cache/v2-99d10884fc8e8623a1d78d2e0fa8f9f10c6b2bc5f25816cc1086cbfeb7d6a7f0/.nano-gen-hYmeML/libnanoisa.dylib": "3190ecfd7761279fe6ee989714833039a09281718d7935f414c1c490ecbb69b9",
+    "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/.test_output/current-darwin-bootstrap/module-cache/v2-d3e241a5e5c52b7bb6028d3e6c657986d6ffd787874574b1c73771126343337c/.nano-gen-B0LuHZ/libfile_source_inputs.dylib": "2f3daebe22a1ba8034dde13e7bc20414adeeedb66b49d5d2dc1bd62ba4f7cdf9"
+  },
+  "receipt_sha256": "67bb7749a5382bab73eeb9e2607a5f872d944fec3edc8e04d973a7171c29fecc",
+  "cache": "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/.test_output/current-darwin-bootstrap/module-cache",
+  "installed_link": "nanoc_stage2",
+  "bootstrap3_sentinel": true,
+  "vm_terminal_lines": [
+    "=== Results: 569591 passed, 0 failed, 569591 total ==="
+  ],
+  "limits": [
+    "I preserve successful exact-source bdffa4ccc Darwin bootstrap and original VM/heap gates. These bytes do not qualify later parser/checker/workflow changes or explain the different-pin c908523c3 timeout. I do not rewrite raw imports or substitute stages."
+  ]
+}

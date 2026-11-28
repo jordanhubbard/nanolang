@@ -1,0 +1,7 @@
+# My private caller-root darwin-cache terminal
+
+At exact source54a43a9af9917428a6b9840c7a44cf789eaf227d in run46099629716, I pass284 original cache methods, the existing platform skips,3 workers and6 array/storage methods. These cache controls do not replace complete native bootstrap or emitter acceptance.
+
+I retain the complete original ZIP (35822179 bytes, 164 members, SHA256ded77c6471b3995c2a7866277125114165805e392bed5c0834027a8cd06eb62a), job API/logs, artifact metadata and an independent reader. I verify API size/digest, ZIP CRC and safe unique names, exact Git tree, actual selected tool/image bytes and unchanged before/after maps. I retain original1800/30/default10/300 and600/60 limits and all fixtures/assertions. Mandatory GC normal/sanitized epochs/failure controls and nine split-lifetime cases pass. My caller-root target executes once in this cohort: ten original strict cases match84 reclaims and six declaration allocation failures recover. This target is ordinary; prior isolated component sanitizer evidence remains separate. I retain both rejected reader versions and explain their report overcount and combined-log selector correction.
+
+Run `python3 verify.py --workspace /path/on/large/volume --repo /path/to/nanolang`; fetch source54a first if absent. My reader executes no product. Complete candidate qualification, default/full-graph custody, pure NanoLang translator/cutover and all69 release requirements remain open.

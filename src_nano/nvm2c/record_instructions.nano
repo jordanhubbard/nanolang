@@ -1,0 +1,160 @@
+module nvm2c_record_instructions
+module "src_nano/nvm2c/functions.nano" as functions
+module "src_nano/nvm2c/instructions.nano" as primary
+
+# I describe existing root recipes. These checks remain runtime obligations;
+# no recipe grants origin, lifetime, stack-flow or executable authority.
+pub struct Recipe { valid: bool, kind: int, obligations: int }
+pub struct Signature { arity: int, results: int }
+pub struct Row {
+    pc: int, next: int, instruction: primary.Instruction,
+    recipe: int, obligations: int, pops: int, pushes: int,
+    callee: int, successors: array<int>
+}
+pub struct Plan { valid: bool, globals: int, rows: array<Row> }
+
+fn member(opcode: int, values: array<int>) -> bool {
+    let mut i: int = 0
+    while (< i (array_length values)) {
+        if (== opcode (at values i)) { return true }
+        set i (+ i 1)
+    }
+    return false
+}
+shadow member { assert (member 7 [1,7]) assert (not (member 3 [1,7])) }
+
+pub fn recipe(opcode: int, maps: bool) -> Recipe {
+    # PUSH_I64 PUSH_U8 PUSH_F64 PUSH_BOOL PUSH_VOID
+    if (member opcode [1,6,2,3,5]) { return Recipe { valid: true, kind: 1, obligations: 64 } }
+    # PUSH_STR
+    if (== opcode 4) { return Recipe { valid: true, kind: 1, obligations: 97 } }
+    # NOP
+    if (== opcode 0) { return Recipe { valid: true, kind: 0, obligations: 64 } }
+    # I64_ADD I64_SUB I64_MUL I64_DIV_S I64_REM_S I64_NEG F64_TO_BITS F64_FROM_BITS F64_ADD F64_SUB F64_MUL F64_DIV F64_NEG CAST_INT CAST_FLOAT CAST_BOOL CAST_U8 TYPE_CHECK EQ NE LT LE GT GE I64_EQ I64_NE I64_LT_S I64_LE_S I64_GT_S I64_GE_S F64_EQ F64_NE F64_LT F64_LE F64_GT F64_GE BOOL_AND BOOL_OR BOOL_NOT AND OR NOT STR_LEN STR_CHAR_AT ARR_LEN STR_EQ STR_CONTAINS STR_STARTS_WITH STR_ENDS_WITH
+    if (member opcode [192,193,194,195,196,197,142,141,200,201,202,203,204,136,137,138,143,140,40,41,42,43,44,45,208,209,210,211,212,213,216,217,218,219,220,221,224,225,226,48,49,50,64,69,85,68,67,75,76]) { return Recipe { valid: true, kind: 0, obligations: 65 } }
+    # CAST_STRING STR_CONCAT STR_SUBSTR STR_TRIM STR_TO_LOWER STR_TO_UPPER STR_REPLACE STR_FROM_INT STR_FROM_FLOAT STR_SPLIT
+    if (member opcode [139,65,66,72,73,74,78,70,71,77]) { return Recipe { valid: true, kind: 10, obligations: 89 } }
+    # LOAD_LOCAL LOAD_GLOBAL
+    if (member opcode [16,18]) { return Recipe { valid: true, kind: 2, obligations: 97 } }
+    # STORE_LOCAL STORE_GLOBAL
+    if (member opcode [17,19]) { return Recipe { valid: true, kind: 3, obligations: 97 } }
+    # DUP
+    if (== opcode 7) { return Recipe { valid: true, kind: 4, obligations: 97 } }
+    # SWAP
+    if (== opcode 9) { return Recipe { valid: true, kind: 5, obligations: 65 } }
+    # POP ASSERT
+    if (member opcode [8,161]) { return Recipe { valid: true, kind: 6, obligations: 65 } }
+    # JMP JMP_TRUE JMP_FALSE
+    if (member opcode [56,57,58]) { return Recipe { valid: true, kind: 7, obligations: 65 } }
+    # CALL
+    if (== opcode 59) { return Recipe { valid: true, kind: 8, obligations: 81 } }
+    # TAIL_CALL
+    if (== opcode 51) { return Recipe { valid: true, kind: 17, obligations: 113 } }
+    # RET
+    if (== opcode 61) { return Recipe { valid: true, kind: 9, obligations: 81 } }
+    # STRUCT_NEW STRUCT_LITERAL AGG_PACK
+    if (member opcode [96,99,251]) { return Recipe { valid: true, kind: 11, obligations: 93 } }
+    # ARR_NEW ARR_LITERAL
+    if (member opcode [80,88]) { return Recipe { valid: true, kind: 11, obligations: 89 } }
+    # STRUCT_GET AGG_GET
+    if (member opcode [97,252]) { return Recipe { valid: true, kind: 12, obligations: 103 } }
+    # ARR_GET
+    if (== opcode 83) { return Recipe { valid: true, kind: 12, obligations: 99 } }
+    # STRUCT_SET AGG_SET
+    if (member opcode [98,253]) { return Recipe { valid: true, kind: 13, obligations: 103 } }
+    # ARR_SET
+    if (== opcode 84) { return Recipe { valid: true, kind: 13, obligations: 123 } }
+    # ARR_PUSH
+    if (== opcode 81) { return Recipe { valid: true, kind: 14, obligations: 121 } }
+    # ARR_POP
+    if (== opcode 82) { return Recipe { valid: true, kind: 15, obligations: 99 } }
+    # ARR_SLICE
+    if (== opcode 86) { return Recipe { valid: true, kind: 16, obligations: 91 } }
+    if (and maps (member opcode [120,122,121,123,127,124])) {
+        let mut flags: int = 81
+        if (member opcode [120,122]) { set flags (+ flags 8) }
+        if (member opcode [122,121]) { set flags (+ flags 32) }
+        return Recipe { valid: true, kind: 255, obligations: flags }
+    }
+    return Recipe { valid: false, kind: 0, obligations: 0 }
+}
+shadow recipe {
+    assert (== (recipe 0 false).obligations 64)
+    assert (== (recipe 1 false).kind 1)
+    assert (== (recipe 4 false).obligations 97)
+    assert (not (recipe 120 false).valid)
+    assert (== (recipe 120 true).kind 255)
+    assert (== (recipe 121 true).obligations 113)
+    assert (not (recipe -1 true).valid)
+    assert (not (recipe 256 true).valid)
+}
+
+fn refused() -> Plan { return Plan { valid: false, globals: 0, rows: [] } }
+shadow refused { assert (not (refused).valid) assert (== (array_length (refused).rows) 0) }
+
+pub fn decode(code: array<u8>, start: int, length: int,
+              signatures: array<Signature>, current: int, maps: bool) -> Plan {
+    let count: int = (array_length signatures)
+    if (or (> count 256) (or (< current 0) (>= current count))) { return (refused) }
+    let mut i: int = 0
+    while (< i count) {
+        let item: Signature = (at signatures i)
+        if (or (< item.arity 0) (or (> item.arity 65535) (or (< item.results 0) (> item.results 255)))) { return (refused) }
+        set i (+ i 1)
+    }
+    let decoded: functions.Function = (functions.decode code start length count)
+    if (or (not decoded.valid) (> (array_length decoded.instructions) 65536)) { return (refused) }
+    let mut rows: array<Row> = []
+    let mut globals: int = 0
+    set i 0
+    while (< i (array_length decoded.instructions)) {
+        let instruction: primary.Instruction = (at decoded.instructions i)
+        let root: Recipe = (recipe instruction.opcode maps)
+        if (not root.valid) { return (refused) }
+        let opcode: int = instruction.opcode
+        let pc: int = (at decoded.starts i)
+        let next: int = (at decoded.next i)
+        let mut pops: int = instruction.pops
+        let mut pushes: int = instruction.pushes
+        let mut callee: int = 4294967295
+        if (member opcode [88,99]) { set pops (primary.integer instruction 1) set pushes 1 }
+        if (== opcode 251) { set pops (primary.integer instruction 3) set pushes 1 }
+        if (member opcode [51,59]) {
+            set callee (primary.integer instruction 0)
+            let target: Signature = (at signatures callee)
+            set pops target.arity
+            set pushes (cond ((== opcode 51) 0) (else target.results))
+        }
+        if (== opcode 61) { set pops (at signatures current).results set pushes 0 }
+        if (or (< pops 0) (or (> pops 256) (or (< pushes 0) (> pushes 256)))) { return (refused) }
+        let mut successors: array<int> = []
+        if (member opcode [56,57,58]) {
+            set successors (array_push successors (+ pc (primary.integer instruction 0)))
+        }
+        if (not (member opcode [56,61,51])) { set successors (array_push successors next) }
+        if (member opcode [18,19]) {
+            # I copy the existing unsigned increment, including UINT32 wrap.
+            # Full profile analysis must separately establish valid globals.
+            let slots: int = (% (+ (primary.integer instruction 0) 1) 4294967296)
+            if (> slots 256) { return (refused) }
+            if (> slots globals) { set globals slots }
+        }
+        set rows (array_push rows Row { pc: pc, next: next, instruction: instruction,
+            recipe: root.kind, obligations: root.obligations, pops: pops, pushes: pushes,
+            callee: callee, successors: successors })
+        set i (+ i 1)
+    }
+    return Plan { valid: true, globals: globals, rows: rows }
+}
+shadow decode {
+    let signatures: array<Signature> = [Signature { arity: 0, results: 1 }]
+    let empty: Plan = (decode [] 0 0 signatures 0 false)
+    assert empty.valid
+    assert (== (array_length empty.rows) 0)
+    let returned: Plan = (decode [61] 0 1 signatures 0 false)
+    assert returned.valid
+    assert (== (at returned.rows 0).pops 1)
+    assert (== (array_length (at returned.rows 0).successors) 0)
+    assert (not (decode [255] 0 1 signatures 0 false).valid)
+    assert (not (decode [] 0 0 signatures 1 false).valid)
+}

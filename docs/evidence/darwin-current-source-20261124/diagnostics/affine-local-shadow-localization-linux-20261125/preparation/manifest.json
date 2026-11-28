@@ -1,0 +1,24 @@
+{
+  "format": 1,
+  "scope": "I preserve admission and source/observer bindings only, without a component terminal",
+  "source_pin": "7b75651234c3235cd5a0ddd82d0a02c45fb3c8a8",
+  "live_root": "/var/tmp/nanolang-affine-typed-five-20261125-udz2o6c_",
+  "accepted_component": false,
+  "files": {
+    "admission-result.json": "e9c510cac0e20275ce2b1f566343bb66acbc2a35dfccc7986aabcb266771ce2b",
+    "admit.py": "017e99fea1d3de40f54325bfac9901d2883e57f0c7f7271a25a10284182320d8",
+    "affine-foundation-shadow-failure-linux-20261125.reader.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "affine-foundation-shadow-failure-linux-20261125.reader.stdout": "a889c612cb80be3d36c6d3789cf34f26f59621bce9f8e24e83c1099ce6a71136",
+    "affine-local-shadow-localization-linux-20261125.reader.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "affine-local-shadow-localization-linux-20261125.reader.stdout": "9df3ee5c5c5d1737822db8c61ae7da8b9f203dcf21b53dd665e02accb59d71d6",
+    "cohort.py": "b8ef44d797ae56c475859e64bc16dfcc603f32564c0815ac4189c75b5a8cd40a",
+    "cohort_journal.py": "4e5a202045b7d4576c7cfa8ed9845cc895e5b2bf4cd2e727e68534a2a34c652d",
+    "collector-equivalence.json": "818042279168b98ad3865dd612e29422b04ddcbf1dc792d7044275ddfd8a612a",
+    "launch-observation.json": "9f1c9411e2fa08fb84e4c35a6a54b91f8082f037f7e51c429e0295c90210d0b6",
+    "original-cohort.py": "eee3cfbca344ad736255c7f175c4562b4e19135aedf385a886075713f0246c04",
+    "preflight-result.json": "00c52b90c05fecec2c8a23b761ae4402f91c3af62034ad0bd373cf35fc8dd3ab",
+    "preflight.py": "ae1d663f97a1876cdaf522841c1091fea915f6fe4807410e3451680f674e82af",
+    "result.json": "bcb0b9101e69e92333bec7a3166622df08ca8d2ced5ea6a7307e6beb38c5179b",
+    "setup.py": "3656fa14c46ef0ec3dcc08fdf325a7ec7dd83c89a0e179263ea7af8ea6e8370a"
+  }
+}

@@ -1,0 +1,179 @@
+module "src_nano/nvm2c/parallel_c.nano" as copies
+
+fn csv(values: array<int>) -> string {
+    let mut parts: array<string> = []
+    for index in (range 0 (array_length values)) {
+        set parts (array_push parts (int_to_string (at values index)))
+    }
+    return (str_join parts ",")
+}
+shadow csv {
+    assert (== (csv []) "")
+    assert (== (csv [0,-1,4294967295]) "0,-1,4294967295")
+}
+
+fn row(label: string, destinations: array<int>, sources: array<int>, tags: array<int>) -> string {
+    let result: copies.Transfer = (copies.emit destinations sources tags)
+    let mut status: int = 0
+    if result.valid { set status 1 }
+    let header: string = (+ "T|" (+ label (+ "|" (+ (csv destinations) (+ "|" (+ (csv sources)
+        (+ "|" (+ (csv tags) (+ "|" (+ (int_to_string status) (+ "|" (+ (int_to_string result.count)
+        (+ "|" (int_to_string (str_length result.text)))))))))))))))
+    return (+ header (+ "\n" (+ result.text "END\n")))
+}
+shadow row {
+    assert (== (row "empty" [] [] []) "T|empty||||1|0|4\n{\n}\nEND\n")
+    assert (== (row "bad" [0] [] []) "T|bad|0|||0|0|0\nEND\n")
+}
+
+fn factorial(width: int) -> int {
+    let mut result: int = 1
+    for index in (range 1 (+ width 1)) { set result (* result index) }
+    return result
+}
+shadow factorial {
+    assert (== (factorial 0) 1)
+    assert (== (factorial 1) 1)
+    assert (== (factorial 5) 120)
+}
+
+fn sequence(width: int, offset: int) -> array<int> {
+    let mut result: array<int> = []
+    for index in (range 0 width) { set result (array_push result (+ offset index)) }
+    return result
+}
+shadow sequence {
+    assert (== (array_length (sequence 0 7)) 0)
+    assert (== (at (sequence 3 7) 2) 9)
+}
+
+fn repeated(width: int, value: int) -> array<int> {
+    let mut result: array<int> = []
+    for index in (range 0 width) { set result (array_push result value) }
+    return result
+}
+shadow repeated {
+    assert (== (array_length (repeated 0 7)) 0)
+    assert (== (at (repeated 3 7) 2) 7)
+}
+
+fn permutation(width: int, rank: int) -> array<int> {
+    let mut pool: array<int> = (sequence width 0)
+    let mut result: array<int> = []
+    for index in (range 0 width) {
+        let choice: int = (% (/ rank (factorial (- (- width index) 1))) (- width index))
+        set result (array_push result (at pool choice))
+        let mut next: array<int> = []
+        for prior in (range 0 (array_length pool)) {
+            if (!= prior choice) { set next (array_push next (at pool prior)) }
+        }
+        set pool next
+    }
+    return result
+}
+shadow permutation {
+    assert (== (csv (permutation 0 0)) "")
+    assert (== (csv (permutation 3 0)) "0,1,2")
+    assert (== (csv (permutation 3 5)) "2,1,0")
+    assert (== (csv (permutation 3 3)) "1,2,0")
+}
+
+fn report() -> void {
+    (println "PRELUDE-BEGIN")
+    (print (copies.prelude))
+    (println "PRELUDE-END")
+    (print (row "empty" [] [] []))
+    for tag in (range 1 4) {
+        for width in (range 1 6) {
+            for rank in (range 0 (factorial width)) {
+                let label: string = (+ "perm-" (+ (int_to_string tag) (+ "-" (+ (int_to_string width) (+ "-" (int_to_string rank))))))
+                (print (row label (sequence width 0) (permutation width rank) (repeated width tag)))
+            }
+        }
+        let endpoints: array<int> = [0,1,4294967295]
+        for left in (range 0 3) {
+            for right in (range 0 3) {
+                let label: string = (+ "endpoint-" (+ (int_to_string tag) (+ "-" (+ (int_to_string left) (+ "-" (int_to_string right))))))
+                (print (row label [(at endpoints left)] [(at endpoints right)] [tag]))
+            }
+        }
+        (print (row (+ "fanout-" (int_to_string tag)) [0,1,2,3] [3,3,3,3] (repeated 4 tag)))
+        (print (row (+ "chain-" (int_to_string tag)) [0,1,2,3] [1,2,3,4] (repeated 4 tag)))
+        let mut cycle: array<int> = (sequence 256 1)
+        set cycle (array_push cycle 0)
+        (print (row (+ "wide-" (int_to_string tag)) (sequence 257 0) cycle (repeated 257 tag)))
+    }
+    (print (row "mixed" [0,1,2,3,4,5] [1,0,3,2,5,4] [1,1,2,2,3,3]))
+    (print (row "length-d" [0] [] []))
+    (print (row "length-s" [] [0] []))
+    (print (row "length-t" [] [] [1]))
+    (print (row "length-short" [0,1] [1] [1,1]))
+    (print (row "length-tags" [0,1] [1,0] [1]))
+    (print (row "duplicate" [0,0] [1,2] [1,1]))
+    (print (row "source-conflict" [1,2] [0,0] [1,3]))
+    (print (row "source-destination-conflict" [1,0] [0,2] [1,3]))
+    (print (row "destination-source-conflict" [1,2] [0,1] [1,3]))
+    (print (row "bad-d--9223372036854775808" [(- -9223372036854775807 1)] [0] [1]))
+    (print (row "bad-s--9223372036854775808" [0] [(- -9223372036854775807 1)] [1]))
+    (print (row "bad-d--1" [-1] [0] [1]))
+    (print (row "bad-s--1" [0] [-1] [1]))
+    (print (row "bad-d-4294967296" [4294967296] [0] [1]))
+    (print (row "bad-s-4294967296" [0] [4294967296] [1]))
+    (print (row "bad-d-9223372036854775807" [9223372036854775807] [0] [1]))
+    (print (row "bad-s-9223372036854775807" [0] [9223372036854775807] [1]))
+    (print (row "bad-t--9223372036854775808" [0] [1] [(- -9223372036854775807 1)]))
+    (print (row "bad-t--1" [0] [1] [-1]))
+    (print (row "bad-t-0" [0] [1] [0]))
+    (print (row "bad-t-4" [0] [1] [4]))
+    (print (row "bad-t-255" [0] [1] [255]))
+    (print (row "bad-t-9223372036854775807" [0] [1] [9223372036854775807]))
+    let destinations: array<int> = (sequence 65 0)
+    let sources: array<int> = (sequence 65 1)
+    let tags: array<int> = (repeated 65 1)
+    (array_set sources 64 4294967296)
+    (print (row "late-source" destinations sources tags))
+    (array_set sources 64 65)
+    (array_set tags 64 4)
+    (print (row "late-tag" destinations sources tags))
+    (array_set tags 64 1)
+    (array_set destinations 64 0)
+    (print (row "late-duplicate" destinations sources tags))
+    # I retain every old raw packet above, including its formerly mistaken tags.
+    let canonical_tag: int = 4
+    for width in (range 1 6) {
+        for rank in (range 0 (factorial width)) {
+            let label: string = (+ "canonical-perm-4-" (+ (int_to_string width) (+ "-" (int_to_string rank))))
+            (print (row label (sequence width 0) (permutation width rank) (repeated width canonical_tag)))
+        }
+    }
+    let endpoints: array<int> = [0,1,4294967295]
+    for left in (range 0 3) {
+        for right in (range 0 3) {
+            let label: string = (+ "canonical-endpoint-4-" (+ (int_to_string left) (+ "-" (int_to_string right))))
+            (print (row label [(at endpoints left)] [(at endpoints right)] [canonical_tag]))
+        }
+    }
+    (print (row "canonical-fanout-4" [0,1,2,3] [3,3,3,3] (repeated 4 canonical_tag)))
+    (print (row "canonical-chain-4" [0,1,2,3] [1,2,3,4] (repeated 4 canonical_tag)))
+    let mut cycle: array<int> = (sequence 256 1)
+    set cycle (array_push cycle 0)
+    (print (row "canonical-wide-4" (sequence 257 0) cycle (repeated 257 canonical_tag)))
+    (print (row "canonical-mixed" [0,1,2,3,4,5] [1,0,3,2,5,4] [1,1,4,4,3,3]))
+    for value_tag in (range -1 257) {
+        (print (row (+ "wire-tag-" (int_to_string value_tag)) [0] [1] [value_tag]))
+    }
+}
+shadow report {
+    assert (copies.emit [0] [1] [4]).valid
+    assert (== (copies.emit [0] [1] [2]).valid false)
+    assert (copies.emit [0,1] [1,0] [3,3]).valid
+    assert (== (copies.emit [0,0] [1,2] [1,1]).valid false)
+}
+
+fn main() -> int {
+    (report)
+    return 0
+}
+shadow main {
+    assert (== (copies.emit [] [] []).count 0)
+}

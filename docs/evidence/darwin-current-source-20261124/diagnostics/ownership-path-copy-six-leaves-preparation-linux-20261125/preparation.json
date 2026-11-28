@@ -1,0 +1,15 @@
+{
+  "terminal": true,
+  "prepared": true,
+  "execution_started": false,
+  "source_created": false,
+  "refusal_exit": 1,
+  "controller_sha256": {
+    "setup.py": "db8dabff20011b2004ec2be25d00ba350ae550417c1a099bb70dbee300176d72",
+    "cohort.py": "73b3349e873f98b59e82b16a52e48e887c132dfb8f20e357df8c5519ae5d3c50",
+    "cohort_journal.py": "4e5a202045b7d4576c7cfa8ed9845cc895e5b2bf4cd2e727e68534a2a34c652d",
+    "admit.py": "b229993b709fe631aca3f9c157e9c2fdf78c6a3c3c31e0018bd7612e8aab00dc"
+  },
+  "source_base": "67d99e5121521428740d385d10071b9679e66013",
+  "whole_release": false
+}

@@ -1,0 +1,285 @@
+module nvm2c_ownership_queries
+module "src_nano/nvm2c/ownership.nano" as owned
+module "src_nano/nvm2c/ownership_wire.nano" as read
+
+# I query complete checked declarations; these facts grant no execution.
+pub struct Context { present: bool, ownership_present: bool, layouts_present: bool, model: owned.Module }
+pub struct Value { tag: int, layout: int }
+pub struct Global { tag: int, mutable: bool, layout: int }
+pub struct Effect { key: int, result: Value, parameters: array<Value> }
+pub struct Variant { layout: int, name: int, offset: int, count: int }
+pub struct Query {
+    status: int, number: int, fields: array<int>, globals: array<Global>, types: array<Value>, signature: Effect, variant: Variant
+}
+struct Constructor { function: int, offset: int, element: int }
+struct UnionRow { ordinal: int, variant: int, value: Variant }
+struct Tables {
+    status: int, version: int, paths: array<array<int>>, globals: array<Global>,
+    types: array<Value>, effects: array<Effect>, constructors: array<Constructor>,
+    variants: array<UnionRow>, effects_present: bool, unions_present: bool
+}
+
+fn context(present: bool, ownership_present: bool, layouts_present: bool) -> Context {
+    return Context { present: present, ownership_present: ownership_present, layouts_present: layouts_present,
+        model: owned.Module { layouts: [0,0,0,0], code: [], strings: [], functions: [], params: [], results: [],
+            records: 0, enums: 0, unions: 0 } }
+}
+shadow context { assert (context true false true).present assert (not (context true false true).ownership_present) }
+
+fn query(status: int, number: int) -> Query {
+    return Query { status: status, number: number, fields: [], globals: [], types: [],
+        signature: Effect { key: 0, result: Value { tag: 0, layout: 0 }, parameters: [] },
+        variant: Variant { layout: 0, name: 0, offset: 0, count: 0 } }
+}
+shadow query { assert (== (query 13 0).status 13) assert (== (array_length (query 13 0).fields) 0) }
+
+fn empty(status: int, version: int) -> Tables {
+    return Tables { status: status, version: version, paths: [], globals: [], types: [], effects: [],
+        constructors: [], variants: [], effects_present: false, unions_present: false }
+}
+shadow empty { assert (== (empty 9 0).status 9) assert (not (empty 0 1).effects_present) }
+
+fn validate(bytes: array<u8>, ctx: Context) -> int {
+    if (not ctx.present) { return 13 }
+    if (== (array_length bytes) 0) {
+        if ctx.ownership_present { return 9 }
+        return 0
+    }
+    if (or (not ctx.ownership_present) (not ctx.layouts_present)) { return 8 }
+    let checked: owned.Declaration = (owned.validate bytes ctx.model)
+    return checked.status
+}
+shadow validate {
+    assert (== (validate [] (context true false true)) 0)
+    assert (== (validate [] (context true true true)) 9)
+    assert (== (validate [0] (context false false false)) 13)
+    assert (== (validate [0] (context true false true)) 8)
+}
+
+fn read_value(c: read.Cursor) -> Value {
+    let tag: int = (read.read_byte c)
+    let ignored: int = (read.skip c 3)
+    let layout: int = (read.read_u32 c)
+    return Value { tag: tag, layout: layout }
+}
+shadow read_value {
+    let value: Value = (read_value (read.open [1,0,0,0,255,255,255,255]))
+    assert (== value.tag 1) assert (== value.layout 4294967295)
+}
+
+fn read_paths(c: read.Cursor) -> array<array<int>> {
+    let count: int = (read.read_u32 c)
+    let mut paths: array<array<int>> = []
+    for index in (range 0 count) {
+        let depth: int = (read.read_u16 c)
+        let reserved: int = (read.read_u16 c)
+        let mut fields: array<int> = []
+        for field in (range 0 depth) { set fields (array_push fields (read.read_u16 c)) }
+        let ignored: int = (read.align c)
+        set paths (array_push paths fields)
+    }
+    return paths
+}
+shadow read_paths {
+    let paths: array<array<int>> = (read_paths (read.open [1,0,0,0,1,0,0,0,7,0,0,0]))
+    assert (== (array_length paths) 1) assert (== (at (at paths 0) 0) 7)
+}
+
+fn tables(bytes: array<u8>, ctx: Context) -> Tables {
+    let status: int = (validate bytes ctx)
+    if (!= status 0) { return (empty status 0) }
+    if (== (array_length bytes) 0) { return (empty 0 0) }
+    let c: read.Cursor = (read.open bytes)
+    let version: int = (read.read_u32 c)
+    let layouts: int = (read.read_u32 c)
+    let flags: int = (read.skip c layouts)
+    let aligned: int = (read.align c)
+    let functions: int = (read.read_u32 c)
+    for index in (range 0 functions) {
+        let locals: int = (read.read_u16 c)
+        let params: int = (read.read_u16 c)
+        let ignored: int = (read.skip c (* (+ locals 1) 8))
+    }
+    let mut paths: array<array<int>> = []
+    if (== version 2) { set paths (read_paths c) }
+    if (== version 3) {
+        let size: int = (read.read_u32 c)
+        let start: int = (read.skip c size)
+        set paths (read_paths (read.open (array_slice bytes start size)))
+    }
+    let mut extensions: read.Extensions = read.Extensions { status: 0, values: [] }
+    if (== version 3) { set extensions (read.extensions c) }
+    let mut globals: array<Global> = []
+    let mut types: array<Value> = []
+    let mut effects: array<Effect> = []
+    let mut constructors: array<Constructor> = []
+    let mut variants: array<UnionRow> = []
+    let mut effects_present: bool = false
+    let mut unions_present: bool = false
+    for e in (range 0 (array_length extensions.values)) {
+        let view: read.Extension = (at extensions.values e)
+        let reader: read.Cursor = (read.open view.data)
+        if (== view.kind 1) {
+            set unions_present true
+            let count: int = (read.read_u32 reader)
+            for ordinal in (range 0 count) {
+                let layout: int = (read.read_u32 reader)
+                let count: int = (read.read_u16 reader)
+                let reserved: int = (read.read_u16 reader)
+                for arm in (range 0 count) {
+                    let name: int = (read.read_u32 reader)
+                    let offset: int = (read.read_u16 reader)
+                    let fields: int = (read.read_u16 reader)
+                    set variants (array_push variants UnionRow { ordinal: ordinal, variant: arm,
+                        value: Variant { layout: layout, name: name, offset: offset, count: fields } })
+                }
+            }
+        } else if (== view.kind 3) {
+            let count: int = (read.read_u32 reader)
+            for index in (range 0 count) {
+                let tag: int = (read.read_byte reader)
+                let mutable: int = (read.read_byte reader)
+                let reserved: int = (read.read_u16 reader)
+                let layout: int = (read.read_u32 reader)
+                set globals (array_push globals Global { tag: tag, mutable: (== mutable 1), layout: layout })
+            }
+        } else if (== view.kind 4) {
+            set effects_present true
+            if (>= view.revision 2) {
+                let count: int = (read.read_u32 reader)
+                for index in (range 0 count) { set types (array_push types (read_value reader)) }
+            }
+            if (== view.revision 3) {
+                let count: int = (read.read_u32 reader)
+                for index in (range 0 count) {
+                    let function: int = (read.read_u32 reader)
+                    let offset: int = (read.read_u32 reader)
+                    let element: int = (read.read_u32 reader)
+                    set constructors (array_push constructors Constructor { function: function, offset: offset, element: element })
+                }
+            }
+            let count: int = (read.read_u32 reader)
+            for index in (range 0 count) {
+                let key: int = (read.read_u32 reader)
+                let params: int = (read.read_u16 reader)
+                let reserved: int = (read.read_u16 reader)
+                let result: Value = (read_value reader)
+                let mut parameters: array<Value> = []
+                for p in (range 0 params) { set parameters (array_push parameters (read_value reader)) }
+                set effects (array_push effects Effect { key: key, result: result, parameters: parameters })
+            }
+        }
+    }
+    return Tables { status: 0, version: version, paths: paths, globals: globals, types: types,
+        effects: effects, constructors: constructors, variants: variants, effects_present: effects_present, unions_present: unions_present }
+}
+shadow tables {
+    assert (== (tables [] (context true false true)).version 0)
+    assert (== (tables [1] (context true true true)).status 1)
+}
+
+fn same_bytes(a: array<u8>, b: array<u8>) -> bool {
+    if (!= (array_length a) (array_length b)) { return false }
+    for index in (range 0 (array_length a)) { if (!= (at a index) (at b index)) { return false } }
+    return true
+}
+shadow same_bytes { assert (same_bytes [0,255] [0,255]) assert (not (same_bytes [0] [])) }
+
+pub fn path(bytes: array<u8>, ctx: Context, index: int, capacity: int, output_present: bool, count_present: bool) -> Query {
+    if (or (not ctx.present) (or (not ctx.ownership_present) (== index 4294967295))) { return (query 13 0) }
+    let t: Tables = (tables bytes ctx)
+    if (!= t.status 0) { return (query t.status 0) }
+    if (and (!= t.version 2) (!= t.version 3)) { return (query 3 0) }
+    if (or (< index 0) (>= index (array_length t.paths))) { return (query 13 0) }
+    let selected: array<int> = (at t.paths index)
+    if (or (not output_present) (or (not count_present) (> (array_length selected) capacity))) { return (query 13 0) }
+    let out: Query = (query 0 (array_length selected))
+    return Query { status: 0, number: out.number, fields: (array_slice selected 0 out.number), globals: out.globals,
+        types: out.types, signature: out.signature, variant: out.variant }
+}
+shadow path {
+    let bytes: array<u8> = [2,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,7,0,0,0]
+    let result: Query = (path bytes (context true true true) 0 1 true true)
+    assert (== result.status 0) assert (== (at result.fields 0) 7)
+    (array_set result.fields 0 9)
+    assert (== (at bytes 20) 7) assert (== (at (path bytes (context true true true) 0 1 true true).fields 0) 7)
+    assert (== (path bytes (context true true true) 0 0 true true).status 13)
+}
+
+pub fn globals(bytes: array<u8>, ctx: Context, capacity: int, output_present: bool, count_present: bool) -> Query {
+    if (or (not ctx.present) (or (not count_present) (and (not output_present) (!= capacity 0)))) { return (query 13 0) }
+    let t: Tables = (tables bytes ctx)
+    if (!= t.status 0) { return (query t.status 0) }
+    let count: int = (array_length t.globals)
+    if (and output_present (< capacity count)) { return (query 13 0) }
+    let out: Query = (query 0 count)
+    if (not output_present) { return out }
+    return Query { status: 0, number: count, fields: out.fields, globals: t.globals, types: out.types, signature: out.signature, variant: out.variant }
+}
+shadow globals {
+    assert (== (globals [] (context true false false) 0 false true).status 0)
+    assert (== (globals [] (context true false false) 1 false true).status 13)
+    assert (== (globals [] (context true false false) 0 true false).status 13)
+}
+
+pub fn signature(bytes: array<u8>, ctx: Context, key: int, output_present: bool) -> Query {
+    if (or (not ctx.present) (or (not output_present) (or (< key 0) (>= key (array_length ctx.model.strings))))) { return (query 13 0) }
+    let t: Tables = (tables bytes ctx)
+    if (!= t.status 0) { return (query t.status 0) }
+    if (not t.effects_present) { return (query 13 0) }
+    for index in (range 0 (array_length t.effects)) {
+        let row: Effect = (at t.effects index)
+        if (same_bytes (at ctx.model.strings key) (at ctx.model.strings row.key)) {
+            let out: Query = (query 0 (array_length row.parameters))
+            return Query { status: 0, number: out.number, fields: out.fields, globals: out.globals,
+                types: out.types, signature: row, variant: out.variant }
+        }
+    }
+    return (query 13 0)
+}
+shadow signature { assert (== (signature [] (context true false true) 0 true).status 13) }
+
+pub fn effect_types(bytes: array<u8>, ctx: Context, output_present: bool) -> Query {
+    if (or (not ctx.present) (not output_present)) { return (query 13 0) }
+    let t: Tables = (tables bytes ctx)
+    if (!= t.status 0) { return (query t.status 0) }
+    if (not t.effects_present) { return (query 13 0) }
+    let out: Query = (query 0 (array_length t.types))
+    return Query { status: 0, number: out.number, fields: out.fields, globals: out.globals,
+        types: t.types, signature: out.signature, variant: out.variant }
+}
+shadow effect_types { assert (== (effect_types [] (context true false true) true).status 13) }
+
+pub fn array_constructor(bytes: array<u8>, ctx: Context, function: int, offset: int, output_present: bool, functions_present: bool) -> Query {
+    if (or (not ctx.present) (or (not output_present) (or (not functions_present)
+        (or (< function 0) (>= function (array_length ctx.model.functions)))))) { return (query 13 0) }
+    if (or (< offset 0) (>= offset (at ctx.model.functions function).length)) { return (query 13 0) }
+    let t: Tables = (tables bytes ctx)
+    if (!= t.status 0) { return (query t.status 0) }
+    if (not t.effects_present) { return (query 13 0) }
+    for index in (range 0 (array_length t.constructors)) {
+        let row: Constructor = (at t.constructors index)
+        if (and (== row.function function) (== row.offset offset)) { return (query 0 row.element) }
+    }
+    return (query 0 4294967295)
+}
+shadow array_constructor { assert (== (array_constructor [] (context true false true) 0 0 true true).status 13) }
+
+pub fn union_variant(bytes: array<u8>, ctx: Context, ordinal: int, variant: int, output_present: bool) -> Query {
+    if (or (not ctx.present) (or (not output_present) (or (not ctx.ownership_present) (not ctx.layouts_present)))) { return (query 13 0) }
+    if (== ordinal 4294967295) { return (query 13 0) }
+    let t: Tables = (tables bytes ctx)
+    if (!= t.status 0) { return (query t.status 0) }
+    if (!= t.version 3) { return (query 3 0) }
+    if (not t.unions_present) { return (query 3 0) }
+    for index in (range 0 (array_length t.variants)) {
+        let row: UnionRow = (at t.variants index)
+        if (and (== row.ordinal ordinal) (== row.variant variant)) {
+            let out: Query = (query 0 row.value.count)
+            return Query { status: 0, number: out.number, fields: out.fields, globals: out.globals,
+                types: out.types, signature: out.signature, variant: row.value }
+        }
+    }
+    return (query 13 0)
+}
+shadow union_variant { assert (== (union_variant [] (context true false true) 0 0 true).status 13) }

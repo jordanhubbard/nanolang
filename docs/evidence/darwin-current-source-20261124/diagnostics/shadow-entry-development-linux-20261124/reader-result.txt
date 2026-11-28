@@ -1,0 +1,1 @@
+PASS integrity: 19886 records; ordinary600 derivation TIMEOUT/no compiler; baseline6 FAIL4; two explicit-main extern refusals; reuse preflight refused before bootstrap. No candidate/current-native/release acceptance.

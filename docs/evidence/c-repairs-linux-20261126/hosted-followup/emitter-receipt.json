@@ -1,0 +1,13 @@
+{
+  "files": {
+    "linux-bootstrap-second.log": "40dc36cdf5901c655a583cc2bf066d180f4f2323ea0f83875b4890adb5787faf",
+    "madmax-emitter-shadow/compile.stderr": "0ed83f6c406f15bfb44edd0ce784321ae0f9c7d862ec7c12182b9451d26df647",
+    "madmax-emitter-shadow/compile.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "madmax-emitter-shadow/emitter": "af1d00d03605c97e93a8567a85b01e503961e55e3e39e034b3d9e47f46fa854d"
+  },
+  "madmax_trace_shadows": 1138,
+  "madmax_trace_shadow_seconds": 5.03853,
+  "hosted_emitter_methods_discovered": 0,
+  "hosted_native_methods_passed": 36,
+  "release_accepted": false
+}

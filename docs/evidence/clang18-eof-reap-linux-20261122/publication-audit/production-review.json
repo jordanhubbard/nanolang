@@ -1,0 +1,11 @@
+{
+  "changed_production_files": [
+    "src/module_builder.c"
+  ],
+  "original_test_files_byte_identical": true,
+  "module_builder_hashes": {
+    "5bb78f2f43": "6a11f68bdddd2c4c3902d88ebbacedd021f2ae1d1f15066f15cae309eca5156c",
+    "3ef446575": "386969772f51564da962bba36b425dcf3cd5d7087d1276571c837e0cc06a1945"
+  },
+  "review": "I find only post-EOF interval=eof?1:25 and its remaining-deadline minimum; deadline/fresh completion clock/output/NUL/size/exit/kill/reap guards remain unchanged."
+}

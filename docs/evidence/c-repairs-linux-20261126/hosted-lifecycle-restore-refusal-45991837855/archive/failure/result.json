@@ -1,0 +1,18 @@
+{
+  "qualification": false,
+  "whole_release": false,
+  "argv": [
+    "/Users/runner/work/nanolang/nanolang/bin/nanoc_c",
+    "tests/selfhost_shadow_emitter.nano",
+    "-o",
+    "/Users/runner/work/nanolang/nanolang/.test_output/shadow-lifecycle/emitter-diagnostic"
+  ],
+  "command_timeout_seconds": 300,
+  "shadow_seconds": 10,
+  "terminal": true,
+  "module_cache_environment": null,
+  "compiler_pid": 7511,
+  "compiler_exit_code": 1,
+  "flush_observed": false,
+  "elapsed_seconds": 1.0174282080000125
+}

@@ -1,0 +1,16 @@
+{
+  "terminal": true,
+  "original": "/var/tmp/nanolang-affine-recovery-five-20261125-d_u2vhbz/cohort.py",
+  "candidate": "/var/tmp/nanolang-affine-typed-five-20261125-udz2o6c_/cohort.py",
+  "original_sha256": "eee3cfbca344ad736255c7f175c4562b4e19135aedf385a886075713f0246c04",
+  "candidate_sha256": "b8ef44d797ae56c475859e64bc16dfcc603f32564c0815ac4189c75b5a8cd40a",
+  "normalized_ast_equal": true,
+  "limits_changed": false,
+  "commands_changed": false,
+  "method_count": 5,
+  "metadata_sites": 4,
+  "late_rows_sealed": true,
+  "live_predecessor_modified": false,
+  "additional_observer_source_guards": 5,
+  "additional_observer_assertions": 2
+}

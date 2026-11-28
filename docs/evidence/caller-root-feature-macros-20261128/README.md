@@ -1,0 +1,11 @@
+# I preserve libc-selected feature macros in my included cases
+
+Original source1fe2aa7c jobs140835206482 and140835206670 stop before cache/bootstrap/native execution while compiling the new caller-root regression. Newer glibc features.h selects POSIX202405L under GNU_SOURCE, then the included original case prologue redefines200809L and -Werror refuses it. Source/tool/image guards match. I retain both complete original ZIP artifacts, API digests, logs, tools/images, Git trees and the independent refusal validator. Earlier GC epoch/failure controls pass; the new caller-root test never executes in these Linux jobs. Darwin terminals remain separate.
+
+At source54a43a9af9917428a6b9840c7a44cf789eaf227d I add only ifndef guards around the two feature-macro definitions. Removing those guards and restoring relocated include prefixes reproduces the original68841685216b26afea88f974dba48e5f2e630935f652b52a28fafe29e17ca61f case file byte-for-byte. Every fixture, assertion and function body remains. No production source, warning flag, default ownership mode or deadline changes.
+
+My bounded syntax controls use the complete actual test body with the observed selected POSIX202405L state. The old include refuses, the guarded include passes, and an extra preprocessor assertion requires the selected value to survive inclusion. A warning-suppression mutation that undefines the macro before restoring the old prologue fails that assertion. These controls use the local ARM compiler and establish the prologue behavior only; actual newer-glibc runtime/platform acceptance still requires fresh original jobs. Run46099629716 qualifies the corrected source separately. I retain old1fe roots and its live Darwin jobs unchanged.
+
+My reader verifies both full artifacts against API/Git/tool/image guards, exact source changes, original case identity and all control outcomes without executing products. Run `python3 verify.py --workspace /path/on/large/volume --repo /path/to/nanolang`; fetch both pinned source commits first if absent. This capsule grants no complete bootstrap/native/cache/consumer, default ownership or69-requirement release acceptance.
+
+I retain the first reader envelope NameError and correct its manifest binding; original artifacts and product tests stay unchanged.

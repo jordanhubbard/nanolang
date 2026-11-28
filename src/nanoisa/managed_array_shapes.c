@@ -109,9 +109,11 @@ void nvm_record_eligibility_free(NvmRecordEligibilityReport *report) {
 void nvm_array_eligibility_free(NvmArrayEligibilityReport *report) { free(report); }
 void nvm_array_graph_eligibility_free(NvmArrayGraphEligibilityReport *report) { free(report); }
 static Value tag(uint8_t t) { Value v = {.tags=BIT(t)}; return v; }
-static int merge(Value *to, Value from) {
+/* I read stable source facts through a const pointer instead of copying an
+ * aggregate through every join. I retain the same monotone field updates. */
+static int merge(Value *to, const Value *from) {
     Value old = *to;
-    to->tags |= from.tags; to->origins |= from.origins; to->unknown |= from.unknown;
+    to->tags |= from->tags; to->origins |= from->origins; to->unknown |= from->unknown;
     return old.tags != to->tags || old.origins != to->origins || old.unknown != to->unknown;
 }
 static int stop(Analysis *a, NvmArrayEligibilityStatus status, uint32_t f, uint32_t pc, const char *message) {
@@ -130,12 +132,12 @@ static int verified(Analysis *a, NvmVerifyResult result) {
                 NVM_ARRAY_MEMORY : NVM_ARRAY_INVALID, 0, 0, result.error_msg);
 }
 static Value global_plain(Value value) { value.relation=0;value.relation_tag=0;return value; }
-static int global_merge(Value *to,Value from) {
+static int global_merge(Value *to,const Value *from) {
     Value old=*to;
     if(!to->tags && !to->origins && !to->unknown) {
-        to->relation=from.relation;to->relation_tag=from.relation_tag;
-    } else if((from.tags || from.origins || from.unknown) &&
-              (to->relation!=from.relation || to->relation_tag!=from.relation_tag)) {
+        to->relation=from->relation;to->relation_tag=from->relation_tag;
+    } else if((from->tags || from->origins || from->unknown) &&
+              (to->relation!=from->relation || to->relation_tag!=from->relation_tag)) {
         to->relation=0;to->relation_tag=0;
     }
     return merge(to,from) || old.relation!=to->relation || old.relation_tag!=to->relation_tag;
@@ -270,7 +272,7 @@ static int global_return(Analysis *a,uint32_t fi,Value *state) {
     if(!a->global_flow->returned[fi]){a->global_flow->returned[fi]=1;a->changed=1;}
     Value *values=global_values(&a->functions[fi],state);
     for(uint32_t slot=0;slot<a->global_count;slot++)
-        a->changed|=merge(&a->global_flow->exits[(size_t)fi*a->global_count+slot],values[slot]);
+        a->changed|=merge(&a->global_flow->exits[(size_t)fi*a->global_count+slot],&values[slot]);
     return 1;
 }
 /* Only a current exact global snapshot can justify a conditional refinement.
@@ -316,9 +318,9 @@ static int join(Analysis *a, uint32_t fi, uint32_t pc, Value *state, uint16_t de
     f->seen[pc] = 1; f->depths[pc] = depth;
     Value *target = f->states + (size_t)pc * f->stride;
     for (uint32_t i=0;i<(uint32_t)f->locals+depth;i++)
-        changed |= a->global_flow?global_merge(&target[i],state[i]):merge(&target[i],state[i]);
+        changed |= a->global_flow?global_merge(&target[i],&state[i]):merge(&target[i],&state[i]);
     if(a->global_flow)for(uint32_t slot=0;slot<a->global_count;slot++)
-        changed|=global_merge(&global_values(f,target)[slot],global_values(f,state)[slot]);
+        changed|=global_merge(&global_values(f,target)[slot],&global_values(f,state)[slot]);
     if (changed) { a->changed = 1; enqueue(f,pc); }
     return 1;
 }
@@ -386,7 +388,7 @@ static Value read_array(Analysis *a,Value receiver) {
     for(uint32_t i=0;i<a->report.origin_count;i++) if((receiver.origins&(UINT64_C(1)<<i)) && a->origin_kind[i]==NVM_HEAP_ORIGIN_ARRAY) {
         NvmArrayOrigin *o=&a->report.origins[i];
         result.tags |= o->packed?BIT(o->declared_tag):o->child_tags;
-        if(a->graph && !o->packed)merge(&result,a->children[i]);
+        if(a->graph && !o->packed)merge(&result,&a->children[i]);
     }
     return result;
 }
@@ -394,11 +396,11 @@ static void write_array(Analysis *a,Value receiver,Value value) {
     if(!analysis_work(a,ORIGINS*4u))return;
     for(uint32_t i=0;i<a->report.origin_count;i++) if((receiver.origins&(UINT64_C(1)<<i)) && a->origin_kind[i]==NVM_HEAP_ORIGIN_ARRAY) {
         NvmArrayOrigin *o=&a->report.origins[i];
-        if(a->structure)a->changed|=merge(&a->all_writes[i],value);
+        if(a->structure)a->changed|=merge(&a->all_writes[i],&value);
         if(!o->packed) {
             uint16_t old=o->child_tags;o->child_tags|=value.tags;
             a->changed |= old!=o->child_tags;
-            if(a->graph)a->changed |= merge(&a->children[i],value);
+            if(a->graph)a->changed |= merge(&a->children[i],&value);
         }
     }
 }
@@ -429,7 +431,7 @@ static int slice_origins(Analysis *a,uint32_t fi,uint32_t pc,Value receiver,Valu
         NvmArrayOrigin *o=&a->report.origins[target];
         uint16_t old=o->child_tags;o->child_tags|=source.child_tags;
         a->changed|=old!=o->child_tags;
-        if(a->graph && !o->packed)a->changed|=merge(&a->children[target],a->children[i]);
+        if(a->graph && !o->packed)a->changed|=merge(&a->children[target],&a->children[i]);
         result->origins|=UINT64_C(1)<<target;
     }
     return 1;
@@ -509,7 +511,7 @@ static void write_record(Analysis *a,Value receiver,uint16_t field,Value value) 
     uint64_t origins=origins_of_kind(a,receiver,NVM_HEAP_ORIGIN_RECORD);
     for(uint32_t i=0;i<a->report.origin_count;i++)if(origins&(UINT64_C(1)<<i)) {
         /* Unsupported bounds are diagnosed after convergence, never indexed. */
-        if(field<a->record_fields[i])a->changed|=merge(&a->fields[a->field_start[i]+field],value);
+        if(field<a->record_fields[i])a->changed|=merge(&a->fields[a->field_start[i]+field],&value);
     }
 }
 static Value read_record(Analysis *a,Value receiver,uint16_t field) {
@@ -518,7 +520,7 @@ static Value read_record(Analysis *a,Value receiver,uint16_t field) {
     uint64_t origins=origins_of_kind(a,receiver,NVM_HEAP_ORIGIN_RECORD);
     result.unknown=receiver.unknown || ((receiver.tags&BIT(TAG_STRUCT)) && !origins);
     for(uint32_t i=0;i<a->report.origin_count;i++)if(origins&(UINT64_C(1)<<i))
-        if(field<a->record_fields[i])merge(&result,a->fields[a->field_start[i]+field]);
+        if(field<a->record_fields[i])merge(&result,&a->fields[a->field_start[i]+field]);
     return result;
 }
 static uint16_t record_field_element(const Analysis *a,uint32_t field) {
@@ -630,7 +632,7 @@ static int walk_context(Analysis *a,uint32_t fi,NvmRecordMapAnalysisContext *map
         if(index==f->decoded.instruction_count) {
             if(a->structure && depth!=entry->result_count)
                 return stop(a,NVM_ARRAY_INVALID,fi,entry->code_length,"I require the declared result depth at an implicit return.");
-            if(entry->result_count)a->changed|=merge(&f->result,stack[depth-1]);
+            if(entry->result_count)a->changed|=merge(&f->result,&stack[depth-1]);
             if(!global_return(a,fi,state))return 0;
             continue;
         }
@@ -646,7 +648,7 @@ static int walk_context(Analysis *a,uint32_t fi,NvmRecordMapAnalysisContext *map
         if(op==OP_RET) {
             if(a->structure && depth!=entry->result_count)
                 return stop(a,NVM_ARRAY_INVALID,fi,d->byte_offset,"I require the declared result depth at an explicit return.");
-            if(entry->result_count)a->changed|=merge(&f->result,stack[depth-1]);
+            if(entry->result_count)a->changed|=merge(&f->result,&stack[depth-1]);
             if(!global_return(a,fi,state))return 0;
             continue;
         }
@@ -664,7 +666,7 @@ static int walk_context(Analysis *a,uint32_t fi,NvmRecordMapAnalysisContext *map
                 if(pops && (stack[base].unknown || !stack[base].tags))continue;
                 if(pops && !uf_value(a,stack[base],TAG_INT,fi,d->byte_offset))return 0;
                 result=tag(TAG_UNION);result.origins=UINT64_C(1)<<origin;
-                if(pops)a->changed|=merge(&unions->payloads[origin],stack[base]);
+                if(pops)a->changed|=merge(&unions->payloads[origin],&stack[base]);
                 goto transferred;
             }
             if(op==OP_AGG_TAG) {
@@ -692,7 +694,7 @@ static int walk_context(Analysis *a,uint32_t fi,NvmRecordMapAnalysisContext *map
             break;
         case OP_STORE_GLOBAL: {
             uint32_t slot=in->operands[0].u32;Value value=stack[base];
-            a->changed|=merge(&a->globals[slot],value);
+            a->changed|=merge(&a->globals[slot],&value);
             if(a->global_flow) {
                 if(!global_invalidates(a,f,state,slot))return 0;
                 global_values(f,state)[slot]=global_plain(value);
@@ -717,8 +719,8 @@ static int walk_context(Analysis *a,uint32_t fi,NvmRecordMapAnalysisContext *map
             if(!analysis_work(a,ORIGINS*2u))return 0;
             for(uint32_t i=0;i<a->report.origin_count;i++)if((stack[base].origins&(UINT64_C(1)<<i)) &&
                 a->origin_kind[i]==NVM_RECORD_MAP_ORIGIN) {
-                a->changed|=merge(&maps->keys[i],stack[base+1]);
-                a->changed|=merge(&maps->values[i],stack[base+2]);
+                a->changed|=merge(&maps->keys[i],&stack[base+1]);
+                a->changed|=merge(&maps->values[i],&stack[base+2]);
             }
             result=stack[base];break;
         case OP_HM_DELETE:
@@ -771,7 +773,7 @@ static int walk_context(Analysis *a,uint32_t fi,NvmRecordMapAnalysisContext *map
             }
             result=a->functions[callee].result;
             if(op==OP_TAIL_CALL) {
-                if(entry->result_count)a->changed|=merge(&f->result,result);
+                if(entry->result_count)a->changed|=merge(&f->result,&result);
                 if(!global_return(a,fi,state))return 0;
                 goto next_instruction;
             }

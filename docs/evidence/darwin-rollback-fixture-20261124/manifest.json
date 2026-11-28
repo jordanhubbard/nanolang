@@ -1,0 +1,38 @@
+{
+  "fixture-darwin.tar.gz": {
+    "bytes": 5643,
+    "sha256": "a195bba8f1bc24dcc2e9d10b47c0c8a187f320571c223bc0be78af4f68b922b6"
+  },
+  "terminal.tar.gz": {
+    "bytes": 590285,
+    "sha256": "2d990a062bd79fb93d8c448c9ff49bfe74645d099032daec5e42deaddc0b200f"
+  },
+  "fixture-darwin-result.json": {
+    "bytes": 7368,
+    "sha256": "d4a448a9d593c244b1b940cd76c6f6f9fdabc1e2847ab2facddde9eadcaa8c52"
+  },
+  "retain-terminal.py": {
+    "bytes": 1124,
+    "sha256": "b50aef64ef20d744718f17c8f98b4345b5dedf8505edac84fdcb52226d3e10a5"
+  },
+  "fixture-linux.py": {
+    "bytes": 1529,
+    "sha256": "bfa829e42e28e8d95f27788f2598090f844876215b340945bee6a224af957d4f"
+  },
+  "fixture-darwin.py": {
+    "bytes": 16077,
+    "sha256": "f803bd3971651bfb3b8894c96f503d24fb69059d2fc0a848b83eed50fc8f60b5"
+  },
+  "fixture-linux-result.json": {
+    "bytes": 15986,
+    "sha256": "ce85cc9f5b2563f2d0cabc6291448be3abde9b7bd36ef39b280cf1993da13953"
+  },
+  "status-terminal.json": {
+    "bytes": 3964,
+    "sha256": "b071d3b0826f84265ea4627728c654d97d8038ef5ea7aa97ada3c1b061ea3860"
+  },
+  "fixture-linux.tar.gz": {
+    "bytes": 1636,
+    "sha256": "c94be00f5167351195890d5fd7d699c8da94447ccd92a30c284b3291cedcb7a1"
+  }
+}

@@ -1,0 +1,1 @@
+PASS integrity: 6973 records; original cold bootstrap0/all17/raw1058396 equality/install/no-C-seed and native36 PASS; original emitter Make2/setup300s timeout/0 of12 methods. Native acceptance FALSE; no paired, pure-translator, whole-sanitizer or release claim.

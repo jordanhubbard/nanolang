@@ -1,5 +1,230 @@
 # My 5.1 requirement inventory — 2026-10-11
 
+## Current execution and readiness — 2026-11-26
+
+I retain all69 headline entries in [my scope contract](RELEASE_5.1_SCOPE.md).
+The dated inventories below remain historical observations. I do not infer
+completion from their counts or from a private component checkpoint.
+
+My [current GitHub scope inventory](evidence/release-readiness-20261126/README.md)
+captures134 open issues and22 open PRs at integration source
+`4a1d4e24eeeb134addfc362411ef3bec844e743e`. I classify132 issues and all22 PRs
+as release-scoped after reviewing body text and release links. I preserve
+#1089's explicit legacy AST-to-C non-gate and #1195's separate fleet migration.
+The original69-entry contract and every optional/deferred decision are unchanged.
+No APPROVED review record is present across the22 PRs. Eighteen heads, including
+the integration head itself, are ancestors of integration; none is an ancestor
+of observed main. I close or merge no item from that ancestry. Readiness fails.
+
+My [published exact04cee Linux compiler receipt](evidence/darwin-current-source-20261124/diagnostics/typechecker-vector-prefix-cold-bootstrap-linux-20261126/README.md)
+now records the original17-step bootstrap, byte-identical1064460-byte raw
+Stage1/Stage2 modules, both native hellos, installation and no-C-seed execution.
+The original native36 and emitter12 suites pass with their original limits.
+[#1255](https://github.com/jordanhubbard/nanolang/issues/1255) is closed for that
+Linux acceptance. The earlier cbb/16b/3021 failures below remain retained;
+these later results do not turn them into passes or establish the final paired
+release candidate.
+
+My private pure translator now includes the graph/directed solver, bounded
+constant reachability and shared effect-arm collector, each with its published
+Linux dependency receipt. My [whole callable collector/linker draft](NANOLANG_CALLABLE_CONSTRAINTS.md)
+has989 matching diagnostic packets on C-seed native and both producer VM routes,
+plus505 original C assertions and26 captured original module inputs. That
+initial full native gate failed under
+[#1262](https://github.com/jordanhubbard/nanolang/issues/1262). I retain that
+failure. The owner has since handed me both C repairs and their regressions.
+My subsequent product6 callable and solver component gates pass through all
+five producer/execution routes; the final combined candidate still requires
+its fresh complete consumer gates and all release acceptance below.
+
+I still require complete callable/native acceptance, representation and body/
+runtime emission, module/profile/ownership composition, the original private/
+public consumers, paired Linux/Darwin products and installed pure-translator
+cutover. The current C-reference bootstrap remains a development prerequisite
+for that architecture. Full exact-candidate CI, LITAI-001 acceptance, source/
+service/ownership/reconstruction requirements, release prose, tag and publication
+remain open under [#976](https://github.com/jordanhubbard/nanolang/issues/976).
+
+My restored approved Puck connection now has a
+[published fresh Darwin factory failure](evidence/darwin-current-source-20261124/diagnostics/darwin-stage1-generation-timeout-20261126/README.md)
+at source d907f264d1. Cold tools pass214.086792s, but original Stage1 VM generation
+times out at1800.018317s; Make bootstrap3 exits2 after1951.020760s. Only seed and
+seed verification complete. No Darwin Stage1/Stage2 native product, raw equality,
+installed/no-C-seed or native36/emitter12 acceptance follows. Full guards and
+cleanup pass. I track bounded localization and repair under
+[#1265](https://github.com/jordanhubbard/nanolang/issues/1265), preserve the failed
+root and all original budgets, and make no unchanged full retry or historical
+#1247/infrastructure-cause claim. The subsequent explicit handoff authorizes
+my C repairs; frozen inputs, fleet restrictions and all acceptance remain in force.
+
+My subsequent [bounded phase diagnostic](evidence/darwin-current-source-20261124/diagnostics/darwin-stage1-phase-diagnostic-20261126/README.md)
+records imports37.433/lex47.444/parse61.992/typecheck69.447→294.712/program-lowering
+294.828s before its300s cutoff. Typechecking completes; lowering has no terminal
+outcome. Source/tool/host/frozen-input guards and cleanup pass. This localizes
+phase boundaries without establishing the original timeout cause or qualifying
+any compiler. My [subsequent reversible lowering probe](evidence/darwin-current-source-20261124/diagnostics/darwin-lowering-window-diagnostic-20261126/README.md)
+reaches index/global setup by4.489s and queue indices0/32/64 at4.598/21.551/115.356s
+within its requested120s lowering window. It records no whole lowering return;
+the observer stops the VM. Source reversal, all guards and cleanup pass, but
+probe timings do not establish the original timeout cause or a repair. I retain
+the per-function localization and every original acceptance gate under #1265.
+
+
+My [finer Darwin observation stopped under fleet policy](evidence/darwin-current-source-20261124/diagnostics/darwin-lowering-detail-policy-stop-20261126/README.md)
+retains the explicit owned-process SIGTERM at2026-11-26T21:06:44Z. The VM exits-15
+after251.386299s during typechecking, before lowering. Its controller records
+diagnostic_valid=false; source/tool/host/frozen-input guards and cleanup pass.
+The reader checks40 new records and the complete parent chain. I start no
+replacement unattended Puck loop. Under the updated fleet policy, sustained
+measurement and builds belong on sparky or madmax; Puck remains in the fleet
+on light duty. I preserve its originals and all original Darwin acceptance.
+
+
+My [subsequent Linux finer-lowering observation](evidence/darwin-current-source-20261124/diagnostics/linux-lowering-detail-diagnostic-20261126/README.md)
+on sparky reaches program-lowering-done112.060742s after lowering begins. Entry41→42
+(`publish_service_source`) takes25.898833s and49→50 (`assemble_text_save`) takes
+6.537230s. The33-record reader re-verifies4683 Git blobs and the7088-record Linux
+prerequisite; all guards and cleanup pass. I stop the VM at that return marker,
+before complete compiler acceptance. These intervals include observer/loop costs;
+helper attribution, a demonstrated repair and original Darwin acceptance remain
+open. I change no production source, C ownership, original assertion or deadline.
+
+
+My [Linux helper and artifact-boundary observations](evidence/darwin-current-source-20261124/diagnostics/linux-lowering-helper-diagnostic-20261126/README.md)
+place the two intervals inside body emission25.373321s/6.365149s. An unchanged
+module-artifact witness reproduces25.427272/25.503232s for first/repeated
+file_product lookup and6.839779/6.692734s for nanoisa, returning the pinned prefix
+library paths/bytes. I preserve all observer failures, including a raw watcher
+cleanup failure reconciled by an exact-identity post-terminal audit. Built-in
+tracing passes with3 cache reuses/1 miss and163ms across ten timed tool queries.
+My151-record readers verify4683 source blobs per case plus33/7088 parent records.
+Further retained-input profiling, C-owner coordination and a demonstrated repair
+remain; no original Darwin timeout cause or compiler/release acceptance follows.
+
+
+My [retained-input compiler profile](evidence/darwin-current-source-20261124/diagnostics/retained-compiler-profile-linux-20261126/README.md)
+records4486 events for2243 real compiler invocations. Each file_product cache hit
+invokes cc331 times, including85 assembly emissions taking21.422708/21.178067s.
+All four positive lookups reuse their pinned prefix paths/bytes. The66-record
+reader replays all spans and source mappings, checks4683 Git blobs and the151-record
+parent chain, and verifies four observer/direct-compiler controls. The wrapper
+changes compiler identity and adds overhead; I do not equate its full lookup
+timings with production timings. All guards and cleanup pass. A reviewed C-owner
+repair or handoff, the original Darwin failure, #1262 and full69 acceptance remain
+open; no production source or qualification deadline changes.
+
+
+## My C repair ownership — 2026-11-26
+
+I own #1262 and #1265 under the explicit handoff, including their regressions.
+This supersedes the earlier C-owner waiting boundaries in my retained history.
+I keep all69 requirements and every original qualification deadline.
+
+I repair unknown array-valued writes, numeric/tagged join destination storage,
+checked shared-record array views and present slice results. My permanent
+controls cover80 positive array writes,28 numeric join paths,16 static refusals,
+250 expected runtime traps and40 raw/sliced record return cases. I retain the
+fresh consumer failures that exposed slice representation and the callback
+countercase that requires checked tagged storage. My guarded final candidate passes the eleven original private/public/cache,
+solver and callable methods. Three companion methods pass separately after a
+text-stream observer correction; the original enclosing observer remains failed.
+My expanded array controls add60 nonempty content cases and36 prior-output
+refusals. I publish the exact component archive and independent reader in
+[my repair evidence](evidence/c-repairs-linux-20261126/README.md).
+
+I keep every compiler invocation in cache validation and run independent
+retained C-to-assembly jobs with at most eight workers. My real-process controls
+cover overlap, limits, tail batches, shared/non-C inputs, failure draining,
+spawn failures, signals, EINTR and an unrelated child. The complete original
+bytecode-shadow/cache/source-snapshot/link target passes284 reported tests
+with34 existing platform skips. My same-input assembly comparison preserves
+all output bytes:81 file-product units take17.367427s serial/7.606510s parallel;
+42 NanoISA units take2.618612s/0.816396s. Wrapper/direct-module measurements do
+not establish an original Darwin VM-bootstrap improvement.
+
+My broad native target reports2456 structured-C passes and two failing old
+CAST_STRING refusal assertions. Those conflict with the integrated #1193
+VM-compatible empty-text contract and its newer regression suite. I retain the
+failed gate and a test-only reconciliation proposal; I do not call it green.
+
+I still require broad native acceptance, fresh original bootstrap/raw
+equality/installed/no-C-seed/native36/emitter12 acceptance, paired Darwin
+qualification, the installed pure translator and exact-candidate CI. I publish
+no tag or release from these repairs alone.
+
+At `5d0d1dcaa4` my hosted Linux and Darwin workers both pass all17 original
+bootstrap steps, raw equality, installation and no-C-seed execution. Linux
+also passes native36 and the complete original284-test cache target with34
+existing skips, worker3 and array5. The native gates remain failed: Linux
+Stage2 exceeds the original300s emitter-setup command, while Darwin native36
+has one extra duplicate-math-library warning in its exact stderr check.
+
+My followup candidate reduces legacy record copying by sharing mutually
+exclusive pointer arms while retaining separate scalar bits. A reversible
+compiler-image experiment passes all12 original emitter methods in234.859s;
+its emitted628200-byte module is exactly equal to the retained original once
+Make's original cache directory is restored. I preserve the first comparison's
+three differing host paths. The proposed generator passes all broad prerequisites,
+2456 structured-C assertions and a new sanitized mixed-pointer/scalar-bit control;
+the same two frozen CAST_STRING assertions still fail. I also omit only my
+generated Darwin math flag, preserving caller flags and all original shadows.
+Current-source native/bootstrap/paired qualification and the full release remain
+open; these experimental and preflight results do not replace them.
+
+
+## Current scope reconciliation — 2026-11-24
+
+I retain **69 headline entries** in [my release contract](RELEASE_5.1_SCOPE.md):
+the original 67 entries, LITAI-001 and NANOISA-NANOLANG-C-001. My original
+67-row inventory and dated observations below remain historical evidence.
+Their counts do not omit either later requirement from the current release.
+Existing optional and deferred classifications remain unchanged; a headline
+count is not a count of completed requirements.
+
+| Additional entry | Acceptance still required |
+| --- | --- |
+| LITAI-001, [#1039](https://github.com/jordanhubbard/nanolang/issues/1039) | I adopt real native unit authority, locks, lifecycle parity and current independent receipts under my [ordered adoption contract](literate-ai/ADOPTION.md). Metadata or wrappers alone do not complete adoption. |
+| NANOISA-NANOLANG-C-001, [#1142](https://github.com/jordanhubbard/nanolang/issues/1142) | I decode, admit, analyze and emit C in NanoLang, translate the complete required corpus and compiler products, and pass paired Linux/Darwin raw-equality and installed-product gates. An FFI call to my C translator does not implement this requirement. |
+
+I retain my [pure translator implementation boundary](NANOLANG_NANOISA_C_TRANSLATOR.md)
+and every unfinished payload, verifier, ownership, analysis, emitter, service,
+driver, bootstrap and platform requirement. The C-reference translator remains
+a development oracle and bootstrap tool. Its successful bootstrap does not
+establish the required NanoLang translator or authorize its product cutover.
+
+My [exact-cbb Linux checkpoint](evidence/darwin-current-source-20261124/diagnostics/core-supervisor-bootstrap-linux-20261124/README.md)
+records all 17 original Make bootstrap steps, byte-identical raw Stage1/Stage2,
+both native hellos and installed/no-C-seed execution. The same root's original
+native-shadow gate fails five of eighteen methods; its emitter companion does
+not run. My [independent localization](evidence/darwin-current-source-20261124/diagnostics/native-shadow-localization-linux-20261124/README.md)
+records four pre-execution no-main refusals and a missing C-only notice.
+These are recorded results at `cbbfdcb70c`, not final-candidate acceptance.
+
+I track the entry/notice and declared foreign-helper contracts under
+[#1253](https://github.com/jordanhubbard/nanolang/issues/1253). My
+[unsuccessful ordinary development derivation](evidence/darwin-current-source-20261124/diagnostics/shadow-entry-development-linux-20261124/README.md)
+retains its original600/default10 timeout, no compiler product and the separate
+retained-image setup refusal. I admit no repair from those observations.
+My [separate cold source16b checkpoint](evidence/darwin-current-source-20261124/diagnostics/shadow-entry-cold-bootstrap-linux-20261124/README.md)
+passes all17 original bootstrap steps in1951.352s, raw1049944-byte equality,
+both native hellos and installed/no-C-seed execution. Original native24 then
+FAILS two foreign controls; all six new entry/initialization/notice methods pass.
+Its emitter12 companion does not run. A separate old-pin exact artifact API
+observation passes its native marker/refusal/alarm/early-exit controls, while
+all five C-reference unknown-artifact translations still refuse and preserve
+prior output. My reader verifies6543 records. Full native acceptance remains
+open; shared-library derivatives do not establish arbitrary CFLAGS equivalence
+or generic C admission.
+
+The [original sanitizer directory-cache failure](evidence/darwin-current-source-20261124/diagnostics/core-supervisor-owned-names-linux-20261124/README.md)
+remains open under [#1252](https://github.com/jordanhubbard/nanolang/issues/1252).
+I retain the full ordinary-source, complete sanitizer, current-source paired,
+installed closure, corpus, integration/CI and publication obligations. I keep
+[#976](https://github.com/jordanhubbard/nanolang/issues/976) open until the
+complete contract and exact release-candidate gates pass; this reconciliation
+changes no requirement's acceptance state.
+
+
 ## Additional required 5.1 scope, 2026-10-28
 
 **Required (LITAI-001):** I adopt Literate AI under [#1039](https://github.com/jordanhubbard/nanolang/issues/1039)
@@ -289,3 +514,25 @@ By owner decision, rows 10663 and 10664 (portable read-text) are optional for 5.
 
 - **Regex host symbols.** By owner decision I added the nine `nl_regex_*` C-backed externs to the declared host ABI in `src_nano/compiler/nanoisa_codegen.nano` (opaque `Regex` handle, `array<int>`/`array<string>`/`string`/`int`/`void` results, module-path import `./std/regex/regex.nano`, as the seed emits). `tests/test_split2.nano` and `tests/test_std_regex_groups_uaf.nano` now compile on the self-hosted compiler and run on NanoVM. `tests/test_selfhost_regex_host_abi.py` gates both and runs in `test-quick`. Not verified on hosted Linux yet, and the C AOT (`nvm2c`) path for these imports is not tested.
 - **Bootstrap scope.** By owner decision, 5.1 does not require an instrumented full bootstrap; the sanitizer Stage 1 job stays non-required.
+
+## My current Linux native component — 2026-11-27
+
+At6e09c07a9f I pass the original bootstrap17/native36/emitter12 sequence with
+matching source/tool/head/index/six-host guards. The raw modules are identical
+1064904 bytes, SHA8920ee0546671f9fa13ea98f7aaf5030b235d6d7349b277cdb875b4a5aa46833.
+The installed image and original no-C-seed probe pass. All12 emitter methods
+complete256.998s with the original300s setup commands. I retain and independently
+verify [my current Linux component receipt](evidence/c-repairs-linux-20261126/native-current-linux-20261127/README.md).
+The hosted Linux cache284/34 existing skips, workers3 and combined array/pointer6
+also pass on that code revision. Current Darwin, broad CAST_STRING reconciliation,
+required exact-candidate CI, pure-translator cutover and all69 release requirements
+remain open. This component result accepts no complete release.
+
+
+My [current hosted Linux original-gate receipt](evidence/c-repairs-linux-20261126/hosted-current-linux-45970514720/README.md) independently verifies source6e09c07a9f: all17 bootstrap steps, raw1064512-byte equality, actual generated index, five compiler products, six host libraries, installed/no-C-seed, native36 and emitter12. Both exact GitHub artifact digests and source/tool/image guards match. The complete cache284/34 existing skips, workers3 and array/pointer6 pass. This adds hosted Linux component evidence; current Darwin, the active current-producer affine/solver/callable rerun, frozen CAST_STRING decision, exact-candidate required CI, pure-translator cutover and all69 release requirements remain open.
+
+
+My [current Darwin checkpoint](evidence/c-repairs-linux-20261126/darwin-current-native-failure-45970514720/README.md) passes original bootstrap17/native36 at6e09c07a9f with complete source/tool/image/generated-index/six-host/product guards. Emitter setup fails in nanoc_c at ordinary10 with zero discovered methods. The bounded trace completes1139 shadows/zero assertion failures and flushes9.719997s, but the parent observes clean exit10.007673s and rejects the deadline; actual exit time and exclusive tail cause remain unknown. I preserve that failure and require bounded lifecycle evidence before selecting a repair. Current Darwin cache, current-producer Linux components, frozen CAST_STRING reconciliation, exact-candidate required CI, pure-translator cutover and all69 release requirements remain open.
+
+
+My [current-qualified-Stage2 Linux component receipt](evidence/c-repairs-linux-20261126/current-components-20261127/README.md) verifies all eleven original private/public/cache/solver/callable core methods plus three separately passing cast companions,44838 complete oracle-replayed affine reports,3925 Git source files and all selected producer/source/tool/image/host/inter-run guards. I preserve the original fourteen-method29-error missing-assembler setup failure and exact prerequisite correction; I claim no whole-observer green result. Current Darwin cache, failed emitter12/lifecycle diagnosis, frozen structured-C CAST_STRING reconciliation, complete pure-translator composition/cutover, exact-candidate required CI and all69 release requirements remain open.
