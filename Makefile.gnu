@@ -8570,3 +8570,19 @@ test-eval-string-split: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	$(OBJ_DIR)/test_eval_string_split
 
 test-units: test-eval-string-split
+
+.PHONY: test-gc-registry-working-set
+test-gc-registry-working-set: | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -UNDEBUG tests/test_gc_registry_working_set.c src/runtime/dyn_array.c src/runtime/gc_struct.c -o $(OBJ_DIR)/test_gc_registry_working_set $(LDFLAGS)
+	$(OBJ_DIR)/test_gc_registry_working_set
+	$(CC) $(CFLAGS) -UNDEBUG tests/test_gc_registry_growth_failure.c src/runtime/dyn_array.c src/runtime/gc_struct.c -o $(OBJ_DIR)/test_gc_registry_growth_failure $(LDFLAGS)
+	$(OBJ_DIR)/test_gc_registry_growth_failure
+
+.PHONY: test-gc-registry-working-set-sanitizers
+test-gc-registry-working-set-sanitizers: | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -UNDEBUG -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer tests/test_gc_registry_working_set.c src/runtime/dyn_array.c src/runtime/gc_struct.c -o $(OBJ_DIR)/test_gc_registry_working_set_sanitized $(LDFLAGS)
+	ASAN_OPTIONS=detect_leaks=$(if $(filter Darwin,$(UNAME_S)),0,1) $(OBJ_DIR)/test_gc_registry_working_set_sanitized
+	$(CC) $(CFLAGS) -UNDEBUG -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer tests/test_gc_registry_growth_failure.c src/runtime/dyn_array.c src/runtime/gc_struct.c -o $(OBJ_DIR)/test_gc_registry_growth_failure_sanitized $(LDFLAGS)
+	ASAN_OPTIONS=detect_leaks=$(if $(filter Darwin,$(UNAME_S)),0,1) $(OBJ_DIR)/test_gc_registry_growth_failure_sanitized
+
+test-units: test-gc-registry-working-set test-gc-registry-working-set-sanitizers

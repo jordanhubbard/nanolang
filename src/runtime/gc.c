@@ -20,7 +20,7 @@
  * ============================================================================ */
 
 #define GC_HASH_SIZE 1048576  /* Power of 2 for fast modulo - large for bootstrap */
-#define GC_HASH_MASK (GC_HASH_SIZE - 1)
+#define GC_HASH_INITIAL_SIZE 32
 
 /* Hash bucket entry */
 typedef struct GCHashEntry {
@@ -29,20 +29,21 @@ typedef struct GCHashEntry {
 } GCHashEntry;
 
 /* Hash function for pointers (FNV-1a inspired) */
-static inline size_t gc_hash_ptr(void* ptr) {
+static inline size_t gc_hash_value(void* ptr) {
     size_t h = (size_t)ptr;
     h ^= h >> 16;
     h *= 0x85ebca6b;
     h ^= h >> 13;
     h *= 0xc2b2ae35;
     h ^= h >> 16;
-    return h & GC_HASH_MASK;
+    return h;
 }
 
 /* GC State */
 static struct {
     GCHeader* all_objects;      /* Doubly-linked list of all allocated objects */
     GCHashEntry* hash_table[GC_HASH_SIZE];  /* Hash set for O(1) lookup */
+    size_t hash_bucket_count;   /* Active power-of-two prefix of the table */
     GCStats stats;              /* GC statistics */
     size_t threshold;           /* Memory threshold for auto-collection */
     size_t last_collection_usage; /* Usage at last collection (hysteresis) */
@@ -50,6 +51,7 @@ static struct {
     bool initialized;
 } gc_state = {
     .all_objects = NULL,
+    .hash_bucket_count = GC_HASH_INITIAL_SIZE,
     .stats = {0},
     .threshold = (size_t)2048 * 1024 * 1024,  /* 2GB for bootstrap - reduce GC frequency */
     .last_collection_usage = 0,
@@ -61,11 +63,45 @@ static struct {
  * Hash Table Operations - O(1) average
  * ============================================================================ */
 
+static inline size_t gc_hash_ptr(void* ptr) {
+    return gc_hash_value(ptr) & (gc_state.hash_bucket_count - 1);
+}
+
+/* I split each live chain stably without allocating or inspecting payloads.
+ * The existing maximum and exact pointer-membership rules remain unchanged. */
+static void gc_hash_prepare_insert(void) {
+    size_t count = gc_state.hash_bucket_count;
+    if (count >= GC_HASH_SIZE || gc_state.stats.num_objects < count / 2) return;
+    for (size_t i = 0; i < count; ++i) {
+        GCHashEntry *low = NULL, *high = NULL;
+        GCHashEntry **low_tail = &low, **high_tail = &high;
+        GCHashEntry *entry = gc_state.hash_table[i];
+        while (entry) {
+            GCHashEntry *next = entry->next;
+            if (gc_hash_value(entry->ptr) & count) {
+                *high_tail = entry;
+                high_tail = &entry->next;
+            } else {
+                *low_tail = entry;
+                low_tail = &entry->next;
+            }
+            entry = next;
+        }
+        *low_tail = NULL;
+        *high_tail = NULL;
+        gc_state.hash_table[i] = low;
+        gc_state.hash_table[i + count] = high;
+    }
+    gc_state.hash_bucket_count = count * 2;
+}
+
 /* Add pointer to hash table */
 static bool gc_hash_add(void* ptr) {
-    size_t idx = gc_hash_ptr(ptr);
     GCHashEntry* entry = (GCHashEntry*)malloc(sizeof(GCHashEntry));
     if (entry) {
+        /* Failed essential allocation leaves even the private index unchanged. */
+        gc_hash_prepare_insert();
+        size_t idx = gc_hash_ptr(ptr);
         entry->ptr = ptr;
         entry->next = gc_state.hash_table[idx];
         gc_state.hash_table[idx] = entry;
@@ -106,7 +142,7 @@ static inline bool gc_hash_contains(void* ptr) {
 
 /* Clear entire hash table */
 static void gc_hash_clear(void) {
-    for (size_t i = 0; i < GC_HASH_SIZE; i++) {
+    for (size_t i = 0; i < gc_state.hash_bucket_count; i++) {
         GCHashEntry* current = gc_state.hash_table[i];
         while (current != NULL) {
             GCHashEntry* next = current->next;
@@ -115,6 +151,7 @@ static void gc_hash_clear(void) {
         }
         gc_state.hash_table[i] = NULL;
     }
+    gc_state.hash_bucket_count = GC_HASH_INITIAL_SIZE;
 }
 
 static void gc_destroy_object(GCHeader *header, bool release_children) {
@@ -171,7 +208,8 @@ void gc_init(void) {
     }
     
     memset(&gc_state.stats, 0, sizeof(GCStats));
-    memset(gc_state.hash_table, 0, sizeof(gc_state.hash_table));
+    memset(gc_state.hash_table, 0, gc_state.hash_bucket_count * sizeof *gc_state.hash_table);
+    gc_state.hash_bucket_count = GC_HASH_INITIAL_SIZE;
     gc_state.all_objects = NULL;
     gc_state.threshold = 256 * 1024 * 1024;  /* 256MB - compilers are batch processes */
     const char *gc_thresh = getenv("NANO_GC_THRESHOLD_MB");
