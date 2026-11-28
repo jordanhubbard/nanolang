@@ -41,7 +41,9 @@ class DarwinJoinObserver(unittest.TestCase):
                 self.assertNotEqual(r.returncode,0);self.assertIn(b'I require original timeout defaults',r.stderr);self.assertFalse(out.exists())
 
     def test_execution_body_is_the_exact_linux33_body(self):
-        original=subprocess.check_output(['git','show','586b7df63823bef290caaeea1f7750064ab106e3:scripts/ci_representation_joins_qualification.py'],cwd=ROOT,text=True)
+        original_path=ROOT/'scripts/ci_representation_joins_qualification.py'
+        self.assertEqual(hashlib.sha256(original_path.read_bytes()).hexdigest(),'bc86b3070e9eeb70782d6619c5811949b85f5d5d305ee0ae5a352f1d0ca31055')
+        original=original_path.read_text()
         current=(ROOT/'scripts/ci_representation_joins_darwin_qualification.py').read_text();anchor='from tests import native_process\n'
         self.assertEqual(current[current.index(anchor):],original[original.index(anchor):])
         self.assertIn('suite.countTestCases()==33',current)
