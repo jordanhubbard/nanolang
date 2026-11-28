@@ -1,0 +1,44 @@
+{
+  "source_head": "ddd3b5a4ff35678d1906c07c08fc6bbc39b041de",
+  "whole_release": false,
+  "original_run": 46119624230,
+  "capsules": [
+    {
+      "capsule": "original-cohorts-46119624230/linux-cache",
+      "manifest_sha256": "30ae2c38fe5d319cb5b417ade677a027dfc637ebdfadcd516c000d7aaa5b6438",
+      "independent_reader_passed": true,
+      "changed_manifest_refused": true,
+      "product_gate_passed": true
+    },
+    {
+      "capsule": "original-cohorts-46119624230/darwin-bootstrap",
+      "manifest_sha256": "3000034a51e61dcbc2dcec67a057da2e7d312e990288239b19f3f163813094d1",
+      "independent_reader_passed": true,
+      "changed_manifest_refused": true,
+      "product_gate_passed": true
+    }
+  ],
+  "focused_manifest_sha256": "70260ec2dda340164287d33b52a977f2ff2aa8f8c3dc8c8cbfb8af81d7565c44",
+  "baseline_manifest_sha256": "24448cf46cb94171b0ee13648bb894d9b74a8c5f16a7eb6c97e37f49147c7d62",
+  "scope_sha256": "efdccb6acb7cb2b15a7a96f34c7b11d81be4f93ff468af699ce33c2334b8d823",
+  "pending": [
+    "Linux original native/emitter terminal acceptance",
+    "Darwin original cache/worker terminal acceptance",
+    "hosted ARM17/36/12/final/20 independent terminal acceptance",
+    "default custody, pure translator/cutover and all69 release requirements"
+  ],
+  "hosted_arm": {
+    "run": 46121202196,
+    "job": 140905887981,
+    "observer": "2f748c7df01b4521ba4b579a14f4863c5cef4cc4",
+    "product_source": "ddd3b5a4ff35678d1906c07c08fc6bbc39b041de",
+    "terminal_qualification_passed": false,
+    "local_worker_lease": false
+  },
+  "historical_failed_candidate": {
+    "source": "f8e7b78334281485c3b48765c835b8bda218c975",
+    "linux_emitter_setup_timeout_seconds": 300,
+    "cleared_by_diagnostic": false
+  },
+  "candidate_accepted": false
+}
