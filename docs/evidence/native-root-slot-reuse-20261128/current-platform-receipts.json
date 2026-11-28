@@ -38,10 +38,17 @@
       "changed_manifest_refused": true,
       "product_gate_passed": true,
       "scope": "I accept the original20 discovered/run methods with zero skips and unchanged guards; this does not clear the failed Linux emitter gate."
+    },
+    {
+      "capsule": "original-cohorts-46111643993/darwin-cache",
+      "manifest_sha256": "24e653c155a53672d8604cfe4c289c1bb3677bfc99f9f8930902f5f7accbf69a",
+      "independent_reader_passed": true,
+      "changed_manifest_refused": true,
+      "product_gate_passed": true
     }
   ],
   "pending": [
-    "hosted Darwin cache/worker",
+    "corrected shape-flow candidate original qualification",
     "default custody and all69 release requirements"
   ],
   "candidate_accepted": false,
@@ -73,5 +80,13 @@
     "elapsed_seconds": 296.598013032,
     "qualification": false,
     "original_precommand_state_reconstructed": false
+  },
+  "follow_on_candidate": {
+    "source_head": "ddd3b5a4ff35678d1906c07c08fc6bbc39b041de",
+    "focused_linux_darwin_passed": true,
+    "original_run": 46119624230,
+    "original_gates_passed": false,
+    "arm_native_consumer_invocation_started": false,
+    "candidate_accepted": false
   }
 }
