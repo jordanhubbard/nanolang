@@ -1,0 +1,3 @@
+Stale for release v5.1.0: closing because I consolidate this proposal into replacement PR #1168; no distinct proposed source change remains here.
+Evidence: proposal head e952ed9b375922cb36233a187e5898c82e383314 is an ancestor of integration 2c6784e9d9b22fb1ee80e966f415e451a2a78126, already included in #1168. All six proposed test files remain byte-identical. I leave #1065 and its timeout-policy owner decision open. I retain the complete ancestry and file comparison in my release-readiness audit. I change no source, assertion, default or deadline in this triage and claim no new qualification or release acceptance.
+Reopen or reference https://github.com/jordanhubbard/nanolang/pull/1168 if this is still relevant.

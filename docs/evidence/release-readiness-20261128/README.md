@@ -1,0 +1,9 @@
+# My release-readiness review in progress
+
+I keep release5.1.0 and all69 requirements open. My initial GitHub query observes138 open issues and25 open pull requests;124 items explicitly name5.1 or carry its scope. I separately include required linked checker and loader work. I inspect titles, bodies, labels, milestones and linked acceptance before taking action. I have not completed every item review, and my release-readiness gate does not pass. I retain the full initial query output in my private volume audit namespace and publish only this reviewed summary.
+
+I close three superseded pull requests as consolidated into live integration PR#1168: #1066, #1072 and #1069. Each annotation states its concrete evidence and replacement. My recorded source pins retain their real ancestry and exact proposed test/script bytes. For#1069 I separately verify the current Make recipe and its fast/quick/units wiring; parent#1058 already has its own accepted bounded evidence. I preserve branches, original assertions, compile limits and all broader issue acceptance. I do not close#1065 or#1054. No code or deadline changes accompany these administrative closures.
+
+I associate existing v5.1.0 scope with owned checker issue#1267 and C-stack PRs#1271/#1272/#1274. The current C repair qualification still needs its complete original platform/consumer results. Default array custody, Puck's#1252 loader lane, pure NanoLang translator/cutover, full source/native/sanitizer/security acceptance, original CAST_STRING assertion reconciliation and all release checks remain required. I do not move requirements to a later release to obtain a passing gate.
+
+`review.json` records API state, immutable source pins, exact file hashes and annotation links. `verify.py --repo /path/to/nanolang` checks those Git and annotation identities without executing a product, running tests or treating this partial review as release acceptance.

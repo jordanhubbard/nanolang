@@ -1,0 +1,22 @@
+{
+  "pr": 1069,
+  "proposed": "fbbe94cc4dc21bc7759e22f6dfc8abd3b5fb9282",
+  "integration": "560bdac00e1172a631dc1985376110e1f0040292",
+  "ancestry_retained": true,
+  "files": [
+    {
+      "path": "scripts/check_test_prerequisites.py",
+      "sha256": "3efbe59df51ea17ec8b7f6cf069b8f3d9e08fd8849f5c1cdb3a2039d0dccded2",
+      "exact_proposed_bytes_retained": true
+    },
+    {
+      "path": "tests/test_make_prerequisites.py",
+      "sha256": "4e30cc330a493f4c0ecf34e4516a49c49d42794a5d4d03d778bf08dbc6225df5",
+      "exact_proposed_bytes_retained": true
+    }
+  ],
+  "make_wiring_retained": true,
+  "parent_issue_1058": "CLOSED with accepted bounded evidence; I do not reopen or change its acceptance.",
+  "replacement_pr": 1168,
+  "whole_release": false
+}
