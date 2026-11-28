@@ -576,6 +576,13 @@ test-field-metadata-lookup: nano_virt nano_vm nvm2c nvm2c-runtime
 
 test-quick: test-field-metadata-lookup
 
+# I keep my existing scaling corpus and deadlines intact beside insertion controls.
+.PHONY: test-native-root-insertion
+test-native-root-insertion: $(BIN_DIR)/nanoisa nvm2c
+	@python3 -m unittest -v tests.test_native_root_scaling tests.test_native_root_insertion
+
+test-quick: test-native-root-insertion
+
 .PHONY: test-native-callables
 test-native-callables: nvm2c nanoisa_dump nano_vm
 	@python3 -m unittest -v tests.test_native_callables tests.test_native_closures tests.test_native_closure_arrays
