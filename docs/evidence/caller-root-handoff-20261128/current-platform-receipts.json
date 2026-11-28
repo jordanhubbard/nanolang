@@ -31,6 +31,12 @@
       "manifest_sha256": "34b344fc9b398818340be3828eea7a2ffece9d0bd4dbecf6134ca508e5fa2e61",
       "independent_reader_passed": true,
       "changed_manifest_refused": true
+    },
+    {
+      "capsule": "original-cohorts-46099629716/darwin-cache",
+      "manifest_sha256": "476ea93e89f25adb483bd140854be11a664b4984dc952891bd4806cc80469e76",
+      "independent_reader_passed": true,
+      "changed_manifest_refused": true
     }
   ]
 }

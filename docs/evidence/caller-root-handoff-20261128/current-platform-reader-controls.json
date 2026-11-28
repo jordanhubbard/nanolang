@@ -23,5 +23,10 @@
     "capsule": "current-arm-consumer20",
     "changed_manifest_refused": true,
     "exit": 1
+  },
+  {
+    "capsule": "original-cohorts-46099629716/darwin-cache",
+    "changed_manifest_refused": true,
+    "exit": 1
   }
 ]
