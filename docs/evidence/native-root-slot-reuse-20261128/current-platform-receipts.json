@@ -1,0 +1,20 @@
+{
+  "source_head": "f8e7b78334281485c3b48765c835b8bda218c975",
+  "whole_release": false,
+  "capsules": [
+    {
+      "capsule": "original-cohorts-46111643993/linux-cache",
+      "manifest_sha256": "7941902df78279894b4280d16e87d15cba2bcb03a9a76f9b8824fcf5c236fafb",
+      "independent_reader_passed": true,
+      "changed_manifest_refused": true
+    }
+  ],
+  "pending": [
+    "hosted Linux original bootstrap/native/emitter",
+    "hosted Darwin original bootstrap/native/emitter",
+    "hosted Darwin cache/worker",
+    "reserved ARM original17/36/12 plus final regressions",
+    "reserved original20 consumers",
+    "default custody and all69 release requirements"
+  ]
+}
