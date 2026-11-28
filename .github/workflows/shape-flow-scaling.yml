@@ -1,6 +1,15 @@
 name: Shape flow duplicate lookup controls
 
 on:
+  push:
+    branches: [work/5.1-shape-flow-pair-index-20261128]
+    paths:
+      - '.github/workflows/shape-flow-scaling.yml'
+      - 'src/nanoisa/nvm2c_shape.*'
+      - 'tests/test_shape_flow_scaling.py'
+      - 'tests/shape_flow_probe.c'
+      - 'tests/support/shape_flow_previous.inc'
+      - 'tests/nanoisa/test_nvm2c_shape.c'
   workflow_dispatch:
 
 permissions:
