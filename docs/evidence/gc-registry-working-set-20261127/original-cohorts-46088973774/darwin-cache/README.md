@@ -1,0 +1,9 @@
+# My GC candidate original Darwin cache qualification
+
+At exact isolated source c4264e3e7e9f4c1fde0b8f4c12068981b40ca225, original Darwin cache/worker job140805160334 from run46088973774 passes. I retain284 original cache methods/26 existing platform skips, three worker methods and six array/record-storage methods. All17 paired depth/14 private-profile/9 fault-recovery and nine interpreter split-lifetime controls pass. Original assertions, corpora and deadlines stay unchanged.
+
+My new GC checks run six working-set epochs normally and under ASan/UBSan/leak detection (12 reports), and15/16/17/31-owner failure boundaries in both modes. Each boundary rebuilds the registry for every constructor/essential-failure pair:48 injected refusals total. Exact membership, payload, logical accounting, release/reinitialization and finalizer/failure recovery pass. My original GC shutdown/allocation sources and public header remain byte-identical to c8bd. I verify the observed owner counts, actual bucket budgets and all expected markers, not just the job conclusion.
+
+I retain artifact15244151778,34343379 bytes,164 members, SHA256c93ff2bbabfd98fa3293b6319cbe785b503cf517c1b4375896547d45bf930b1d, complete job log/API metadata and the independent Git/Python validator. The reader verifies size/API digest/ZIP CRC/safe names, exact c426 Git tree, actual selected tool/image bytes and matching before/after guards. The successful source-guard step runs git diff --exit-code HEAD. No product compiler or test runs during evidence verification.
+
+The candidate remains isolated in draft #1270. This terminal does not establish a compiler speedup, the original Darwin timeout cause, integration or full69 release acceptance. The separate #1266 lifetime control changes no default mode. Run `python3 verify.py --workspace /path/on/large/volume --repo /path/to/nanolang`; fetch the referenced candidate revision first if it is absent from that repository.
