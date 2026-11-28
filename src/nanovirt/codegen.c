@@ -570,7 +570,10 @@ static const char *infer_expr_struct_type(CG *cg, ASTNode *node) {
 
     if (node->type == AST_MODULE_QUALIFIED_CALL) {
         /* I use the checked return identity before choosing a field offset. */
-        return node->as.module_qualified_call.return_struct_type_name;
+        if (node->as.module_qualified_call.return_struct_type_name)
+            return node->as.module_qualified_call.return_struct_type_name;
+        FunctionSignature *signature = node->as.module_qualified_call.checked_signature;
+        return signature ? signature->return_struct_name : NULL;
     }
 
     if (node->type == AST_FIELD_ACCESS) {
