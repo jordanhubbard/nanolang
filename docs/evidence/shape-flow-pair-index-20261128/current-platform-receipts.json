@@ -22,7 +22,10 @@
       "manifest_sha256": "712a95ad550e72c0988aad66025bb47f9ee420dce1c68f3219331298ef272ddc",
       "independent_reader_passed": true,
       "changed_manifest_refused": true,
-      "product_gate_passed": true
+      "product_gate_passed": true,
+      "actual_native_format": "ELF64 little-endian",
+      "actual_native_architecture": "x86-64",
+      "legacy_report_field_corrigendum": "native-format-corrigendum-20261128"
     }
   ],
   "focused_manifest_sha256": "70260ec2dda340164287d33b52a977f2ff2aa8f8c3dc8c8cbfb8af81d7565c44",

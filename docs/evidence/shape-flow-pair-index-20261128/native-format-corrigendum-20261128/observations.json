@@ -1,0 +1,19 @@
+{
+  "product": "ddd3b5a4ff35678d1906c07c08fc6bbc39b041de",
+  "cohort": "linux-bootstrap",
+  "run": 46119624230,
+  "job": 140901037401,
+  "archive_sha256": "13f942d8c634b38cbe38b3c9f8d81ed41e6308ebd86f220d42159baad49c5b43",
+  "archive_bytes": 125166776,
+  "legacy_native_macho_arm64_flag": true,
+  "legacy_field_is_mislabeled": true,
+  "actual_stage2_sha256": "1b1c407f57830c09c426e1c6c8061091db32075c128d5387b903a8b84a424b8d",
+  "actual_header_hex": "7f454c4602010100000000000000000003003e00",
+  "actual_native_format": "ELF64 little-endian",
+  "actual_native_architecture": "x86-64",
+  "actual_elf_e_machine": 62,
+  "actual_native_macho_arm64": false,
+  "product_execution_repeated": false,
+  "product_gate_acceptance_changed": false,
+  "whole_release": false
+}
