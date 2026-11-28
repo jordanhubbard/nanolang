@@ -1,0 +1,20 @@
+{
+  "source": "ddd3b5a4ff35678d1906c07c08fc6bbc39b041de",
+  "run": 46119624230,
+  "job": 140901037356,
+  "original_cache_methods_reported": 284,
+  "existing_skips": 26,
+  "worker_methods_reported": 3,
+  "array_methods_reported": 6,
+  "api_product_steps_success": true,
+  "source_tool_guard_step_success": true,
+  "artifact_creation_error": "Failed to CreateArtifact: Unable to make request: ENOTFOUND",
+  "artifact_id": null,
+  "actual_product_tool_archive_available": false,
+  "qualified_original_darwin_cache": false,
+  "whole_release": false,
+  "repair_observer": "e272db10ed8ebe9451d9d6708eee407549dc4b0e",
+  "replacement_run": 46130062452,
+  "product_tests_retried_by_collector": false,
+  "collector_maximum_attempts": 3
+}
