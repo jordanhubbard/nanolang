@@ -7,6 +7,10 @@ on:
       - '.github/workflows/c-repair-original-gates.yml'
       - 'src/env.c'
       - 'src/eval.c'
+      - 'src/eval/carrier_runtime.*'
+      - 'src/eval/carrier_values.*'
+      - 'tests/test_eval_caller_root_handoff.c'
+      - 'tests/support/ephemeral_array_cases.inc'
       - 'src/typechecker.c'
       - 'src/module.c'
       - 'src/nanolang.h'
@@ -147,7 +151,7 @@ jobs:
           set -o pipefail
           make -f Makefile.gnu -j1 CC="${CC:-cc}" test-env-string-binding-hint test-env-symbol-index test-eval-builtin-resolution \
             test-checker-rejected-declarations test-checker-rejected-declaration-cli test-function-depth-batch test-eval-string-split \
-            test-gc-registry-working-set test-gc-registry-working-set-sanitizers test-gc-shutdown-sanitizers \
+            test-gc-registry-working-set test-gc-registry-working-set-sanitizers test-gc-shutdown-sanitizers test-eval-caller-root-handoff \
             2>&1 | tee .test_output/c-repair-original-gates/string-binding-regression.log
       - name: Execute my array repair regression
         if: matrix.gate == 'cache'

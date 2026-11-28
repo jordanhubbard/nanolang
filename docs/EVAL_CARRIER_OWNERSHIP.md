@@ -737,3 +737,38 @@ production O3/Werror flags. Existing evaluator134/checker88 retain their stated
 broad LSan exclusions; borrowed/active/record/STRING/native-byte, allocation
 failure, default REPL34 and private REPL41 controls pass. My active peak remains
 16 and my second 128-call native allocation batch grows by zero bytes.
+
+## I declare caller custody separately from borrow-only roots
+
+My private `env_carrier_set_call_roots` accepts valid caller-owned aggregate
+roots and explicit physical list descriptors before an external C call. I copy
+and validate the complete descriptor set before replacing the old declaration.
+Malformed or conflicting facts, plain integer roots, active calls/walks and
+already interpreter-owned descendants refuse replacement. Metadata allocation
+failure leaves the old declaration and all payload ownership intact. I require
+the caller to keep declared physical storage valid until withdrawal or close;
+I do not infer ownership from reachability or integer bits.
+
+During collection I retain children reachable through these declared roots.
+At the external `call_function` return I gather the declared caller graphs and
+an owned result in one walk, then transfer all reachable registered allocations.
+I preserve typed-list get as a borrowed result. Existing collection host roots
+remain borrow-only and never grant this custody handoff. Caller storage itself
+is never adopted. Nested callbacks leave transfer to their enclosing C call.
+
+My focused test includes all ten original ephemeral-array cases with every
+fixture and assertion unchanged. Its adapter enables private carrier mode and
+supplies caller provenance before invocation; it performs no manual post-call
+export. All84 expected reclaims, C-supplied/returned arrays and fresh children
+stored through nested arrays and typed-list record fields pass. I also test
+six metadata allocation failures with preserved-root collection and recovery,
+conflicting/scalar list facts, owned-graph refusal, overlapping cycles,
+borrow-only keepalive roots and borrowed-result retention. The test and eight
+original ownership neighbors pass normally and with ASan/UBSan plus leak
+detection. Restoring the old return-only handoff fails the unchanged original
+argument-escape reclaim guard.
+
+This is a qualified private boundary, not default interpreter activation.
+Ordinary CLI/environment creation still uses the existing policy. Complete
+runtime/host/GC/async lifetime adaptation, default ephemeral-array acceptance
+and all original platform and release gates remain required under #1266.

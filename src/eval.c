@@ -7436,7 +7436,7 @@ Value call_function(const char *name, Value *args, int arg_count, Environment *e
         Function *function = generic ? NULL : env_get_function(env, name);
         bool list = (generic && suffix && strcmp(suffix, "_new") == 0) ||
             (function && function->return_type == TYPE_LIST_GENERIC);
-        if (!borrowed_get) env_carrier_export(env, value, list);
+        env_carrier_export_call(env, value, list, !borrowed_get);
     }
     return value;
 }

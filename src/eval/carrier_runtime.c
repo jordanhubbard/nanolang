@@ -16,8 +16,8 @@ typedef struct {
 struct NlEvalCarrierSession {
     NlCarrierValues *values;
     size_t depth;
-    NlCarrierRef *roots, *host_roots, *collection_roots;
-    size_t root_count, root_capacity, host_count, collection_capacity;
+    NlCarrierRef *roots, *host_roots, *caller_roots, *collection_roots;
+    size_t root_count, root_capacity, host_count, caller_count, collection_capacity;
     NlCarrierScopeMark *frames;
     size_t frame_capacity;
     char **strings;
@@ -292,6 +292,38 @@ NlCarrierStringStats env_carrier_string_stats(const Environment *env) {
     return env_carrier_scopes_enabled(env) ? env->carrier_session->string_stats : (NlCarrierStringStats){0};
 }
 NlCarrierStringStats env_carrier_last_string_stats(void) { return last_strings; }
+/* My caller grants custody only through this explicit, replaceable declaration.
+ * These physical containers must remain valid until withdrawal or close. */
+bool env_carrier_set_call_roots(Environment *env, const NlCarrierRef *roots, size_t count) {
+    if (!env_carrier_enabled(env) || (count && !roots) || count > SIZE_MAX / sizeof *roots) return false;
+    struct NlEvalCarrierSession *s = env->carrier_session;
+    if (s->depth || s->collecting || s->fields_active) return false;
+    for (size_t i = 0; i < count; ++i) {
+        NlCarrierRef ref = roots[i];
+        if (ref.record_list) {
+            if (ref.record_list > NL_CARRIER_LEGACY_SCALAR_LIST || ref.value.type != VAL_INT ||
+                !ref.value.as.int_val) return false;
+        } else {
+            switch (ref.value.type) {
+                case VAL_ARRAY: if (!ref.value.as.array_val) return false; break;
+                case VAL_STRUCT: if (!ref.value.as.struct_val) return false; break;
+                case VAL_UNION: if (!ref.value.as.union_val) return false; break;
+                case VAL_TUPLE: if (!ref.value.as.tuple_val) return false; break;
+                default: return false;
+            }
+        }
+    }
+    NlCarrierRef *copy = count ? malloc(count * sizeof *copy) : NULL;
+    if (count && !copy) return false;
+    if (count) memcpy(copy, roots, count * sizeof *copy);
+    s->fields_active = true;
+    bool ok = nl_carrier_values_validate_borrowed(s->values, copy, count);
+    reset_field_declarations(s);
+    if (!ok) { free(copy); return false; }
+    free(s->caller_roots); s->caller_roots = copy; s->caller_count = count;
+    s->have_collection = false;
+    return true;
+}
 bool env_carrier_enable_collection(Environment *env, const NlCarrierRef *roots, size_t count) {
     if (!env_carrier_enabled(env) || (count && !roots) || count > SIZE_MAX / sizeof *roots) return false;
     struct NlEvalCarrierSession *s = env->carrier_session;
@@ -310,6 +342,8 @@ bool env_carrier_collect(Environment *env) {
     size_t count = s->root_count;
     if (s->host_count > SIZE_MAX - count) return false;
     count += s->host_count;
+    if (s->caller_count > SIZE_MAX - count) return false;
+    count += s->caller_count;
     if ((size_t)env->symbol_count > SIZE_MAX - count) return false;
     count += (size_t)env->symbol_count;
     if (count > SIZE_MAX / sizeof(NlCarrierRef)) return false;
@@ -330,6 +364,7 @@ bool env_carrier_collect(Environment *env) {
     size_t n = 0;
     for (size_t i = 0; i < s->root_count; ++i) roots[n++] = s->roots[i];
     for (size_t i = 0; i < s->host_count; ++i) roots[n++] = s->host_roots[i];
+    for (size_t i = 0; i < s->caller_count; ++i) roots[n++] = s->caller_roots[i];
     for (int i = 0; i < env->symbol_count; ++i) {
         Symbol *symbol = &env->symbols[i];
         /* Checker-retained declarations have no runtime payload yet. */
@@ -437,6 +472,27 @@ void env_carrier_export(Environment *env, Value value, bool list) {
     reset_field_declarations(s);
     if (!ok) ownership_failure();
 }
+void env_carrier_export_call(Environment *env, Value value, bool list, bool result_owned) {
+    if (!env_carrier_enabled(env)) return;
+    struct NlEvalCarrierSession *s = env->carrier_session;
+    if (!s->caller_count) {
+        if (result_owned) env_carrier_export(env, value, list);
+        return;
+    }
+    if (s->fields_active || s->caller_count > SIZE_MAX / sizeof(NlCarrierRef) - 1) ownership_failure();
+    size_t count = s->caller_count + (result_owned ? 1 : 0);
+    NlCarrierRef *roots = malloc(count * sizeof *roots);
+    if (!roots) ownership_failure();
+    memcpy(roots, s->caller_roots, s->caller_count * sizeof *roots);
+    if (result_owned) roots[s->caller_count] = list ?
+        nl_carrier_record_list((DynArray *)(intptr_t)value.as.int_val) : nl_carrier_value(value);
+    s->fields_active = true;
+    bool ok = nl_carrier_values_transfer(s->values, roots, count);
+    reset_field_declarations(s);
+    free(roots);
+    if (!ok) ownership_failure();
+    s->have_collection = false;
+}
 NlCarrierHeapStats env_carrier_stats(const Environment *env) {
     return nl_carrier_values_stats(env_carrier_enabled(env) ? env->carrier_session->values : NULL);
 }
@@ -449,7 +505,7 @@ void env_carrier_close(Environment *env) {
     last_retired = nl_carrier_values_stats(session->values);
     if (!nl_carrier_values_free(session->values)) ownership_failure();
     free(session->roots); free(session->frames); free(session->host_roots); free(session->strings);
-    free(session->collection_roots); free(session->field_declarations);
+    free(session->caller_roots); free(session->collection_roots); free(session->field_declarations);
     free(session); env->carrier_session = NULL; retired_sessions++;
 }
 NlCarrierHeapStats env_carrier_last_retired_stats(void) { return last_retired; }

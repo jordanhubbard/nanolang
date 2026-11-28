@@ -52,6 +52,10 @@ bool nl_carrier_values_edges(NlCarrierValues *heap, NlCarrierRef owner,
 /* I trace both registered values and valid legacy borrowed containers. */
 bool nl_carrier_values_collect(NlCarrierValues *heap,
                                const NlCarrierRef *roots, size_t count);
+/* I validate caller-owned roots without adopting or transferring any payload.
+ * A reachable interpreter-owned allocation refuses this declaration. */
+bool nl_carrier_values_validate_borrowed(NlCarrierValues *heap,
+                                       const NlCarrierRef *roots, size_t count);
 /* I gather the complete reachable graph before transferring registered
  * allocations. Failure transfers none. Caller storage is never adopted. */
 bool nl_carrier_values_transfer(NlCarrierValues *heap,
