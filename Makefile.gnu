@@ -8559,6 +8559,12 @@ test-nanolang-translator-representation-shapes: $(COMPILER_C) nano_virt nano_vm 
 
 test-units: test-nanolang-translator-representation-shapes
 
+.PHONY: test-nanolang-translator-representation-stack
+test-nanolang-translator-representation-stack: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_nanolang_translator_representation_stack
+
+test-units: test-nanolang-translator-representation-stack
+
 # I require an explicit real NanoLang compiler for my five-route splitter test.
 .PHONY: test-compiler-line-splitting
 test-compiler-line-splitting: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
