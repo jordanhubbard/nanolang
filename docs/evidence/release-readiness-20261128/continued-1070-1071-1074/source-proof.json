@@ -1,0 +1,175 @@
+{
+  "release_version": "5.1.0",
+  "integration": "f878d817b73424cb38b9b1817f29ea1efd197af5",
+  "replacement_pr": 1168,
+  "release_gate_passed": false,
+  "all_69_requirements_complete": false,
+  "entire_open_inventory_reviewed": false,
+  "product_acceptance_granted": false,
+  "items": [
+    {
+      "pr": 1070,
+      "head": "fcc114ea7fde14eed22ff8a1031033fc6df90d92",
+      "head_is_ancestor": true,
+      "full_files": [
+        {
+          "path": "scripts/ci_select_capture_clang.py",
+          "sha256": "5715114a039807f595ce9fb8d0af57a8d19203ec12df07e81522cbeac6c86d41",
+          "bytes": 4164
+        },
+        {
+          "path": "tests/test_ci_capture_selection.py",
+          "sha256": "e2780f7c3f658f012b6704320ece4cf5adf46cfc2be65d010bc23d5ae37b3c3d",
+          "bytes": 5986
+        }
+      ],
+      "fragments": [
+        {
+          "path": ".github/workflows/source-capture-toolchain-diagnostic.yml",
+          "kind": "original_job_except_explicit_mode_condition",
+          "job": "selected-tools",
+          "original_step_count": 8,
+          "canonical_sha256": "d7c4d015deac7afaaf91f01c52bb8e6686f1f11c726090c15509597d0cf9787c",
+          "current_condition": "${{ !inputs.linux_only && !inputs.qualify_fixed_as246_complete && inputs.fixed_userguide_from_run == '' && inputs.fixed_clang_from_run == '' && inputs.fixed_gcc_from_run == '' && inputs.profile_fixed_clang_from_run == '' }}",
+          "new_mode_defaults": {
+            "linux_only": false,
+            "qualify_fixed_as246_complete": false,
+            "fixed_userguide_from_run": "",
+            "fixed_clang_from_run": "",
+            "fixed_gcc_from_run": "",
+            "profile_fixed_clang_from_run": ""
+          }
+        }
+      ],
+      "closure_is_consolidation_only": true,
+      "main_merge_granted": false
+    },
+    {
+      "pr": 1071,
+      "head": "e9499fcfc1a21143820f0b68d8d676543cee21e2",
+      "head_is_ancestor": true,
+      "full_files": [
+        {
+          "path": ".github/containers/instrumented/install_wasmtime.py",
+          "sha256": "3d8957cb5dbf4a1193bb8fb205d6909f686c2662ecbc39de9e69a0bd4fef8e08",
+          "bytes": 4130
+        },
+        {
+          "path": "tests/test_wasmtime_prerequisite.py",
+          "sha256": "59a1eedde7e7ea5ae53537495ae38e04ce744370bd1b2d595354e750fbf9359b",
+          "bytes": 2600
+        }
+      ],
+      "fragments": [
+        {
+          "path": "Makefile.gnu",
+          "kind": "exact_literal_block",
+          "start_marker": "# I check my CLI runtime before the gates that execute generated Wasm.",
+          "end_marker": ".PHONY: test-selfhost-product-derivation",
+          "sha256": "38d2ef19bc56e221d40ede914b23ec1aa4615ec9815720e2c2f645adbd823759"
+        },
+        {
+          "path": "Makefile.gnu",
+          "kind": "required_literal",
+          "literal": "test-ordinary-record-authority: require-test-wasmtime nvm2wasm nanoisa_dump nano_vm nvm2c"
+        },
+        {
+          "path": "Makefile.gnu",
+          "kind": "required_literal",
+          "literal": "test-managed-record-eligibility: require-test-wasmtime nvm2llvm nvm2wasm nanoisa_dump nano_vm"
+        },
+        {
+          "path": "Makefile.gnu",
+          "kind": "retained_test_module_in_expanded_fast_gate",
+          "literal": "\tpython3 -m unittest tests.test_make_prerequisites tests.test_wasmtime_prerequisite"
+        },
+        {
+          "path": ".github/containers/instrumented/Dockerfile",
+          "kind": "required_literal",
+          "literal": "COPY install_wasmtime.py /tmp/install_wasmtime.py\nRUN python3 /tmp/install_wasmtime.py --prefix /usr/local \\\n    && rm /tmp/install_wasmtime.py"
+        },
+        {
+          "path": ".github/containers/instrumented/README.md",
+          "kind": "original_tail_section_retained",
+          "start_marker": "## My Wasm test prerequisite",
+          "sha256": "9a4f635f517f9b4788bb1ca5ad2f0013d9aa04d95e87941b3bcc267b727053e5"
+        }
+      ],
+      "closure_is_consolidation_only": true,
+      "main_merge_granted": false
+    },
+    {
+      "pr": 1074,
+      "head": "35dca0dc02f6fd27320cd610295d924b7c7c2133",
+      "head_is_ancestor": true,
+      "full_files": [
+        {
+          "path": "scripts/generate_root_package_json.py",
+          "sha256": "5df3547567d2f3103edbaf23a55234e18725c61e739563cf76739f838c043893",
+          "bytes": 2696
+        },
+        {
+          "path": "src/main_stage1_5.c",
+          "sha256": "a3dae2389914e45d39b8d190ae46540f4aa79919afecdb2fbf98c161136c5afe",
+          "bytes": 8068
+        },
+        {
+          "path": "src/version.h",
+          "sha256": "7647678277957c4f8c839a2e746e61daeadacee036be06ef96f8cfc7ceebd71b",
+          "bytes": 256
+        },
+        {
+          "path": "tests/test_compiler_version.py",
+          "sha256": "71318128e065668453f7d083896bf06161abcf3c04afce7bb8bcfc345830e3a2",
+          "bytes": 3096
+        }
+      ],
+      "fragments": [
+        {
+          "path": "src/main.c",
+          "kind": "exact_version_branch",
+          "sha256": "b1c7810fc3bcdcabf1c76de52311338ee8f8dd1ced380d67dfb42ebed09e83fc"
+        },
+        {
+          "path": "Makefile.gnu",
+          "kind": "required_literal",
+          "literal": ".PHONY: test-compiler-version\ntest-quick test-units: test-compiler-version\ntest-compiler-version: $(COMPILER_C)\n\tpython3 -m unittest -v tests.test_compiler_version"
+        }
+      ],
+      "closure_is_consolidation_only": true,
+      "main_merge_granted": false
+    }
+  ],
+  "related_issue_states": {
+    "1045": {
+      "number": 1045,
+      "state": "CLOSED",
+      "title": "nanoc --version embeds a build timestamp, so builds are not reproducible"
+    },
+    "1073": {
+      "number": 1073,
+      "state": "CLOSED",
+      "title": "Legacy hybrid C entry point has stale transpiler call and incomplete format arguments"
+    },
+    "1060": {
+      "number": 1060,
+      "state": "CLOSED",
+      "title": "wasmtime is an undeclared prerequisite of the Wasm execution tests"
+    },
+    "1049": {
+      "number": 1049,
+      "state": "OPEN",
+      "title": "Restore blocking xcode-27 qualification legs: root-cause the remaining failures"
+    },
+    "1054": {
+      "number": 1054,
+      "state": "OPEN",
+      "title": "Retained suite run 1: 112 of 483 cases fail in the retained environment; lifecycle authority changed mid-run"
+    },
+    "1039": {
+      "number": 1039,
+      "state": "OPEN",
+      "title": "5.1: adopt Literate AI with preserved native compiler lifecycle and current evidence"
+    }
+  }
+}
