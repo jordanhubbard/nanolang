@@ -1,5 +1,9 @@
+#ifndef _POSIX_C_SOURCE
 #define _POSIX_C_SOURCE 200809L
+#endif
+#ifndef _DARWIN_C_SOURCE
 #define _DARWIN_C_SOURCE 1
+#endif
 /* I retire expression arrays without taking my C caller's array ownership. */
 #include "../../src/nanolang.h"
 #include "../../src/runtime/gc.h"
