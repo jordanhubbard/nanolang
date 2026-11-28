@@ -215,11 +215,83 @@ def native_control(root, out):
     return compiled, executed
 
 
+ORIGINAL_NATIVE_TESTS = (
+    'tests.test_native_shadows', 'tests.test_shadow_runner',
+    'tests.test_make_timeouts', 'tests.test_native_shadow_only_entry',
+    'tests.test_native_shadow_helpers',
+)
+
+
+def cache_metadata(root):
+    """I read links, file metadata and small JSON, never cached object contents."""
+    root = Path(root).resolve()
+    currents = set((root / 'modules').rglob('.build/current'))
+    currents.update((root / 'obj/module_cache').glob('*/current'))
+    records = []
+    for current in sorted(currents):
+        target = current.resolve()
+        assert target.is_relative_to(root) and target.is_dir()
+        row = {'current': str(current.relative_to(root)),
+               'link': os.readlink(current) if current.is_symlink() else None,
+               'resolved': str(target.relative_to(root)), 'files': []}
+        for path in sorted(target.rglob('*')):
+            if not path.is_file():
+                continue
+            assert path.resolve().is_relative_to(root)
+            stat = path.stat()
+            item = {'path': str(path.relative_to(target)), 'size': stat.st_size,
+                    'mtime_ns': stat.st_mtime_ns}
+            if path.suffix == '.json' and stat.st_size <= 65536:
+                data = path.read_bytes()
+                item.update(sha256=hashlib.sha256(data).hexdigest(),
+                            text=data.decode('utf-8', errors='backslashreplace'))
+            row['files'].append(item)
+        records.append(row)
+    return {'qualification': False, 'cached_object_contents_read': False,
+            'metadata_reads_change_cache_state': True, 'currents': records}
+
+
+def replay_original_prefix(root, out, command, env):
+    """I replay the original module recipe and first emitter construction."""
+    root, out = Path(root), Path(out)
+    directory = out / 'original-prefix'
+    directory.mkdir()
+    recipe = 'python3 -m unittest ' + ' '.join(ORIGINAL_NATIVE_TESTS)
+    assert recipe in (root / 'Makefile.gnu').read_text()
+    save(directory / 'cache-before.json', cache_metadata(root))
+    native_env = dict(env, TMPDIR=str(Path(command[-1]).parent.parent))
+    native_command = [sys.executable, '-m', 'unittest', *ORIGINAL_NATIVE_TESTS]
+    native = observe(native_command, directory / 'native', cwd=root,
+                     env=native_env, deadline=300)
+    save(directory / 'cache-after-native.json', cache_metadata(root))
+    assert native['exit_code'] == 0 and not native['command_timeout']
+    assert native['output_complete'] and not native['observer_errors']
+    stderr = (directory / 'native/stderr').read_text()
+    assert re.search(r'^Ran 36 tests in [^\n]+\n\nOK(?:\n|$)', stderr, re.M)
+    assert 'skipped=' not in stderr
+    seed_command = [root / 'bin/nanoc_c', command[1], '-o',
+                    Path(command[-1]).with_name('nanoc_c')]
+    seed = observe(seed_command, directory / 'cseed', cwd=root, env=env,
+                   deadline=300)
+    save(directory / 'cache-after-cseed.json', cache_metadata(root))
+    assert seed['exit_code'] == 0 and not seed['command_timeout']
+    assert seed['output_complete'] and not seed['observer_errors']
+    binary = Path(seed_command[-1])
+    assert binary.read_bytes()[:4] == b'\x7fELF'
+    result = {'qualification': False, 'native': native, 'cseed': seed,
+              'cseed_binary_sha256': digest(binary), 'product_argv': command,
+              'original_test_modules': list(ORIGINAL_NATIVE_TESTS),
+              'terminal_restore_and_readiness_not_original_precommand_state': True}
+    save(directory / 'control.json', result)
+    return result
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--root', type=Path, required=True)
     parser.add_argument('--restore-helper', type=Path, required=True)
     parser.add_argument('--sample-cpu', action='store_true')
+    parser.add_argument('--replay-original-prefix', action='store_true')
     args = parser.parse_args()
     root = args.root.resolve()
     assert sys.platform == 'linux'
@@ -278,11 +350,23 @@ def main():
                                        'NANO_SHADOW_TIMEOUT_SECONDS', 'NANO_SHADOW_TRACE',
                                        'NANO_SHADOW_PHASE_TRACE']},
                                   'original_argv_preserved': True,
+                                  'original_prefix_requested': args.replay_original_prefix,
                                   'terminal_artifact_state_not_original_precommand_state': True})
+    prefix = None
+    product_started = False
     try:
+        if args.replay_original_prefix:
+            prefix = replay_original_prefix(root, out, command, env)
+            save(out / 'identities-after-prefix.json', helper.identities(root))
+            assert helper.identities(root) == before
+        product_started = True
         result = observe(command, out / 'command', cwd=root, env=env, deadline=300,
                          cpu_sampler=cpu_sampler)
     finally:
+        if args.replay_original_prefix:
+            snapshot = cache_metadata(root)
+            snapshot['product_started'] = product_started
+            save(out / 'original-prefix/cache-after-product.json', snapshot)
         after = helper.identities(root)
         save(out / 'identities-after.json', after)
         assert before == after
@@ -296,7 +380,8 @@ def main():
                                   'observation_valid': True, 'guards_match': True,
                                   'namespace_recovery_complete': True,
                                   'native_compile_and_run_control_passed': True,
-                                  'controls_passed': 3, 'product': result})
+                                  'controls_passed': 3, 'original_prefix': prefix,
+                                  'product': result})
 
 
 if __name__ == '__main__':

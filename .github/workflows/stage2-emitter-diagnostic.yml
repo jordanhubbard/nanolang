@@ -153,7 +153,7 @@ jobs:
           python3 "$RUNNER_TEMP/stage2-emitter-observer/scripts/ci_stage2_emitter_diagnostic.py" \
             --root "$GITHUB_WORKSPACE" \
             --restore-helper "$RUNNER_TEMP/stage2-emitter-observer/scripts/ci_darwin_shadow_lifecycle.py" \
-            --sample-cpu
+            --sample-cpu --replay-original-prefix
       - name: Retain original inputs, calibration and terminal observation
         if: always()
         uses: actions/upload-artifact@v4

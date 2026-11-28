@@ -181,3 +181,75 @@ class Stage2EmitterDiagnostic(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+@unittest.skipUnless(sys.platform == 'linux', 'I replay Linux setup processes here.')
+class OriginalPrefixControls(unittest.TestCase):
+    def fixture(self, root, fail=False):
+        (root / 'tests').mkdir()
+        (root / 'tests/__init__.py').write_text('')
+        (root / 'tests/selfhost_shadow_emitter.nano').write_text('frozen fixture\n')
+        build = root / 'modules/std/.build'
+        build.mkdir(parents=True)
+        for profile in ['initial', 'native', 'cseed']:
+            (build / profile).mkdir()
+            (build / profile / 'profile.json').write_text(json.dumps({'profile': profile}))
+        (build / 'current').symlink_to('initial')
+        for name, count in zip(diagnostic.ORIGINAL_NATIVE_TESTS, [8, 7, 7, 7, 7]):
+            text = '''import pathlib, unittest
+root = pathlib.Path.cwd()
+class Cases(unittest.TestCase):
+    def case(self):
+        self.assertFalse((root/'fail-native').exists())
+        with (root/'native-completed').open('a') as f: f.write('x')
+        p=root/'modules/std/.build/current';p.unlink();p.symlink_to('native')
+'''
+            text += '\nfor i in range(' + str(count) + "):\n    setattr(Cases, 'test_%02d' % i, Cases.case)\n"
+            (root / (name.replace('.', '/') + '.py')).write_text(text)
+        (root / 'Makefile.gnu').write_text('python3 -m unittest ' + ' '.join(diagnostic.ORIGINAL_NATIVE_TESTS))
+        (root / 'bin').mkdir()
+        seed = root / 'bin/nanoc_c'
+        seed.write_text('#!' + sys.executable + '\n' + '''import pathlib, sys, os
+root=pathlib.Path.cwd()
+assert (root/'native-completed').read_text()=='x'*36
+assert sys.argv[1]==str(root/'tests/selfhost_shadow_emitter.nano') and sys.argv[2]=='-o'
+assert os.environ['TMPDIR']==str(pathlib.Path(sys.argv[3]).parent)
+p=root/'modules/std/.build/current';p.unlink();p.symlink_to('cseed')
+pathlib.Path(sys.argv[3]).write_bytes(b'\\x7fELFfixture')
+''')
+        seed.chmod(0o755)
+        directory = root / 'tmp/original-class'
+        directory.mkdir(parents=True)
+        if fail:
+            (root / 'fail-native').touch()
+        command = [str(root/'bin/nanoc_stage2'), str(root/'tests/selfhost_shadow_emitter.nano'),
+                   '-o', str(directory/'nanoc_stage2')]
+        return command, dict(os.environ, TMPDIR=str(directory))
+
+    def test_original_prefix_orders_real_processes_and_cache_snapshots(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            command, env = self.fixture(root)
+            result = diagnostic.replay_original_prefix(root, root, command, env)
+            self.assertFalse(result['qualification'])
+            self.assertEqual(result['product_argv'], command)
+            self.assertEqual(result['native']['deadline_seconds'], 300)
+            self.assertEqual(result['cseed']['deadline_seconds'], 300)
+            for name, expected in [('before', 'initial'), ('after-native', 'native'), ('after-cseed', 'cseed')]:
+                snapshot = json.loads((root/('original-prefix/cache-'+name+'.json')).read_text())
+                self.assertFalse(snapshot['cached_object_contents_read'])
+                self.assertEqual(snapshot['currents'][0]['link'], expected)
+                metadata = snapshot['currents'][0]['files'][0]
+                self.assertEqual(json.loads(metadata['text']), {'profile': expected})
+
+    def test_failed_native_prefix_refuses_before_cseed(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            command, env = self.fixture(root, fail=True)
+            with self.assertRaises(AssertionError):
+                diagnostic.replay_original_prefix(root, root, command, env)
+            self.assertFalse((Path(command[-1]).parent/'nanoc_c').exists())
+            self.assertFalse((root/'original-prefix/cseed').exists())
+            result = json.loads((root/'original-prefix/native/result.json').read_text())
+            self.assertNotEqual(result['exit_code'], 0)
+            self.assertTrue(result['terminal'])
