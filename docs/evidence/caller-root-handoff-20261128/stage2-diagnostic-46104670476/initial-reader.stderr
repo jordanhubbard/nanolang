@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/home/jkh/.local/share/fleet-migration/puck-volume/nanolang/worktrees/darwin-publication-qkk55gi3/docs/evidence/caller-root-handoff-20261128/stage2-diagnostic-46104670476/verify.py", line 43, in <module>
+    assert not m['qualification'] and not m['whole_release']
+               ^
+NameError: name 'm' is not defined
