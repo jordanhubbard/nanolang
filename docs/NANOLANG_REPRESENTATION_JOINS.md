@@ -129,3 +129,32 @@ The permanent whole-state C reference, packet driver, independent expectations
 and five-route regression still need implementation and execution. All three
 ordered roadmap items remain unchecked. I change no existing test, C source,
 production selection or qualification deadline at this checkpoint.
+
+## My permanent executable comparison setup
+
+I add `test-nanolang-translator-representation-joins` to `test-units`. Its four
+methods use26 verbatim C helpers, including my unchanged complete sim_join,
+and both actual-C ordinary/sanitized references plus all five existing routes.
+The new transport retains the original stack operations and full graph report,
+then adds raw join inputs, scalar-plan metadata and graph operations. I preserve
+both original stack drivers and all old tests. The reference tracks each
+observer-owned branch buffer for eventual cleanup, including a failed first
+edge, while leaving the helper body unchanged.
+
+My matrix covers every256-by256 kind pair and every65536 mask at a later-edge
+join, plus discovery/final/first-error plan combinations. Tracked graph cases
+cover records, arrays, aliases, cyclic edges and deferred solving. I require
+complete65535-slot and65535-field output and retain malformed packets separately
+from valid frontiers. My named expectations assert actual error spelling and
+partial state, independent of the implementations.
+
+The first helper extraction refuses before compilation because my global end
+marker incorrectly counts both jump_target declaration and definition. The
+external static observer initially also lacks the explicit repository import
+path. I retain both setup errors, correct those paths, and retain the subsequent
+strict C refusal for an omitted optional_scalar_tags dependency. The corrected
+26-helper reference passes C11/Wall/Wextra/Werror syntax checking; the complete
+NanoLang driver passes module and dependency-shadow type checking. Neither
+static command builds or executes an executable. Full executable qualification,
+reference allocation-failure controls, retained evidence and independent review
+still remain required before component acceptance.

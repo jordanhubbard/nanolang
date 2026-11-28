@@ -1,0 +1,344 @@
+module "src_nano/nvm2c/representation_joins.nano" as joins
+module "src_nano/nvm2c/representation_stack.nano" as stack
+module "src_nano/nvm2c/representation_shapes.nano" as adapter
+module "src_nano/nvm2c/shape_graph.nano" as shape
+module "src_nano/nvm2c/container.nano" as wire
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+fn decimal(value: int) -> string { return (int_to_string value) }
+shadow decimal { assert (== (decimal 4294967296) "4294967296") }
+fn has(mask: int, bit: int) -> bool { return (== (% (/ mask bit) 2) 1) }
+shadow has { assert (has 31 16) assert (not (has 15 16)) }
+fn signed_word(bytes: array<u8>, offset: int) -> int {
+    let value: int = (wire.read_u32 bytes offset)
+    return (cond ((>= value 2147483648) (- value 4294967296)) (else value))
+}
+shadow signed_word { assert (== (signed_word [255,255,255,255] 0) -1) assert (== (signed_word [0,0,0,128] 0) -2147483648) }
+fn framed(bytes: array<u8>) -> bool {
+    let size: int = (array_length bytes)
+    if (or (< size 4) (> size 4194304)) { return false }
+    let count: int = (wire.read_u32 bytes 0)
+    if (> count (/ (- size 4) 36)) { return false }
+    let mut cursor: int = 4
+    for item in (range 0 count) {
+        if (not (wire.contains bytes cursor 36)) { return false }
+        if (or (> (cast_int (at bytes cursor)) 255) (or (> (cast_int (at bytes (+ cursor 2))) 1) (!= (cast_int (at bytes (+ cursor 3))) 0))) { return false }
+        let low: int = (wire.read_u32 bytes (+ cursor 16))
+        let high: int = (wire.read_u32 bytes (+ cursor 20))
+        let width: int = (wire.read_u16 bytes (+ cursor 28))
+        let locals: int = (wire.read_u16 bytes (+ cursor 30))
+        let steps: int = (wire.read_u32 bytes (+ cursor 32))
+        if (or (> high 1) (or (and (!= high 0) (!= low 0)) (> steps 131072))) { return false }
+        set cursor (+ cursor 36)
+        if (not (wire.contains bytes cursor (+ width locals))) { return false }
+        set cursor (+ cursor (+ width locals))
+        if (> steps (/ (- size cursor) 20)) { return false }
+        for index in (range 0 steps) {
+            if (not (wire.contains bytes cursor 20)) { return false }
+            let opcode: int = (cast_int (at bytes cursor))
+            let present: int = (cast_int (at bytes (+ cursor 2)))
+            let origin: int = (signed_word bytes (+ cursor 4))
+            let parameter: int = (wire.read_u32 bytes (+ cursor 16))
+            if (or (> opcode 26) (or (> present 1) (!= (wire.read_u16 bytes (+ cursor 14)) 0))) { return false }
+            if (or (and (== opcode 8) (> parameter 255)) (and (== opcode 9) (!= parameter 0))) { return false }
+            if (and (== opcode 11) (> parameter 1)) { return false }
+            if (and (== opcode 16) (> (cast_int (at bytes (+ cursor 1))) 14)) { return false }
+            if (and (or (== opcode 12) (== opcode 13)) (or (< origin 0) (> origin 131072))) { return false }
+            if (and (or (== opcode 3) (== opcode 4))
+                (and (>= origin 0) (and (< (% origin 65536) locals) (>= origin locals)))) { return false }
+            set cursor (+ cursor 20)
+            if (== present 1) {
+                if (not (wire.contains bytes cursor width)) { return false }
+                set cursor (+ cursor width)
+            }
+        }
+    }
+    return (== cursor size)
+}
+shadow framed { assert (framed [0,0,0,0]) assert (not (framed [])) assert (not (framed [0,0,0,0,0])) }
+fn byte_csv(values: array<u8>) -> string {
+    let mut words: array<string> = []
+    for i in (range 0 (array_length values)) { set words (array_push words (decimal (cast_int (at values i)))) }
+    return (str_join words ",")
+}
+shadow byte_csv { assert (== (byte_csv [0,255]) "0,255") assert (== (byte_csv []) "") }
+fn slot_line(label: string, index: int, value: stack.Slot) -> string {
+    let fields: array<string> = [label,(decimal index),(decimal value.kind),(decimal value.origin),
+        (decimal (cond (value.fields_present 1) (else 0))),(decimal value.shape),(decimal value.scalar_tags),
+        (decimal value.array_payload),(byte_csv value.fields)]
+    return (+ (str_join fields "|") "\n")
+}
+shadow slot_line { assert (== (slot_line "V" -1 (stack.slot 2 -1)) "V|-1|2|-1|0|0|0|0|\n") }
+fn blank() -> stack.Frame {
+    let c: adapter.Context = adapter.Context { tracked: false, generic_array: false, private_map: false, function_index: 0, offset: 0, opcode: 0 }
+    return (stack.create (adapter.create c false "") 1 0 [] [])
+}
+shadow blank { assert (blank).ready assert (== (blank).height 0) }
+fn configured(s: stack.Frame, current: int, opcode: int, cells: array<stack.Slot>, height: int, graph: shape.Graph) -> stack.Frame {
+    let c: adapter.Context = adapter.Context { tracked: s.shapes.context.tracked, generic_array: s.shapes.context.generic_array,
+        private_map: s.shapes.context.private_map, function_index: s.shapes.context.function_index,
+        offset: s.shapes.context.offset, opcode: opcode }
+    let context: adapter.State = adapter.State { context: c, graph: graph, failed: s.shapes.failed, error: s.shapes.error }
+    return stack.Frame { ready: s.ready, shapes: context, capacity: s.capacity, current: current,
+        defaults: s.defaults, locals: s.locals, slots: cells, height: height }
+}
+shadow configured { let s: stack.Frame = (blank) let f: stack.Frame = (configured s 7 252 s.slots 0 s.shapes.graph) assert (== f.current 7) assert (== f.shapes.context.opcode 252) }
+fn event(label: string, item: int, index: int, accepted: bool, s: stack.Frame) -> string {
+    let fields: array<string> = [label,(decimal item),(decimal index),(decimal (cond (accepted 1) (else 0))),
+        (decimal (cond (s.shapes.failed 1) (else 0))),s.shapes.error,(decimal s.height),(decimal s.current),
+        (decimal (array_length s.shapes.graph.nodes)),(shape.error s.shapes.graph)]
+    return (+ (str_join fields "|") "\n")
+}
+shadow event { assert (== (event "E" 0 0 true (blank)) "E|0|0|1|0||0|0|0|\n") }
+fn snapshot(g: shape.Graph) -> string {
+    let mut lines: array<string> = []
+    if (shape.healthy g) {
+        for id in (range 1 (+ (array_length g.nodes) 1)) {
+            let resolved: int = (shape.root g id)
+            let position: int = (at g.nodes (- resolved 1))
+            let mut cursor: int = (at g.arena (+ position 5))
+            let mut edges: array<string> = []
+            while (!= cursor 0) {
+                set edges (array_push edges (+ (decimal (at g.arena (- cursor 1)))
+                    (+ ":" (decimal (shape.root g (at g.arena cursor))))))
+                set cursor (at g.arena (+ cursor 1))
+            }
+            set cursor (at g.arena (+ position 7))
+            let mut functions: array<string> = []
+            while (!= cursor 0) {
+                set functions (array_push functions (decimal (at g.arena (- cursor 1))))
+                set cursor (at g.arena cursor)
+            }
+            let fields: array<string> = ["N",(decimal id),(decimal resolved),(decimal (shape.kind g id)),
+                (decimal (shape.tags g id)),(decimal (array_length edges)),(str_join edges ","),
+                (decimal (array_length functions)),(str_join functions ",")]
+            let line: string = (+ (str_join fields "|") "\n")
+            set lines (array_push lines line)
+        }
+    }
+    return (str_join lines "")
+}
+shadow snapshot {
+    let created: shape.Step = (shape.new_node (shape.create) 7)
+    assert (== (snapshot created.state) "N|1|1|7|0|0||0|\n")
+}
+
+fn solver_snapshot(g: shape.Graph) -> string {
+    let mut lines: array<string> = [(snapshot g)]
+    let counts: array<string> = ["D",(decimal (shape.fact_count g 0)),(decimal (shape.fact_count g 1)),
+        (decimal (shape.fact_count g 2)),(decimal (shape.fact_count g 3))]
+    set lines (array_push lines (+ (str_join counts "|") "\n"))
+    let header: int = (at g.arena 6)
+    if (!= header 0) {
+        let labels: array<string> = ["C","A","W","R"]
+        for group in (range 0 4) {
+            let mut cursor: int = (at g.arena (+ (- header 1) (* group 3)))
+            while (!= cursor 0) {
+                let fields: array<string> = [(at labels group),(decimal (at g.arena (- cursor 1))),
+                    (decimal (at g.arena cursor)),(decimal (at g.arena (+ cursor 1))),
+                    (decimal (at g.arena (+ cursor 2)))]
+                set lines (array_push lines (+ (str_join fields "|") "\n"))
+                set cursor (at g.arena (+ cursor 3))
+            }
+        }
+    }
+    if (shape.healthy g) {
+        for id in (range 1 (+ (array_length g.nodes) 1)) {
+            let resolved: int = (shape.root g id)
+            let position: int = (at g.nodes (- resolved 1))
+            let fields: array<string> = ["I",(decimal id),(decimal (at g.arena (+ position 3)))]
+            set lines (array_push lines (+ (str_join fields "|") "\n"))
+        }
+    }
+    return (str_join lines "")
+}
+shadow solver_snapshot { assert (== (solver_snapshot (shape.create)) "D|0|0|0|0\n") }
+
+fn complete(s: stack.Frame, output: stack.Slot) -> string {
+    let mut lines: array<string> = [(+ "L|" (+ (byte_csv s.locals) "\n")),(slot_line "V" -1 output)]
+    for i in (range 0 s.height) { set lines (array_push lines (slot_line "S" i (at s.slots i))) }
+    set lines (array_push lines (solver_snapshot s.shapes.graph))
+    return (str_join lines "")
+}
+shadow complete { assert (== (complete (blank) (stack.slot 2 -1)) "L|\nV|-1|2|-1|0|0|0|0|\nD|0|0|0|0\n") }
+fn read_slot(bytes: array<u8>, cursor: int, width: int) -> stack.Slot {
+    let present: bool = (!= (cast_int (at bytes (+ cursor 2))) 0)
+    let fields: array<u8> = (cond (present (array_slice bytes (+ cursor 20) width)) (else []))
+    return stack.Slot { kind: (cast_int (at bytes (+ cursor 1))), origin: (signed_word bytes (+ cursor 4)),
+        fields_present: present, fields: fields, shape: (wire.read_u32 bytes (+ cursor 8)),
+        scalar_tags: (wire.read_u16 bytes (+ cursor 12)), array_payload: (cast_int (at bytes (+ cursor 3))) }
+}
+shadow read_slot {
+    let v: stack.Slot = (read_slot [0,2,0,7,255,255,255,255,0,0,0,0,2,0,0,0,0,0,0,0] 0 0)
+    assert (== v.kind 2) assert (== v.origin -1) assert (== v.array_payload 7) assert (== v.scalar_tags 2)
+    let bounded: stack.Slot = (read_slot [0,2,1,7,255,255,255,255,0,0,0,0,2,0,0,0,0,0,0,0,17,255,99,88] 0 2)
+    assert bounded.fields_present assert (== (array_length bounded.fields) 2)
+    assert (== (cast_int (at bounded.fields 0)) 17) assert (== (cast_int (at bounded.fields 1)) 255)
+}
+fn int_csv(values: array<int>) -> string {
+    let mut words: array<string> = []
+    for i in (range 0 (array_length values)) { set words (array_push words (decimal (at values i))) }
+    return (str_join words ",")
+}
+shadow int_csv { assert (== (int_csv [0,65535]) "0,65535") }
+fn join_report(s: joins.State, retained: joins.Join) -> string {
+    let header: array<string> = ["J",(decimal (cond (retained.established 1) (else 0))),
+        (decimal retained.height),(decimal (array_length retained.slots)),(decimal (cond (s.changed 1) (else 0))),
+        (decimal (cond (s.final 1) (else 0))),(decimal (cond (s.has_maps 1) (else 0)))]
+    let mut lines: array<string> = [(+ (str_join header "|") "\n")]
+    for i in (range 0 (array_length retained.slots)) { set lines (array_push lines (slot_line "T" i (at retained.slots i))) }
+    for i in (range 0 (array_length s.plans)) {
+        let plan: joins.Plan = (at s.plans i)
+        let fields: array<string> = ["P",(decimal i),(decimal plan.function_index),(decimal plan.target),(decimal (array_length plan.tags)),(int_csv plan.tags)]
+        set lines (array_push lines (+ (str_join fields "|") "\n"))
+    }
+    return (str_join lines "")
+}
+shadow join_report {
+    let s: stack.Frame = (blank)
+    assert (== (join_report (joins.create s.shapes [] false true false) (joins.empty)) "J|0|0|0|0|1|0\n")
+}
+fn with_context(s: stack.Frame, c: adapter.State) -> stack.Frame {
+    return stack.Frame { ready: s.ready, shapes: c, capacity: s.capacity, current: s.current,
+        defaults: s.defaults, locals: s.locals, slots: s.slots, height: s.height }
+}
+shadow with_context { let s: stack.Frame = (blank) assert (with_context s (adapter.create s.shapes.context true "first")).shapes.failed }
+fn plan_metadata(s: joins.State, value: stack.Slot, target: int, create: bool) -> joins.State {
+    let mut plans: array<joins.Plan> = s.plans
+    if create {
+        let mut tags: array<int> = []
+        for i in (range 0 value.origin) { set tags (array_push tags value.scalar_tags) }
+        set plans [joins.Plan { function_index: value.shape, target: target, tags: tags }]
+        for i in (range 0 (array_length s.plans)) { set plans (array_push plans (at s.plans i)) }
+    } else {
+        let mut found: bool = false
+        for i in (range 0 (array_length plans)) {
+            let plan: joins.Plan = (at plans i)
+            if (and (not found) (and (== plan.function_index value.shape) (== plan.target target))) {
+                if (< value.origin (array_length plan.tags)) { (array_set plan.tags value.origin value.scalar_tags) }
+                set found true
+            }
+        }
+    }
+    return (joins.create s.shapes plans s.changed s.final s.has_maps)
+}
+shadow plan_metadata {
+    let s: stack.Frame = (blank)
+    let v: stack.Slot = stack.Slot { kind: 2, origin: 2, fields_present: false, fields: [], shape: 17, scalar_tags: 3, array_payload: 0 }
+    let p: joins.State = (plan_metadata (joins.create s.shapes [] false false false) v 29 true)
+    assert (== (array_length p.plans) 1) assert (== (array_length (at p.plans 0).tags) 2)
+    assert (== (at (at p.plans 0).tags 1) 3) assert (not p.changed)
+}
+
+fn describe(bytes: array<u8>) -> string {
+    if (not (framed bytes)) { return "INVALID\n" }
+    let mut lines: array<string> = []
+    let count: int = (wire.read_u32 bytes 0)
+    let mut cursor: int = 4
+    for item in (range 0 count) {
+        let flags: int = (cast_int (at bytes cursor))
+        let opcode: int = (cast_int (at bytes (+ cursor 1)))
+        let mode: int = (cast_int (at bytes (+ cursor 2)))
+        let c: adapter.Context = adapter.Context { tracked: (has flags 1), generic_array: (has flags 2), private_map: (has flags 4),
+            function_index: (wire.read_u32 bytes (+ cursor 4)), offset: (wire.read_u32 bytes (+ cursor 8)), opcode: opcode }
+        let mut function_index: int = (wire.read_u32 bytes (+ cursor 12))
+        let capacity: int = (+ (wire.read_u32 bytes (+ cursor 16)) (* 4294967296 (wire.read_u32 bytes (+ cursor 20))))
+        let current: int = (wire.read_u32 bytes (+ cursor 24))
+        let width: int = (wire.read_u16 bytes (+ cursor 28))
+        let locals: int = (wire.read_u16 bytes (+ cursor 30))
+        let steps: int = (wire.read_u32 bytes (+ cursor 32))
+        set cursor (+ cursor 36)
+        let defaults: array<u8> = (array_slice bytes cursor width)
+        set cursor (+ cursor width)
+        let local_kinds: array<u8> = (array_slice bytes cursor locals)
+        set cursor (+ cursor locals)
+        let context: adapter.State = (adapter.create c (has flags 8) (cond ((has flags 16) "prior") (else "")))
+        let mut s: stack.Frame = (stack.create context capacity current defaults local_kinds)
+        let mut saved: stack.Frame = (stack.copy_cells s)
+        let mut output: stack.Slot = (stack.slot 2 -1)
+        let mut join_state: joins.State = (joins.create s.shapes [] (has flags 64) (has flags 32) (has flags 128))
+        let mut retained: joins.Join = (joins.empty)
+        for index in (range 0 steps) {
+            let op: int = (cast_int (at bytes cursor))
+            let parameter: int = (wire.read_u32 bytes (+ cursor 16))
+            let value: stack.Slot = (read_slot bytes cursor width)
+            set cursor (+ cursor 20)
+            if value.fields_present { set cursor (+ cursor width) }
+            let mut applied: stack.Step = stack.Step { valid: true, accepted: true, state: s, output: (stack.slot 2 -1) }
+            if (== op 0) { set applied (stack.push_slot s function_index value)
+            } else if (== op 1) { set applied (stack.push s function_index value.kind value.origin)
+            } else if (== op 2) { set applied (stack.pop s function_index value)
+            } else if (== op 3) { set applied (stack.string_operand s value)
+            } else if (== op 4) { set applied (stack.integer_operand s value)
+            } else if (== op 5) {
+                let changed: stack.Frame = (configured s parameter s.shapes.context.opcode s.slots s.height s.shapes.graph)
+                set applied stack.Step { valid: true, accepted: true, state: changed, output: (stack.slot 2 -1) }
+            } else if (== op 6) { set saved (stack.copy_cells s)
+            } else if (== op 7) {
+                let copied: stack.Frame = (stack.copy_cells saved)
+                let changed: stack.Frame = (configured s s.current s.shapes.context.opcode copied.slots copied.height s.shapes.graph)
+                set applied stack.Step { valid: true, accepted: true, state: changed, output: (stack.slot 2 -1) }
+            } else if (== op 8) {
+                let changed: stack.Frame = (configured s s.current parameter s.slots s.height s.shapes.graph)
+                set applied stack.Step { valid: true, accepted: true, state: changed, output: (stack.slot 2 -1) }
+            } else if (== op 9) {
+                let solved: shape.Step = (shape.solve s.shapes.graph)
+                let changed: stack.Frame = (configured s s.current s.shapes.context.opcode s.slots s.height solved.state)
+                set applied stack.Step { valid: true, accepted: (!= solved.number 0), state: changed, output: (stack.slot 2 -1) }
+            } else if (== op 10) {
+                let joined: joins.Step = (joins.merge join_state retained function_index parameter (array_slice s.slots 0 s.height) width)
+                set retained joined.retained set join_state joined.state
+                set applied stack.Step { valid: joined.valid, accepted: joined.accepted, state: (with_context s joined.state.shapes), output: (stack.slot 2 -1) }
+            } else if (== op 11) {
+                set join_state (joins.create s.shapes join_state.plans join_state.changed (!= parameter 0) join_state.has_maps)
+            } else if (or (== op 12) (== op 13)) { set join_state (plan_metadata join_state value parameter (== op 12))
+            } else if (== op 14) { set function_index parameter
+            } else if (== op 15) {
+                if (>= s.height s.capacity) { return "ADAPTER_INPUT\n" }
+                let mut active: array<stack.Slot> = s.slots
+                if (< s.height (array_length active)) { (array_set active s.height value) }
+                else { set active (array_push active value) }
+                let changed: stack.Frame = stack.Frame { ready: s.ready, shapes: s.shapes, capacity: s.capacity, current: s.current,
+                    defaults: s.defaults, locals: s.locals, slots: active, height: (+ s.height 1) }
+                set applied stack.Step { valid: true, accepted: true, state: changed, output: (stack.slot 2 -1) }
+            } else {
+                let mut g: shape.Step = shape.Step { state: s.shapes.graph, number: 0 }
+                if (== op 16) { set g (shape.new_node s.shapes.graph value.kind)
+                } else if (== op 17) { set g (shape.child s.shapes.graph value.shape parameter)
+                } else if (== op 18) { set g (shape.unify s.shapes.graph value.shape parameter)
+                } else if (== op 19) { set g (shape.convert s.shapes.graph value.shape parameter)
+                } else if (== op 20) { set g shape.Step { state: s.shapes.graph, number: (shape.tags_add s.shapes.graph value.shape value.scalar_tags) }
+                } else if (== op 21) { set g (shape.array_write s.shapes.graph value.shape parameter)
+                } else if (== op 22) { set g (shape.array_read s.shapes.graph value.shape parameter)
+                } else if (== op 23) { set g (shape.function_add s.shapes.graph value.shape parameter)
+                } else if (== op 24) { set g (shape.array_alias s.shapes.graph value.shape parameter)
+                } else if (== op 25) { set g (shape.checked_payload s.shapes.graph value.shape parameter)
+                } else { set g (shape.alias_view s.shapes.graph value.shape parameter) }
+                let changed: stack.Frame = (configured s s.current s.shapes.context.opcode s.slots s.height g.state)
+                let output: stack.Slot = stack.Slot { kind: 2, origin: -1, fields_present: false, fields: [],
+                    shape: (cond ((or (== op 16) (== op 17)) g.number) (else 0)), scalar_tags: 0, array_payload: 0 }
+                set applied stack.Step { valid: true, accepted: (!= g.number 0), state: changed, output: output }
+            }
+            if (not applied.valid) { return "ADAPTER_INPUT\n" }
+            set s applied.state set output applied.output
+            set join_state (joins.create s.shapes join_state.plans join_state.changed join_state.final join_state.has_maps)
+            set lines (array_push lines (event "E" item index applied.accepted s))
+            if (== mode 0) { set lines (array_push lines (+ (complete s output) (join_report join_state retained))) }
+        }
+        set lines (array_push lines (event "Z" item steps false s))
+        if (or (== mode 1) (== steps 0)) { set lines (array_push lines (+ (complete s output) (join_report join_state retained))) }
+    }
+    return (str_join lines "")
+}
+shadow describe {
+    assert (== (describe []) "INVALID\n") assert (== (describe [0,0,0,0]) "")
+    let mut bytes: array<u8> = [1,0,0,0]
+    for i in (range 0 36) { set bytes (array_push bytes 0) }
+    assert (== (describe bytes) "Z|0|0|0|0||0|0|0|\nL|\nV|-1|2|-1|0|0|0|0|\nD|0|0|0|0\nJ|0|0|0|0|0|0\n")
+}
+
+fn main() -> int {
+    unsafe { for index in (range 1 (get_argc)) { (print (describe (file_read_bytes (get_argv index)))) } }
+    return 0
+}
+shadow main { assert (== (describe [0,0,0,0,0]) "INVALID\n") }
