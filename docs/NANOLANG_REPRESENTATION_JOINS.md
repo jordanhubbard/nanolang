@@ -107,3 +107,25 @@ executable qualification is accepted by this checkpoint. Full classification,
 module/CFG/body/runtime/profile/ownership and host emission, paired platforms,
 installed pure-translator cutover, both C repairs and every original5.1 release
 gate remain required.
+
+## My implementation checkpoint
+
+I write the complete first/later-edge join operation in
+`src_nano/nvm2c/representation_joins.nano`, with28 named functions and28
+corresponding shadows. Review preserves the old partial slot buffer when an
+unestablished join subsequently receives an empty edge; I retain that named
+shadow alongside height/origin/plan/field/error controls.
+
+The selected actual sourcef8 C seed accepts the module and dependency shadow
+types through `--reflect`: exit0 in0.059131seconds, seven source hashes and the
+compiler hash unchanged. I use the supported NANO_MODULE_PATH to resolve this
+separate branch and request no native build. Reflection precedes module
+compilation and shadow execution. This is syntax/type-check evidence only.
+It does not execute those28 shadows or grant component qualification. I retain
+the first reflection and the subsequent reviewed-source result under my volume
+namespace `tmp/representation-joins-preflight-20261128/`.
+
+The permanent whole-state C reference, packet driver, independent expectations
+and five-route regression still need implementation and execution. All three
+ordered roadmap items remain unchecked. I change no existing test, C source,
+production selection or qualification deadline at this checkpoint.
