@@ -1,0 +1,27 @@
+[
+  {
+    "capsule": "original-cohorts-46099629716/linux-bootstrap",
+    "changed_manifest_refused": true,
+    "exit": 1
+  },
+  {
+    "capsule": "original-cohorts-46099629716/darwin-bootstrap",
+    "changed_manifest_refused": true,
+    "exit": 1
+  },
+  {
+    "capsule": "original-cohorts-46099629716/linux-cache",
+    "changed_manifest_refused": true,
+    "exit": 1
+  },
+  {
+    "capsule": "current-arm-original-qualification",
+    "changed_manifest_refused": true,
+    "exit": 1
+  },
+  {
+    "capsule": "current-arm-consumer20",
+    "changed_manifest_refused": true,
+    "exit": 1
+  }
+]

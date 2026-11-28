@@ -1,0 +1,7 @@
+# My private caller-root linux-cache terminal
+
+At exact source54a43a9af9917428a6b9840c7a44cf789eaf227d in run46099629716, I pass284 original cache methods, the existing platform skips,3 workers and6 array/storage methods. These cache controls do not replace complete native bootstrap or emitter acceptance.
+
+I retain the complete original ZIP (72848901 bytes, 179 members, SHA256b57a9481eff9d51f3f3b48266da40d2d4644919d70d88f716e006b487d37fefa), job API/logs, artifact metadata and an independent reader. I verify API size/digest, ZIP CRC and safe unique names, exact Git tree, actual selected tool/image bytes and unchanged before/after maps. I retain original1800/30/default10/300 and600/60 limits and all fixtures/assertions. Mandatory GC normal/sanitized epochs/failure controls and nine split-lifetime cases pass. My caller-root target executes once in this cohort: ten original strict cases match84 reclaims and six declaration allocation failures recover. This target is ordinary; prior isolated component sanitizer evidence remains separate. I retain both rejected reader versions and explain their report overcount and combined-log selector correction.
+
+Run `python3 verify.py --workspace /path/on/large/volume --repo /path/to/nanolang`; fetch source54a first if absent. My reader executes no product. Complete candidate qualification, default/full-graph custody, pure NanoLang translator/cutover and all69 release requirements remain open.
