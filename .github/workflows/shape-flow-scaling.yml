@@ -54,7 +54,7 @@ jobs:
           hashes={n:hashlib.sha256(Path(n).read_bytes()).hexdigest() for n in names}
           Path('.test_output/shape-flow/sources-before.json').write_text(json.dumps(hashes,indent=2)+'\n')
           PY
-      - name: Measure my unchanged helper and retain its strict work refusal
+      - name: Check my flow semantics, work budgets and counterexamples
         env:
           NANO_SHAPE_FLOW_ARTIFACT_DIR: .test_output/shape-flow/controls
         run: |

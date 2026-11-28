@@ -119,13 +119,32 @@ static void shared_wide(size_t n) {
     nvm_shape_destroy(&g); assert(!g.nodes && !g.count && !g.error);
 }
 
+#if FLOW_INDEX_AVAILABLE
+static void index_flags(void) {
+    FlowSeen seen = {0};
+    for (unsigned repeat = 0; repeat < 2; ++repeat)
+        for (NvmShapeId id = 1; id <= 128; ++id)
+            for (unsigned flags = 0; flags < 8; ++flags) {
+                FlowPair pair = {id, id + 128, flags & 1, (flags >> 1) & 1, (flags >> 2) & 1};
+                assert(flow_seen_insert(&seen, pair) == (int)repeat);
+            }
+    assert(seen.count == 1024 && seen.capacity >= 2048);
+    if (seen.entries != seen.local) free(seen.entries);
+}
+#endif
+
 int main(int argc, char **argv) {
-    assert(argc == 1 || (argc == 2 && !strcmp(argv[1], "--strict")));
-    strict_budget = argc == 2;
+    assert(argc == 1 || (argc == 2 && (!strcmp(argv[1], "--strict") || !strcmp(argv[1], "--faults"))));
+    strict_budget = argc == 2 && !strcmp(argv[1], "--strict");
     semantics();
     const size_t sizes[] = {32, 128, 1024, 4096};
     for (size_t i = 0; i < sizeof sizes / sizeof sizes[0]; ++i) chain(sizes[i], 0, 0);
     chain(128, 1, 0);
     shared_wide(128);
+#if FLOW_INDEX_AVAILABLE
+    index_flags();
+    if (argc == 2 && !strcmp(argv[1], "--faults"))
+        for (size_t failure = 1; failure <= 5; ++failure) chain(128, 0, failure);
+#endif
     return strict_budget && over_budget ? 7 : 0;
 }

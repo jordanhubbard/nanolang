@@ -415,6 +415,66 @@ static int flow_kind(NvmShapeGraph *g, NvmShapeId target, NvmShapeKind kind, int
     return 1;
 }
 
+/* I index canonical flow pairs only during one traversal. No operation in
+ * flow_one joins roots; the next conversion starts with a fresh index. */
+typedef struct {
+    FlowPair *entries;
+    size_t count, capacity;
+    int disabled;
+    FlowPair local[16];
+} FlowSeen;
+
+static size_t flow_seen_slot(FlowPair pair, size_t capacity) {
+    uint64_t key = ((uint64_t)pair.source << 32) | pair.target;
+    key ^= (uint64_t)(uint32_t)pair.exact * UINT64_C(0x9e3779b97f4a7c15);
+    key ^= (uint64_t)(uint32_t)pair.alias_view * UINT64_C(0xd6e8feb86659fd93);
+    key ^= (uint64_t)(uint32_t)pair.optional_payload * UINT64_C(0xa0761d6478bd642f);
+    return shape_pair_slot(key, capacity);
+}
+
+static int flow_pair_equal(FlowPair a, FlowPair b) {
+    return a.source == b.source && a.target == b.target && a.exact == b.exact &&
+           a.alias_view == b.alias_view && a.optional_payload == b.optional_payload;
+}
+
+/* I return one for a prior pair, zero for a new pair and minus one to use
+ * the original scan. Optional index failure never poisons the shape graph. */
+static int flow_seen_insert(FlowSeen *seen, FlowPair pair) {
+    if (seen->disabled) return -1;
+    if (!seen->capacity) {
+        seen->entries = seen->local;
+        seen->capacity = sizeof seen->local / sizeof seen->local[0];
+    }
+    size_t at = flow_seen_slot(pair, seen->capacity);
+    while (seen->entries[at].source && !flow_pair_equal(seen->entries[at], pair))
+        at = (at + 1) & (seen->capacity - 1);
+    if (seen->entries[at].source) return 1;
+    if (seen->count >= seen->capacity / 2) {
+        size_t capacity = seen->capacity <= SIZE_MAX / 2 ? seen->capacity * 2 : 0;
+        FlowPair *entries = capacity && capacity <= SIZE_MAX / sizeof *entries
+            ? calloc(capacity, sizeof *entries) : NULL;
+        if (!entries) {
+            if (seen->entries != seen->local) free(seen->entries);
+            seen->entries = NULL;
+            seen->disabled = 1;
+            return -1;
+        }
+        for (size_t i = 0; i < seen->capacity; ++i) if (seen->entries[i].source) {
+            size_t slot = flow_seen_slot(seen->entries[i], capacity);
+            while (entries[slot].source) slot = (slot + 1) & (capacity - 1);
+            entries[slot] = seen->entries[i];
+        }
+        if (seen->entries != seen->local) free(seen->entries);
+        seen->entries = entries;
+        seen->capacity = capacity;
+        at = flow_seen_slot(pair, capacity);
+        while (entries[at].source) at = (at + 1) & (capacity - 1);
+    }
+    seen->entries[at] = pair;
+    ++seen->count;
+    return 0;
+}
+
 static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *changed, int final) {
     size_t count = 0, capacity = 0, cursor = 0;
     FlowPair *queue = grow(g, NULL, &capacity, 1, sizeof *queue);
@@ -427,16 +487,21 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
     }
     queue[count++] = (FlowPair){producer, conversion.target,
         conversion.checked_payload, conversion.alias_view, 0};
+    FlowSeen visited = {0};
     while (cursor < count && !g->error) {
         FlowPair pair = queue[cursor++];
         NvmShapeId source = nvm_shape_root(g, pair.source), target = nvm_shape_root(g, pair.target);
         if (!source || !target) break;
         if (source == target) continue;
-        int seen = 0;
-        for (size_t i = 0; i + 1 < cursor; ++i)
-            if (nvm_shape_root(g, queue[i].source) == source &&
-                nvm_shape_root(g, queue[i].target) == target && queue[i].exact == pair.exact && queue[i].alias_view == pair.alias_view &&
-                queue[i].optional_payload == pair.optional_payload) seen = 1;
+        int seen = flow_seen_insert(&visited, (FlowPair){source, target,
+            pair.exact, pair.alias_view, pair.optional_payload});
+        if (seen < 0) {
+            seen = 0;
+            for (size_t i = 0; i + 1 < cursor; ++i)
+                if (nvm_shape_root(g, queue[i].source) == source &&
+                    nvm_shape_root(g, queue[i].target) == target && queue[i].exact == pair.exact && queue[i].alias_view == pair.alias_view &&
+                    queue[i].optional_payload == pair.optional_payload) seen = 1;
+        }
         if (seen) continue;
         uint16_t tags = g->nodes[source - 1].value_tags;
         if (tags & ~g->nodes[target - 1].value_tags) {
@@ -578,6 +643,7 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
                 from == NVM_SHAPE_OPTIONAL};
         }
     }
+    if (visited.entries != visited.local) free(visited.entries);
     free(queue);
     return !g->error;
 }
