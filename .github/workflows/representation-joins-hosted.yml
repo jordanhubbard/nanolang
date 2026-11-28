@@ -1,0 +1,150 @@
+name: Pinned representation joins and original prerequisites
+
+on:
+  push:
+    branches: [work/5.1-representation-joins-hosted-20261128]
+    paths:
+      - '.github/workflows/representation-joins-hosted.yml'
+      - 'scripts/ci_representation_joins_*.py'
+      - 'scripts/ci_original_qualification_policy.py'
+      - 'tests/test_ci_representation_joins_observer.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  PRODUCT_REVISION: e2ad13e3ee129b926a5cab9b15f22bf61c0ac5d8
+  OBSERVER_REVISION: ${{ github.sha }}
+  CC: /usr/bin/cc
+
+jobs:
+  original-component:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Require my actual hosted Linux x86-64 worker
+        run: |
+          test '${{ runner.environment }}' = github-hosted
+          test '${{ runner.arch }}' = X64
+          test "$(uname -m)" = x86_64
+          echo /usr/bin >> "$GITHUB_PATH"
+      - name: Check out my separate observer
+        uses: actions/checkout@v4
+        with:
+          path: observer
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /scripts/
+            /tests/test_ci_representation_joins_observer.py
+            /.github/workflows/representation-joins-hosted.yml
+      - name: Check out my exact component
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.PRODUCT_REVISION }}
+          path: product
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/docs/evidence/
+      - name: Install my existing native prerequisites
+        working-directory: product
+        run: |
+          ./scripts/ci-apt-install.sh build-essential pkg-config libssl-dev libffi-dev \
+            libsqlite3-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev \
+            libsdl2-ttf-dev libutf8proc-dev python3-yaml
+      - name: Check my observer before restoring or executing a product
+        run: |
+          mkdir evidence
+          test "$(git -C product rev-parse HEAD)" = "$PRODUCT_REVISION"
+          test "$(git -C observer rev-parse HEAD)" = "$OBSERVER_REVISION"
+          python3 -m unittest discover -s observer/tests -p test_ci_representation_joins_observer.py -v \
+            > evidence/observer-controls.stdout 2> evidence/observer-controls.stderr
+      - name: Retain my original qualified producer evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir evidence/qualified
+          gh api 'repos/jordanhubbard/nanolang/actions/runs/46119624230/artifacts?per_page=100' \
+            > evidence/qualified/artifacts-current.json
+          gh api repos/jordanhubbard/nanolang/actions/jobs/140901037401 \
+            > evidence/qualified/linux-bootstrap.job.json
+          gh api repos/jordanhubbard/nanolang/actions/artifacts/15254880555/zip \
+            > evidence/qualified/linux-bootstrap.zip
+          git -C product -c gc.auto=0 fetch --filter=blob:none --depth=1 origin \
+            ddd3b5a4ff35678d1906c07c08fc6bbc39b041de 6e09c07a9f1651294e4669282cdc17ee14126775
+          python3 observer/scripts/ci_representation_joins_qualified_linux.py \
+            --root evidence/qualified --repo product --cohort linux-bootstrap \
+            > evidence/qualified/independent-reader.stdout 2> evidence/qualified/independent-reader.stderr
+      - name: Restore my actual qualified Stage2 and recorded closure
+        run: |
+          python3 observer/scripts/ci_representation_joins_restore.py \
+            --archive evidence/qualified/linux-bootstrap.zip --workspace "$GITHUB_WORKSPACE" \
+            --repo product --admission evidence/producer-admission.json
+      - name: Build my fresh component tools and original C shape suite
+        working-directory: product
+        timeout-minutes: 25
+        run: |
+          make -f Makefile.gnu -j2 CC=/usr/bin/cc bin/nanoc_c nano_virt nano_vm nvm2c \
+            nvm2c-runtime test-nvm2c-shapes > ../evidence/build.stdout 2> ../evidence/build.stderr
+      - name: Execute all32 original and new component methods
+        timeout-minutes: 95
+        env:
+          NANOLANG_TRANSLATOR_SOURCE_COMPILER: ${{ github.workspace }}/bin/nanoc_stage2
+          NANO_AS_CAPTURE_HELPER: ${{ github.workspace }}/bin/nano_as_capture.so
+          NANO_MODULE_PATH: ${{ github.workspace }}/product/modules
+        run: |
+          python3 observer/scripts/ci_representation_joins_qualification.py \
+            --product "$GITHUB_WORKSPACE/product" --observations "$GITHUB_WORKSPACE/evidence/component" \
+            --producer-admission "$GITHUB_WORKSPACE/evidence/producer-admission.json" \
+            --qualified-report "$GITHUB_WORKSPACE/evidence/qualified/verified-linux-bootstrap.json" \
+            > evidence/controller.stdout 2> evidence/controller.stderr
+      - name: Preserve my actual guarded input bytes
+        if: always()
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib,json,shutil
+          sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+          result=Path('evidence/component/retained-component-result.json')
+          out=Path('evidence/guarded-inputs');out.mkdir(parents=True,exist_ok=True)
+          records=[]
+          if result.exists():
+              q=json.loads(result.read_text())
+              for category in ['source_before','tools_before','images_before','qualified_sources_after','qualified_tools_after']:
+                  for name,h in q.get(category,{}).items():
+                      path=Path(name);path=path if path.is_absolute() else Path('product')/path
+                      if not path.is_file():
+                          records.append(dict(category=category,original=str(path),expected_sha256=h,missing=True))
+                          continue
+                      actual=sha(path)
+                      destination=out/actual
+                      if not destination.exists():shutil.copyfile(path,destination)
+                      assert sha(destination)==actual
+                      records.append(dict(category=category,original=str(path),retained=str(destination),sha256=actual,expected_sha256=h,matches=actual==h))
+          Path('evidence/guarded-inputs.json').write_text(json.dumps(records,indent=2)+'\n')
+          PY
+      - name: Verify my final source identities
+        if: always()
+        run: |
+          git -C product diff --exit-code HEAD
+          git -C observer diff --exit-code HEAD
+      - name: Retain my full component observations
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: representation-joins-${{ env.PRODUCT_REVISION }}-${{ github.sha }}
+          path: |
+            evidence/
+            observer/scripts/ci_representation_joins_*.py
+            observer/scripts/ci_original_qualification_policy.py
+            observer/tests/test_ci_representation_joins_observer.py
+            observer/.github/workflows/representation-joins-hosted.yml
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
