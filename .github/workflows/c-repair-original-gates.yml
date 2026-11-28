@@ -22,6 +22,10 @@ on:
       - 'tests/test_checker_rejected_declarations.*'
       - 'src/module_builder.c'
       - 'src/nanoisa/nvm2c.c'
+      - 'src/nanoisa/nvm2c_map_roots.inc'
+      - 'tests/native_root_insertion_probe.c'
+      - 'tests/test_native_root_insertion.py'
+      - 'tests/support/native_root_insertion_previous.inc'
       - 'src/nanoisa/verifier.c'
       - 'src/nanoisa/verifier.h'
       - 'src/nanoisa/nvm_v2_convert.c'
@@ -151,7 +155,7 @@ jobs:
           set -o pipefail
           make -f Makefile.gnu -j1 CC="${CC:-cc}" test-env-string-binding-hint test-env-symbol-index test-eval-builtin-resolution \
             test-checker-rejected-declarations test-checker-rejected-declaration-cli test-function-depth-batch test-eval-string-split \
-            test-gc-registry-working-set test-gc-registry-working-set-sanitizers test-gc-shutdown-sanitizers test-eval-caller-root-handoff \
+            test-gc-registry-working-set test-gc-registry-working-set-sanitizers test-gc-shutdown-sanitizers test-eval-caller-root-handoff test-native-root-insertion \
             2>&1 | tee .test_output/c-repair-original-gates/string-binding-regression.log
       - name: Execute my array repair regression
         if: matrix.gate == 'cache'
