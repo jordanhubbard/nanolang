@@ -629,6 +629,12 @@ test-nvm2c-shapes: | $(OBJ_DIR)
 		tests/nanoisa/test_nvm2c_shape.c $(NANOISA_DIR)/nvm2c_shape.c
 	@$(OBJ_DIR)/test_nvm2c_shape
 
+.PHONY: test-shape-flow-scaling
+test-shape-flow-scaling:
+	CC="$(CC)" python3 -m unittest -v tests.test_shape_flow_scaling
+
+test-quick: test-shape-flow-scaling
+
 NVM2C_TEST_BINARY ?= tests/nanoisa/test_nvm2c
 
 .PHONY: test-native-array-pop

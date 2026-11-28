@@ -1,0 +1,96 @@
+name: Shape flow duplicate lookup controls
+
+on:
+  push:
+    branches: [work/5.1-shape-flow-pair-index-20261128]
+    paths:
+      - '.github/workflows/shape-flow-scaling.yml'
+      - 'src/nanoisa/nvm2c_shape.*'
+      - 'tests/test_shape_flow_scaling.py'
+      - 'tests/shape_flow_probe.c'
+      - 'tests/support/shape_flow_previous.inc'
+      - 'tests/nanoisa/test_nvm2c_shape.c'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  shape-flow:
+    name: Shape flow controls (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, xcode-27]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Require a hosted worker
+        run: test '${{ runner.environment }}' = github-hosted
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/docs/evidence/
+      - name: Record my source and tools
+        run: |
+          mkdir -p .test_output/shape-flow
+          git rev-parse HEAD > .test_output/shape-flow/source-head
+          uname -a > .test_output/shape-flow/host
+          cc --version > .test_output/shape-flow/compiler
+          python3 --version > .test_output/shape-flow/python
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib,json,shutil
+          names=['src/nanoisa/nvm2c_shape.c','src/nanoisa/nvm2c_shape.h',
+                 'tests/test_shape_flow_scaling.py','tests/shape_flow_probe.c',
+                 'tests/support/shape_flow_previous.inc','tests/nanoisa/test_nvm2c_shape.c',
+                 'Makefile.gnu','.github/workflows/shape-flow-scaling.yml']
+          names += [shutil.which('cc'),shutil.which('python3')]
+          hashes={n:hashlib.sha256(Path(n).read_bytes()).hexdigest() for n in names}
+          Path('.test_output/shape-flow/sources-before.json').write_text(json.dumps(hashes,indent=2)+'\n')
+          PY
+      - name: Check my flow semantics, work budgets and counterexamples
+        env:
+          NANO_SHAPE_FLOW_ARTIFACT_DIR: .test_output/shape-flow/controls
+        run: |
+          python3 -m unittest -v tests.test_shape_flow_scaling > .test_output/shape-flow/controls.stdout 2> .test_output/shape-flow/controls.stderr
+      - name: Run my unchanged original shape assertions
+        run: |
+          make -f Makefile.gnu test-nvm2c-shapes > .test_output/shape-flow/original-shapes.stdout 2> .test_output/shape-flow/original-shapes.stderr
+          cp obj/test_nvm2c_shape .test_output/shape-flow/original-shapes
+      - name: Verify my source and tool guards
+        if: always()
+        run: |
+          git diff --exit-code HEAD
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib,json
+          base=Path('.test_output/shape-flow')
+          before=json.loads((base/'sources-before.json').read_text())
+          after={n:hashlib.sha256(Path(n).read_bytes()).hexdigest() for n in before}
+          (base/'sources-after.json').write_text(json.dumps(after,indent=2)+'\n')
+          assert before==after
+          PY
+      - name: Retain my actual inputs, products and streams
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shape-flow-${{ runner.os }}-${{ github.sha }}
+          path: |
+            .test_output/shape-flow/
+            src/nanoisa/nvm2c_shape.c
+            src/nanoisa/nvm2c_shape.h
+            tests/shape_flow_probe.c
+            tests/test_shape_flow_scaling.py
+            tests/support/shape_flow_previous.inc
+            tests/nanoisa/test_nvm2c_shape.c
+            Makefile.gnu
+            .github/workflows/shape-flow-scaling.yml
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
