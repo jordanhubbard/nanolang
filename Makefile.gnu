@@ -8598,3 +8598,9 @@ test-gc-registry-working-set-sanitizers: | $(OBJ_DIR)
 	ASAN_OPTIONS=detect_leaks=$(if $(filter Darwin,$(UNAME_S)),0,1) $(OBJ_DIR)/test_gc_registry_growth_failure_sanitized
 
 test-units: test-gc-registry-working-set test-gc-registry-working-set-sanitizers
+
+.PHONY: test-nanovirt-qualified-record-projection
+test-nanovirt-qualified-record-projection: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_nanovirt_qualified_record_projection
+
+test-units: test-nanovirt-qualified-record-projection
