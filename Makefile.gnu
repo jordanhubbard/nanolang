@@ -8604,3 +8604,9 @@ test-nanovirt-qualified-record-projection: $(COMPILER_C) nano_virt nano_vm nvm2c
 	python3 -m unittest -v tests.test_nanovirt_qualified_record_projection
 
 test-units: test-nanovirt-qualified-record-projection
+
+.PHONY: test-nvm2c-representation-join-allocation
+test-nvm2c-representation-join-allocation: $(COMPILER_C)
+	python3 -m unittest -v tests.test_nvm2c_representation_join_allocation
+
+test-units: test-nvm2c-representation-join-allocation

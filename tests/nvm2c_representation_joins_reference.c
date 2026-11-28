@@ -20,7 +20,26 @@ typedef struct {
     uint8_t *default_fields;
     NvmShapeId *shape_current;
 } Nvm2cBuf;
+#ifdef NANO_JOIN_ALLOC_FAULT_OBSERVER
+static size_t observed_allocations, observed_fail_at;
+static void *observed_malloc(size_t size) {
+    ++observed_allocations;
+    if (observed_allocations == observed_fail_at) return NULL;
+    return malloc(size);
+}
+static void *observed_calloc(size_t count, size_t size) {
+    ++observed_allocations;
+    if (observed_allocations == observed_fail_at) return NULL;
+    return calloc(count, size);
+}
+#define malloc observed_malloc
+#define calloc observed_calloc
+#endif
 #include "nvm2c_representation_joins_actual.h"
+#ifdef NANO_JOIN_ALLOC_FAULT_OBSERVER
+#undef malloc
+#undef calloc
+#endif
 static uint32_t word(const unsigned char *p) {
     return (uint32_t)p[0]|(uint32_t)p[1]<<8|(uint32_t)p[2]<<16|(uint32_t)p[3]<<24;
 }
@@ -121,7 +140,14 @@ static int plan_metadata(Nvm2cBuf *b,Nvm2cSimSlot value,uint32_t target,int crea
 }
 
 int main(int argc,char **argv) {
-    for(int arg=1;arg<argc;arg++) {
+    int first=1;
+#ifdef NANO_JOIN_ALLOC_FAULT_OBSERVER
+    if(argc<3||strncmp(argv[1],"--fail-at=",10))return 2;
+    char *end=NULL;unsigned long long fail=strtoull(argv[1]+10,&end,10);
+    if(!end||end==argv[1]+10||*end||fail>SIZE_MAX)return 2;
+    observed_fail_at=(size_t)fail;first=2;
+#endif
+    for(int arg=first;arg<argc;arg++) {
         FILE *file=fopen(argv[arg],"rb");if(!file)return 2;struct stat st;
         if(fstat(fileno(file),&st)||!S_ISREG(st.st_mode)||st.st_size<0){fclose(file);return 2;}
         if((uint64_t)st.st_size>4194304){fclose(file);puts("INVALID");continue;}
@@ -142,6 +168,9 @@ int main(int argc,char **argv) {
             Nvm2cSimSlot *cells=calloc((size_t)ops+1,sizeof *cells),*saved=calloc((size_t)ops+1,sizeof *saved);
             if(!cells||!saved){free(cells);free(saved);nvm_shape_destroy(&b.shapes);free(data);return 2;}
             int sp=0,saved_sp=0;Nvm2cSimSlot output=no_output();
+#ifdef NANO_JOIN_ALLOC_FAULT_OBSERVER
+            observed_allocations=0;
+#endif
             Nvm2cFacts facts={0};facts.changed=(flags&64)!=0;facts.final=(flags&32)!=0;b.has_maps=(flags&128)!=0;
             Nvm2cSimJoin join={0};int allocated=0;size_t retired_count=0;
             Nvm2cSimSlot **join_storage=calloc((size_t)ops+1,sizeof *join_storage);
@@ -190,6 +219,11 @@ int main(int argc,char **argv) {
                 if(!mode){complete(&b,cells,sp,locals,locals_count,output);join_report(&b,&facts,&join,allocated);}
             }
             event("Z",item,ops,0,&b,sp,current);if(mode||!ops){complete(&b,cells,sp,locals,locals_count,output);join_report(&b,&facts,&join,allocated);}
+#ifdef NANO_JOIN_ALLOC_FAULT_OBSERVER
+            size_t blocks=0;
+            for(Nvm2cFieldBlock *block=b.field_blocks;block;block=block->next)++blocks;
+            printf("F|%zu|%zu|%zu\n",observed_allocations,observed_fail_at,blocks);
+#endif
             for(size_t i=0;i<retired_count;i++)free(join_storage[i]);
             free(join_storage);
             while(b.scalar_joins){Nvm2cScalarJoin *next=b.scalar_joins->next;free(b.scalar_joins);b.scalar_joins=next;}
