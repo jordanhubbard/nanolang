@@ -7,11 +7,16 @@
       "manifest_sha256": "7941902df78279894b4280d16e87d15cba2bcb03a9a76f9b8824fcf5c236fafb",
       "independent_reader_passed": true,
       "changed_manifest_refused": true
+    },
+    {
+      "capsule": "original-cohorts-46111643993/darwin-bootstrap",
+      "manifest_sha256": "b1aa3c7704a0ee8564a92e3e554650ecc1de81d374d17f4601d8aed02b1ce319",
+      "independent_reader_passed": true,
+      "changed_manifest_refused": true
     }
   ],
   "pending": [
     "hosted Linux original bootstrap/native/emitter",
-    "hosted Darwin original bootstrap/native/emitter",
     "hosted Darwin cache/worker",
     "reserved ARM original17/36/12 plus final regressions",
     "reserved original20 consumers",
