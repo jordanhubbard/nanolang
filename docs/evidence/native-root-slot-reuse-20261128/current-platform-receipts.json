@@ -29,16 +29,23 @@
       "independent_reader_passed": true,
       "changed_manifest_refused": true,
       "product_gate_passed": true,
-      "scope": "I accept17/36/12 and final regressions; the separate original20 consumers remain pending."
+      "scope": "I accept17/36/12 and final regressions; the separate original20 consumer invocation also passes."
+    },
+    {
+      "capsule": "current-arm-consumer20",
+      "manifest_sha256": "bc753622c0606def77b566a8a067956b242035a3995c4803013c8546fe4d583a",
+      "independent_reader_passed": true,
+      "changed_manifest_refused": true,
+      "product_gate_passed": true,
+      "scope": "I accept the original20 discovered/run methods with zero skips and unchanged guards; this does not clear the failed Linux emitter gate."
     }
   ],
   "pending": [
     "hosted Darwin cache/worker",
-    "reserved original20 consumers",
     "default custody and all69 release requirements"
   ],
   "candidate_accepted": false,
-  "arm_prerequisite": "I publish independently verified17/36/12, two line methods, four root methods and all final regressions. The complete20 consumers are running.",
+  "arm_prerequisite": "I publish independently verified17/36/12, two line methods, four root methods, all final regressions and the separate complete20 consumers. Controller and guardian terminate before fence28 release.",
   "failures": [
     {
       "gate": "hosted Linux original native/emitter",
@@ -55,6 +62,15 @@
     "observer": "5738042adeab1b63675d1d3b4fa25a1ad575554c",
     "restored_cache_readiness_product_exit": 0,
     "elapsed_seconds": 236.802539551,
+    "qualification": false,
+    "original_precommand_state_reconstructed": false
+  },
+  "prefix_diagnostic": {
+    "capsule": "stage2-prefix-diagnostic-46117366121",
+    "manifest_sha256": "3b5cfd761c3d8bba8f278c1583c3f051692a54848da1f6f34ce7bedcff239a80",
+    "observer": "c7fe823efc1b582a3d01cf25a2baa610d77e6a48",
+    "product_exit": 0,
+    "elapsed_seconds": 296.598013032,
     "qualification": false,
     "original_precommand_state_reconstructed": false
   }
