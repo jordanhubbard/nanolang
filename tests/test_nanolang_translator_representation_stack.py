@@ -114,9 +114,10 @@ class RepresentationStack(unittest.TestCase):
         programs += [program([operation(3,2,0,shape=1),operation(4,2,0,shape=1)],flags=1),
                      program([operation(4,1,0),operation(3,8,1),operation(4,8,2)],flags=0),
                      program([operation(4,0,65536)],locals=()),
-                     program([operation(3,1,65536)],locals=(8,)),
                      program([operation(4,11,0)],locals=bytes([2])*65535)]
-        text=self.compare(grouped(programs,'consumers'),'consumers')
+        rows=grouped(programs,'consumers')+[('undefined-origin',packet([program([operation(3,1,65536)],locals=(8,))]))]
+        text=self.compare(rows,'consumers')
+        self.assertIn('L|0,'+','.join(['2']*65534)+'\n',text)
         self.assertIn('I require integer operands for typed I64 operations',text)
         self.assertIn('INVALID\n',text)
 
