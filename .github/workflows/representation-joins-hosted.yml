@@ -15,7 +15,7 @@ permissions:
   actions: read
 
 env:
-  PRODUCT_REVISION: e2ad13e3ee129b926a5cab9b15f22bf61c0ac5d8
+  PRODUCT_REVISION: 8e422db88ba093c7d277e93b1e120c236acd85b9
   OBSERVER_REVISION: ${{ github.sha }}
   CC: /usr/bin/cc
 
@@ -92,7 +92,7 @@ jobs:
         run: |
           make -f Makefile.gnu -j2 CC=/usr/bin/cc bin/nanoc_c nano_virt nano_vm nvm2c \
             nvm2c-runtime test-nvm2c-shapes > ../evidence/build.stdout 2> ../evidence/build.stderr
-      - name: Execute all32 original and new component methods
+      - name: Execute all33 original and new component methods
         timeout-minutes: 95
         env:
           NANOLANG_TRANSLATOR_SOURCE_COMPILER: ${{ github.workspace }}/bin/nanoc_stage2

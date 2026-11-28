@@ -26,7 +26,7 @@ class RepresentationJoinObserver(unittest.TestCase):
         visit(q)
         with self.assertRaisesRegex(RuntimeError,'NANO_SHADOW_TIMEOUT_SECONDS'):
             visit({'env':{'NANO_SHADOW_TIMEOUT_SECONDS':'10'}})
-        self.assertEqual(q['env']['PRODUCT_REVISION'],'e2ad13e3ee129b926a5cab9b15f22bf61c0ac5d8')
+        self.assertEqual(q['env']['PRODUCT_REVISION'],'8e422db88ba093c7d277e93b1e120c236acd85b9')
         self.assertEqual(q['permissions'],{'contents':'read','actions':'read'})
 
     def test_controller_refuses_override_before_namespace(self):
@@ -56,7 +56,8 @@ class RepresentationJoinObserver(unittest.TestCase):
         source=(ROOT/'scripts/ci_representation_joins_qualification.py').read_text()
         for module in ['representation_facts','representation_shapes','representation_stack','shape_graph','shape_solver','representation_joins']:
             self.assertEqual(source.count("'tests.test_nanolang_translator_"+module+"'"),1)
-        self.assertIn('suite.countTestCases()==32',source)
+        self.assertIn('suite.countTestCases()==33',source)
+        self.assertEqual(source.count("'tests.test_nvm2c_representation_join_allocation'"),1)
         self.assertIn("require_original_timeout_defaults(os.environ)",source)
         self.assertIn("q['all_guards_match']",source)
         self.assertIn("q['qualified_guards_match']",source)

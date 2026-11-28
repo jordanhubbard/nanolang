@@ -12,7 +12,7 @@ temporary=root/'tmp';temporary.mkdir();os.environ['TMPDIR']=str(temporary);tempf
 tree=a.product.resolve();os.chdir(tree);sys.path.insert(0,str(tree))
 sha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest()
 head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=tree,text=True).strip()
-assert head==os.environ['PRODUCT_REVISION']=='e2ad13e3ee129b926a5cab9b15f22bf61c0ac5d8'
+assert head==os.environ['PRODUCT_REVISION']=='8e422db88ba093c7d277e93b1e120c236acd85b9'
 assert not subprocess.check_output(['git','status','--porcelain','--untracked-files=no'],cwd=tree)
 admission=json.loads(a.producer_admission.read_text());verified=json.loads(a.qualified_report.read_text());assert len(verified)==1
 verified=verified[0];assert verified['full_original_native_gate_passed'] and verified['bootstrap_steps']==17 and verified['native_methods']==36 and verified['emitter_methods']==12
@@ -69,9 +69,9 @@ def observed(args,**kwargs):
 native_process.run_captured=observed
 start=time.monotonic()
 try:
- suite=unittest.TestSuite(unittest.defaultTestLoader.loadTestsFromName(n) for n in ('tests.test_nanolang_translator_representation_facts','tests.test_nanolang_translator_representation_shapes','tests.test_nanolang_translator_representation_stack','tests.test_nanolang_translator_shape_graph','tests.test_nanolang_translator_shape_solver','tests.test_nanolang_translator_representation_joins'))
+ suite=unittest.TestSuite(unittest.defaultTestLoader.loadTestsFromName(n) for n in ('tests.test_nanolang_translator_representation_facts','tests.test_nanolang_translator_representation_shapes','tests.test_nanolang_translator_representation_stack','tests.test_nanolang_translator_shape_graph','tests.test_nanolang_translator_shape_solver','tests.test_nanolang_translator_representation_joins','tests.test_nvm2c_representation_join_allocation'))
  assert not unittest.defaultTestLoader.errors,unittest.defaultTestLoader.errors
- assert suite.countTestCases()==32,suite.countTestCases()
+ assert suite.countTestCases()==33,suite.countTestCases()
  q['discovered_methods']=suite.countTestCases()
  result=unittest.TextTestRunner(verbosity=2).run(suite)
  q.update(tests_run=result.testsRun,failures=len(result.failures),errors=len(result.errors),skips=len(result.skipped),functional_gate_passed=result.wasSuccessful() and not result.skipped)
