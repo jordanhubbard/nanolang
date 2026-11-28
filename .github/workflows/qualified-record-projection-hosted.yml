@@ -1,0 +1,96 @@
+name: Qualified record projection repair
+on:
+  push:
+    branches: [work/5.1-representation-joins-hosted-20261128]
+    paths:
+      - '.github/workflows/qualified-record-projection-hosted.yml'
+      - 'scripts/ci_qualified_record_projection.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+env:
+  OLD_REVISION: e2ad13e3ee129b926a5cab9b15f22bf61c0ac5d8
+  PRODUCT_REVISION: a52e44117f2623acc401d0fe0c10024a29b130dd
+  OBSERVER_REVISION: ${{ github.sha }}
+  CC: cc
+jobs:
+  projection:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-15]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Require an actual hosted worker
+        run: test '${{ runner.environment }}' = github-hosted
+      - name: Check out my observer
+        uses: actions/checkout@v4
+        with:
+          path: observer
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /scripts/ci_qualified_record_projection.py
+            /scripts/ci_original_qualification_policy.py
+            /.github/workflows/qualified-record-projection-hosted.yml
+      - name: Check out my unchanged old reference
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.OLD_REVISION }}
+          path: old
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/docs/evidence/
+      - name: Check out my current repair
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.PRODUCT_REVISION }}
+          path: product
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/docs/evidence/
+      - name: Install my Linux dependencies
+        if: runner.os == 'Linux'
+        working-directory: product
+        run: |
+          ./scripts/ci-apt-install.sh build-essential pkg-config libssl-dev libffi-dev libsqlite3-dev \
+            libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libutf8proc-dev
+      - name: Install my Darwin dependencies
+        if: runner.os == 'macOS'
+        working-directory: product
+        run: |
+          ./scripts/ci-brew-install.sh pkg-config openssl sqlite sdl2 sdl2_image sdl2_mixer sdl2_ttf utf8proc
+      - name: Select my qualified Darwin compiler and SDK
+        if: runner.os == 'macOS'
+        working-directory: product
+        run: python3 scripts/ci_select_capture_clang.py
+      - name: Execute my exact old and current controls
+        run: |
+          mkdir evidence
+          python3 observer/scripts/ci_qualified_record_projection.py --old old --product product \
+            --output evidence/projection > evidence/controller.stdout 2> evidence/controller.stderr
+      - name: Check my final source identities
+        if: always()
+        run: |
+          git -C product diff --exit-code HEAD
+          git -C old diff --exit-code HEAD
+          git -C observer diff --exit-code HEAD
+      - name: Retain my complete observations
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qualified-record-projection-${{ matrix.os }}-${{ env.PRODUCT_REVISION }}-${{ github.sha }}
+          path: |
+            evidence/
+            product/.test_output/retirement/capture-toolchain.json
+            observer/scripts/ci_qualified_record_projection.py
+            observer/scripts/ci_original_qualification_policy.py
+            observer/.github/workflows/qualified-record-projection-hosted.yml
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
