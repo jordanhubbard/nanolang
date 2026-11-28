@@ -11,6 +11,8 @@ on:
       - 'src/module.c'
       - 'src/nanolang.h'
       - 'src/runtime/gc.h'
+      - 'src/runtime/gc.c'
+      - 'tests/test_gc_registry_*.c'
       - 'tests/test_env_string_binding_hint.c'
       - 'tests/test_eval_builtin_resolution.c'
       - 'tests/test_checker_rejected_declarations.*'
@@ -145,6 +147,7 @@ jobs:
           set -o pipefail
           make -f Makefile.gnu -j1 CC="${CC:-cc}" test-env-string-binding-hint test-env-symbol-index test-eval-builtin-resolution \
             test-checker-rejected-declarations test-checker-rejected-declaration-cli test-function-depth-batch test-eval-string-split \
+            test-gc-registry-working-set test-gc-registry-working-set-sanitizers test-gc-shutdown-sanitizers \
             2>&1 | tee .test_output/c-repair-original-gates/string-binding-regression.log
       - name: Execute my array repair regression
         if: matrix.gate == 'cache'
