@@ -1,0 +1,188 @@
+name: Pinned shape flow original ARM qualification
+
+on:
+  push:
+    branches: [work/5.1-shape-flow-hosted-arm-20261128]
+    paths:
+      - '.github/workflows/shape-flow-hosted-arm.yml'
+      - 'scripts/ci_original_native_qualification.py'
+      - 'scripts/ci_original_consumer20.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PRODUCT_REVISION: ddd3b5a4ff35678d1906c07c08fc6bbc39b041de
+  C_REPAIR_OBSERVER_REVISION: ${{ github.sha }}
+  NANO_SHADOW_TIMEOUT_SECONDS: '10'
+  CC: /usr/bin/cc
+
+jobs:
+  original-arm:
+    name: Original ARM17 native36 emitter12 consumer20
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 180
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Require genuine hosted Linux ARM
+        run: |
+          test '${{ runner.environment }}' = github-hosted
+          test '${{ runner.arch }}' = ARM64
+          test "$(uname -m)" = aarch64
+          test "$(uname -s)" = Linux
+      - name: Select my recorded system tools
+        run: echo /usr/bin >> "$GITHUB_PATH"
+      - name: Check out my observer separately
+        uses: actions/checkout@v4
+        with:
+          path: observer
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /scripts/
+            /.github/workflows/shape-flow-hosted-arm.yml
+      - name: Check out my exact product
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.PRODUCT_REVISION }}
+          path: product
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/docs/evidence/
+      - name: Check out my separate exact consumer root
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.PRODUCT_REVISION }}
+          path: consumers
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/docs/evidence/
+      - name: Record my checkout and host admission
+        run: |
+          mkdir evidence
+          test "$(git -C observer rev-parse HEAD)" = "$C_REPAIR_OBSERVER_REVISION"
+          test "$(git -C product rev-parse HEAD)" = "$PRODUCT_REVISION"
+          test "$(git -C consumers rev-parse HEAD)" = "$PRODUCT_REVISION"
+          uname -a > evidence/host.txt
+          git -C product ls-tree -r HEAD > evidence/product-tree.txt
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib,json,os,platform,shutil
+          files=['observer/scripts/ci_original_native_qualification.py',
+                 'observer/scripts/ci_original_consumer20.py',
+                 'observer/.github/workflows/shape-flow-hosted-arm.yml']
+          for tool in ['cc','as','ld','make','python3']:
+              assert Path(shutil.which(tool)).resolve()==Path('/usr/bin',tool).resolve()
+          d={'kind':'github-hosted-linux-arm64','run_id':os.environ['GITHUB_RUN_ID'],
+             'job':os.environ['GITHUB_JOB'],'runner_name':os.environ['RUNNER_NAME'],
+             'architecture':platform.machine(),'product_revision':os.environ['PRODUCT_REVISION'],
+             'observer_revision':os.environ['C_REPAIR_OBSERVER_REVISION'],
+             'observer_sources':{n:hashlib.sha256(Path(n).read_bytes()).hexdigest() for n in files},
+             'local_worker_lease':False,'whole_release':False}
+          for n in ['.','product','consumers']:
+              assert shutil.disk_usage(n).free>=20*1024**3
+          Path('evidence/hosted-admission.json').write_text(json.dumps(d,indent=2)+'\n')
+          PY
+      - name: Install my existing Linux dependencies
+        timeout-minutes: 25
+        working-directory: product
+        run: |
+          ./scripts/ci-apt-install.sh build-essential pkg-config libssl-dev libffi-dev \
+            libsqlite3-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev \
+            libsdl2-ttf-dev libutf8proc-dev python3-yaml
+      - name: Install my existing schema dependency
+        run: |
+          python3 -c 'import yaml' 2>/dev/null && exit 0
+          python3 -m pip install --user pyyaml \
+            || python3 -m pip install --user --break-system-packages pyyaml
+          python3 -c 'import yaml'
+      - name: Run my focused controls and unchanged original ARM native gates
+        timeout-minutes: 150
+        run: |
+          python3 observer/scripts/ci_original_native_qualification.py \
+            --product "$GITHUB_WORKSPACE/product" \
+            --observations "$GITHUB_WORKSPACE/evidence/native" \
+            > evidence/native-controller.stdout 2> evidence/native-controller.stderr
+      - name: Build my isolated original consumer tools
+        timeout-minutes: 30
+        working-directory: consumers
+        run: |
+          make -f Makefile.gnu -j2 CC=/usr/bin/cc bin/nanoc_c nano_virt nano_vm \
+            nvm2c nanoisa_dump nvm2c-runtime obj/nvm2c_affine_analysis_reference \
+            obj/nvm2c_affine_public_reference obj/nvm2c_affine_analysis_cache_reference \
+            > ../evidence/consumer-build.stdout 2> ../evidence/consumer-build.stderr
+      - name: Run my complete unchanged original20 consumers
+        timeout-minutes: 120
+        env:
+          NANOLANG_TRANSLATOR_SOURCE_COMPILER: ${{ github.workspace }}/product/bin/nanoc_stage2
+        run: |
+          python3 observer/scripts/ci_original_consumer20.py \
+            --product "$GITHUB_WORKSPACE/product" \
+            --consumer "$GITHUB_WORKSPACE/consumers" \
+            --native-observations "$GITHUB_WORKSPACE/evidence/native" \
+            --observations "$GITHUB_WORKSPACE/evidence/consumers" \
+            > evidence/consumer-controller.stdout 2> evidence/consumer-controller.stderr
+      - name: Verify my source and observer guards
+        if: always()
+        run: |
+          git -C product diff --exit-code HEAD
+          git -C consumers diff --exit-code HEAD
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib,json
+          p=Path('evidence/hosted-admission.json')
+          if p.exists():
+              d=json.loads(p.read_text())
+              assert all(hashlib.sha256(Path(n).read_bytes()).hexdigest()==h for n,h in d['observer_sources'].items())
+          PY
+      - name: Preserve my actual guarded input bytes
+        if: always()
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib,json,shutil
+          evidence=Path('evidence');out=evidence/'guarded-inputs';out.mkdir(parents=True)
+          sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+          records=[]
+          receipt=Path('product/bin/nanoc_bootstrap.json')
+          if receipt.exists():
+              q=json.loads(receipt.read_text())
+              for name,h in q['sources'].items():records.append(('native-source',Path('product')/name,h))
+              for name,h in q['artifacts'].items():records.append(('native-product',Path('product/bin')/name,h))
+              for name,h in q['hosts'].items():records.append(('native-host',Path(name),h))
+          result=evidence/'consumers/retained-callables-result.json'
+          if result.exists():
+              q=json.loads(result.read_text())
+              for category in ['source_before','tools_before','images_before']:
+                  for name,h in q[category].items():
+                      p=Path(name);p=p if p.is_absolute() else Path('consumers')/p
+                      records.append((category,p,h))
+          manifest=[]
+          for i,(category,p,h) in enumerate(records):
+              assert p.is_file() and sha(p)==h,(category,str(p))
+              destination=out/category/(str(i)+'-'+p.name);destination.parent.mkdir(parents=True,exist_ok=True)
+              shutil.copyfile(p,destination);assert sha(destination)==h
+              manifest.append({'category':category,'original':str(p),'retained':str(destination),'sha256':h})
+          (evidence/'guarded-inputs.json').write_text(json.dumps(manifest,indent=2)+'\n')
+          PY
+      - name: Retain my actual ARM observations and products
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shape-flow-original-arm-${{ env.PRODUCT_REVISION }}-${{ github.sha }}
+          path: |
+            evidence/
+            observer/scripts/ci_original_native_qualification.py
+            observer/scripts/ci_original_consumer20.py
+            observer/.github/workflows/shape-flow-hosted-arm.yml
+            product/bin/
+            product/obj/bootstrap-nanoisa/
+            product/modules/index.json
+            product/modules/**/.build/**
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
