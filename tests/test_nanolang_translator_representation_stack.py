@@ -124,7 +124,7 @@ class RepresentationStack(unittest.TestCase):
         programs=[program([operation(1,0),operation(2,11,123)],capacity=cap,current=current) for cap in [0,1,2,65535,4294967295,4294967296] for current in [0,1,4294967295]]
         programs += [program([operation(1,kind),operation(2),operation(1,kind)],defaults=bytes(range(256)),locals=(),opcode=opcode) for kind in [0,1,2,8,255] for opcode in [0,6,108,143]]
         push=operation(1,0);pop=operation(2,11,123)
-        # I reach the real uint16 stack frontier, refuse one extra push, drain it,
+        # I fill a configured 65535-cell stack, refuse one extra push, drain it,
         # and preserve the first error through a final underflow. No report truncates.
         deep=program([push]*65536+[pop]*65536,capacity=65535,mode=1,defaults=(),locals=())
         rows=grouped(programs,'capacity')+[('uint16-frontier',packet([deep]))]
