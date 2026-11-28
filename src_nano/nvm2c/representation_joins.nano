@@ -1,0 +1,374 @@
+module nvm2c_representation_joins
+module "src_nano/nvm2c/representation_stack.nano" as stack
+module "src_nano/nvm2c/representation_shapes.nano" as shapes
+module "src_nano/nvm2c/shape_graph.nano" as graph
+module "src_nano/nvm2c/storage_kinds.nano" as kinds
+module "src_nano/nvm2c/carrier_masks.nano" as masks
+
+# I retain classifier facts; these joins grant no executable authority.
+pub struct Plan { function_index: int, target: int, tags: array<int> }
+pub struct Join { established: bool, height: int, slots: array<stack.Slot> }
+pub struct State { shapes: shapes.State, plans: array<Plan>, changed: bool, final: bool, has_maps: bool }
+pub struct Step { valid: bool, accepted: bool, state: State, retained: Join }
+struct Fields { accepted: bool, values: array<u8> }
+
+fn bounded(value: int, maximum: int) -> bool { return (and (>= value 0) (<= value maximum)) }
+shadow bounded { assert (bounded 4294967295 4294967295) assert (not (bounded -1 255)) }
+pub fn empty() -> Join { return Join { established: false, height: 0, slots: [] } }
+shadow empty { assert (not (empty).established) assert (== (empty).height 0) }
+pub fn create(context: shapes.State, plans: array<Plan>, changed: bool, final: bool, has_maps: bool) -> State {
+    return State { shapes: context, plans: plans, changed: changed, final: final, has_maps: has_maps }
+}
+shadow create {
+    let c: shapes.Context = shapes.Context { tracked: false, generic_array: false, private_map: false, function_index: 0, offset: 0, opcode: 0 }
+    assert (create (shapes.create c true "prior") [] false true false).shapes.failed
+    assert (create (shapes.create c false "") [] true false false).changed
+}
+fn sample() -> State {
+    let c: shapes.Context = shapes.Context { tracked: false, generic_array: false, private_map: false, function_index: 17, offset: 29, opcode: 0 }
+    return (create (shapes.create c false "") [] false false false)
+}
+shadow sample { assert (== (sample).shapes.context.offset 29) assert (not (sample).final) }
+fn context(s: State, value: shapes.State) -> State { return (create value s.plans s.changed s.final s.has_maps) }
+shadow context { let s: State = (sample) assert (context s (shapes.create s.shapes.context true "first")).shapes.failed }
+fn facts(s: State, plans: array<Plan>, changed: bool, has_maps: bool) -> State { return (create s.shapes plans changed s.final has_maps) }
+shadow facts { let s: State = (sample) assert (facts s [] true true).changed assert (facts s [] true true).has_maps }
+fn graph_state(s: State, value: graph.Step) -> State {
+    return (context s shapes.State { context: s.shapes.context, graph: value.state, failed: s.shapes.failed, error: s.shapes.error })
+}
+shadow graph_state { let s: State = (sample) assert (== (array_length (graph_state s (graph.new_node s.shapes.graph 0)).shapes.graph.nodes) 1) }
+fn outcome(s: State, retained: Join, accepted: bool) -> Step { return Step { valid: true, accepted: accepted, state: s, retained: retained } }
+shadow outcome { assert (outcome (sample) (empty) true).accepted assert (outcome (sample) (empty) false).valid }
+fn invalid(s: State, retained: Join) -> Step { return Step { valid: false, accepted: false, state: s, retained: retained } }
+shadow invalid { assert (not (invalid (sample) (empty)).valid) }
+fn refused(s: State, retained: Join, message: string) -> Step {
+    let text: string = (cond (s.shapes.failed s.shapes.error) (else message))
+    let c: shapes.State = shapes.State { context: s.shapes.context, graph: s.shapes.graph, failed: true, error: text }
+    return (outcome (context s c) retained false)
+}
+shadow refused { let r: Step = (refused (sample) (empty) "first") assert (== (refused r.state r.retained "second").state.shapes.error "first") }
+fn cells(previous: Join, values: array<stack.Slot>) -> Join { return Join { established: previous.established, height: previous.height, slots: values } }
+shadow cells { assert (== (array_length (cells (empty) [(stack.slot 0 3)]).slots) 1) assert (not (cells (empty) []).established) }
+fn slot(kind: int, origin: int, present: bool, fields: array<u8>, id: int, tags: int, payload: int) -> stack.Slot {
+    return stack.Slot { kind: kind, origin: origin, fields_present: present, fields: fields, shape: id, scalar_tags: tags, array_payload: payload }
+}
+shadow slot { let v: stack.Slot = (slot 8 3 true [0] 7 17 13) assert (== v.kind 8) assert (== v.shape 7) assert (== v.scalar_tags 17) }
+fn joined_mask(left: int, right: int) -> int {
+    let mut result: int = 0
+    let mut bit: int = 1
+    while (< bit 65536) {
+        if (or (== (% (/ left bit) 2) 1) (== (% (/ right bit) 2) 1)) { set result (+ result bit) }
+        set bit (* bit 2)
+    }
+    return result
+}
+shadow joined_mask { assert (== (joined_mask 32768 17) 32785) assert (== (joined_mask 65535 1) 65535) }
+fn hexadecimal(value: int) -> string {
+    if (== value 0) { return "0" }
+    let mut remaining: int = value
+    let mut result: string = ""
+    while (> remaining 0) {
+        set result (+ (str_substring "0123456789abcdef" (% remaining 16) 1) result)
+        set remaining (/ remaining 16)
+    }
+    return result
+}
+shadow hexadecimal { assert (== (hexadecimal 0) "0") assert (== (hexadecimal 65535) "ffff") assert (== (hexadecimal 32785) "8011") }
+fn plan_index(s: State, function_index: int, target: int) -> int {
+    for i in (range 0 (array_length s.plans)) {
+        let value: Plan = (at s.plans i)
+        if (and (== value.function_index function_index) (== value.target target)) { return i }
+    }
+    return -1
+}
+shadow plan_index {
+    let s: State = (facts (sample) [Plan { function_index: 17, target: 29, tags: [] },Plan { function_index: 17, target: 29, tags: [3] }] false false)
+    assert (== (plan_index s 17 29) 0) assert (== (plan_index s 18 29) -1)
+}
+fn tag_at(s: State, index: int, position: int) -> int { if (< index 0) { return 0 } return (at (at s.plans index).tags position) }
+shadow tag_at { assert (== (tag_at (sample) -1 65535) 0) }
+fn changed_tag(s: State, index: int, position: int, tags: int) -> State {
+    (array_set (at s.plans index).tags position tags)
+    return (facts s s.plans true s.has_maps)
+}
+shadow changed_tag {
+    let s: State = (facts (sample) [Plan { function_index: 0, target: 0, tags: [0] }] false false)
+    let r: State = (changed_tag s 0 0 17)
+    assert r.changed assert (== (tag_at r 0 0) 17)
+}
+fn prepend_plan(s: State, function_index: int, target: int, count: int) -> State {
+    let mut tags: array<int> = []
+    for i in (range 0 count) { set tags (array_push tags 0) }
+    let mut values: array<Plan> = [Plan { function_index: function_index, target: target, tags: tags }]
+    for i in (range 0 (array_length s.plans)) { set values (array_push values (at s.plans i)) }
+    return (facts s values s.changed s.has_maps)
+}
+shadow prepend_plan { let s: State = (prepend_plan (sample) 17 29 2) assert (== (plan_index s 17 29) 0) assert (== (array_length (at s.plans 0).tags) 2) assert (not s.changed) }
+fn discovery_reset(s: State, planned: int, tags: int) -> bool {
+    return (and (not s.final) (and (masks.classify planned).optional
+        (and (>= tags 32768) (masks.classify (- tags 32768)).optional)))
+}
+shadow discovery_reset { assert (discovery_reset (sample) 3 32771) assert (not (discovery_reset (sample) 6 32774)) }
+fn provenance_error(function_index: int, target: int, position: int) -> string {
+    return (+ "I require proved finite payload provenance at a boxed join (function " (+ (int_to_string function_index)
+        (+ ", target " (+ (int_to_string target) (+ ", slot " (+ (int_to_string position) ")"))))))
+}
+shadow provenance_error { assert (== (provenance_error 17 29 2) "I require proved finite payload provenance at a boxed join (function 17, target 29, slot 2)") }
+fn optional_pair(left: int, right: int) -> bool {
+    for kind in (range 0 4) {
+        let scalar: int = (cond ((== kind 0) 1) ((== kind 1) 9) ((== kind 2) 0) (else 11))
+        if (and (or (== left scalar) (== left 8)) (or (== right scalar) (== right 8))) { return true }
+    }
+    return false
+}
+shadow optional_pair { assert (optional_pair 1 8) assert (optional_pair 8 8) assert (not (optional_pair 0 11)) }
+fn field_words(values: array<u8>) -> array<int> {
+    let mut result: array<int> = []
+    for i in (range 0 (array_length values)) { set result (array_push result (cast_int (at values i))) }
+    return result
+}
+shadow field_words { assert (== (at (field_words [0,255]) 1) 255) }
+fn field_copy(value: stack.Slot, width: int) -> array<u8> {
+    if value.fields_present { return (array_slice value.fields 0 width) }
+    let mut result: array<u8> = []
+    for i in (range 0 width) { set result (array_push result 0) }
+    return result
+}
+shadow field_copy { assert (== (array_length (field_copy (stack.slot 4 0) 3)) 3) }
+fn merged_fields(current: stack.Slot, incoming: stack.Slot, width: int, record: bool) -> Fields {
+    let values: array<u8> = (field_copy current width)
+    for i in (range 0 width) {
+        let a: int = (cast_int (at values i))
+        let b: int = (cast_int (at incoming.fields i))
+        let merged: kinds.FieldFacts = (kinds.field_pair a b)
+        if (and record merged.accepted) {
+            let byte_value: u8 = merged.merged
+            (array_set values i byte_value)
+        } else {
+            let mut selected: int = a
+            if (== a 2) { set selected b }
+            else if (and (kinds.classify a).finite (kinds.classify b).finite) { set selected (joined_mask a b) }
+            else if (and (!= b 2) (!= b a)) { return Fields { accepted: false, values: values } }
+            let byte_value: u8 = selected
+            (array_set values i byte_value)
+        }
+    }
+    return Fields { accepted: true, values: values }
+}
+shadow merged_fields {
+    let a: stack.Slot = (slot 4 0 true [2,65] 0 0 0)
+    let b: stack.Slot = (slot 4 0 true [1,96] 0 0 0)
+    let r: Fields = (merged_fields a b 2 true)
+    assert r.accepted assert (== (cast_int (at r.values 0)) 1) assert (== (cast_int (at r.values 1)) 97)
+    assert (== (cast_int (at a.fields 0)) 2)
+}
+fn slot_valid(value: stack.Slot, width: int) -> bool {
+    if (not (and (bounded value.kind 255) (and (>= value.origin -2147483648) (<= value.origin 2147483647)))) { return false }
+    if (not (and (bounded value.shape 4294967295) (and (bounded value.scalar_tags 65535) (bounded value.array_payload 255)))) { return false }
+    return (== (array_length value.fields) (cond (value.fields_present width) (else 0)))
+}
+shadow slot_valid { assert (slot_valid (stack.slot 255 -2147483648) 3) assert (not (slot_valid (stack.slot 256 0) 0)) }
+fn input_valid(s: State, retained: Join, function_index: int, target: int, incoming: array<stack.Slot>, width: int) -> bool {
+    if (not (and (bounded function_index 4294967295) (and (bounded target 4294967295) (bounded width 65535)))) { return false }
+    if (not (and (bounded s.shapes.context.function_index 4294967295) (and (bounded s.shapes.context.offset 4294967295) (bounded s.shapes.context.opcode 255)))) { return false }
+    if (not (and (bounded retained.height 2147483647) (<= retained.height (array_length retained.slots)))) { return false }
+    if (> (array_length incoming) 2147483647) { return false }
+    for i in (range 0 (array_length retained.slots)) { if (not (slot_valid (at retained.slots i) width)) { return false } }
+    for i in (range 0 (array_length incoming)) {
+        let value: stack.Slot = (at incoming i)
+        if (not (slot_valid value width)) { return false }
+        if (and retained.established (and (> width 0) (and (not value.fields_present) (or (== value.kind 4) (or (== value.kind 6) (== value.kind 7)))))) { return false }
+    }
+    for i in (range 0 (array_length s.plans)) {
+        let plan: Plan = (at s.plans i)
+        if (not (and (bounded plan.function_index 4294967295) (bounded plan.target 4294967295))) { return false }
+        for j in (range 0 (array_length plan.tags)) { if (not (bounded (at plan.tags j) 65535)) { return false } }
+    }
+    return true
+}
+shadow input_valid { assert (input_valid (sample) (empty) 4294967295 0 [] 65535) assert (not (input_valid (sample) (empty) 0 -1 [] 0)) }
+
+fn first_edge(s: State, previous: Join, function_index: int, target: int, incoming: array<stack.Slot>, plan: int) -> Step {
+    let count: int = (array_length incoming)
+    if (== count 0) { return (outcome s Join { established: true, height: 0, slots: previous.slots } true) }
+    let mut state: State = s
+    let values: array<stack.Slot> = (array_slice incoming 0 count)
+    let retained: Join = (cells previous values)
+    for i in (range 0 count) {
+        let original: stack.Slot = (at incoming i)
+        let mut value: stack.Slot = (at values i)
+        let planned: int = (tag_at state plan i)
+        if (!= planned 0) {
+            let tags: int = (joined_mask planned original.scalar_tags)
+            let classified: masks.MaskFacts = (masks.classify tags)
+            if (not (or classified.optional classified.boxed)) {
+                if (discovery_reset state planned tags) { set state (changed_tag state plan i 0) }
+                else { return (refused state retained (provenance_error function_index target i)) }
+            } else {
+                set value (slot 8 value.origin value.fields_present value.fields value.shape tags value.array_payload)
+                (array_set values i value)
+            }
+        }
+        if state.shapes.context.tracked {
+            if (== value.kind 4) {
+                let destination: graph.Step = (graph.new_node state.shapes.graph 4)
+                set state (graph_state state destination)
+                if (== destination.number 0) { return (outcome state retained false) }
+                let converted: graph.Step = (graph.convert state.shapes.graph original.shape destination.number)
+                set state (graph_state state converted)
+                if (== converted.number 0) { return (outcome state retained false) }
+                let checked: shapes.Result = (shapes.check state.shapes)
+                set state (context state checked.state)
+                if (== checked.value 0) { return (outcome state retained false) }
+                set value (slot value.kind value.origin value.fields_present value.fields destination.number value.scalar_tags value.array_payload)
+                (array_set values i value)
+            } else if (or (or (== value.kind 1) (== value.kind 0)) (or (or (== value.kind 9) (== value.kind 11)) (or (== value.kind 8) (== value.kind 2)))) {
+                let destination: shapes.Result = (shapes.variable state.shapes 0)
+                set state (context state destination.state)
+                if (!= value.kind 2) {
+                    let typed: shapes.Result = (shapes.field_kind state.shapes destination.value value.kind)
+                    set state (context state typed.state)
+                    if (== typed.value 0) { return (outcome state retained false) }
+                }
+                if (and (== value.kind 8) (masks.classify value.scalar_tags).boxed) {
+                    let boxed: shapes.Result = (shapes.carrier_box state.shapes destination.value value.scalar_tags)
+                    set state (context state boxed.state)
+                    if (== boxed.value 0) { return (outcome state retained false) }
+                }
+                let converted: graph.Step = (graph.convert state.shapes.graph original.shape destination.value)
+                set state (graph_state state converted)
+                if (== converted.number 0) { return (outcome state retained false) }
+                let checked: shapes.Result = (shapes.check state.shapes)
+                set state (context state checked.state)
+                if (== checked.value 0) { return (outcome state retained false) }
+                set value (slot value.kind value.origin value.fields_present value.fields destination.value value.scalar_tags value.array_payload)
+                (array_set values i value)
+            }
+        }
+    }
+    return (outcome state Join { established: true, height: count, slots: values } true)
+}
+shadow first_edge {
+    let r: Step = (first_edge (sample) (empty) 17 29 [(stack.slot 0 3)] -1)
+    assert r.accepted assert r.retained.established assert (== (at r.retained.slots 0).origin 3)
+    let partial: Join = (cells (empty) [(stack.slot 11 7)])
+    let zero: Step = (first_edge (sample) partial 17 29 [] -1)
+    assert zero.accepted assert (== zero.retained.height 0)
+    assert (== (array_length zero.retained.slots) 1)
+}
+
+pub fn merge(s: State, previous: Join, function_index: int, target: int, incoming: array<stack.Slot>, width: int) -> Step {
+    if (not (input_valid s previous function_index target incoming width)) { return (invalid s previous) }
+    let count: int = (array_length incoming)
+    let mut state: State = s
+    let mut plan: int = (plan_index state function_index target)
+    if (and (>= plan 0) (!= (array_length (at state.plans plan).tags) count)) {
+        return (refused state previous (+ "I found inconsistent scalar join height in function " (int_to_string function_index)))
+    }
+    if (not previous.established) { return (first_edge state previous function_index target incoming plan) }
+    if (!= previous.height count) { return (refused state previous (+ "I found incompatible stack heights at a join in function " (int_to_string function_index))) }
+    let values: array<stack.Slot> = previous.slots
+    let retained: Join = (cells previous values)
+    for i in (range 0 count) {
+        let original: stack.Slot = (at incoming i)
+        let mut value: stack.Slot = (at values i)
+        let payload: int = (cond ((== value.array_payload original.array_payload) original.array_payload) (else 0))
+        set value (slot value.kind value.origin value.fields_present value.fields value.shape value.scalar_tags payload)
+        (array_set values i value)
+        let tags: int = (joined_mask value.scalar_tags original.scalar_tags)
+        let classified: masks.MaskFacts = (masks.classify tags)
+        if (and (or (masks.classify value.scalar_tags).boxed (masks.classify original.scalar_tags).boxed) (not classified.boxed)) {
+            return (refused state retained "I cannot join proved finite storage with unproved payload provenance")
+        }
+        let scalar: bool = (or classified.optional classified.boxed)
+        let planned: int = (tag_at state plan i)
+        if (and (!= planned 0) (not scalar)) {
+            if (discovery_reset state planned tags) { set state (changed_tag state plan i 0) }
+            else { return (refused state retained (provenance_error function_index target i)) }
+        }
+        if scalar {
+            if (< plan 0) { set state (prepend_plan state function_index target count) set plan 0 }
+            let old: int = (tag_at state plan i)
+            if (!= old tags) {
+                let unchanged: bool = (and (and (== value.kind 8) (== original.kind 8)) (and (== value.scalar_tags tags) (== original.scalar_tags tags)))
+                if (and state.final (not unchanged)) {
+                    let message: string = (+ "I require stable scalar join facts before shape emission (function " (+ (int_to_string function_index)
+                        (+ ", target " (+ (int_to_string target) (+ ", slot " (+ (int_to_string i)
+                        (+ ", plan 0x" (+ (hexadecimal old) (+ ", actual 0x" (+ (hexadecimal tags) ")"))))))))))
+                    return (refused state retained message)
+                }
+                set state (changed_tag state plan i tags)
+            }
+            set value (slot 8 value.origin value.fields_present value.fields value.shape value.scalar_tags payload)
+            (array_set values i value)
+            set state (facts state state.plans state.changed true)
+        }
+        let optional: bool = (optional_pair value.kind original.kind)
+        if (and (not scalar) (and optional (!= value.kind original.kind))) {
+            if (<= target state.shapes.context.offset) {
+                return (refused state retained (+ "I cannot yet widen tagged scalar storage on a backward stack edge in function " (int_to_string function_index)))
+            }
+            set value (slot 8 value.origin value.fields_present value.fields value.shape value.scalar_tags payload)
+            (array_set values i value)
+            let typed: shapes.Result = (shapes.constrain_type state.shapes value.shape 6)
+            set state (context state typed.state)
+            if (== typed.value 0) { return (outcome state retained false) }
+            set state (facts state state.plans state.changed true)
+        }
+        let record: bool = (and (== value.kind 4) (== original.kind 4))
+        if record {
+            let fields: Fields = (merged_fields value original width true)
+            if (not fields.accepted) { return (refused state retained (+ "I found incompatible aggregate fields at a join in function " (int_to_string function_index))) }
+            let typed: shapes.Result = (shapes.record_return state.shapes original.shape value.shape (field_words original.fields) (field_words fields.values))
+            set state (context state typed.state)
+            if (== typed.value 0) { return (outcome state retained false) }
+            set value (slot value.kind value.origin true fields.values value.shape value.scalar_tags payload)
+            (array_set values i value)
+        }
+        let unresolved: bool = (or (== value.kind 2) (== original.kind 2))
+        if (and state.shapes.context.tracked (not record)) {
+            let directed: bool = (or optional (or scalar unresolved))
+            let result: graph.Step = (cond (directed (graph.convert state.shapes.graph original.shape value.shape)) (else (graph.unify state.shapes.graph value.shape original.shape)))
+            set state (graph_state state result)
+            if (== result.number 0) {
+                return (refused state retained (+ "I found incompatible shapes at a join in function " (+ (int_to_string function_index) (+ ": " (graph.error state.shapes.graph)))))
+            }
+        }
+        set value (slot value.kind value.origin value.fields_present value.fields value.shape tags payload)
+        (array_set values i value)
+        let origin: int = (cond ((== value.origin original.origin) original.origin) (else -1))
+        if (== value.kind 2) {
+            set value (slot original.kind origin original.fields_present original.fields value.shape original.scalar_tags payload)
+            (array_set values i value)
+        } else {
+            set value (slot value.kind origin value.fields_present value.fields value.shape tags payload)
+            (array_set values i value)
+            if (!= original.kind 2) {
+                if (and (!= value.kind original.kind) (not (or optional scalar))) {
+                    let message: string = (+ "I found incompatible stack kinds at a join in function " (+ (int_to_string function_index)
+                        (+ " after offset " (+ (int_to_string state.shapes.context.offset) (+ " (slot " (+ (int_to_string i)
+                        (+ ": " (+ (int_to_string value.kind) (+ " versus " (+ (int_to_string original.kind) ")"))))))))))
+                    return (refused state retained message)
+                }
+                if (or (== original.kind 4) (or (== original.kind 6) (== original.kind 7))) {
+                    let fields: Fields = (merged_fields value original width (== original.kind 4))
+                    set value (slot value.kind value.origin true fields.values value.shape tags payload)
+                    (array_set values i value)
+                    if (not fields.accepted) { return (refused state retained (+ "I found incompatible aggregate fields at a join in function " (int_to_string function_index))) }
+                }
+            }
+        }
+    }
+    return (outcome state retained true)
+}
+shadow merge {
+    let first: Step = (merge (sample) (empty) 17 30 [(stack.slot 0 3)] 0)
+    assert first.valid assert first.accepted assert first.retained.established
+    let second: Step = (merge first.state first.retained 17 30 [(stack.slot 0 4)] 0)
+    assert second.accepted assert (== (at second.retained.slots 0).origin -1)
+    let refused_height: Step = (merge second.state second.retained 17 30 [] 0)
+    assert (not refused_height.accepted)
+    assert (== refused_height.state.shapes.error "I found incompatible stack heights at a join in function 17")
+    let zero: Step = (merge (sample) (empty) 0 0 [] 0)
+    assert zero.accepted assert zero.retained.established assert (== zero.retained.height 0)
+}

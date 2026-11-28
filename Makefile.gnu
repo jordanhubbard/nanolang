@@ -8565,6 +8565,12 @@ test-nanolang-translator-representation-stack: $(COMPILER_C) nano_virt nano_vm n
 
 test-units: test-nanolang-translator-representation-stack
 
+.PHONY: test-nanolang-translator-representation-joins
+test-nanolang-translator-representation-joins: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_nanolang_translator_representation_joins
+
+test-units: test-nanolang-translator-representation-joins
+
 # I require an explicit real NanoLang compiler for my five-route splitter test.
 .PHONY: test-compiler-line-splitting
 test-compiler-line-splitting: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
@@ -8592,3 +8598,15 @@ test-gc-registry-working-set-sanitizers: | $(OBJ_DIR)
 	ASAN_OPTIONS=detect_leaks=$(if $(filter Darwin,$(UNAME_S)),0,1) $(OBJ_DIR)/test_gc_registry_growth_failure_sanitized
 
 test-units: test-gc-registry-working-set test-gc-registry-working-set-sanitizers
+
+.PHONY: test-nanovirt-qualified-record-projection
+test-nanovirt-qualified-record-projection: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_nanovirt_qualified_record_projection
+
+test-units: test-nanovirt-qualified-record-projection
+
+.PHONY: test-nvm2c-representation-join-allocation
+test-nvm2c-representation-join-allocation: $(COMPILER_C)
+	python3 -m unittest -v tests.test_nvm2c_representation_join_allocation
+
+test-units: test-nvm2c-representation-join-allocation
