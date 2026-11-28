@@ -79,32 +79,37 @@ class ShapeFlowScaling(unittest.TestCase):
         return result
 
     def variants(self, variant, expected):
+        # My graph includes physical IDs. I compare each host with its own
+        # unchanged helper, including its compiler's argument evaluation order.
+        previous = self.variants('previous', 7) if variant in ('current', 'collisions') else None
         source = self.work / (variant + '.c')
         source.write_text(self.source(variant))
         results = []
         for mode, flags in [('ordinary', ['-O2']), ('sanitized', ['-O1', '-g',
                 '-fsanitize=address,undefined', '-fno-sanitize-recover=all'])]:
             with self.subTest(mode=mode):
+                label = variant + '-' + mode
                 binary = self.work / (variant + '-' + mode)
-                self.command(mode + '-compile', [*shlex.split(os.environ.get('CC', 'cc')),
+                self.command(label + '-compile', [*shlex.split(os.environ.get('CC', 'cc')),
                     '-std=c11', '-Wall', '-Wextra', '-Werror', *flags,
                     '-I' + str(ROOT / 'src/nanoisa'), source, '-o', binary])
                 if expected == 'assertion':
-                    self.command(mode + '-mutation', [binary], 'assertion')
+                    self.command(label + '-mutation', [binary], 'assertion')
                     continue
-                functional = self.command(mode + '-functional', [binary])
-                strict = self.command(mode + '-strict', [binary, '--strict'], expected)
+                functional = self.command(label + '-functional', [binary])
+                strict = self.command(label + '-strict', [binary, '--strict'], expected)
                 self.assertEqual(functional.stdout, strict.stdout)
                 rows = [json.loads(line) for line in functional.stdout.splitlines()]
                 self.assertEqual(rows[0]['semantic_cases'], 1800)
-                self.assertEqual(rows[0]['digest'], '8de404ed88f26dc8')
+                if previous is not None:
+                    self.assertEqual(rows[0], previous[0])
                 self.assertEqual([r['nodes'] for r in rows[1:]], [32, 128, 1024, 4096, 128, 128])
                 self.assertEqual([r['cycle'] for r in rows[1:]], [0, 0, 0, 0, 1, 0])
                 self.assertEqual([r['wide'] for r in rows[1:]], [0, 0, 0, 0, 0, 1])
                 print(variant, mode, functional.stdout.decode(), end='')
                 results.append(rows)
                 if variant in ('current', 'collisions'):
-                    faults = self.command(mode + '-faults', [binary, '--faults'])
+                    faults = self.command(label + '-faults', [binary, '--faults'])
                     data = [json.loads(line) for line in faults.stdout.splitlines()]
                     self.assertEqual(data[:7], rows)
                     self.assertEqual([r['failure'] for r in data[7:]], [1, 2, 3, 4, 5])
