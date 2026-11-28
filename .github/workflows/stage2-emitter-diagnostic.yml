@@ -26,7 +26,7 @@ jobs:
         run: test '${{ runner.environment }}' = github-hosted
       - uses: actions/checkout@v4
         with:
-          ref: 54a43a9af9917428a6b9840c7a44cf789eaf227d
+          ref: f8e7b78334281485c3b48765c835b8bda218c975
           filter: blob:none
           sparse-checkout-cone-mode: false
           sparse-checkout: |
