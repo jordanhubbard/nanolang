@@ -1,0 +1,5 @@
+{
+  "positive_exit": 0,
+  "changed_manifest_exit": 1,
+  "changed_manifest_refused_before_unpacking": true
+}
