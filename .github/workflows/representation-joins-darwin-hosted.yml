@@ -1,0 +1,156 @@
+name: Pinned Darwin representation joins and original prerequisites
+
+on:
+  push:
+    branches: [work/5.1-representation-joins-darwin-hosted-20261128]
+    paths:
+      - '.github/workflows/representation-joins-darwin-hosted.yml'
+      - 'scripts/ci_representation_joins_darwin_*.py'
+      - 'scripts/ci_original_qualification_policy.py'
+      - 'tests/test_ci_representation_joins_darwin_observer.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  PRODUCT_REVISION: 8e422db88ba093c7d277e93b1e120c236acd85b9
+  OBSERVER_REVISION: ${{ github.sha }}
+  CC: cc
+
+jobs:
+  original-component:
+    runs-on: xcode-27
+    timeout-minutes: 120
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Require my actual hosted Darwin ARM64 worker
+        run: |
+          test '${{ runner.environment }}' = github-hosted
+          test '${{ runner.arch }}' = ARM64
+          test "$(uname -m)" = arm64
+          echo /usr/bin >> "$GITHUB_PATH"
+      - name: Check out my separate observer
+        uses: actions/checkout@v4
+        with:
+          path: observer
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /scripts/
+            /tests/test_ci_representation_joins_darwin_observer.py
+            /.github/workflows/representation-joins-darwin-hosted.yml
+      - name: Check out my exact component
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.PRODUCT_REVISION }}
+          path: product
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/docs/evidence/
+      - name: Install my existing Darwin prerequisites
+        working-directory: product
+        run: |
+          ./scripts/ci-brew-install.sh pkg-config openssl sqlite sdl2 sdl2_image sdl2_mixer sdl2_ttf utf8proc
+      - name: Select my original pinned Darwin compiler and SDK
+        working-directory: product
+        run: python3 scripts/ci_select_capture_clang.py
+      - name: Install my observer Python dependency
+        run: |
+          python3 -c 'import yaml' 2>/dev/null && exit 0
+          python3 -m pip install --user pyyaml \
+            || python3 -m pip install --user --break-system-packages pyyaml
+          python3 -c 'import yaml'
+      - name: Check my observer before restoring or executing a product
+        run: |
+          mkdir evidence
+          test "$(git -C product rev-parse HEAD)" = "$PRODUCT_REVISION"
+          test "$(git -C observer rev-parse HEAD)" = "$OBSERVER_REVISION"
+          python3 -m unittest discover -s observer/tests -p test_ci_representation_joins_darwin_observer.py -v \
+            > evidence/observer-controls.stdout 2> evidence/observer-controls.stderr
+      - name: Retain my original qualified producer evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir evidence/qualified
+          gh api 'repos/jordanhubbard/nanolang/actions/runs/46119624230/artifacts?per_page=100' \
+            > evidence/qualified/artifacts-current.json
+          gh api repos/jordanhubbard/nanolang/actions/jobs/140901037222 \
+            > evidence/qualified/darwin-bootstrap.job.json
+          gh api repos/jordanhubbard/nanolang/actions/artifacts/15254109040/zip \
+            > evidence/qualified/darwin-bootstrap.zip
+          git -C product -c gc.auto=0 fetch --filter=blob:none --depth=1 origin \
+            ddd3b5a4ff35678d1906c07c08fc6bbc39b041de 6e09c07a9f1651294e4669282cdc17ee14126775
+          python3 observer/scripts/ci_representation_joins_qualified_linux.py \
+            --root evidence/qualified --repo product --cohort darwin-bootstrap \
+            > evidence/qualified/independent-reader.stdout 2> evidence/qualified/independent-reader.stderr
+      - name: Restore my actual qualified Stage2 and recorded closure
+        run: |
+          python3 observer/scripts/ci_representation_joins_darwin_restore.py \
+            --archive evidence/qualified/darwin-bootstrap.zip --workspace "$GITHUB_WORKSPACE" \
+            --repo product --admission evidence/producer-admission.json
+      - name: Build my fresh component tools and original C shape suite
+        working-directory: product
+        timeout-minutes: 25
+        run: |
+          make -f Makefile.gnu -j2 CC=cc bin/nanoc_c nano_virt nano_vm nvm2c \
+            nvm2c-runtime test-nvm2c-shapes > ../evidence/build.stdout 2> ../evidence/build.stderr
+      - name: Execute all33 original and new component methods
+        timeout-minutes: 95
+        env:
+          NANOLANG_TRANSLATOR_SOURCE_COMPILER: ${{ github.workspace }}/bin/nanoc_stage2
+          NANO_MODULE_PATH: ${{ github.workspace }}/product/modules
+        run: |
+          python3 observer/scripts/ci_representation_joins_darwin_qualification.py \
+            --product "$GITHUB_WORKSPACE/product" --observations "$GITHUB_WORKSPACE/evidence/component" \
+            --producer-admission "$GITHUB_WORKSPACE/evidence/producer-admission.json" \
+            --qualified-report "$GITHUB_WORKSPACE/evidence/qualified/verified-darwin-bootstrap.json" \
+            > evidence/controller.stdout 2> evidence/controller.stderr
+      - name: Preserve my actual guarded input bytes
+        if: always()
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib,json,shutil
+          sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+          result=Path('evidence/component/retained-component-result.json')
+          out=Path('evidence/guarded-inputs');out.mkdir(parents=True,exist_ok=True)
+          records=[]
+          if result.exists():
+              q=json.loads(result.read_text())
+              for category in ['source_before','tools_before','images_before','qualified_sources_after','qualified_tools_after']:
+                  for name,h in q.get(category,{}).items():
+                      path=Path(name);path=path if path.is_absolute() else Path('product')/path
+                      if not path.is_file():
+                          records.append(dict(category=category,original=str(path),expected_sha256=h,missing=True))
+                          continue
+                      actual=sha(path)
+                      destination=out/actual
+                      if not destination.exists():shutil.copyfile(path,destination)
+                      assert sha(destination)==actual
+                      records.append(dict(category=category,original=str(path),retained=str(destination),sha256=actual,expected_sha256=h,matches=actual==h))
+          Path('evidence/guarded-inputs.json').write_text(json.dumps(records,indent=2)+'\n')
+          PY
+      - name: Verify my final source identities
+        if: always()
+        run: |
+          git -C product diff --exit-code HEAD
+          git -C observer diff --exit-code HEAD
+      - name: Retain my full component observations
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: representation-joins-darwin-${{ env.PRODUCT_REVISION }}-${{ github.sha }}
+          path: |
+            evidence/
+            observer/scripts/ci_representation_joins_*.py
+            observer/scripts/ci_original_qualification_policy.py
+            observer/tests/test_ci_representation_joins_darwin_observer.py
+            observer/.github/workflows/representation-joins-darwin-hosted.yml
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
