@@ -1,0 +1,9 @@
+# My private caller-root ARM prerequisite qualification
+
+At exact source54a43a9af9917428a6b9840c7a44cf789eaf227d I pass all17 original bootstrap commands at1800/30 in1195.732seconds. Raw Stage1/Stage2 are byte-identical1064608-byte modules, SHA256f0a6609eae2d9b81d70b5b8345ab096339e0f7b6e521099cf3ac75f1e2e24abe. Actual installed ARM ELF Stage2 is SHA256bccfa964cb5d2cc8652bb456592c00f74f7bcb330725631e3f34e84ecd3a803a; installed identity and the no-C-seed probe pass. I retain all17 logs,1383 recorded source hashes, six host libraries and actual selected tools/witnesses.
+
+All36 native and12 emitter methods pass at unchanged limits, without skips. The whole phase takes306.285seconds; both per-compiler setup300 and ordinary shadow10 limits remain. Final ordinary caller-root/GC/shutdown/lifetime/five-route gates pass in36.970seconds. Ten strict caller cases match84 exact reclaims, and six declaration allocation failures recover. I execute this new target once here, ordinarily; earlier isolated sanitizer evidence remains separate. Normal/sanitized GC working-set controls and all nine split-lifetime cases pass. Both original line-split/native-length-work methods pass.
+
+I preserve admission/renewal and conservative watchdog observations, all complete phase records/streams/products and immutable source identities. Before/after source/tool/witness guards match. My reader verifies the actual ARM image, recorded source bytes against Git, every selected count and product identity without executing products. Run `python3 verify.py --workspace /path/on/large/volume --repo /path/to/nanolang`; fetch source54a first if absent.
+
+This prerequisite admits the separately retained original20-method consumer run. It does not replace a failed Linux emitter gate, enable default/full-graph custody, complete the pure NanoLang translator/cutover or satisfy all69 release requirements. I establish no controlled speedup or historical timeout cause.

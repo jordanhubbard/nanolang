@@ -1,0 +1,42 @@
+{
+  "source_head": "54a43a9af9917428a6b9840c7a44cf789eaf227d",
+  "whole_release": false,
+  "capsules": [
+    {
+      "capsule": "original-cohorts-46099629716/linux-bootstrap",
+      "manifest_sha256": "4826d3beae8b8b8c30f6325719f677935f5caac466b7355a1ac35ef73b1718c8",
+      "independent_reader_passed": true,
+      "changed_manifest_refused": true
+    },
+    {
+      "capsule": "original-cohorts-46099629716/darwin-bootstrap",
+      "manifest_sha256": "bead30a5ca7ad96f6cfbed18ad62ae61f9be3d0ea183f80f43857be659105ee9",
+      "independent_reader_passed": true,
+      "changed_manifest_refused": true
+    },
+    {
+      "capsule": "original-cohorts-46099629716/linux-cache",
+      "manifest_sha256": "1a372a630223fef2041ae874f9f6e928c04de29bf3dea9b21eae308fb07329ed",
+      "independent_reader_passed": true,
+      "changed_manifest_refused": true
+    },
+    {
+      "capsule": "current-arm-original-qualification",
+      "manifest_sha256": "cc74ad2109d32ed3c027a0b9b76a4252f7fae52fe7119721c1741c4a1bca9b26",
+      "independent_reader_passed": true,
+      "changed_manifest_refused": true
+    },
+    {
+      "capsule": "current-arm-consumer20",
+      "manifest_sha256": "34b344fc9b398818340be3828eea7a2ffece9d0bd4dbecf6134ca508e5fa2e61",
+      "independent_reader_passed": true,
+      "changed_manifest_refused": true
+    },
+    {
+      "capsule": "original-cohorts-46099629716/darwin-cache",
+      "manifest_sha256": "476ea93e89f25adb483bd140854be11a664b4984dc952891bd4806cc80469e76",
+      "independent_reader_passed": true,
+      "changed_manifest_refused": true
+    }
+  ]
+}
