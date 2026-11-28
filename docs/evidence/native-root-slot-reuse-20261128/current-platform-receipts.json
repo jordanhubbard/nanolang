@@ -6,20 +6,39 @@
       "capsule": "original-cohorts-46111643993/linux-cache",
       "manifest_sha256": "7941902df78279894b4280d16e87d15cba2bcb03a9a76f9b8824fcf5c236fafb",
       "independent_reader_passed": true,
-      "changed_manifest_refused": true
+      "changed_manifest_refused": true,
+      "product_gate_passed": true
     },
     {
       "capsule": "original-cohorts-46111643993/darwin-bootstrap",
       "manifest_sha256": "b1aa3c7704a0ee8564a92e3e554650ecc1de81d374d17f4601d8aed02b1ce319",
       "independent_reader_passed": true,
-      "changed_manifest_refused": true
+      "changed_manifest_refused": true,
+      "product_gate_passed": true
+    },
+    {
+      "capsule": "original-cohorts-46111643993/linux-bootstrap",
+      "manifest_sha256": "2646f68dcc4083266df261608f308cc73357f8466f7f61e67f0fc8e6ec41f6ef",
+      "independent_reader_passed": true,
+      "changed_manifest_refused": true,
+      "product_gate_passed": false
     }
   ],
   "pending": [
-    "hosted Linux original bootstrap/native/emitter",
     "hosted Darwin cache/worker",
-    "reserved ARM original17/36/12 plus final regressions",
     "reserved original20 consumers",
     "default custody and all69 release requirements"
+  ],
+  "candidate_accepted": false,
+  "arm_prerequisite": "I independently verify17/36/12, two line methods, four root methods and all final regressions; publication remains separate. The complete20 consumers are running.",
+  "failures": [
+    {
+      "gate": "hosted Linux original native/emitter",
+      "passed_bootstrap_phases": 17,
+      "passed_native_methods": 36,
+      "emitter_methods": 0,
+      "setup_timeout_seconds": 300,
+      "required": "I require a measured correction and fresh full original acceptance. This failed candidate is not qualified."
+    }
   ]
 }
