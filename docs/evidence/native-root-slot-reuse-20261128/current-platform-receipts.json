@@ -22,6 +22,14 @@
       "independent_reader_passed": true,
       "changed_manifest_refused": true,
       "product_gate_passed": false
+    },
+    {
+      "capsule": "current-arm-original-qualification",
+      "manifest_sha256": "313f5e2606636d9074adafabf31d37f7ac80645c7f3d855879a9ebba266e45fc",
+      "independent_reader_passed": true,
+      "changed_manifest_refused": true,
+      "product_gate_passed": true,
+      "scope": "I accept17/36/12 and final regressions; the separate original20 consumers remain pending."
     }
   ],
   "pending": [
@@ -30,7 +38,7 @@
     "default custody and all69 release requirements"
   ],
   "candidate_accepted": false,
-  "arm_prerequisite": "I independently verify17/36/12, two line methods, four root methods and all final regressions; publication remains separate. The complete20 consumers are running.",
+  "arm_prerequisite": "I publish independently verified17/36/12, two line methods, four root methods and all final regressions. The complete20 consumers are running.",
   "failures": [
     {
       "gate": "hosted Linux original native/emitter",
@@ -40,5 +48,14 @@
       "setup_timeout_seconds": 300,
       "required": "I require a measured correction and fresh full original acceptance. This failed candidate is not qualified."
     }
-  ]
+  ],
+  "diagnostic": {
+    "capsule": "stage2-diagnostic-46115582023",
+    "manifest_sha256": "09d2d0385453e5c273d70ee193b899abb2ee5d2bde07f1a6c2a57ad08ff541db",
+    "observer": "5738042adeab1b63675d1d3b4fa25a1ad575554c",
+    "restored_cache_readiness_product_exit": 0,
+    "elapsed_seconds": 236.802539551,
+    "qualification": false,
+    "original_precommand_state_reconstructed": false
+  }
 }
