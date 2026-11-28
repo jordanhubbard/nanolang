@@ -195,7 +195,8 @@ fn mark_origin(s: Frame, origin: int, kind: int) -> Frame {
     if (or (< origin 0) (>= (% origin 65536) (array_length s.locals))) { return s }
     if (== (cast_int (at s.locals origin)) 8) { return s }
     let locals: array<u8> = s.locals
-    (array_set locals origin (cast_u8 kind))
+    let byte_value: u8 = kind
+    (array_set locals origin byte_value)
     return (rebuild s s.shapes s.current s.slots locals s.height)
 }
 shadow mark_origin {
