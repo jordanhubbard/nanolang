@@ -1,0 +1,240 @@
+module nvm2c_representation_stack
+module "src_nano/nvm2c/representation_shapes.nano" as shapes
+module "src_nano/nvm2c/storage_kinds.nano" as kinds
+module "src_nano/nvm2c/carrier_masks.nano" as masks
+
+# I carry classifier storage facts. I grant no module or executable authority.
+# I return updated contexts and mutate owned slot/local buffers like C.
+# My caller copies active cells before retaining a branch stack; field vectors stay read-only.
+pub struct Slot {
+    kind: int, origin: int, fields_present: bool, fields: array<u8>,
+    shape: int, scalar_tags: int, array_payload: int
+}
+pub struct Frame {
+    ready: bool, shapes: shapes.State, capacity: int, current: int,
+    defaults: array<u8>, locals: array<u8>, slots: array<Slot>, height: int
+}
+pub struct Step { valid: bool, accepted: bool, state: Frame, output: Slot }
+
+fn unsigned(value: int, maximum: int) -> bool { return (and (>= value 0) (<= value maximum)) }
+shadow unsigned { assert (unsigned 4294967295 4294967295) assert (not (unsigned -1 255)) assert (not (unsigned 256 255)) }
+
+pub fn slot(kind: int, origin: int) -> Slot {
+    return Slot { kind: kind, origin: origin, fields_present: false, fields: [], shape: 0, scalar_tags: 0, array_payload: 0 }
+}
+shadow slot { let v: Slot = (slot 2 -1) assert (== v.origin -1) assert (not v.fields_present) assert (== v.scalar_tags 0) }
+
+pub fn create(context: shapes.State, capacity: int, current: int, defaults: array<u8>, locals: array<u8>) -> Frame {
+    let ready: bool = (and (and (unsigned capacity 4294967296) (unsigned current 4294967295))
+        (and (<= (array_length defaults) 65535) (<= (array_length locals) 65535)))
+    return Frame { ready: ready, shapes: context, capacity: capacity, current: current,
+        defaults: defaults, locals: locals, slots: [], height: 0 }
+}
+shadow create {
+    let c: shapes.Context = shapes.Context { tracked: false, generic_array: false, private_map: false, function_index: 0, offset: 0, opcode: 0 }
+    let f: Frame = (create (shapes.create c false "") 0 4294967295 [2] [8])
+    assert f.ready assert (== f.current 4294967295) assert (== (array_length f.slots) 0)
+    assert (not (create f.shapes -1 0 [2] []).ready)
+    assert (create f.shapes 4294967296 0 [] []).ready
+    assert (not (create f.shapes 4294967297 0 [] []).ready)
+}
+fn sample(tracked: bool, opcode: int) -> Frame {
+    let c: shapes.Context = shapes.Context { tracked: tracked, generic_array: false, private_map: false, function_index: 17, offset: 29, opcode: opcode }
+    return (create (shapes.create c false "") 2 0 [2,2] [2,8,9])
+}
+shadow sample { assert (sample true 7).ready assert (sample true 7).shapes.context.tracked assert (== (array_length (sample false 0).defaults) 2) }
+fn rebuild(s: Frame, context: shapes.State, current: int, cells: array<Slot>, locals: array<u8>, height: int) -> Frame {
+    return Frame { ready: s.ready, shapes: context, capacity: s.capacity, current: current,
+        defaults: s.defaults, locals: locals, slots: cells, height: height }
+}
+shadow rebuild {
+    let s: Frame = (sample false 0)
+    let n: Frame = (rebuild s s.shapes 7 s.slots [1] s.height)
+    assert (== n.current 7) assert (== (cast_int (at n.locals 0)) 1) assert (== (cast_int (at s.locals 0)) 2)
+}
+fn config_valid(s: Frame) -> bool {
+    return (and s.ready (and (and (unsigned s.capacity 4294967296) (unsigned s.current 4294967295))
+        (and (and (unsigned s.height 2147483647) (and (<= s.height (array_length s.slots)) (<= s.height s.capacity)))
+            (and (unsigned s.shapes.context.function_index 4294967295)
+                (and (unsigned s.shapes.context.offset 4294967295) (unsigned s.shapes.context.opcode 255))))))
+}
+shadow config_valid { assert (config_valid (sample true 255)) assert (not (config_valid (sample false 256))) }
+fn slot_valid(value: Slot, width: int) -> bool {
+    if (not (and (unsigned value.kind 255) (and (>= value.origin -2147483648) (<= value.origin 2147483647)))) { return false }
+    if (not (and (unsigned value.shape 4294967295) (and (unsigned value.scalar_tags 65535) (unsigned value.array_payload 255)))) { return false }
+    if value.fields_present { return (== (array_length value.fields) width) }
+    return (== (array_length value.fields) 0)
+}
+shadow slot_valid { assert (slot_valid (slot 255 -2147483648) 2) assert (not (slot_valid (slot 256 0) 2)) }
+fn result(s: Frame, accepted: bool, output: Slot) -> Step { return Step { valid: true, accepted: accepted, state: s, output: output } }
+shadow result { assert (result (sample false 0) true (slot 2 -1)).accepted }
+fn invalid(s: Frame, output: Slot) -> Step { return Step { valid: false, accepted: false, state: s, output: output } }
+shadow invalid { let r: Step = (invalid (sample false 0) (slot 7 11)) assert (not r.valid) assert (== r.output.origin 11) }
+fn failed(s: Frame, message: string) -> Frame {
+    let text: string = (cond (s.shapes.failed s.shapes.error) (else message))
+    let context: shapes.State = shapes.State { context: s.shapes.context, graph: s.shapes.graph, failed: true, error: text }
+    return (rebuild s context s.current s.slots s.locals s.height)
+}
+shadow failed { let s: Frame = (failed (sample false 0) "first") assert (== (failed s "second").shapes.error "first") }
+
+pub fn push_slot(s: Frame, function_index: int, value: Slot) -> Step {
+    if (not (and (config_valid s) (and (unsigned function_index 4294967295) (slot_valid value (array_length s.defaults))))) { return (invalid s (slot 2 -1)) }
+    if (>= s.height s.capacity) {
+        return (result (failed s (+ "function " (+ (int_to_string function_index) ": operand stack overflow"))) false (slot 2 -1))
+    }
+    let mut context: shapes.State = s.shapes
+    let mut current: int = s.current
+    let mut id: int = value.shape
+    if (== id 0) {
+        let created: shapes.Result = (shapes.variable context current)
+        set context created.state set id created.value
+        if context.context.tracked { set current created.value }
+    }
+    let opcode: int = context.context.opcode
+    let scalar: bool = (kinds.classify value.kind).scalar
+    let field: bool = (or (== opcode 252) (and scalar (or (== opcode 16) (or (== opcode 7) (== opcode 244)))))
+    let constrained: shapes.Result = (cond (field (shapes.field_kind context id value.kind)) (else (shapes.constrain_kind context id value.kind)))
+    set context constrained.state
+    let mut state: Frame = (rebuild s context current s.slots s.locals s.height)
+    if (== constrained.value 0) { return (result state false (slot 2 -1)) }
+    let mut tags: int = value.scalar_tags
+    if (and (== tags 0) (!= value.kind 2)) { set tags (masks.scalar_tags value.kind).tags }
+    if (and (== value.kind 8) (masks.classify tags).boxed) {
+        let boxed: shapes.Result = (shapes.carrier_box context id tags)
+        set context boxed.state
+        set state (rebuild state context current state.slots state.locals state.height)
+        if (== boxed.value 0) { return (result state false (slot 2 -1)) }
+    }
+    let fields: array<u8> = (cond (value.fields_present value.fields) (else state.defaults))
+    let stored: Slot = Slot { kind: value.kind, origin: value.origin, fields_present: true, fields: fields,
+        shape: id, scalar_tags: tags, array_payload: value.array_payload }
+    let mut cells: array<Slot> = state.slots
+    if (< state.height (array_length cells)) { (array_set cells state.height stored) }
+    else { set cells (array_push cells stored) }
+    return (result (rebuild state context current cells state.locals (+ state.height 1)) true (slot 2 -1))
+}
+shadow push_slot {
+    let original: Frame = (sample true 0)
+    let first: Step = (push_slot original 17 (slot 0 -1))
+    assert first.accepted assert (== first.state.current 1) assert (== original.height 0)
+    assert (== (at first.state.slots 0).scalar_tags 2) assert (at first.state.slots 0).fields_present
+    let conflict: Step = (push_slot first.state 17 (slot 1 -1))
+    assert (not conflict.accepted) assert conflict.state.shapes.failed assert (== (array_length conflict.state.slots) 1)
+    let copied: Step = (push_slot (sample true 7) 17 (slot 0 -1))
+    assert copied.accepted assert (== copied.state.current 1)
+    let untracked: Frame = (create (sample false 0).shapes 1 99 [2] [])
+    let untouched: Step = (push_slot untracked 17 (slot 2 0))
+    assert untouched.accepted assert (== untouched.state.current 99) assert (== (at untouched.state.slots 0).shape 0)
+}
+
+pub fn push(s: Frame, function_index: int, kind: int, origin: int) -> Step {
+    if (not (and (config_valid s) (and (unsigned kind 255) (and (>= origin -2147483648) (<= origin 2147483647))))) { return (invalid s (slot 2 -1)) }
+    let opcode: int = s.shapes.context.opcode
+    let selected: int = (cond ((and (== kind 0) (kinds.boolean_opcode opcode).answer) 9) (else kind))
+    let tags: int = (cond ((== opcode 5) 1) ((or (== opcode 6) (== opcode 143)) 4) ((== opcode 108) 512) (else 0))
+    let value: Slot = Slot { kind: selected, origin: origin, fields_present: false, fields: [], shape: 0, scalar_tags: tags, array_payload: 0 }
+    return (push_slot s function_index value)
+}
+shadow push {
+    let b: Step = (push (sample false 3) 17 0 -1)
+    assert b.accepted assert (== (at b.state.slots 0).kind 9) assert (== (at b.state.slots 0).scalar_tags 16)
+    assert (== (at (push (sample false 5) 17 2 -1).state.slots 0).scalar_tags 1)
+    assert (== (at (push (sample false 6) 17 0 -1).state.slots 0).scalar_tags 4)
+    assert (== (at (push (sample false 108) 17 0 -1).state.slots 0).scalar_tags 512)
+    let full: Frame = (create (sample false 0).shapes 0 0 [] [])
+    let refused: Step = (push full 7 0 0)
+    assert (not refused.accepted) assert (== refused.state.shapes.error "function 7: operand stack overflow")
+}
+
+pub fn pop(s: Frame, function_index: int, previous: Slot) -> Step {
+    if (not (and (config_valid s) (and (unsigned function_index 4294967295) (slot_valid previous (array_length s.defaults))))) { return (invalid s previous) }
+    let count: int = s.height
+    if (== count 0) {
+        return (result (failed s (+ "function " (+ (int_to_string function_index) ": operand stack underflow"))) false previous)
+    }
+    let value: Slot = (at s.slots (- count 1))
+    return (result (rebuild s s.shapes s.current s.slots s.locals (- count 1)) true value)
+}
+shadow pop {
+    let original: Frame = (sample false 0)
+    let refused: Step = (pop original 7 (slot 11 123))
+    assert (not refused.accepted) assert (== refused.output.origin 123) assert (== refused.output.kind 11)
+    assert (== refused.state.shapes.error "function 7: operand stack underflow")
+    let filled: Step = (push original 17 0 2)
+    let popped: Step = (pop filled.state 17 (slot 2 -1))
+    assert popped.accepted assert (== popped.output.origin 2) assert (== popped.state.height 0)
+    assert (== filled.state.height 1)
+}
+
+# I copy just the active stack, as my classifier's branch snapshots do.
+pub fn copy_cells(s: Frame) -> Frame {
+    let cells: array<Slot> = (array_slice s.slots 0 s.height)
+    return (rebuild s s.shapes s.current cells s.locals s.height)
+}
+shadow copy_cells {
+    let filled: Step = (push (sample false 0) 17 0 0)
+    let saved: Frame = (copy_cells filled.state)
+    let popped: Step = (pop filled.state 17 (slot 2 -1))
+    let changed: Step = (push popped.state 17 1 0)
+    assert changed.accepted assert (== (at changed.state.slots 0).kind 1)
+    assert (== (at saved.slots 0).kind 0) assert (== saved.height 1)
+}
+
+# I refuse an out-of-bounds C write domain before reproducing its uint16 cast.
+fn origin_valid(s: Frame, origin: int) -> bool {
+    if (< origin 0) { return true }
+    let index: int = (% origin 65536)
+    return (or (>= index (array_length s.locals)) (< origin (array_length s.locals)))
+}
+shadow origin_valid {
+    let s: Frame = (sample false 0)
+    assert (origin_valid s -2147483648) assert (origin_valid s 2) assert (origin_valid s 65535)
+    assert (not (origin_valid s 65536)) assert (origin_valid s 65539)
+}
+fn mark_origin(s: Frame, origin: int, kind: int) -> Frame {
+    if (or (< origin 0) (>= (% origin 65536) (array_length s.locals))) { return s }
+    if (== (cast_int (at s.locals origin)) 8) { return s }
+    let locals: array<u8> = s.locals
+    (array_set locals origin (cast_u8 kind))
+    return (rebuild s s.shapes s.current s.slots locals s.height)
+}
+shadow mark_origin {
+    let s: Frame = (sample false 0)
+    let r: Frame = (mark_origin s 0 1)
+    assert (== (cast_int (at r.locals 0)) 1) assert (== (cast_int (at s.locals 0)) 1)
+    assert (== (cast_int (at (mark_origin s 1 1).locals 1)) 8)
+}
+
+pub fn string_operand(s: Frame, value: Slot) -> Step {
+    if (not (and (config_valid s) (and (slot_valid value (array_length s.defaults)) (origin_valid s value.origin)))) { return (invalid s (slot 2 -1)) }
+    let state: Frame = (mark_origin s value.origin 1)
+    if (!= value.kind 2) { return (result state true (slot 2 -1)) }
+    let inferred: shapes.Result = (shapes.field_kind state.shapes value.shape 1)
+    return (result (rebuild state inferred.state state.current state.slots state.locals state.height) (!= inferred.value 0) (slot 2 -1))
+}
+shadow string_operand {
+    let original: Frame = (sample false 0)
+    let observed: Step = (string_operand original (slot 8 0))
+    assert observed.accepted assert (== (cast_int (at observed.state.locals 0)) 1) assert (== (cast_int (at original.locals 0)) 1)
+    assert (== (cast_int (at (string_operand original (slot 2 1)).state.locals 1)) 8)
+    assert (not (string_operand original (slot 2 65536)).valid)
+}
+
+pub fn integer_operand(s: Frame, value: Slot) -> Step {
+    if (not (and (config_valid s) (and (slot_valid value (array_length s.defaults)) (origin_valid s value.origin)))) { return (invalid s (slot 2 -1)) }
+    let state: Frame = (mark_origin s value.origin 0)
+    if (== value.kind 2) {
+        let inferred: shapes.Result = (shapes.field_kind state.shapes value.shape 0)
+        return (result (rebuild state inferred.state state.current state.slots state.locals state.height) (!= inferred.value 0) (slot 2 -1))
+    }
+    if (or (== value.kind 0) (== value.kind 8)) { return (result state true (slot 2 -1)) }
+    return (result (failed state "I require integer operands for typed I64 operations") false (slot 2 -1))
+}
+shadow integer_operand {
+    let original: Frame = (sample false 0)
+    let wrong: Step = (integer_operand original (slot 11 0))
+    assert (not wrong.accepted) assert (== (cast_int (at wrong.state.locals 0)) 0) assert (== (cast_int (at original.locals 0)) 0)
+    assert (== wrong.state.shapes.error "I require integer operands for typed I64 operations")
+    assert (integer_operand original (slot 8 1)).accepted
+    assert (== (cast_int (at (integer_operand original (slot 8 1)).state.locals 1)) 8)
+}
