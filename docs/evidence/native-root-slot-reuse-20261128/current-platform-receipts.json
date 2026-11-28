@@ -86,7 +86,12 @@
     "focused_linux_darwin_passed": true,
     "original_run": 46119624230,
     "original_gates_passed": false,
-    "arm_native_consumer_invocation_started": false,
-    "candidate_accepted": false
+    "arm_native_consumer_invocation_started": true,
+    "candidate_accepted": false,
+    "hosted_arm_run": 46121202196,
+    "hosted_arm_job": 140905887981,
+    "hosted_arm_observer": "2f748c7df01b4521ba4b579a14f4863c5cef4cc4",
+    "local_arm_invocation_started": false,
+    "hosted_arm_terminal_qualification_passed": false
   }
 }
